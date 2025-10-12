@@ -48,7 +48,8 @@ The platform allows users to **offer** or **request** rides, helping them save m
 
 ## 🧑‍💻 Author
 
-Antonio Jesús
-📍 Huelva, Spain
-💼 Student of Web Application Development (2º DAW)
-📧 Contact: (add your email here)
+**Antonio Jesús**
+- 📍 Huelva, Spain
+- 💼 Student of Web Application Development (2º DAW)
+- 📧 Contact: antoniojesusgonzalezdomingo4@gmail.com
+- 💻 Web: antoniojesusportfolio.netlify.app
