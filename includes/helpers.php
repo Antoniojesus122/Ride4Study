@@ -63,4 +63,28 @@ function show_flash_message() {
         echo "<div class='p-4 mb-4 rounded-lg $class'>{$msg['text']}</div>";
     }
 }
+
+/**
+ * Formatear tiempo transcurrido
+ * @param int $timestamp
+ * @return string
+ */
+function format_time_ago($timestamp) {
+    $diff = time() - $timestamp;
+    
+    if ($diff < 60) {
+        return "Ahora mismo";
+    } elseif ($diff < 3600) {
+        $mins = round($diff / 60);
+        return $mins . " min" . ($mins != 1 ? "s" : "");
+    } elseif ($diff < 86400) {
+        $hours = round($diff / 3600);
+        return $hours . " h" . ($hours != 1 ? "s" : "");
+    } elseif ($diff < 604800) {
+        $days = round($diff / 86400);
+        return $days . " día" . ($days != 1 ? "s" : "");
+    } else {
+        return date("d/m/Y", $timestamp);
+    }
+}
 ?>

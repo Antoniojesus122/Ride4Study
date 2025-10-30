@@ -49,6 +49,10 @@ try {
     ";
     $params = [];
 
+  // Excluir los anuncios del propio usuario (mostrar solo anuncios de otros usuarios)
+  $query .= " AND a.idUsuario != ?";
+  $params[] = $userId;
+
     // Añadir filtros si están establecidos
     if (!empty($origen)) {
         $query .= " AND a.origen = ?";
@@ -105,7 +109,7 @@ try {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mi Dashboard - Ride4Study</title>
+  <title>Dashboard - Ride4Study</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -123,6 +127,7 @@ try {
     }
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="../assets/js/anuncio-popup.js" defer></script>
 </head>
 <body class="min-h-screen bg-background">
 
@@ -255,9 +260,14 @@ try {
                         </div>
                       </div>
                     </div>
-                    <a href="#" class="px-4 py-2 bg-primary text-text text-sm font-medium rounded-lg hover:bg-hover transition-colors">
-                      Contactar
-                    </a>
+                    <div class="flex items-center gap-2">
+                      <button onclick="showAnuncioPopup(<?= $anuncio['idAnuncio'] ?>)" class="px-4 py-2 bg-background text-text text-sm font-medium rounded-lg border border-gray-200 hover:border-primary/20 transition-colors">
+                        Ver detalles
+                      </button>
+                      <a href="#" class="px-4 py-2 bg-primary text-text text-sm font-medium rounded-lg hover:bg-hover transition-colors">
+                        Contactar
+                      </a>
+                    </div>
                   </div>
                 </div>
               <?php endforeach; ?>

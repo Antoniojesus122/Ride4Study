@@ -206,14 +206,14 @@ if (isset($_SESSION['user_id'])) {
       require_once __DIR__ . '/includes/db.php';
       try {
           $stmt = $pdo->query("
-              SELECT a.idAnuncio, a.tipo, a.horaSalida, a.precio, 
+              SELECT a.idAnuncio, a.tipo, a.horaSalida, a.fechaSalida, a.precio, 
                      lo.nombreLocalidad AS origen, ld.nombreLocalidad AS destino,
                      u.nombre AS nombreUsuario
               FROM anuncios a
               JOIN usuarios u ON a.idUsuario = u.idUsuario
               JOIN localidades lo ON a.origen = lo.idLocalidad
               JOIN localidades ld ON a.destino = ld.idLocalidad
-              ORDER BY a.fechaPublicacion DESC
+              ORDER BY a.fechaSalida DESC, a.horaSalida ASC
               LIMIT 6
           ");
           $rides = $stmt->fetchAll();
@@ -235,15 +235,15 @@ if (isset($_SESSION['user_id'])) {
               </div>
               <h3 class="font-bold text-lg mb-2"><?= htmlspecialchars($ride['origen']) ?> → <?= htmlspecialchars($ride['destino']) ?></h3>
               <div class="flex justify-between text-sm text-gray-600 mb-3">
-                <span><?= date('d/m/Y', strtotime($ride['fechaPublicacion'])) ?></span>
-                <span><?= substr($ride['horaSalida'], 0, 5) ?></span>
+                <span><i class="far fa-calendar text-primary/80 mr-2"></i><?= date('d/m/Y', strtotime($ride['fechaSalida'])) ?></span>
+                <span><i class="far fa-clock text-primary/80 mr-2"></i><?= substr($ride['horaSalida'], 0, 5) ?> h</span>
               </div>
               <div class="flex justify-between items-center">
                 <p class="font-bold">
-                  <?php if ($ride['precio'] == 0): ?>
+                  <?php if (!$ride['precio'] || $ride['precio'] == 0): ?>
                     <span class="text-green-600">Gratis</span>
                   <?php else: ?>
-                    <span class="text-blue-600"><?= number_format($ride['precio'], 2) ?> €</span>
+                    <span class="text-hover"><?= number_format($ride['precio'], 2) ?> €</span>
                   <?php endif; ?>
                 </p>
                 <a href="./public/login.php" class="text-sm text-primary font-medium hover:underline">Contactar</a>
