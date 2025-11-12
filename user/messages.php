@@ -1,227 +1,261 @@
 <?php
-require_once '../includes/auth.php';
-require_once '../includes/db.php';
-require_once '../includes/helpers.php';
+session_start();
 
-// Verificar si el usuario está autenticado
-if (!isset($_SESSION['idUsuario'])) {
-    header('Location: /public/login.php');
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
     exit;
 }
 
-$idUsuario = $_SESSION['idUsuario'];
+require_once __DIR__ . '/../includes/db.php';
+$userId = $_SESSION['user_id'];
 
-// Obtener lista de conversaciones
-$query = "SELECT DISTINCT 
-          u.idUsuario, u.nombre, u.apellidos, u.email, u.foto_perfil,
-          (SELECT m.mensaje 
-           FROM messages m 
-           WHERE (m.idEmisor = u.idUsuario AND m.idReceptor = :idUsuario)
-           OR (m.idEmisor = :idUsuario AND m.idReceptor = u.idUsuario)
-           ORDER BY m.fechaCreacion DESC 
-           LIMIT 1) as last_message,
-          (SELECT m.fechaCreacion 
-           FROM messages m 
-           WHERE (m.idEmisor = u.idUsuario AND m.idReceptor = :idUsuario)
-           OR (m.idEmisor = :idUsuario AND m.idReceptor = u.idUsuario)
-           ORDER BY m.fechaCreacion DESC 
-           LIMIT 1) as last_message_time,
-          (SELECT COUNT(*) 
-           FROM messages m 
-           WHERE m.idEmisor = u.idUsuario 
-           AND m.idReceptor = :idUsuario 
-           AND m.leido = 0) as unread_count
-          FROM usuarios u
-          INNER JOIN messages m ON (m.idEmisor = u.idUsuario AND m.idReceptor = :idUsuario)
-          OR (m.idEmisor = :idUsuario AND m.idReceptor = u.idUsuario)
-          WHERE u.idUsuario != :idUsuario
-          GROUP BY u.idUsuario
-          ORDER BY last_message_time DESC";
+try {
+    // Obtener datos del usuario actual
+    $stmtUser = $pdo->prepare("SELECT nombre, correo, foto_perfil FROM usuarios WHERE idUsuario = ?");
+    $stmtUser->execute([$userId]);
+    $user = $stmtUser->fetch();
+    if (!$user) { session_destroy(); header('Location: ../index.php'); exit; }
 
-$stmt = $pdo->prepare($query);
-$stmt->execute([':user_id' => $user_id]);
-$conversations = $stmt->fetchAll();
+    // Obtener la lista de conversaciones existentes
+    $stmtConversations = $pdo->prepare("
+        SELECT u.idUsuario, u.nombre, u.foto_perfil, m.mensaje, m.fechaCreacion
+        FROM mensajes m
+        JOIN usuarios u ON u.idUsuario = IF(m.idEmisor = ?, m.idReceptor, m.idEmisor)
+        WHERE (m.idEmisor = ? OR m.idReceptor = ?)
+        AND m.idMensaje IN (
+            SELECT MAX(idMensaje)
+            FROM mensajes
+            WHERE (idEmisor = ? OR idReceptor = ?)
+            GROUP BY IF(idEmisor = ?, idReceptor, idEmisor)
+        )
+        ORDER BY m.fechaCreacion DESC
+    ");
+    $stmtConversations->execute([$userId, $userId, $userId, $userId, $userId, $userId]);
+    $conversations = $stmtConversations->fetchAll();
 
-// Obtener el ID del chat activo (si existe)
-$active_chat = isset($_GET['chat']) ? (int)$_GET['chat'] : null;
-
-// Si hay un chat activo, obtener los mensajes
-$messages = [];
-if ($active_chat) {
-    $query = "SELECT m.*, 
-              CASE WHEN m.sender_id = :user_id THEN 1 ELSE 0 END as is_sender
-              FROM messages m
-              WHERE (m.sender_id = :user_id AND m.receiver_id = :active_chat)
-              OR (m.sender_id = :active_chat AND m.receiver_id = :user_id)
-              ORDER BY m.created_at ASC";
+    // Determinar el ID del chat activo con la lógica de prioridades
+    $activeChatUserId = $_GET['to'] ?? $_GET['chat_with'] ?? ($conversations[0]['idUsuario'] ?? null);
     
-    $stmt = $pdo->prepare($query);
-    $stmt->execute([
-        ':user_id' => $user_id,
-        ':active_chat' => $active_chat
-    ]);
-    $messages = $stmt->fetchAll();
+    $activeChatUser = null;
     
-    // Marcar mensajes como leídos
-    $updateQuery = "UPDATE messages 
-                   SET is_read = 1 
-                   WHERE receiver_id = :user_id 
-                   AND sender_id = :active_chat 
-                   AND is_read = 0";
-    $updateStmt = $pdo->prepare($updateQuery);
-    $updateStmt->execute([
-        ':user_id' => $user_id,
-        ':active_chat' => $active_chat
-    ]);
+    if ($activeChatUserId && $activeChatUserId != $userId) {
+        
+        $isNewConversation = true;
+        foreach ($conversations as $convo) {
+            if ($convo['idUsuario'] == $activeChatUserId) {
+                $isNewConversation = false;
+                break;
+            }
+        }
+
+        if ($isNewConversation) {
+            $stmtNewUser = $pdo->prepare("SELECT idUsuario, nombre, foto_perfil FROM usuarios WHERE idUsuario = ?");
+            $stmtNewUser->execute([$activeChatUserId]);
+            $newUser = $stmtNewUser->fetch();
+
+            if ($newUser) {
+                $placeholderConvo = [
+                    'idUsuario' => $newUser['idUsuario'],
+                    'nombre' => $newUser['nombre'],
+                    'foto_perfil' => $newUser['foto_perfil'],
+                    'mensaje' => 'Inicia la conversación...',
+                    'fechaCreacion' => date('Y-m-d H:i:s')
+                ];
+                array_unshift($conversations, $placeholderConvo);
+            }
+        }
+        
+        $stmtActiveUser = $pdo->prepare("SELECT idUsuario, nombre, foto_perfil FROM usuarios WHERE idUsuario = ?");
+        $stmtActiveUser->execute([$activeChatUserId]);
+        $activeChatUser = $stmtActiveUser->fetch();
+
+        if (!$activeChatUser) {
+            $activeChatUserId = null;
+        }
+    } else {
+        $activeChatUserId = null;
+    }
+
+} catch (PDOException $e) {
+    die("Error al cargar los mensajes: " . htmlspecialchars($e->getMessage()));
 }
-
-// Incluir el header
-include '../layouts/header.php';
 ?>
 
-<div class="min-h-screen bg-gray-100">
-    <div class="container mx-auto py-8">
-        <div class="flex bg-white rounded-lg shadow-lg h-[calc(100vh-12rem)]">
-            <!-- Lista de conversaciones -->
-            <div class="w-1/3 border-r">
-                <div class="p-4 border-b">
-                    <h2 class="text-xl font-semibold text-gray-800">Mensajes</h2>
-                </div>
-                <div class="overflow-y-auto h-[calc(100%-4rem)]">
-                    <?php foreach ($conversations as $conv): ?>
-                        <a href="?chat=<?php echo $conv['id']; ?>" 
-                           class="flex items-center p-4 hover:bg-gray-50 border-b transition-colors <?php echo ($active_chat == $conv['id']) ? 'bg-blue-50' : ''; ?>">
-                            <div class="relative">
-                                <img src="<?php echo !empty($conv['foto_perfil']) ? $conv['foto_perfil'] : '/assets/img/default-avatar.png'; ?>" 
-                                     alt="<?php echo htmlspecialchars($conv['nombre']); ?>" 
-                                     class="w-12 h-12 rounded-full object-cover">
-                                <?php if ($conv['unread_count'] > 0): ?>
-                                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                                        <?php echo $conv['unread_count']; ?>
-                                    </span>
-                                <?php endif; ?>
-                            </div>
-                            <div class="ml-4 flex-1">
-                                <h3 class="font-semibold text-gray-800">
-                                    <?php echo htmlspecialchars($conv['nombre'] . ' ' . $conv['apellidos']); ?>
-                                </h3>
-                                <p class="text-sm text-gray-600 truncate">
-                                    <?php echo htmlspecialchars($conv['last_message']); ?>
-                                </p>
-                            </div>
-                            <span class="text-xs text-gray-500">
-                                <?php echo format_time_ago(strtotime($conv['last_message_time'])); ?>
-                            </span>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            </div>
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Mensajes - Ride4Study</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6EE7B7', 'primary-dark': '#10B981', secondary: '#374151',
+                        background: '#F9FAFB', text: '#1F2937', 'text-muted': '#6B7280',
+                    },
+                    keyframes: {
+                        'fade-in-up': { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' }, }
+                    },
+                    animation: { 'fade-in-up': 'fade-in-up 0.25s ease-out' }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        html, body { height: 100%; overflow: hidden; }
+        #chat-box::-webkit-scrollbar { width: 8px; }
+        #chat-box::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.2); border-radius: 10px; }
+        #chat-box::-webkit-scrollbar-track { background: transparent; }
+    </style>
+</head>
 
-            <!-- Área de chat -->
-            <div class="flex-1 flex flex-col">
-                <?php if ($active_chat): ?>
-                    <?php
-                    // Obtener información del usuario del chat activo
-                    $stmt = $pdo->prepare("SELECT nombre, apellidos, foto_perfil FROM users WHERE id = ?");
-                    $stmt->execute([$active_chat]);
-                    $chat_user = $stmt->fetch();
-                    ?>
-                    <div class="p-4 border-b flex items-center">
-                        <img src="<?php echo !empty($chat_user['foto_perfil']) ? $chat_user['foto_perfil'] : '/assets/img/default-avatar.png'; ?>" 
-                             alt="<?php echo htmlspecialchars($chat_user['nombre']); ?>" 
-                             class="w-10 h-10 rounded-full object-cover">
-                        <h2 class="ml-4 text-lg font-semibold text-gray-800">
-                            <?php echo htmlspecialchars($chat_user['nombre'] . ' ' . $chat_user['apellidos']); ?>
-                        </h2>
-                    </div>
-                    
-                    <!-- Mensajes -->
-                    <div class="flex-1 overflow-y-auto p-4 message-container" data-conversation-id="<?php echo $active_chat; ?>">
-                        <?php foreach ($messages as $message): ?>
-                            <div class="message <?php echo $message['is_sender'] ? 'message-sent' : 'message-received'; ?>">
-                                <div class="message-content">
-                                    <p class="message-text"><?php echo nl2br(htmlspecialchars($message['message'])); ?></p>
-                                    <span class="message-time">
-                                        <?php echo date('H:i', strtotime($message['created_at'])); ?>
-                                    </span>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                    
-                    <!-- Formulario de mensaje -->
-                    <form id="messageForm" class="border-t p-4" data-receiver-id="<?php echo $active_chat; ?>">
-                        <div class="flex gap-4">
-                            <input type="text" 
-                                   id="messageInput"
-                                   class="flex-1 rounded-full border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-colors"
-                                   placeholder="Escribe un mensaje...">
-                            <button type="submit" 
-                                    class="bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors">
-                                Enviar
-                            </button>
-                        </div>
-                    </form>
-                <?php else: ?>
-                    <div class="flex-1 flex items-center justify-center text-gray-500">
-                        <p>Selecciona una conversación para comenzar</p>
-                    </div>
-                <?php endif; ?>
+<body class="h-full antialiased bg-background">
+<div class="h-full flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm flex-shrink-0 z-30">
+        <div class="container mx-auto px-4 lg:px-6">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <a href="dashboard.php" class="flex items-center gap-2 flex-shrink-0"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-white"><i class="fas fa-car-side text-lg"></i></div><span class="text-2xl font-bold text-secondary tracking-tighter">RIDE4STUDY</span></a>
+                    <div class="hidden md:block"><div class="flex items-baseline space-x-4"><a href="dashboard.php" class="text-text-muted hover:bg-gray-100 hover:text-text rounded-md px-3 py-2 text-sm font-medium">Dashboard</a><a href="my-rides.php" class="text-text-muted hover:bg-gray-100 hover:text-text rounded-md px-3 py-2 text-sm font-medium">Mis Viajes</a><a href="messages.php" class="bg-primary/10 text-primary-dark rounded-md px-3 py-2 text-sm font-semibold">Mensajes</a></div></div>
+                </div>
+                <div class="hidden md:block"><div class="flex items-center gap-4"><span class="text-sm text-text-muted">Hola, <span class="font-semibold text-text"><?= htmlspecialchars(explode(' ', $user['nombre'])[0]) ?></span></span><a href="profile.php" class="relative"><div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center font-bold text-primary-dark ring-2 ring-primary-dark overflow-hidden"><?php if (!empty($user['foto_perfil'])): ?><img src="../assets/uploads/avatars/<?= htmlspecialchars($user['foto_perfil']) ?>" alt="Foto de perfil" class="w-full h-full object-cover"><?php else: ?><?= strtoupper(substr($user['nombre'], 0, 1)) ?><?php endif; ?></div></a><a href="../actions/logout_action.php" title="Cerrar sesión" class="text-text-muted hover:text-red-500"><i class="fas fa-sign-out-alt fa-lg"></i></a></div></div>
             </div>
         </div>
-    </div>
+    </nav>
+
+    <main class="flex flex-1 overflow-hidden">
+        <?php if (empty($conversations)): ?>
+            <div class="flex-1 flex items-center justify-center text-center">
+                <div><i class="fas fa-comments text-6xl text-gray-300"></i><h2 class="mt-6 text-3xl font-bold text-text">Aún no tienes mensajes</h2><p class="mt-2 text-lg text-text-muted">Cuando contactes con un usuario, tu conversación aparecerá aquí.</p><a href="dashboard.php" class="mt-6 inline-block rounded-md bg-primary px-6 py-3 text-sm font-semibold text-secondary shadow-sm hover:bg-primary-dark transition-all"><i class="fas fa-search mr-2"></i> Explorar Viajes</a></div>
+            </div>
+        <?php else: ?>
+            <div class="flex flex-1 min-h-0">
+                <aside class="w-full md:w-1/3 lg:w-1/4 border-r bg-white overflow-y-auto">
+                    <div class="p-4 border-b sticky top-0 bg-white z-10"><h1 class="text-2xl font-bold text-text">Conversaciones</h1></div>
+                    <?php foreach ($conversations as $convo): ?>
+                        <a href="?chat_with=<?= $convo['idUsuario'] ?>" class="flex items-center gap-4 p-4 border-b hover:bg-gray-50 transition <?= ($activeChatUserId == $convo['idUsuario']) ? 'bg-primary/10' : '' ?>">
+                            <div class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                                <?php if ($convo['foto_perfil']): ?><img src="../assets/uploads/avatars/<?= htmlspecialchars($convo['foto_perfil']) ?>" class="object-cover w-full h-full"><?php else: ?><div class="flex items-center justify-center w-full h-full bg-secondary/10 text-secondary font-bold text-xl"><?= strtoupper(substr($convo['nombre'], 0, 1)) ?></div><?php endif; ?>
+                            </div>
+                            <div class="flex-1 overflow-hidden"><div class="flex justify-between items-center"><h3 class="font-semibold truncate text-text"><?= htmlspecialchars($convo['nombre']) ?></h3><p class="text-xs text-text-muted"><?= date('H:i', strtotime($convo['fechaCreacion'])) ?></p></div><p class="text-sm text-text-muted truncate"><?= htmlspecialchars($convo['mensaje']) ?></p></div>
+                        </a>
+                    <?php endforeach; ?>
+                </aside>
+
+                <section class="hidden md:flex flex-col w-full md:w-2/3 lg:w-3/4 bg-gray-200">
+                    <?php if ($activeChatUser): ?>
+                        <div class="flex-shrink-0 flex items-center gap-4 p-3 border-b bg-white shadow-sm z-10">
+                            <div class="w-10 h-10 rounded-full overflow-hidden">
+                                <?php if ($activeChatUser['foto_perfil']): ?><img src="../assets/uploads/avatars/<?= htmlspecialchars($activeChatUser['foto_perfil']) ?>" class="object-cover w-full h-full"><?php else: ?><div class="w-full h-full flex items-center justify-center bg-secondary/10 text-secondary font-bold"><?= strtoupper(substr($activeChatUser['nombre'], 0, 1)) ?></div><?php endif; ?>
+                            </div>
+                            <h2 class="font-semibold text-lg text-text"><?= htmlspecialchars($activeChatUser['nombre']) ?></h2>
+                        </div>
+
+                        <div id="chat-box" class="flex-1 overflow-y-auto p-4" style="background-image: url('../assets/img/chat-bg.png');"></div>
+
+                        <div class="flex-shrink-0 bg-background p-4">
+                            <form id="send-message-form" class="flex items-center gap-3">
+                                <input type="hidden" id="receptor-id" value="<?= $activeChatUserId ?>">
+                                <input type="text" id="message-input" placeholder="Escribe un mensaje..." class="flex-1 rounded-full border-gray-300 bg-white py-3 px-5 focus:ring-primary-dark focus:border-primary-dark outline-none" autocomplete="off">
+                                <button type="submit" class="rounded-full bg-primary h-12 w-12 flex items-center justify-center text-secondary hover:bg-primary-dark transition-colors text-xl">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </form>
+                        </div>
+                    <?php else: ?>
+                        <div class="flex-1 flex items-center justify-center text-center">
+                            <div><i class="fas fa-comments text-6xl text-gray-300"></i><h2 class="mt-4 text-2xl font-semibold text-text-muted">Selecciona una conversación</h2></div>
+                        </div>
+                    <?php endif; ?>
+                </section>
+            </div>
+        <?php endif; ?>
+    </main>
 </div>
 
-<style>
-.message {
-    display: flex;
-    margin-bottom: 1rem;
+<script>
+const chatBox = document.getElementById('chat-box');
+const sendMessageForm = document.getElementById('send-message-form');
+const messageInput = document.getElementById('message-input');
+const receptorId = document.getElementById('receptor-id')?.value;
+const currentUserId = <?= $userId ?>;
+
+async function fetchMessages(scrollToBottom = false) {
+    if (!receptorId) return;
+    try {
+        const response = await fetch(`api/get_messages.php?chat_with=${receptorId}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const messages = await response.json();
+
+        const shouldScroll = scrollToBottom || (chatBox.scrollTop + chatBox.clientHeight) >= chatBox.scrollHeight - 30;
+
+        const existingIds = new Set(Array.from(chatBox.querySelectorAll('[data-id]')).map(e => e.dataset.id));
+        
+        messages.forEach(msg => {
+            if (existingIds.has(String(msg.idMensaje))) return;
+
+            const msgDate = new Date(msg.fechaCreacion);
+            const isSent = msg.idEmisor == currentUserId;
+
+            const msgDiv = document.createElement('div');
+            msgDiv.dataset.id = msg.idMensaje;
+            msgDiv.className = `flex ${isSent ? 'justify-end' : 'justify-start'} mb-2 animate-fade-in-up`;
+
+            msgDiv.innerHTML = `
+                <div class="max-w-[70%] px-4 py-2 rounded-lg ${
+                    isSent
+                        ? 'bg-primary/60 text-text rounded-br-lg'
+                        : 'bg-white text-text rounded-bl-lg shadow-sm'
+                }">
+                    <p class="break-words">${msg.mensaje.replace(/\n/g, '<br>')}</p>
+                    <p class="text-[11px] text-text-muted/70 text-right mt-1">${msgDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</p>
+                </div>
+            `;
+            chatBox.appendChild(msgDiv);
+        });
+
+        if (shouldScroll) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    } catch (err) {
+        console.error('Error cargando mensajes:', err);
+    }
 }
 
-.message-sent {
-    justify-content: flex-end;
+if (sendMessageForm) {
+    sendMessageForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const message = messageInput.value.trim();
+        if (!message) return;
+
+        messageInput.value = ''; // Limpiar inmediatamente para mejor UX
+
+        const formData = new FormData();
+        formData.append('mensaje', message);
+        formData.append('id_receptor', receptorId);
+
+        try {
+            const response = await fetch('api/send_message.php', { method: 'POST', body: formData });
+            if (response.ok) {
+                fetchMessages(true); // Forzar scroll al enviar
+            }
+        } catch (error) {
+            console.error('Error al enviar mensaje:', error);
+            messageInput.value = message; // Devolver el mensaje si falla el envío
+        }
+    });
 }
 
-.message-content {
-    max-width: 70%;
-    padding: 0.75rem 1rem;
-    border-radius: 1rem;
-    position: relative;
+if (receptorId) {
+    fetchMessages(true); // Carga inicial con scroll
+    setInterval(() => fetchMessages(), 3000); // Polling para nuevos mensajes
 }
-
-.message-sent .message-content {
-    background-color: #3b82f6;
-    color: white;
-    border-bottom-right-radius: 0.25rem;
-}
-
-.message-received .message-content {
-    background-color: #f3f4f6;
-    color: #1f2937;
-    border-bottom-left-radius: 0.25rem;
-}
-
-.message-text {
-    margin-bottom: 0.25rem;
-    line-height: 1.4;
-}
-
-.message-time {
-    font-size: 0.75rem;
-    opacity: 0.8;
-    display: block;
-    text-align: right;
-}
-
-.message-sent .message-time {
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.message-received .message-time {
-    color: #6b7280;
-}
-</style>
-
-<script src="/assets/js/chat.js"></script>
-
-<?php include '../layouts/footer.php'; ?>
+</script>
+</body>
+</html>

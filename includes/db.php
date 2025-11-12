@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost';
-$dbname = 'ride4study';
+$dbname = 'if0_40294789_ride4study';
 $user = 'root';
 $password = '';
 

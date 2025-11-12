@@ -35,7 +35,7 @@ if (isset($_SESSION['user_id'])) {
 ?>
 
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -47,385 +47,362 @@ if (isset($_SESSION['user_id'])) {
       theme: {
         extend: {
           colors: {
-            primary: '#6EE7B7',
-            secondary: '#374151',
-            background: '#F9FAF5',
-            hover: '#10B981',
-            text: '#1F2937'
+            primary: '#6EE7B7', // Un verde menta brillante
+            'primary-dark': '#10B981', // Un verde más oscuro para hover
+            secondary: '#374151', // Gris oscuro casi negro
+            'secondary-light': '#4B5563', // Gris un poco más claro
+            background: '#F9FAFB', // Un gris muy claro para el fondo
+            text: '#1F2937', // Color de texto principal
+            'text-muted': '#6B7280', // Color para texto secundario o párrafos
           }
         }
       }
     }
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .hero-bg {
+      background-image: linear-gradient(to right, rgba(55, 65, 81, 0.9), rgba(55, 65, 81, 0.7)), url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+    }
+  </style>
 </head>
-<body class="min-h-screen bg-background">
+<body class="bg-white text-text antialiased">
 
   <!-- Header -->
-  <header class="bg-background shadow-sm sticky top-0 z-50">
-    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <a href="index.php" class="flex items-center gap-3">
-        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-white shadow-md">
-          <i class="fas fa-car-side text-lg" aria-hidden="true"></i>
-          <span class="sr-only">Logo Ride4Study</span>
+  <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 lg:px-6">
+      <div class="flex justify-between items-center py-4">
+        <a href="index.php" class="flex items-center gap-2">
+          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-white">
+            <i class="fas fa-car-side text-lg" aria-hidden="true"></i>
+          </div>
+          <span class="text-2xl font-bold text-secondary tracking-tighter">RIDE4STUDY</span>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-8">
+          <a href="#beneficios" class="text-text-muted hover:text-primary-dark font-medium transition-colors">Beneficios</a>
+          <a href="#como-funciona" class="text-text-muted hover:text-primary-dark font-medium transition-colors">Cómo funciona</a>
+          <a href="#testimonios" class="text-text-muted hover:text-primary-dark font-medium transition-colors">Testimonios</a>
+          <a href="#faq" class="text-text-muted hover:text-primary-dark font-medium transition-colors">Preguntas</a>
+        </nav>
+
+        <div class="flex items-center gap-2">
+          <a href="./public/login.php" class="px-4 py-2 font-semibold text-secondary hover:text-primary-dark transition-colors">Iniciar Sesión</a>
+          <a href="./public/register.php" class="px-5 py-2.5 bg-primary text-secondary rounded-full font-bold hover:bg-primary-dark transition-all shadow-sm">Registrarse</a>
         </div>
-        <span class="text-xl font-bold text-gray-800">RIDE4STUDY</span>
-      </a>
-
-      <nav class="hidden md:flex items-center gap-6">
-        <a href="#beneficios" class="text-gray-600 hover:text-primary font-medium">Beneficios</a>
-        <a href="#como-funciona" class="text-gray-600 hover:text-primary font-medium">Cómo funciona</a>
-        <a href="#testimonios" class="text-gray-600 hover:text-primary font-medium">Testimonios</a>
-        <a href="#faq" class="text-gray-600 hover:text-primary font-medium">Preguntas</a>
-      </nav>
-
-      <div class="flex gap-3">
-        <a href="./public/login.php" class="px-4 py-2 font-medium text-text hover:text-hover transition-colors">Iniciar Sesión</a>
-        <a href="./public/register.php" class="px-4 py-2 bg-primary text-secondary rounded-lg font-medium hover:bg-hover transition">Registrarse</a>
       </div>
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="bg-secondary text-white py-20">
-    <div class="container mx-auto px-4 text-center max-w-4xl">
-      <h1 class="text-4xl md:text-5xl font-bold mb-6">Comparte tu viaje, no tu coche</h1>
-      <p class="text-xl opacity-90 mb-10 max-w-2xl mx-auto">
-        La plataforma gratuita para estudiantes que quieren ahorrar en transporte, reducir emisiones y crear una comunidad sostenible.
-      </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="./public/register.php" class="px-8 py-3 bg-primary text-secondary font-bold rounded-lg shadow-lg hover:bg-hover transition">
-          Únete ahora (es gratis)
-        </a>
-        <a href="#como-funciona" class="px-8 py-3 bg-transparent border-2 border-primary text-white font-medium rounded-lg hover:bg-primary/10 transition">
-          Cómo funciona
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Beneficios -->
-  <section id="beneficios" class="py-20 bg-gray-50">
-    <div class="container mx-auto px-4">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">¿Por qué elegir Ride4Study?</h2>
-        <p class="text-gray-600 max-w-2xl mx-auto">Diseñado específicamente para la comunidad estudiantil, con seguridad y sostenibilidad en mente.</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div class="bg-white p-6 rounded-xl shadow-sm border text-center hover:border-primary transition-colors">
-          <div class="w-12 h-12 bg-primary/10 text-hover rounded-lg flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-euro-sign text-xl"></i>
-          </div>
-          <h3 class="text-xl font-semibold mb-2">Ahorro económico</h3>
-          <p class="text-gray-600">Comparte gastos de combustible y peajes. Viaja por una fracción del costo.</p>
-        </div>
-
-        <div class="bg-white p-6 rounded-xl shadow-sm border text-center">
-          <div class="w-12 h-12 bg-green-100 text-green-600 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-leaf text-xl"></i>
-          </div>
-          <h3 class="text-xl font-semibold mb-2">Sostenibilidad</h3>
-          <p class="text-gray-600">Reduce tu huella de carbono. Cada viaje compartido es un coche menos en la carretera.</p>
-        </div>
-
-        <div class="bg-white p-6 rounded-xl shadow-sm border text-center">
-          <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-user-graduate text-xl"></i>
-          </div>
-          <h3 class="text-xl font-semibold mb-2">Comunidad estudiantil</h3>
-          <p class="text-gray-600">Conecta con otros estudiantes de tu universidad o ciudad. Viaja en compañía.</p>
-        </div>
-
-        <div class="bg-white p-6 rounded-xl shadow-sm border text-center">
-          <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-shield-alt text-xl"></i>
-          </div>
-          <h3 class="text-xl font-semibold mb-2">Verificación universitaria</h3>
-          <p class="text-gray-600">Todos los usuarios deben verificar su identidad estudiantil. Seguridad garantizada.</p>
-        </div>
-
-        <div class="bg-white p-6 rounded-xl shadow-sm border text-center">
-          <div class="w-12 h-12 bg-red-100 text-red-600 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-star text-xl"></i>
-          </div>
-          <h3 class="text-xl font-semibold mb-2">Sistema de valoraciones</h3>
-          <p class="text-gray-600">Califica a tus compañeros de viaje. Fomentamos la confianza y la responsabilidad.</p>
-        </div>
-
-        <div class="bg-white p-6 rounded-xl shadow-sm border text-center">
-          <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-mobile-alt text-xl"></i>
-          </div>
-          <h3 class="text-xl font-semibold mb-2">Totalmente gratuito</h3>
-          <p class="text-gray-600">Ninguna comisión, ni suscripciones. 100% gratuito para todos los estudiantes.</p>
+  <main>
+    <!-- Hero Section -->
+    <section class="hero-bg text-white">
+      <div class="container mx-auto px-4 lg:px-6 py-24 md:py-32 text-center">
+        <h1 class="text-4xl md:text-6xl font-extrabold leading-tight mb-6 tracking-tighter">
+          Viajes compartidos para estudiantes. <br class="hidden md:block" />
+          <span class="text-primary">Ahorra, conecta y sé sostenible.</span>
+        </h1>
+        <p class="text-lg md:text-xl text-gray-200 mb-10 max-w-3xl mx-auto">
+          La plataforma gratuita donde los estudiantes comparten coche para ir a clase o volver a casa. Reduce gastos, emisiones y haz nuevos amigos.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="./public/register.php" class="px-8 py-4 bg-primary text-secondary font-bold rounded-full shadow-lg hover:bg-primary-dark transform hover:scale-105 transition-all text-lg">
+            Crear cuenta gratis
+          </a>
+          <a href="#como-funciona" class="px-8 py-4 bg-transparent border-2 border-primary text-white font-medium rounded-full hover:bg-primary hover:text-secondary transition-all text-lg">
+            Descubre cómo funciona
+          </a>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Cómo funciona -->
-  <section id="como-funciona" class="py-20">
-    <div class="container mx-auto px-4">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">¿Cómo funciona?</h2>
-        <p class="text-gray-600 max-w-2xl mx-auto">En solo 3 pasos estarás compartiendo viajes con otros estudiantes.</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="text-center">
-          <div class="w-16 h-16 bg-primary/10 text-hover rounded-full flex items-center justify-center mx-auto mb-6 text-xl font-bold">1</div>
-          <h3 class="text-xl font-semibold mb-3">Regístrate</h3>
-          <p class="text-gray-600">Crea tu perfil con tu correo universitario y verifica tu identidad estudiantil.</p>
+    <!-- Beneficios -->
+    <section id="beneficios" class="py-20 md:py-28 bg-background">
+      <div class="container mx-auto px-4 lg:px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-4 tracking-tight">Diseñado para la vida estudiantil</h2>
+          <p class="text-text-muted text-lg max-w-2xl mx-auto">Todo lo que necesitas para viajar de forma segura, económica y en buena compañía.</p>
         </div>
 
-        <div class="text-center">
-          <div class="w-16 h-16 bg-blue-100 text-primary rounded-full flex items-center justify-center mx-auto mb-6 text-xl font-bold">2</div>
-          <h3 class="text-xl font-semibold mb-3">Publica o busca</h3>
-          <p class="text-gray-600">Ofrece plaza en tu coche o busca alguien que vaya a tu destino.</p>
-        </div>
-
-        <div class="text-center">
-          <div class="w-16 h-16 bg-blue-100 text-primary rounded-full flex items-center justify-center mx-auto mb-6 text-xl font-bold">3</div>
-          <h3 class="text-xl font-semibold mb-3">Viaja y valora</h3>
-          <p class="text-gray-600">Coordina el encuentro, comparte el viaje y valora la experiencia.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Últimos anuncios -->
-  <section class="py-20 bg-gray-50">
-    <div class="container mx-auto px-4">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold text-gray-900 mb-4">Viajes disponibles ahora</h2>
-        <p class="text-gray-600">Descubre los últimos viajes publicados por estudiantes como tú.</p>
-      </div>
-
-      <?php
-      require_once __DIR__ . '/includes/db.php';
-      try {
-          $stmt = $pdo->query("
-              SELECT a.idAnuncio, a.tipo, a.horaSalida, a.fechaSalida, a.precio, 
-                     lo.nombreLocalidad AS origen, ld.nombreLocalidad AS destino,
-                     u.nombre AS nombreUsuario
-              FROM anuncios a
-              JOIN usuarios u ON a.idUsuario = u.idUsuario
-              JOIN localidades lo ON a.origen = lo.idLocalidad
-              JOIN localidades ld ON a.destino = ld.idLocalidad
-              ORDER BY a.fechaSalida DESC, a.horaSalida ASC
-              LIMIT 6
-          ");
-          $rides = $stmt->fetchAll();
-      } catch (PDOException $e) {
-          $rides = [];
-      }
-      ?>
-
-      <?php if (!empty($rides)): ?>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <?php foreach ($rides as $ride): ?>
-            <div class="bg-white rounded-xl p-5 shadow-sm border hover:shadow-md transition">
-              <div class="flex justify-between items-start mb-3">
-                <span class="px-3 py-1 text-xs font-semibold rounded-full 
-                  <?= $ride['tipo'] === 'ofrezco' ? 'bg-primary/20 text-hover' : 'bg-secondary/10 text-secondary' ?>">
-                  <?= $ride['tipo'] === 'ofrezco' ? 'Ofrece plaza' : 'Busca plaza' ?>
-                </span>
-                <span class="text-sm text-gray-500"><?= htmlspecialchars($ride['nombreUsuario']) ?></span>
-              </div>
-              <h3 class="font-bold text-lg mb-2"><?= htmlspecialchars($ride['origen']) ?> → <?= htmlspecialchars($ride['destino']) ?></h3>
-              <div class="flex justify-between text-sm text-gray-600 mb-3">
-                <span><i class="far fa-calendar text-primary/80 mr-2"></i><?= date('d/m/Y', strtotime($ride['fechaSalida'])) ?></span>
-                <span><i class="far fa-clock text-primary/80 mr-2"></i><?= substr($ride['horaSalida'], 0, 5) ?> h</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <p class="font-bold">
-                  <?php if (!$ride['precio'] || $ride['precio'] == 0): ?>
-                    <span class="text-green-600">Gratis</span>
-                  <?php else: ?>
-                    <span class="text-hover"><?= number_format($ride['precio'], 2) ?> €</span>
-                  <?php endif; ?>
-                </p>
-                <a href="./public/login.php" class="text-sm text-primary font-medium hover:underline">Contactar</a>
-              </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200/50 text-center transition-transform transform hover:-translate-y-2">
+            <div class="w-16 h-16 bg-primary/10 text-primary-dark rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <i class="fas fa-wallet text-2xl"></i>
             </div>
-          <?php endforeach; ?>
-        </div>
-      <?php else: ?>
-        <p class="text-center text-gray-500 py-8">Aún no hay viajes publicados. ¡Sé el primero en publicar uno!</p>
-      <?php endif; ?>
+            <h3 class="text-xl font-bold mb-3 text-secondary">Ahorro Inteligente</h3>
+            <p class="text-text-muted">Comparte los gastos de gasolina y peajes. Tu cartera te lo agradecerá cada fin de mes.</p>
+          </div>
 
-      <div class="text-center mt-8">
-        <a href="./public/login.php" class="inline-block px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-blue-700 transition">
-          Inicia sesión para publicar o contactar
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Testimonios -->
-  <section id="testimonios" class="py-20">
-    <div class="container mx-auto px-4">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Lo que dicen nuestros usuarios</h2>
-        <p class="text-gray-600 max-w-2xl mx-auto">Miles de estudiantes ya confían en Ride4Study para sus desplazamientos diarios.</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div class="bg-white p-6 rounded-xl shadow-sm border">
-          <div class="flex items-center mb-4">
-            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-              <span class="font-bold text-gray-700">M</span>
+          <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200/50 text-center transition-transform transform hover:-translate-y-2">
+            <div class="w-16 h-16 bg-primary/10 text-primary-dark rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <i class="fas fa-users text-2xl"></i>
             </div>
-            <div>
-              <h4 class="font-semibold">María G.</h4>
-              <div class="flex text-yellow-400">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
+            <h3 class="text-xl font-bold mb-3 text-secondary">Comunidad Exclusiva</h3>
+            <p class="text-text-muted">Conecta con estudiantes de tu campus. Todos los perfiles son verificados para tu tranquilidad.</p>
+          </div>
+
+          <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200/50 text-center transition-transform transform hover:-translate-y-2">
+            <div class="w-16 h-16 bg-primary/10 text-primary-dark rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <i class="fas fa-leaf text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-secondary">Planeta Feliz</h3>
+            <p class="text-text-muted">Menos coches en la carretera significa menos emisiones. Un pequeño gesto con un gran impacto.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cómo funciona -->
+    <section id="como-funciona" class="py-20 md:py-28">
+      <div class="container mx-auto px-4 lg:px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-4 tracking-tight">Empieza en 3 simples pasos</h2>
+          <p class="text-text-muted text-lg max-w-2xl mx-auto">Publicar un viaje u ocupar un asiento nunca fue tan fácil.</p>
+        </div>
+
+        <div class="relative">
+          <div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 -translate-y-1/2"></div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+            <div class="text-center">
+              <div class="relative w-20 h-20 bg-primary/10 text-primary-dark rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold border-4 border-white shadow-md">1</div>
+              <h3 class="text-xl font-bold mb-3 text-secondary">Regístrate y Verifica</h3>
+              <p class="text-text-muted">Crea tu perfil en segundos y verifícalo con tu correo de estudiante.</p>
+            </div>
+
+            <div class="text-center">
+              <div class="relative w-20 h-20 bg-primary/10 text-primary-dark rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold border-4 border-white shadow-md">2</div>
+              <h3 class="text-xl font-bold mb-3 text-secondary">Publica o Busca</h3>
+              <p class="text-text-muted">Ofrece las plazas libres de tu coche o busca un viaje a tu destino.</p>
+            </div>
+
+            <div class="text-center">
+              <div class="relative w-20 h-20 bg-primary/10 text-primary-dark rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold border-4 border-white shadow-md">3</div>
+              <h3 class="text-xl font-bold mb-3 text-secondary">Viaja y Valora</h3>
+              <p class="text-text-muted">Coordina con tu compañero, disfrutad del viaje y dejad una valoración.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Últimos anuncios -->
+    <section class="py-20 md:py-28 bg-background">
+      <div class="container mx-auto px-4 lg:px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-4 tracking-tight">Viajes recientes</h2>
+          <p class="text-text-muted text-lg max-w-2xl mx-auto">Estos son los últimos trayectos publicados por la comunidad.</p>
+        </div>
+
+        <?php
+        require_once __DIR__ . '/includes/db.php';
+        try {
+            $stmt = $pdo->query("
+                SELECT a.idAnuncio, a.tipo, a.horaSalida, a.fechaSalida, a.precio, 
+                       lo.nombreLocalidad AS origen, ld.nombreLocalidad AS destino,
+                       u.nombre AS nombreUsuario
+                FROM anuncios a
+                JOIN usuarios u ON a.idUsuario = u.idUsuario
+                JOIN localidades lo ON a.origen = lo.idLocalidad
+                JOIN localidades ld ON a.destino = ld.idLocalidad
+                ORDER BY a.fechaSalida DESC, a.horaSalida ASC
+                LIMIT 6
+            ");
+            $rides = $stmt->fetchAll();
+        } catch (PDOException $e) {
+            $rides = [];
+        }
+        ?>
+
+        <?php if (!empty($rides)): ?>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <?php foreach ($rides as $ride): ?>
+              <div class="bg-white rounded-xl p-6 border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-primary transition-all group">
+                <div class="flex justify-between items-center mb-4">
+                  <span class="px-3 py-1 text-xs font-bold rounded-full 
+                    <?= $ride['tipo'] === 'ofrezco' ? 'bg-primary/20 text-primary-dark' : 'bg-secondary/10 text-secondary' ?>">
+                    <?= $ride['tipo'] === 'ofrezco' ? 'OFERTA' : 'BÚSQUEDA' ?>
+                  </span>
+                  <span class="text-sm text-text-muted flex items-center gap-2"><i class="fas fa-user-circle"></i> <?= htmlspecialchars($ride['nombreUsuario']) ?></span>
+                </div>
+                <h3 class="font-bold text-xl text-secondary mb-3"><?= htmlspecialchars($ride['origen']) ?> <i class="fas fa-long-arrow-alt-right text-primary mx-2"></i> <?= htmlspecialchars($ride['destino']) ?></h3>
+                <div class="flex justify-between text-sm text-text-muted border-t border-b border-gray-100 py-3 my-3">
+                  <span class="flex items-center gap-2"><i class="far fa-calendar-alt text-primary/80"></i><?= date('d M Y', strtotime($ride['fechaSalida'])) ?></span>
+                  <span class="flex items-center gap-2"><i class="far fa-clock text-primary/80"></i><?= substr($ride['horaSalida'], 0, 5) ?>h</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <p class="font-extrabold text-xl">
+                    <?php if (!$ride['precio'] || $ride['precio'] == 0): ?>
+                      <span class="text-primary-dark">Gratis</span>
+                    <?php else: ?>
+                      <span class="text-secondary"><?= number_format($ride['precio'], 2) ?> €</span>
+                    <?php endif; ?>
+                  </p>
+                  <a href="./public/login.php" class="text-sm text-primary-dark font-bold hover:underline">Ver detalles</a>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        <?php else: ?>
+          <div class="text-center py-12 bg-white rounded-lg border border-dashed">
+              <i class="fas fa-car-side text-4xl text-gray-300 mb-4"></i>
+              <h3 class="text-xl font-semibold text-secondary">Aún no hay viajes publicados</h3>
+              <p class="text-text-muted mt-2">¡Anímate y sé el primero en compartir tu trayecto!</p>
+          </div>
+        <?php endif; ?>
+
+        <div class="text-center mt-12">
+          <a href="./public/login.php" class="inline-block px-8 py-3 bg-secondary text-white font-bold rounded-full hover:bg-secondary-light transition-colors shadow-md">
+            Ver todos los viajes
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonios -->
+    <section id="testimonios" class="py-20 md:py-28">
+      <div class="container mx-auto px-4 lg:px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-4 tracking-tight">Lo que dice nuestra comunidad</h2>
+          <p class="text-text-muted text-lg max-w-2xl mx-auto">Experiencias reales de estudiantes que ya usan Ride4Study.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200/50">
+            <p class="text-text-muted italic mb-6">"Gracias a Ride4Study he ahorrado más de 100€ este mes en transporte. Además, he conocido a compañeros de otras facultades. ¡Totalmente recomendado!"</p>
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mr-4">
+                <span class="font-bold text-lg text-primary-dark">M</span>
+              </div>
+              <div>
+                <h4 class="font-bold text-secondary">María G.</h4>
+                <div class="flex text-yellow-400 text-sm">
+                  <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                </div>
               </div>
             </div>
           </div>
-          <p class="text-gray-600 italic">"Gracias a Ride4Study he ahorrado más de 100€ este mes en transporte. Además, he conocido a compañeros de otras facultades."</p>
-        </div>
 
-        <div class="bg-white p-6 rounded-xl shadow-sm border">
-          <div class="flex items-center mb-4">
-            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-              <span class="font-bold text-gray-700">C</span>
-            </div>
-            <div>
-              <h4 class="font-semibold">Carlos R.</h4>
-              <div class="flex text-yellow-400">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star-half-alt"></i>
+          <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200/50">
+            <p class="text-text-muted italic mb-6">"Como conductor, compartir los gastos del viaje es una ayuda increíble. El sistema de valoraciones te da mucha seguridad a la hora de elegir compañeros."</p>
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mr-4">
+                <span class="font-bold text-lg text-primary-dark">C</span>
+              </div>
+              <div>
+                <h4 class="font-bold text-secondary">Carlos R.</h4>
+                <div class="flex text-yellow-400 text-sm">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                </div>
               </div>
             </div>
           </div>
-          <p class="text-gray-600 italic">"Como conductor, comparto los gastos y hago nuevos amigos. El sistema de valoraciones da mucha seguridad."</p>
-        </div>
-
-        <div class="bg-white p-6 rounded-xl shadow-sm border">
-          <div class="flex items-center mb-4">
-            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-              <span class="font-bold text-gray-700">L</span>
-            </div>
-            <div>
-              <h4 class="font-semibold">Laura M.</h4>
-              <div class="flex text-yellow-400">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
+          
+          <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200/50">
+            <p class="text-text-muted italic mb-6">"Vivo en un pueblo pequeño y me desplazo diariamente a la universidad. Esta plataforma ha cambiado mi rutina, ahora viajo acompañada y es mucho más ameno."</p>
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mr-4">
+                <span class="font-bold text-lg text-primary-dark">L</span>
+              </div>
+              <div>
+                <h4 class="font-bold text-secondary">Laura M.</h4>
+                <div class="flex text-yellow-400 text-sm">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                </div>
               </div>
             </div>
           </div>
-          <p class="text-gray-600 italic">"Vivo en un pueblo pequeño y me desplazo diariamente a la universidad. Esta plataforma ha cambiado mi rutina."</p>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- FAQ -->
-  <section id="faq" class="py-20 bg-gray-50">
-    <div class="container mx-auto px-4">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Preguntas frecuentes</h2>
-        <p class="text-gray-600 max-w-2xl mx-auto">Encuentra respuestas a las dudas más comunes.</p>
-      </div>
-
-      <div class="max-w-3xl mx-auto space-y-4">
-        <div class="bg-white p-6 rounded-lg border">
-          <h3 class="font-semibold text-lg mb-2">¿Es realmente gratis?</h3>
-          <p class="text-gray-600">Sí, Ride4Study es 100% gratuito. No cobramos comisiones ni suscripciones. Solo se permite compartir gastos reales de transporte.</p>
+    <!-- FAQ -->
+    <section id="faq" class="py-20 md:py-28 bg-background">
+      <div class="container mx-auto px-4 lg:px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold text-secondary mb-4 tracking-tight">Preguntas Frecuentes</h2>
+          <p class="text-text-muted text-lg max-w-2xl mx-auto">Resolvemos tus dudas más comunes para que empieces con total confianza.</p>
         </div>
 
-        <div class="bg-white p-6 rounded-lg border">
-          <h3 class="font-semibold text-lg mb-2">¿Cómo se verifica la identidad estudiantil?</h3>
-          <p class="text-gray-600">Durante el registro, solicitamos un correo institucional (.edu, .ac.uk, etc.) o documentación que acredite tu condición de estudiante.</p>
-        </div>
+        <div class="max-w-3xl mx-auto space-y-4">
+          <div class="bg-white p-6 rounded-lg border border-gray-200/80">
+            <h3 class="font-semibold text-lg text-secondary mb-2">¿Es realmente gratis?</h3>
+            <p class="text-text-muted">Sí, Ride4Study es 100% gratuito. No cobramos comisiones ni suscripciones. La plataforma se centra en conectar estudiantes para que compartan los gastos reales del viaje.</p>
+          </div>
 
-        <div class="bg-white p-6 rounded-lg border">
-          <h3 class="font-semibold text-lg mb-2">¿Qué pasa si no me presento al viaje?</h3>
-          <p class="text-gray-600">Nuestro sistema de valoraciones y reportes ayuda a mantener la confianza en la comunidad. Los usuarios poco confiables pueden ser sancionados.</p>
-        </div>
+          <div class="bg-white p-6 rounded-lg border border-gray-200/80">
+            <h3 class="font-semibold text-lg text-secondary mb-2">¿Cómo se verifica mi identidad de estudiante?</h3>
+            <p class="text-text-muted">Para garantizar un entorno seguro, solicitamos la verificación a través de un correo electrónico institucional (por ejemplo, @universidad.edu) durante el proceso de registro.</p>
+          </div>
 
-        <div class="bg-white p-6 rounded-lg border">
-          <h3 class="font-semibold text-lg mb-2">¿Puedo publicar viajes sin coche?</h3>
-          <p class="text-gray-600">¡Claro! Puedes buscar compañeros de viaje en transporte público, tren, o incluso en coche de otros conductores.</p>
+          <div class="bg-white p-6 rounded-lg border border-gray-200/80">
+            <h3 class="font-semibold text-lg text-secondary mb-2">¿Qué ocurre si un usuario no se presenta al viaje?</h3>
+            <p class="text-text-muted">La comunidad se basa en la confianza. Nuestro sistema de valoraciones permite calificar a tus compañeros. Los usuarios con bajas calificaciones o reportes recurrentes pueden ser sancionados para mantener la fiabilidad de la plataforma.</p>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- CTA Final -->
-  <section class="py-20 bg-secondary text-white">
-    <div class="container mx-auto px-4 text-center">
-      <h2 class="text-3xl md:text-4xl font-bold mb-6">¿Listo para empezar?</h2>
-      <p class="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
-        Únete a la comunidad de estudiantes que ya comparten viajes cada día.
-      </p>
-      <a href="./public/register.php" class="inline-block px-8 py-4 bg-primary text-secondary font-bold rounded-lg shadow-lg hover:bg-hover transition text-lg">
-        Regístrate gratis ahora
-      </a>
-      <p class="mt-4 text-sm opacity-80">Sin tarjeta de crédito • Sin compromiso • 100% gratuito</p>
-    </div>
-  </section>
+    <!-- CTA Final -->
+    <section class="bg-secondary">
+        <div class="container mx-auto px-4 lg:px-6 py-20 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">¿Listo para tu próximo viaje?</h2>
+            <p class="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
+                Únete a miles de estudiantes que ya están ahorrando y conectando. El registro es rápido, fácil y gratuito.
+            </p>
+            <a href="./public/register.php" class="inline-block px-8 py-4 bg-primary text-secondary font-bold rounded-full shadow-lg hover:bg-primary-dark transform hover:scale-105 transition-all text-lg">
+                Empieza a compartir viaje ahora
+            </a>
+            <p class="mt-4 text-sm text-gray-400">Sin compromisos • 100% para estudiantes</p>
+        </div>
+    </section>
+  </main>
 
   <!-- Footer -->
-  <footer class="bg-gray-900 text-white py-12">
-    <div class="container mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+  <footer class="bg-gray-900 text-gray-400">
+    <div class="container mx-auto px-4 lg:px-6 py-16">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-8">
         <div>
           <div class="flex items-center gap-2 mb-4">
-            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-2L17 9.5 13.5 11c-.8.3-1.5 1.1-1.5 2v3c0 .6.4 1 1 1h2"/>
-                <path d="M11 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-2L9 9.5 5.5 11c-.8.3-1.5 1.1-1.5 2v3c0 .6.4 1 1 1h2"/>
-              </svg>
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-white">
+                <i class="fas fa-car-side text-lg" aria-hidden="true"></i>
             </div>
-            <span class="text-xl font-bold">RIDE4STUDY</span>
+            <span class="text-xl font-bold text-white tracking-tighter">RIDE4STUDY</span>
           </div>
-          <p class="text-gray-400">Viajes compartidos para estudiantes. Ahorra, reduce emisiones y haz comunidad.</p>
+          <p class="text-sm">La plataforma de carpooling creada por y para estudiantes. Ahorra, reduce tu huella de carbono y haz nuevos amigos.</p>
         </div>
 
         <div>
-          <h3 class="text-lg font-semibold mb-4">Empresa</h3>
-          <ul class="space-y-2 text-gray-400">
-            <li><a href="#" class="hover:text-white">Sobre nosotros</a></li>
-            <li><a href="#" class="hover:text-white">Contacto</a></li>
-            <li><a href="#" class="hover:text-white">Blog</a></li>
+          <h3 class="text-lg font-semibold text-white mb-4">Navegación</h3>
+          <ul class="space-y-3">
+            <li><a href="#beneficios" class="hover:text-primary transition-colors">Beneficios</a></li>
+            <li><a href="#como-funciona" class="hover:text-primary transition-colors">Cómo funciona</a></li>
+            <li><a href="#testimonios" class="hover:text-primary transition-colors">Testimonios</a></li>
+            <li><a href="#faq" class="hover:text-primary transition-colors">Preguntas Frecuentes</a></li>
           </ul>
         </div>
 
         <div>
-          <h3 class="text-lg font-semibold mb-4">Legal</h3>
-          <ul class="space-y-2 text-gray-400">
-            <li><a href="#" class="hover:text-white">Términos de uso</a></li>
-            <li><a href="#" class="hover:text-white">Política de privacidad</a></li>
-            <li><a href="#" class="hover:text-white">Cookies</a></li>
+          <h3 class="text-lg font-semibold text-white mb-4">Legal</h3>
+          <ul class="space-y-3">
+            <li><a href="#" class="hover:text-primary transition-colors">Términos de uso</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Política de privacidad</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Política de cookies</a></li>
           </ul>
         </div>
 
         <div>
-          <h3 class="text-lg font-semibold mb-4">Soporte</h3>
-          <ul class="space-y-2 text-gray-400">
-            <li><a href="#" class="hover:text-white">Ayuda</a></li>
-            <li><a href="#" class="hover:text-white">Preguntas frecuentes</a></li>
-            <li><a href="./public/login.php" class="hover:text-white">Iniciar sesión</a></li>
+          <h3 class="text-lg font-semibold text-white mb-4">Contacto</h3>
+          <ul class="space-y-3">
+            <li><a href="#" class="hover:text-primary transition-colors">Centro de Ayuda</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">info@ride4study.com</a></li>
           </ul>
         </div>
       </div>
 
-      <div class="border-t border-gray-800 pt-8 text-center text-gray-400">
-        <p>© 2025 Ride4Study. Proyecto académico de Antonio Jesús González Domingo (2º DAW).</p>
+      <div class="border-t border-gray-800 pt-8 mt-8 text-center text-sm">
+        <p>© 2025 Ride4Study. Un proyecto académico de Antonio Jesús González Domingo (2º DAW).</p>
       </div>
     </div>
   </footer>
