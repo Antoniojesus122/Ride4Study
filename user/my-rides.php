@@ -46,7 +46,6 @@ try {
     <title>Mis Viajes - Ride4Study</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // Paleta de colores unificada
         tailwind.config = {
             theme: {
                 extend: {
@@ -69,7 +68,7 @@ try {
 <body class="h-full antialiased">
 
 <div class="min-h-full">
-    <!-- Navigation (consistente con el dashboard) -->
+    <!-- Menú de Navegación -->
     <nav class="bg-white shadow-sm sticky top-0 z-40">
         <div class="container mx-auto px-4 lg:px-6">
             <div class="flex h-16 items-center justify-between">
@@ -105,7 +104,7 @@ try {
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Contenido -->
     <main class="py-10">
         <div class="container mx-auto px-4 lg:px-6">
             <div class="flex justify-between items-center mb-8">

@@ -89,7 +89,7 @@ if (isset($_SESSION['flash_message'])) {
 <body class="h-full antialiased">
 
 <div class="min-h-full">
-    <!-- Navigation -->
+    <!-- Menú de Navegación -->
     <nav class="bg-white shadow-sm sticky top-0 z-40">
         <div class="container mx-auto px-4 lg:px-6">
             <div class="flex h-16 items-center justify-between">
