@@ -4,26 +4,29 @@ module.exports = {
     "./**/*.php",
     "./**/*.html",
     "./assets/js/**/*.js",
+    "./public/js/**/*.js",
+    "./views/**/*.php"
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        'mint': '#6EE7B7',
-        'mint-dark': '#10B981',
-        'cream': '#F9FAF5',
-        'charcoal': '#374151',
-        'charcoal-light': '#4B5563',
-        'accent': '#3E8E89',
+        primary: '#6EE7B7',
+        'primary-dark': '#059669',
+        secondary: '#111827',
+        surface: '#1F2937',
+        'surface-light': '#374151',
+        text: '#F3F4F6',
+        'text-muted': '#9CA3AF',
+        accent: '#3E8E89',
       },
-
       fontFamily: {
-        sans: ['Poppins', 'ui-sans-serif', 'system-ui'],
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
-
-      boxShadow: {
-        'soft': '0 4px 12px rgba(0,0,0,0.08)',
+      animation: {
+        'slide-left': 'slideLeft 0.8s ease-in-out forwards',
+        'slide-right': 'slideRight 0.8s ease-in-out forwards',
       },
-
       keyframes: {
         slideLeft: {
           '0%': { transform: 'translateX(100%)' },
@@ -33,11 +36,6 @@ module.exports = {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(0)' },
         },
-      },
-
-      animation: {
-        'slide-left': 'slideLeft 0.8s ease-in-out forwards',
-        'slide-right': 'slideRight 0.8s ease-in-out forwards',
       },
     },
   },
