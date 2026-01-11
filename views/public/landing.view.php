@@ -187,7 +187,7 @@
                              <div class="bg-gray-900/80 backdrop-blur-sm p-6 rounded-2xl border border-white/5 hover:border-pink-400/50 transition-colors mt-8">
                                  <i class="fas fa-users text-3xl text-pink-400 mb-4"></i>
                                  <h4 class="font-bold text-lg mb-2">Comunidad</h4>
-                                 <p class="text-sm text-gray-400">Conecta con compañeros de tu misma facultad o campus.</p>
+                                 <p class="text-sm text-gray-400">Conecta con compañeros de tu misma institución o campus.</p>
                              </div>
                          </div>
                     </div>

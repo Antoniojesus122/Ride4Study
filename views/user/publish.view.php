@@ -1,5 +1,18 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
 
+<?php
+$isEdit = isset($ride); // Verificar si se está en modo de edición 
+$formAction = $isEdit ? 'edit-ride.php' : 'publish.php';
+$submitText = $isEdit ? 'Guardar Cambios' : 'Publicar Viaje';
+$pageTitle = $isEdit ? 'Editar Viaje' : 'Publicar un viaje';
+$pageDesc = $isEdit ? 'Modifica los detalles de tu viaje.' : 'Rellena los detalles para encontrar compañeros de viaje.';
+
+function getVal($field, $ride, $post, $default = '') {
+    if (isset($post[$field])) return $post[$field];
+    if (isset($ride[$field])) return $ride[$field];
+    return $default;
+}
+?>
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="bg-surface rounded-2xl border border-gray-700 shadow-2xl overflow-hidden relative">
         <!-- Alertas de error -->
@@ -16,11 +29,14 @@
 
         <div class="p-8">
             <div class="mb-8">
-                <h2 class="text-3xl font-bold text-white">Publicar un viaje</h2>
-                <p class="text-gray-400 mt-2">Rellena los detalles para encontrar compañeros de viaje.</p>
+                <h2 class="text-3xl font-bold text-white"><?= $pageTitle ?></h2>
+                <p class="text-gray-400 mt-2"><?= $pageDesc ?></p>
             </div>
 
-            <form action="publish.php" method="POST" id="publishForm" class="space-y-8">
+            <form action="<?= $formAction ?>" method="POST" id="publishForm" class="space-y-8">
+                <?php if ($isEdit): ?>
+                    <input type="hidden" name="ride_id" value="<?= $ride['idAnuncio'] ?>">
+                <?php endif; ?>
                 
                 <!-- Sección 1: Ruta -->
                 <div class="space-y-6">
@@ -32,16 +48,19 @@
                         <!-- Tipo -->
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-400 mb-2">¿Eres conductor o pasajero?</label>
+                            <?php 
+                                $currentType = isset($_POST['tipo']) ? $_POST['tipo'] : ($isEdit ? strtolower($ride['tipo']) : 'ofrezco');
+                            ?>
                             <div class="flex gap-4">
                                 <label class="flex-1">
-                                    <input type="radio" name="tipo" value="ofrezco" class="peer hidden" checked>
+                                    <input type="radio" name="tipo" value="ofrezco" class="peer hidden" <?= $currentType == 'ofrezco' ? 'checked' : '' ?>>
                                     <div class="p-4 rounded-xl border border-gray-600 cursor-pointer peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-white text-gray-400 transition-all text-center hover:bg-gray-800">
                                         <i class="fas fa-car text-xl mb-2"></i>
                                         <div class="font-bold">Llevo coche</div>
                                     </div>
                                 </label>
                                 <label class="flex-1">
-                                    <input type="radio" name="tipo" value="busco" class="peer hidden">
+                                    <input type="radio" name="tipo" value="busco" class="peer hidden" <?= $currentType == 'busco' ? 'checked' : '' ?>>
                                     <div class="p-4 rounded-xl border border-gray-600 cursor-pointer peer-checked:border-purple-500 peer-checked:bg-purple-500/10 peer-checked:text-white text-gray-400 transition-all text-center hover:bg-gray-800">
                                         <i class="fas fa-walking text-xl mb-2"></i>
                                         <div class="font-bold">Busco plaza</div>
@@ -57,8 +76,10 @@
                                 <i class="fas fa-map-marker-alt absolute left-3 top-3.5 text-gray-500"></i>
                                 <select name="origen" id="origen" required class="block w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary appearance-none cursor-pointer">
                                     <option value="">Selecciona origen...</option>
-                                    <?php foreach ($locations as $loc): ?>
-                                        <option value="<?= $loc['idLocalidad'] ?>" <?= (isset($_POST['origen']) && $_POST['origen'] == $loc['idLocalidad']) ? 'selected' : '' ?>>
+                                    <?php 
+                                    $selOrigen = getVal('origen', $isEdit ? $ride : [], $_POST);
+                                    foreach ($locations as $loc): ?>
+                                        <option value="<?= $loc['idLocalidad'] ?>" <?= $selOrigen == $loc['idLocalidad'] ? 'selected' : '' ?>>
                                             <?= htmlspecialchars($loc['nombreLocalidad']) ?>
                                         </option>
                                     <?php endforeach; ?>
@@ -74,8 +95,10 @@
                                 <i class="fas fa-flag-checkered absolute left-3 top-3.5 text-gray-500"></i>
                                 <select name="destino" id="destino" required class="block w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary appearance-none cursor-pointer">
                                     <option value="">Selecciona destino...</option>
-                                    <?php foreach ($locations as $loc): ?>
-                                        <option value="<?= $loc['idLocalidad'] ?>" <?= (isset($_POST['destino']) && $_POST['destino'] == $loc['idLocalidad']) ? 'selected' : '' ?>>
+                                    <?php 
+                                    $selDestino = getVal('destino', $isEdit ? $ride : [], $_POST);
+                                    foreach ($locations as $loc): ?>
+                                        <option value="<?= $loc['idLocalidad'] ?>" <?= $selDestino == $loc['idLocalidad'] ? 'selected' : '' ?>>
                                             <?= htmlspecialchars($loc['nombreLocalidad']) ?>
                                         </option>
                                     <?php endforeach; ?>
@@ -90,7 +113,7 @@
                             <div class="relative">
                                 <i class="far fa-calendar-alt absolute left-3 top-3.5 text-gray-500"></i>
                                 <input type="date" name="fechaSalida" id="fechaSalida" required min="<?= date('Y-m-d') ?>" 
-                                       value="<?= $_POST['fechaSalida'] ?? '' ?>"
+                                       value="<?= getVal('fechaSalida', $isEdit ? $ride : [], $_POST) ?>"
                                        class="block w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary [color-scheme:dark]">
                             </div>
                         </div>
@@ -101,7 +124,7 @@
                             <div class="relative">
                                 <i class="far fa-clock absolute left-3 top-3.5 text-gray-500"></i>
                                 <input type="time" name="horaSalida" id="horaSalida" required 
-                                       value="<?= $_POST['horaSalida'] ?? '' ?>"
+                                       value="<?= getVal('horaSalida', $isEdit ? $ride : [], $_POST) ?>"
                                        class="block w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary [color-scheme:dark]">
                             </div>
                         </div>
@@ -112,7 +135,7 @@
                             <div class="relative">
                                 <i class="fas fa-history absolute left-3 top-3.5 text-gray-500"></i>
                                 <input type="time" name="horaRegreso" id="horaRegreso" 
-                                       value="<?= $_POST['horaRegreso'] ?? '' ?>"
+                                       value="<?= getVal('horaRegreso', $isEdit ? $ride : [], $_POST) ?>"
                                        class="block w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary [color-scheme:dark]">
                             </div>
                             <p class="text-xs text-gray-500 mt-1">Solo si haces viaje de vuelta el mismo día.</p>
@@ -133,7 +156,7 @@
                             <div class="relative">
                                 <i class="fas fa-chair absolute left-3 top-3.5 text-gray-500"></i>
                                 <input type="number" name="plazasDisponibles" min="1" max="8" required 
-                                       value="<?= $_POST['plazasDisponibles'] ?? '1' ?>"
+                                       value="<?= getVal('plazasDisponibles', $isEdit ? $ride : [], $_POST, '1') ?>"
                                        class="block w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary">
                             </div>
                         </div>
@@ -144,7 +167,7 @@
                             <div class="relative text-white">
                                 <i class="fas fa-euro-sign absolute left-3 top-3.5 text-gray-500"></i>
                                 <input type="number" name="precio" min="0" step="0.50" 
-                                       value="<?= $_POST['precio'] ?? '' ?>"
+                                       value="<?= getVal('precio', $isEdit ? $ride : [], $_POST) ?>"
                                        placeholder="Ej: 5.00 (Opcional)"
                                        class="block w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary placeholder-gray-500">
                             </div>
@@ -155,7 +178,7 @@
                             <label class="block text-sm font-medium text-gray-400 mb-1.5">Comentarios adicionales</label>
                             <textarea name="descripcion" rows="3" 
                                       placeholder="Punto de encuentro exacto, tamaño de equipaje permitido, si aceptas mascotas..."
-                                      class="block w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary resize-none placeholder-gray-500"><?= htmlspecialchars($_POST['descripcion'] ?? '') ?></textarea>
+                                      class="block w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary resize-none placeholder-gray-500"><?= htmlspecialchars(getVal('descripcion', $isEdit ? $ride : [], $_POST)) ?></textarea>
                         </div>
                     </div>
                 </div>
@@ -163,7 +186,7 @@
                 <div class="pt-6 border-t border-gray-700 flex items-center justify-end gap-4">
                     <a href="dashboard.php" class="px-6 py-3 rounded-xl border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-800 transition-all font-medium">Cancelar</a>
                     <button type="submit" class="px-8 py-3 rounded-xl bg-primary text-secondary font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5">
-                        Publicar Viaje <i class="fas fa-paper-plane ml-2"></i>
+                        <?= $submitText ?> <i class="fas fa-paper-plane ml-2"></i>
                     </button>
                 </div>
 
@@ -173,6 +196,44 @@
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Elementos
+    const typeRadios = document.querySelectorAll('input[name="tipo"]');
+    const seatsInput = document.querySelector('input[name="plazasDisponibles"]');
+    const priceInput = document.querySelector('input[name="precio"]');
+    const seatsContainer = seatsInput.closest('div').parentElement;
+    const priceContainer = priceInput.closest('div').parentElement;
+
+    function toggleInputs() {
+        const selectedType = document.querySelector('input[name="tipo"]:checked').value;
+        
+        if (selectedType === 'busco') {
+            // Campos deshabilitados para tipo busco transporte
+            seatsInput.disabled = true;
+            seatsInput.value = '';
+            priceInput.disabled = true;
+            priceInput.value = '';
+            
+            // Estilo visual para los campos deshabilitados
+            seatsInput.classList.add('opacity-50', 'cursor-not-allowed');
+            priceInput.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+            // Campos habilitados
+            seatsInput.disabled = false;
+            priceInput.disabled = false;
+            
+            seatsInput.classList.remove('opacity-50', 'cursor-not-allowed');
+            priceInput.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    }
+
+    typeRadios.forEach(radio => {
+        radio.addEventListener('change', toggleInputs);
+    });
+
+    toggleInputs();
+});
+
 document.getElementById('publishForm').addEventListener('submit', function(e) {
     const origen = document.getElementById('origen').value;
     const destino = document.getElementById('destino').value;

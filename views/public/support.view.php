@@ -113,7 +113,7 @@
                  </div>
                  <div class="p-6 rounded-2xl bg-gray-900/50 border border-white/5">
                      <i class="fas fa-map-marker-alt text-2xl text-purple-400 mb-3"></i>
-                     <p class="text-sm text-gray-400">Campus Universitario</p>
+                     <p class="text-sm text-gray-400">Lepe, Huelva</p>
                  </div>
             </div>
 

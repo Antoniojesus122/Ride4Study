@@ -202,6 +202,23 @@
     <!-- Barra lateral -->
     <aside class="w-full md:w-80 px-6 hidden md:block shrink-0">
         <div class="sticky top-6 space-y-6">
+             <!-- Alertas -->
+            <?php if (isset($_GET['error'])): ?>
+                <div class="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-xl text-sm">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <?php 
+                    switch($_GET['error']) {
+                        case 'own_ride': echo 'No puedes reservar tu propio viaje.'; break;
+                        case 'already_booked': echo 'Ya has solicitado plaza en este viaje.'; break;
+                        case 'no_seats': echo 'No quedan plazas disponibles.'; break;
+                        case 'reservation_failed': echo 'Error al realizar la reserva.'; break;
+                        case 'invalid_type': echo 'Este tipo de anuncio no admite reservas directas. Contacta con el usuario.'; break;
+                        default: echo 'Ha ocurrido un error.';
+                    }
+                    ?>
+                </div>
+            <?php endif; ?>
+            
             <div class="bg-surface rounded-2xl p-6 border border-gray-700 shadow-xl">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
@@ -241,7 +258,7 @@
                 <a href="#" class="text-xs text-primary font-bold hover:underline relative z-10">Ver consejos de seguridad &rarr;</a>
             </div>
             
-            <!-- Footer con links  -->
+            <!-- Mini footer con links  -->
             <div class="flex flex-wrap gap-x-4 gap-y-2 text-xs text-gray-600 px-2">
                 <a href="#" class="hover:text-gray-400">Ayuda</a>
                 <a href="#" class="hover:text-gray-400">Términos</a>
@@ -340,9 +357,9 @@
                                 </div>
 
                                 <div class="mt-6">
-                                    <button class="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg py-2 text-sm font-medium transition-all">
+                                    <a href="#" id="modal-profile-link" class="w-full flex justify-center bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg py-2 text-sm font-medium transition-all">
                                         Ver perfil completo
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -357,9 +374,9 @@
                     <button type="button" class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-600 bg-transparent px-4 py-2 text-base font-medium text-gray-300 shadow-sm hover:bg-gray-800 hover:text-white sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-all" onclick="closeRideModal()">
                         Cerrar
                     </button>
-                    <button type="button" id="btn-contact" class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-600 bg-transparent px-4 py-2 text-base font-medium text-gray-300 shadow-sm hover:bg-gray-800 hover:text-white sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-all">
+                    <a href="#" id="btn-contact" class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-600 bg-transparent px-4 py-2 text-base font-medium text-gray-300 shadow-sm hover:bg-gray-800 hover:text-white sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-all text-center items-center">
                         Contactar
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -370,13 +387,14 @@
     const modal = document.getElementById('ride-modal');
     const backdrop = document.getElementById('modal-backdrop');
     const panel = document.getElementById('modal-panel');
+    const currentUserId = <?= $_SESSION['user_id'] ?>;
 
     function openRideModal(ride) {
         // Datos del viaje
         document.getElementById('modal-origin').textContent = ride.nombreOrigen;
         document.getElementById('modal-dest').textContent = ride.nombreDestino;
         document.getElementById('modal-time-start').textContent = ride.horaSalida.substring(0, 5);
-        document.getElementById('modal-time-end').textContent = '—'; 
+        document.getElementById('modal-time-end').textContent = ride.horaRegreso ? 'Regreso: ' + ride.horaRegreso.substring(0, 5) : '—'; 
         document.getElementById('modal-price').textContent = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(ride.precio);
         document.getElementById('modal-seats').textContent = ride.plazasDisponibles;
         document.getElementById('modal-desc').textContent = ride.descripcion || 'Sin descripción adicional.';
@@ -384,6 +402,8 @@
         // Datos del usuario
         document.getElementById('modal-driver-name').textContent = ride.nombreUsuario;
         document.getElementById('modal-avatar').textContent = ride.nombreUsuario.substring(0, 2).toUpperCase();
+        document.getElementById('modal-profile-link').href = 'profile.php?id=' + ride.idUsuario;
+        document.getElementById('btn-contact').href = 'chat.php?user_id=' + ride.idUsuario;
         
         // Valoración
         const rating = parseFloat(ride.rating || 0).toFixed(1);
@@ -399,6 +419,53 @@
              verifiedEl.textContent = 'No verificado';
              verifiedEl.className = 'text-gray-500';
              verifiedEl.previousElementSibling.className = 'fas fa-shield-alt w-5 text-center text-gray-500';
+        }
+
+        // Lógica para reserva
+        const btnReserve = document.getElementById('btn-reserve');
+        btnReserve.onclick = null;
+        btnReserve.style.display = 'inline-flex';
+        
+        // Resetear estilos y estados
+        btnReserve.disabled = false;
+        btnReserve.className = "w-full inline-flex justify-center rounded-xl border border-transparent bg-primary px-4 py-2 text-base font-bold text-secondary shadow-sm hover:bg-primary-dark sm:ml-3 sm:w-auto sm:text-sm transition-all shadow-primary/20 hover:shadow-primary/40";
+        btnReserve.textContent = 'Solicitar plaza';
+
+        // Esconder viajes propios del usuario
+        if (ride.idUsuario == currentUserId) {
+            btnReserve.disabled = true;
+            btnReserve.textContent = 'Tu viaje';
+            btnReserve.className = "w-full inline-flex justify-center rounded-xl border border-gray-600 bg-gray-800 px-4 py-2 text-base font-bold text-gray-500 cursor-not-allowed sm:ml-3 sm:w-auto sm:text-sm";
+        }
+        // Verificar si el usuario ya ha reservado el viaje que está viendo
+        else if (ride.booking_status) {
+            btnReserve.disabled = true;
+            if (ride.booking_status === 'pendiente') {
+                btnReserve.textContent = 'Solicitud Pendiente';
+                btnReserve.className = "w-full inline-flex justify-center rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-2 text-base font-bold text-yellow-500 cursor-not-allowed sm:ml-3 sm:w-auto sm:text-sm";
+            } else if (ride.booking_status === 'aceptado') {
+                btnReserve.textContent = 'Plaza Confirmada';
+                btnReserve.className = "w-full inline-flex justify-center rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-2 text-base font-bold text-green-500 cursor-not-allowed sm:ml-3 sm:w-auto sm:text-sm";
+            } else {
+                btnReserve.textContent = 'Rechazado';
+                btnReserve.className = "w-full inline-flex justify-center rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2 text-base font-bold text-red-500 cursor-not-allowed sm:ml-3 sm:w-auto sm:text-sm";
+            }
+        }
+        // Verificar si no hay plazas disponibles en ese viaje
+        else if (ride.plazasDisponibles <= 0) {
+            btnReserve.disabled = true;
+            btnReserve.textContent = 'Completo';
+            btnReserve.className = "w-full inline-flex justify-center rounded-xl border border-gray-600 bg-gray-800 px-4 py-2 text-base font-bold text-gray-500 cursor-not-allowed sm:ml-3 sm:w-auto sm:text-sm";
+        }
+        // Verificar que el viaje es de tipo ofrezco, para que se habilite la posibilidad de reservar plaza
+        else if (ride.tipo.toLowerCase() === 'ofrezco') {
+             btnReserve.onclick = function() {
+                 window.location.href = 'reserve.php?ride_id=' + ride.idAnuncio;
+             };
+        }
+        else {
+             // Para los viajes donde el usuario busca transporte, se deshabilita el botón de reservar
+            btnReserve.style.display = 'none';
         }
 
         // Mostrar modal

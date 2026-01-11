@@ -4,7 +4,6 @@ class Ride {
     private $table = 'anuncios';
 
     public $idAnuncio;
-    // ... propiedades existentes ...
 
     public function __construct($db) {
         $this->conn = $db;
@@ -47,22 +46,21 @@ class Ride {
         }
 
         if (!empty($filters['tipo'])) {
-            // Normalize tipo (DB uses lowercase 'ofrezco'/'busco')
+            // Pasar los tipos de minúsculas
             $query .= " AND LOWER(a.tipo) = :tipo";
             $params[':tipo'] = strtolower($filters['tipo']);
         }
         
-        // Exclude past rides (date/time before now)
+        // Excluir viajes pasados
         $query .= " AND (a.fechaSalida > CURDATE() OR (a.fechaSalida = CURDATE() AND a.horaSalida >= CURTIME()))";
 
         $query .= " GROUP BY a.idAnuncio";
-        // Order: upcoming nearest first (fecha/hora asc) and within same datetime show most recently published first
         $query .= " ORDER BY a.fechaSalida ASC, a.horaSalida ASC, a.fechaPublicacion DESC";
         $query .= " LIMIT :limit OFFSET :offset";
 
         $stmt = $this->conn->prepare($query);
         
-        // Filtros binding
+        // Filtros fijados
         foreach ($params as $key => &$val) {
             $stmt->bindParam($key, $val);
         }
@@ -107,12 +105,12 @@ class Ride {
             $countParams[':tipo'] = strtolower($filters['tipo']);
         }
 
-        // Exclude past rides in count as well
+        // Se excluyen los viajes pasados en el recuento de viajes
         $countQuery .= " AND (a.fechaSalida > CURDATE() OR (a.fechaSalida = CURDATE() AND a.horaSalida >= CURTIME()))";
 
         $countStmt = $this->conn->prepare($countQuery);
         
-        // Bind parameters
+        // Vincular parámetros
         foreach ($countParams as $key => &$val) {
             $countStmt->bindParam($key, $val);
         }
@@ -126,6 +124,31 @@ class Ride {
             'total' => $totalRides,
             'pages' => ceil($totalRides / $limit)
         ];
+    }
+
+    // Comprobar si el usuario tiene una reserva para un viaje específico
+    public function hasBooking($rideId, $userId) {
+        $query = "SELECT estado FROM viajes WHERE idAnuncio = :rideId AND idPasajero = :userId";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':rideId', $rideId);
+        $stmt->bindParam(':userId', $userId);
+        $stmt->execute();
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    // Obtener todas las reservar de un usuario
+    public function getUserBookings($userId) {
+        $query = "SELECT idAnuncio, estado FROM viajes WHERE idPasajero = :userId";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':userId', $userId);
+        $stmt->execute();
+        
+        $bookings = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $bookings[$row['idAnuncio']] = $row['estado'];
+        }
+        return $bookings;
     }
 
     public function getRidesByUserId($userId) {
@@ -149,7 +172,7 @@ class Ride {
         $pastRides = [];
         
         foreach ($allRides as &$ride) {
-            // Get Passengers for this ride
+            // Obtener los pasajeros de un viaje
             $passengerQuery = "SELECT u.idUsuario, u.nombre, u.foto_perfil, v.fechaSalida as fechaUnido, v.estado
                                FROM viajes v
                                JOIN usuarios u ON v.idPasajero = u.idUsuario
@@ -159,7 +182,7 @@ class Ride {
             $pStmt->execute();
             $ride['passengers'] = $pStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Separate active/past
+            // Separar viajes activos de pasados
             $rideDateTime = $ride['fechaSalida'] . ' ' . $ride['horaSalida'];
             if ($rideDateTime >= $currentDate) {
                 $activeRides[] = $ride;
@@ -169,6 +192,24 @@ class Ride {
         }
 
         return ['active' => $activeRides, 'past' => $pastRides];
+    }
+
+    public function getPassengerBookings($userId) {
+        $query = "SELECT a.*, u.nombre as nombreUsuario, u.foto_perfil, v.estado as estadoReserva, 
+                  lo.nombreLocalidad as nombreOrigen, ld.nombreLocalidad as nombreDestino
+                  FROM viajes v
+                  JOIN " . $this->table . " a ON v.idAnuncio = a.idAnuncio
+                  JOIN usuarios u ON a.idUsuario = u.idUsuario
+                  JOIN localidades lo ON a.origen = lo.idLocalidad
+                  JOIN localidades ld ON a.destino = ld.idLocalidad
+                  WHERE v.idPasajero = :userId
+                  ORDER BY a.fechaSalida DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':userId', $userId);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getAllLocations() {
@@ -186,17 +227,16 @@ class Ride {
 
         $stmt = $this->conn->prepare($query);
 
-        // Sanitize
+        // Sanitización de datos
         $data['descripcion'] = htmlspecialchars(strip_tags($data['descripcion']));
 
-        // Bind
         $stmt->bindParam(':idUsuario', $data['idUsuario']);
         $stmt->bindParam(':tipo', $data['tipo']);
         $stmt->bindParam(':origen', $data['origen']);
         $stmt->bindParam(':destino', $data['destino']);
         $stmt->bindParam(':fechaSalida', $data['fechaSalida']);
         $stmt->bindParam(':horaSalida', $data['horaSalida']);
-        $stmt->bindParam(':horaRegreso', $data['horaRegreso']); // Can be null
+        $stmt->bindParam(':horaRegreso', $data['horaRegreso']);
         $stmt->bindParam(':plazasDisponibles', $data['plazasDisponibles']);
         $stmt->bindParam(':precio', $data['precio']);
         $stmt->bindParam(':descripcion', $data['descripcion']);
@@ -228,17 +268,36 @@ class Ride {
     }
     public function requestReservation($rideId, $userId) {
         $query = "INSERT INTO viajes (idAnuncio, idConductor, idPasajero, estado, fechaSalida)
-                  SELECT :rideId, idUsuario, :userId, 'pendiente', NOW()
+                  SELECT :rideId, idUsuario, :userId, 'pendiente', ADDTIME(fechaSalida, horaSalida)
                   FROM " . $this->table . " WHERE idAnuncio = :rideId";
         
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':rideId', $rideId);
-        $stmt->bindParam(':userId', $userId);
-        
-        return $stmt->execute();
+        try {
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':rideId', $rideId);
+            $stmt->bindParam(':userId', $userId);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("Reservation Error: " . $e->getMessage());
+            return false;
+        }
     }
 
+
+    // Función para obtener si se ha actualizado el estatus de la reserva de una plaza en un viaje
     public function updateReservationStatus($rideId, $passengerId, $status) {
+        
+        if ($status === 'aceptado') {
+            $updateSeats = "UPDATE " . $this->table . " SET plazasDisponibles = plazasDisponibles - 1 
+                            WHERE idAnuncio = :rideId AND plazasDisponibles > 0";
+            $stmtSeats = $this->conn->prepare($updateSeats);
+            $stmtSeats->bindParam(':rideId', $rideId);
+            $stmtSeats->execute();
+
+            if ($stmtSeats->rowCount() === 0) {
+                return false;
+            }
+        }
+
         $query = "UPDATE viajes SET estado = :status 
                   WHERE idAnuncio = :rideId AND idPasajero = :passengerId";
         $stmt = $this->conn->prepare($query);
@@ -246,14 +305,34 @@ class Ride {
         $stmt->bindParam(':rideId', $rideId);
         $stmt->bindParam(':passengerId', $passengerId);
         
-        // Si se acepta, reducir plazas (Opcional, pero recomendable)
-        if ($status === 'aceptado') {
-             $updateSeats = "UPDATE " . $this->table . " SET plazasDisponibles = plazasDisponibles - 1 
-                             WHERE idAnuncio = :rideId AND plazasDisponibles > 0";
-             $stmtSeats = $this->conn->prepare($updateSeats);
-             $stmtSeats->bindParam(':rideId', $rideId);
-             $stmtSeats->execute();
-        }
+        return $stmt->execute();
+    }
+
+    public function updateRide($id, $data) {
+        $query = "UPDATE " . $this->table . " 
+                  SET origen = :origen, 
+                      destino = :destino, 
+                      fechaSalida = :fechaSalida, 
+                      horaSalida = :horaSalida, 
+                      horaRegreso = :horaRegreso, 
+                      plazasDisponibles = :plazasDisponibles, 
+                      precio = :precio, 
+                      descripcion = :descripcion
+                  WHERE idAnuncio = :id";
+
+        $stmt = $this->conn->prepare($query);
+
+        $data['descripcion'] = htmlspecialchars(strip_tags($data['descripcion']));
+
+        $stmt->bindParam(':origen', $data['origen']);
+        $stmt->bindParam(':destino', $data['destino']);
+        $stmt->bindParam(':fechaSalida', $data['fechaSalida']);
+        $stmt->bindParam(':horaSalida', $data['horaSalida']);
+        $stmt->bindParam(':horaRegreso', $data['horaRegreso']);
+        $stmt->bindParam(':plazasDisponibles', $data['plazasDisponibles']);
+        $stmt->bindParam(':precio', $data['precio']);
+        $stmt->bindParam(':descripcion', $data['descripcion']);
+        $stmt->bindParam(':id', $id);
 
         return $stmt->execute();
     }
