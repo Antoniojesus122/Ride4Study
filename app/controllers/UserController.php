@@ -21,7 +21,6 @@ class UserController {
             exit;
         }
         
-        // Check if viewing own profile or other's
         $viewUserId = isset($_GET['id']) ? (int)$_GET['id'] : $_SESSION['user_id'];
         $isOwnProfile = ($viewUserId === $_SESSION['user_id']);
         
@@ -53,7 +52,7 @@ class UserController {
             'ciudad' => $_POST['ciudad']
         ];
 
-        // Handle Photo Upload
+        // Subida de foto de perfil
         if (isset($_FILES['foto_perfil']) && $_FILES['foto_perfil']['error'] === UPLOAD_ERR_OK) {
              // Validar tamaño (2MB) y tipo
              if ($_FILES['foto_perfil']['size'] <= 2097152) {
@@ -68,7 +67,7 @@ class UserController {
         }
 
         if ($this->user->updateUser($id, $data)) {
-            $_SESSION['user_name'] = $data['nombre']; // Update session name
+            $_SESSION['user_name'] = $data['nombre']; // Actualizar nombre en sesión
             header('Location: profile.php?success=updated');
         } else {
             header('Location: profile.php?error=update_failed');

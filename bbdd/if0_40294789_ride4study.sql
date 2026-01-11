@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 13-11-2025 a las 00:03:04
+-- Tiempo de generación: 12-01-2026 a las 00:06:08
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -55,7 +55,8 @@ INSERT INTO `anuncios` (`idAnuncio`, `idUsuario`, `tipo`, `origen`, `destino`, `
 (6, 1, 'busco', 5, 10, '2025-10-31', '02:00:00', '06:00:00', 4, NULL, NULL, '2025-10-29 23:50:24'),
 (7, 8, 'ofrezco', 6, 4, '2025-11-12', '03:04:00', NULL, 3, NULL, NULL, '2025-11-12 22:04:35'),
 (8, 8, 'ofrezco', 12, 20, '2025-11-28', '03:03:00', '06:06:00', 4, NULL, NULL, '2025-11-12 22:05:08'),
-(9, 8, 'ofrezco', 3, 17, '2025-11-29', '04:04:00', NULL, 4, NULL, NULL, '2025-11-12 22:06:08');
+(9, 8, 'ofrezco', 3, 17, '2025-11-29', '04:04:00', NULL, 4, NULL, NULL, '2025-11-12 22:06:08'),
+(10, 1, 'ofrezco', 18, 3, '2026-01-23', '03:02:00', '11:01:00', 0, NULL, 'Esto es una prueba', '2026-01-11 23:26:23');
 
 -- --------------------------------------------------------
 
@@ -134,7 +135,8 @@ INSERT INTO `mensajes` (`idMensaje`, `idEmisor`, `idReceptor`, `mensaje`, `fecha
 (17, 8, 5, 'Y tu ??', '2025-11-12 23:01:44', 1),
 (18, 5, 8, 'Nah muy bien', '2025-11-12 23:01:48', 1),
 (19, 8, 5, 'Me alegro jeje', '2025-11-12 23:01:52', 1),
-(20, 5, 1, 'Hey', '2025-11-12 23:02:16', 0);
+(20, 5, 1, 'Hey', '2025-11-12 23:02:16', 1),
+(25, 1, 9, 'vds', '2026-01-11 22:27:40', 1);
 
 -- --------------------------------------------------------
 
@@ -167,7 +169,9 @@ CREATE TABLE `roles` (
 
 INSERT INTO `roles` (`idRol`, `nombreRol`) VALUES
 (1, 'Administrador'),
-(2, 'Usuario');
+(2, 'Usuario'),
+(3, 'Usuario Premium'),
+(4, 'Institución');
 
 -- --------------------------------------------------------
 
@@ -194,6 +198,9 @@ CREATE TABLE `usuarios` (
   `nombre` varchar(100) NOT NULL,
   `correo` varchar(100) NOT NULL,
   `telefono` varchar(15) DEFAULT NULL,
+  `ciudad` varchar(100) DEFAULT NULL,
+  `vehiculo` varchar(150) DEFAULT NULL,
+  `institucion` varchar(150) DEFAULT NULL,
   `foto_perfil` varchar(255) DEFAULT NULL,
   `biografia` text DEFAULT NULL,
   `contrasena` varchar(255) NOT NULL,
@@ -207,15 +214,16 @@ CREATE TABLE `usuarios` (
 -- Volcado de datos para la tabla `usuarios`
 --
 
-INSERT INTO `usuarios` (`idUsuario`, `nombre`, `correo`, `telefono`, `foto_perfil`, `biografia`, `contrasena`, `idRol`, `estado_verificacion`, `documento_verificacion`, `nota_admin`) VALUES
-(1, 'Antonio Jesús', 'antoniojesusgonzalezdomingo4@gmail.com', '624897163', NULL, NULL, '$2y$10$A3aXkdZ8N2CSdD14.89TZuq.khcYO6yKq4XWHNFSYVM2IdM21Zzti', 2, 0, NULL, NULL),
-(2, 'Admin', 'admin@ride4study.local', '600000000', NULL, NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 0, NULL, NULL),
-(3, 'Antonio Jesús', 'ibt_ag2@yopmail.com', '624897163', NULL, NULL, '$2y$10$k7Sx5fs0kCDgHuiEBGtLeuYvpXW7vJIJyEzGSmDn/ri8.3hXpukZO', 2, 0, NULL, NULL),
-(4, 'Antonio Jesús', 'ibt_ag9@yopmail.com', '', NULL, NULL, '$2y$10$0VRX1y4fQg5ETpV.gZKK/.Qmx4tfUNVOSaQ0Pf6JVwtNSxli8bDYu', 2, 0, NULL, NULL),
-(5, 'Antonio Jesús', 'ibt_ag10@yopmail.com', '', NULL, NULL, '$2y$10$eYKHDf7MME2mUc07v/ESfugs9QJD/Bh5xTmEZ2dRsqhM9614NxtvK', 2, 1, '6915085dcb57d-reza-madani-UI6feF4NbQs-unsplash.jpg', NULL),
-(6, 'Administrador', 'admin@ride4study.com', '600000000', NULL, NULL, '$2y$10$YcPnD9StN5jL1BqOq7wHkeHTdY9aHw.5Fh0A1r7SV3gIfhTzKkSm2', 1, 0, NULL, NULL),
-(7, 'Manuel Hernandez', 'antoniodomingo.gd@gmail.com', '', NULL, NULL, '$2y$10$aA2cOTEE6OXyk4FMutL6CezP2OPP7QSRLFaLDCkzvd06gSfQwxlvq', 2, 0, NULL, NULL),
-(8, 'González Domingo', 'ibt_11@yopmail.com', '', NULL, NULL, '$2y$10$N06dxbYdBrxjGpiDJX.Bx.I6cdRrUoWK4Xn4Mp.C8RbzyftvRO.my', 2, 0, NULL, NULL);
+INSERT INTO `usuarios` (`idUsuario`, `nombre`, `correo`, `telefono`, `ciudad`, `vehiculo`, `institucion`, `foto_perfil`, `biografia`, `contrasena`, `idRol`, `estado_verificacion`, `documento_verificacion`, `nota_admin`) VALUES
+(1, 'Antonio Jesús', 'antoniojesusgonzalezdomingo4@gmail.com', '624897163', 'Lepe', 'Citroen xsara', 'IES La Arboleda', NULL, 'Hola! Soy nuevo por aquí', '$2y$10$A3aXkdZ8N2CSdD14.89TZuq.khcYO6yKq4XWHNFSYVM2IdM21Zzti', 2, 0, NULL, NULL),
+(2, 'Admin', 'admin@ride4study.local', '600000000', NULL, NULL, NULL, NULL, NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 0, NULL, NULL),
+(3, 'Antonio Jesús', 'ibt_ag2@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$k7Sx5fs0kCDgHuiEBGtLeuYvpXW7vJIJyEzGSmDn/ri8.3hXpukZO', 2, 0, NULL, NULL),
+(4, 'Antonio Jesús', 'ibt_ag9@yopmail.com', '', NULL, NULL, NULL, NULL, NULL, '$2y$10$0VRX1y4fQg5ETpV.gZKK/.Qmx4tfUNVOSaQ0Pf6JVwtNSxli8bDYu', 2, 0, NULL, NULL),
+(5, 'Antonio Jesús', 'ibt_ag10@yopmail.com', '', NULL, NULL, NULL, NULL, NULL, '$2y$10$eYKHDf7MME2mUc07v/ESfugs9QJD/Bh5xTmEZ2dRsqhM9614NxtvK', 2, 1, '6915085dcb57d-reza-madani-UI6feF4NbQs-unsplash.jpg', NULL),
+(6, 'Administrador', 'admin@ride4study.com', '600000000', NULL, NULL, NULL, NULL, NULL, '$2y$10$YcPnD9StN5jL1BqOq7wHkeHTdY9aHw.5Fh0A1r7SV3gIfhTzKkSm2', 1, 0, NULL, NULL),
+(7, 'Manuel Hernandez', 'antoniodomingo.gd@gmail.com', '', NULL, NULL, NULL, NULL, NULL, '$2y$10$aA2cOTEE6OXyk4FMutL6CezP2OPP7QSRLFaLDCkzvd06gSfQwxlvq', 2, 0, NULL, NULL),
+(8, 'González Domingo', 'ibt_11@yopmail.com', '', NULL, NULL, NULL, NULL, NULL, '$2y$10$N06dxbYdBrxjGpiDJX.Bx.I6cdRrUoWK4Xn4Mp.C8RbzyftvRO.my', 2, 0, NULL, NULL),
+(9, 'Fernando Domingo', 'ibt_ag120@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, '$2y$10$XbHjzM5fymscL8yZauHJgep8MYliOSwFRYGoCYnvKPXdYyCILBMFK', 2, 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -251,6 +259,7 @@ CREATE TABLE `viajes` (
 --
 
 INSERT INTO `viajes` (`idViaje`, `idAnuncio`, `idConductor`, `idPasajero`, `estado`, `fechaSalida`, `fechaRegreso`) VALUES
+(0, 10, 1, 9, '', '2026-01-23 03:02:00', NULL),
 (1, 6, 1, 7, 'pendiente', '2025-10-29 23:50:24', '2025-10-29 23:50:24');
 
 --
@@ -325,7 +334,7 @@ ALTER TABLE `viajes`
 -- AUTO_INCREMENT de la tabla `anuncios`
 --
 ALTER TABLE `anuncios`
-  MODIFY `idAnuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `idAnuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `localidades`
@@ -337,7 +346,7 @@ ALTER TABLE `localidades`
 -- AUTO_INCREMENT de la tabla `mensajes`
 --
 ALTER TABLE `mensajes`
-  MODIFY `idMensaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `idMensaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
@@ -349,7 +358,7 @@ ALTER TABLE `notificaciones`
 -- AUTO_INCREMENT de la tabla `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `idRol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idRol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `sesiones`
@@ -361,7 +370,7 @@ ALTER TABLE `sesiones`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Restricciones para tablas volcadas

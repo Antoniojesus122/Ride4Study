@@ -260,10 +260,10 @@
             
             <!-- Mini footer con links  -->
             <div class="flex flex-wrap gap-x-4 gap-y-2 text-xs text-gray-600 px-2">
-                <a href="#" class="hover:text-gray-400">Ayuda</a>
-                <a href="#" class="hover:text-gray-400">Términos</a>
-                <a href="#" class="hover:text-gray-400">Privacidad</a>
-                <span>© 2025 Ride4Study</span>
+                <a href="support.php" class="hover:text-gray-400">Ayuda</a>
+                <a href="terms.php" class="hover:text-gray-400">Términos</a>
+                <a href="privacy.php" class="hover:text-gray-400">Privacidad</a>
+                <span>© 2026 Ride4Study</span>
             </div>
         </div>
     </aside>

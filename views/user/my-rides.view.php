@@ -4,7 +4,7 @@
     
     <div class="mb-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h2 class="text-3xl font-bold text-white">Mis Viajes Publicados</h2>
+            <h2 class="text-3xl font-bold text-white">Mis Viajes</h2>
             <p class="text-gray-400 mt-2">Gestiona tus anuncios, revisa quién se ha unido y mantén tu historial organizado.</p>
         </div>
         <a href="publish.php" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl text-secondary bg-primary hover:bg-primary-dark transition-all transform hover:-translate-y-0.5 shadow-lg shadow-primary/20">
@@ -48,7 +48,7 @@
     <div class="mb-8 border-b border-gray-700">
         <nav class="-mb-px flex space-x-8" aria-label="Tabs">
             <button onclick="switchTab('active')" id="tab-active" class="border-primary text-primary whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2">
-                <i class="fas fa-route"></i> Publicados Activos 
+                <i class="fas fa-route"></i> Viajes Activos 
                 <span class="bg-gray-800 text-gray-300 py-0.5 px-2 rounded-full text-xs ml-1"><?= count($activeRides) ?></span>
             </button>
             <button onclick="switchTab('past')" id="tab-past" class="border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2">

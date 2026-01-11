@@ -38,7 +38,6 @@ class MessageController {
 
         $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
 
-        // Reuse the same view for both list and specific chat
         require_once __DIR__ . '/../../views/user/chat.view.php';
     }
 
@@ -54,7 +53,6 @@ class MessageController {
 
         $messages = $this->message->getMessages($userId, $otherUserId);
         
-        // Render only the partial
         require_once __DIR__ . '/../../views/user/chat-messages.partial.php';
     }
 
@@ -70,7 +68,7 @@ class MessageController {
         $otherUserId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : null;
 
         if (!$otherUserId) {
-             $this->index(); // Fallback to index if no user selected
+             $this->index();
              return;
         }
 
@@ -78,7 +76,6 @@ class MessageController {
         $messages = $this->message->getMessages($userId, $otherUserId);
         $otherUser = $this->user->getUserById($otherUserId); 
 
-        // Context (Ride)
         $contextRide = null;
         if (isset($_GET['ride_id'])) {
             $rideId = (int)$_GET['ride_id'];
@@ -124,7 +121,6 @@ class MessageController {
             $this->message->deleteMessage($msgId, $_SESSION['user_id']);
         }
         
-        // Return JSON for AJAX or redirect
         if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
              echo json_encode(['success' => true]);
         } else {

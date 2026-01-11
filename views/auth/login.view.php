@@ -101,34 +101,6 @@
                   </div>
                 </form>
               </div>
-              
-              <div class="mt-6">
-                  <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                      <div class="w-full border-t border-gray-700"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                      <span class="bg-secondary px-2 text-gray-500">O continúa con</span>
-                    </div>
-                  </div>
-
-                  <div class="mt-6 grid grid-cols-2 gap-3">
-                    <a href="#" class="flex w-full items-center justify-center gap-3 rounded-lg bg-surface px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-700 hover:bg-gray-700 focus-visible:ring-transparent transition-all">
-                      <svg class="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24">
-                        <path d="M12.0003 20.45c-4.6667 0-8.45-3.7833-8.45-8.45 0-4.6667 3.7833-8.45 8.45-8.45 4.6667 0 8.45 3.7833 8.45 8.45 0 4.6667-3.7833 8.45-8.45 8.45Z" fill="#fff" fill-opacity="0" stroke="currentColor" stroke-width="1.5"></path>
-                        <path d="M22.0003 12c-1.5714 0-2.8571-1.2857-4.2857-2.1429-1.4286-.8571-3.1429-.8571-4.2857 0-1.4286.8571-2.8571 2.1429-4.2857 2.1429C7.7146 12 5.5717 9.8571 5.5717 9.8571" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                      </svg>
-                      <span class="text-xs sm:text-sm">Google</span>
-                    </a>
-
-                    <a href="#" class="flex w-full items-center justify-center gap-3 rounded-lg bg-surface px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-700 hover:bg-gray-700 focus-visible:ring-transparent transition-all">
-                      <svg class="h-5 w-5 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" />
-                      </svg>
-                      <span class="text-xs sm:text-sm">Facebook</span>
-                    </a>
-                  </div>
-                </div>
             </div>
           </div>
         </div>
