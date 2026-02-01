@@ -336,4 +336,10 @@ class Ride {
 
         return $stmt->execute();
     }
+
+    public function countAll(): int {
+        $stmt = $this->conn->query("SELECT COUNT(*) as total FROM {$this->table}");
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)$row['total'];
+    }
 }

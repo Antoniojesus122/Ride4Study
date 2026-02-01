@@ -121,4 +121,13 @@ class User {
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([':doc' => $documentPath, ':id' => $id]);
     }
+
+    public function countAll(): int
+    {
+        $stmt = $this->conn->query("SELECT COUNT(*) as total FROM usuarios");
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int) $row['total'];
+    }
 }
+
+
