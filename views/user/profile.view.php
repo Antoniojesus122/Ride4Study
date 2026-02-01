@@ -1,4 +1,8 @@
-<?php require_once __DIR__ . '/../layouts/header.php'; ?>
+<?php require_once __DIR__ . '/../layouts/header.php'; 
+    $error = $_GET['error'] ?? null;
+    $success = $_GET['success'] ?? null;
+    $tab = $_GET['tab'] ?? 'profile';
+?>
 
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
@@ -147,6 +151,34 @@
                 <!-- Seguridad -->
                 <div id="content-security" class="hidden bg-surface rounded-2xl border border-gray-700 p-8">
                     <h3 class="text-xl font-bold text-white mb-6">Cambiar Contraseña</h3>
+                    <?php if ($error && $tab === 'security'): ?>
+                        <div class="mb-6 rounded-xl border border-red-500 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                            <?php
+                                switch ($error) {
+                                    case 'wrong_password':
+                                        echo 'La contraseña actual no es correcta.';
+                                        break;
+                                    case 'password_mismatch':
+                                        echo 'Las nuevas contraseñas no coinciden.';
+                                        break;
+                                    case 'password_too_short':
+                                        echo 'La nueva contraseña debe tener al menos 8 caracteres.';
+                                        break;
+                                    case 'empty_fields':
+                                        echo 'Debes rellenar todos los campos.';
+                                        break;
+                                    default:
+                                        echo 'Ha ocurrido un error.';
+                                }
+                            ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ($success && $tab === 'security'): ?>
+                        <div class="mb-6 rounded-xl border border-green-500 bg-green-500/10 px-4 py-3 text-sm text-green-400">
+                            Contraseña actualizada correctamente.
+                        </div>
+                    <?php endif; ?>
                     <form action="profile.php?action=change_password" method="POST" class="max-w-md">
                         <div class="space-y-6 mb-8">
                             <div>

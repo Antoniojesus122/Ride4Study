@@ -81,23 +81,39 @@ class User {
         return $stmt->execute($params);
     }
 
-    public function verifyPassword($id, $password) {
-        $sql = "SELECT contrasena FROM {$this->table} WHERE idUsuario = :id";
+    public function verifyPassword(int $userId, string $password): bool
+    {
+        $sql = "SELECT contrasena 
+                FROM {$this->table} 
+                WHERE idUsuario = :id 
+                LIMIT 1";
+
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute([':id' => $id]);
+        $stmt->execute([':id' => $userId]);
+
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if ($user && password_verify($password, $user['contrasena'])) {
-            return true;
+
+        if (!$user) {
+            return false;
         }
-        return false;
+
+        return password_verify($password, $user['contrasena']);
     }
 
-    public function updatePassword($id, $newPassword) {
+    public function updatePassword(int $userId, string $newPassword): bool
+    {
         $hash = password_hash($newPassword, PASSWORD_DEFAULT);
-        $sql = "UPDATE {$this->table} SET contrasena = :hash WHERE idUsuario = :id";
+
+        $sql = "UPDATE {$this->table}
+                SET contrasena = :contrasena
+                WHERE idUsuario = :id";
+
         $stmt = $this->conn->prepare($sql);
-        return $stmt->execute([':hash' => $hash, ':id' => $id]);
+
+        return $stmt->execute([
+            ':contrasena' => $hash,
+            ':id' => $userId
+        ]);
     }
 
     public function submitVerification($id, $documentPath) {

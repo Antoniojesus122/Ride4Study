@@ -30,7 +30,7 @@ class AuthController {
             if ($user) {
                 $idRol = (int)$user['idRol'];
                 if (in_array($idRol, [1, 3], true)) {
-                    header('Location: admin/dashboard.php');
+                    header('Location: admin.php');
                 } else {
                     header('Location: dashboard.php');
                 }

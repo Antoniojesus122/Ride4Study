@@ -3,7 +3,7 @@ session_start();
 if (isset($_SESSION['user_id'])) {
     $role = $_SESSION['user_role'] ?? null;
     if (in_array((int)$role, [1, 3], true)) {
-        header('Location: admin/dashboard.php');
+        header('Location: admin.php');
     } else {
         header('Location: dashboard.php');
     }
