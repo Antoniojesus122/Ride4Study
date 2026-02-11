@@ -1,6 +1,6 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
 
-<!-- Vista completa del chat-->
+<!-- Vista completa del chat -->
 <div class="h-[calc(100vh-80px)] flex flex-col md:flex-row overflow-hidden bg-[#111827]">
     
     <!-- Barra lateral de chats -->
@@ -39,7 +39,9 @@
                                             <span class="text-[10px] text-gray-500"><?= date('H:i', strtotime($chat['fechaCreacion'])) ?></span>
                                         </div>
                                         <p class="text-xs text-gray-400 truncate <?= (!$chat['leido'] && $chat['idEmisor'] != $_SESSION['user_id']) ? 'font-semibold text-white' : '' ?>">
-                                            <?php if ($chat['idEmisor'] == $_SESSION['user_id']): ?>
+                                            <?php if (isset($chat['tipo']) && $chat['tipo'] === 'sistema'): ?>
+                                                <i class="fas fa-car text-[10px] mr-1"></i>
+                                            <?php elseif ($chat['idEmisor'] == $_SESSION['user_id']): ?>
                                                 <i class="fas fa-reply text-[10px] mr-1"></i>
                                             <?php endif; ?>
                                             <?= htmlspecialchars($chat['mensaje']) ?>
@@ -75,32 +77,49 @@
                 </div>
 
                 <!-- Opciones de conversación -->
-                <button onclick="confirmDeleteConversation(<?= $selectedUserId ?>)" class="p-2 text-gray-500 hover:text-red-400 transition-colors" title="Eliminar conversación">
+                <button onclick="confirmDeleteConversation(<?= $selectedUserId ?>)" class="p-2 text-gray-400 hover:text-red-400 transition-colors" title="Eliminar conversación">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
 
-            <!-- Contexto del viaje -->
+            <!-- Tarjeta de contexto del viaje -->
             <?php if ($contextRide): ?>
-            <div class="bg-gray-800 border-b border-gray-700 p-3 flex items-center justify-between shrink-0">
-                <div class="flex items-center gap-3 overflow-hidden">
-                    <div class="w-8 h-8 rounded bg-primary/20 flex items-center justify-center text-primary shrink-0">
-                         <i class="fas fa-car"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-xs text-gray-400">Interés en viaje:</p>
-                        <div class="flex items-center gap-2 text-white font-medium text-xs truncate">
-                            <span><?= htmlspecialchars($contextRide['nombreOrigen']) ?></span>
-                            <i class="fas fa-arrow-right text-[10px] text-gray-500"></i>
-                            <span><?= htmlspecialchars($contextRide['nombreDestino']) ?></span>
-                             <span class="text-gray-500">•</span>
-                            <span><?= date('d/m H:i', strtotime($contextRide['fechaSalida'] . ' ' . $contextRide['horaSalida'])) ?></span>
+            <div class="bg-gradient-to-r from-gray-800 to-gray-800/50 border-b border-gray-700 p-4 shrink-0 shadow-lg">
+                <div class="flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                        <div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary shrink-0 shadow-inner">
+                             <i class="fas fa-car text-xl"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-xs text-gray-400 mb-1">💬 Conversación sobre este viaje:</p>
+                            <div class="flex items-center gap-2 text-white font-semibold text-sm mb-1">
+                                <span class="truncate"><?= htmlspecialchars($contextRide['nombreOrigen']) ?></span>
+                                <i class="fas fa-arrow-right text-[10px] text-primary shrink-0"></i>
+                                <span class="truncate"><?= htmlspecialchars($contextRide['nombreDestino']) ?></span>
+                            </div>
+                            <div class="flex items-center gap-3 text-xs text-gray-400">
+                                <span class="flex items-center gap-1">
+                                    <i class="far fa-calendar"></i>
+                                    <?= date('d/m/Y', strtotime($contextRide['fechaSalida'])) ?>
+                                </span>
+                                <span class="flex items-center gap-1">
+                                    <i class="far fa-clock"></i>
+                                    <?= substr($contextRide['horaSalida'], 0, 5) ?>
+                                </span>
+                                <?php if (!empty($contextRide['precio'])): ?>
+                                <span class="flex items-center gap-1 text-primary font-semibold">
+                                    <i class="fas fa-euro-sign"></i>
+                                    <?= number_format($contextRide['precio'], 2) ?>€
+                                </span>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
+                    <a href="dashboard.php#ride-<?= $contextRide['idAnuncio'] ?>" 
+                       class="px-4 py-2 text-xs border border-primary/30 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors whitespace-nowrap shrink-0 font-medium">
+                        <i class="fas fa-external-link-alt mr-1"></i> Ver viaje
+                    </a>
                 </div>
-                <a href="dashboard.php?origin=<?= htmlspecialchars($contextRide['nombreOrigen']) ?>" class="ml-2 px-3 py-1 text-xs border border-gray-600 rounded text-gray-300 hover:bg-gray-700 whitespace-nowrap">
-                    Ver
-                </a>
             </div>
             <?php endif; ?>
 
@@ -168,7 +187,6 @@
     let refreshInterval;
 
     if (container) {
-        // Scroll para ver los mensajes más recientes al cargar
         container.scrollTop = container.scrollHeight;
 
         container.addEventListener('scroll', () => {
@@ -176,7 +194,6 @@
         });
     }
 
-    // Enviar mensaje con Enter
     if (textarea && form) {
         textarea.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -188,7 +205,6 @@
         });
     }
 
-    // Función para obtener mensajes nuevos
     function fetchMessages() {
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('user_id');
@@ -213,12 +229,10 @@
             .catch(err => console.error('Error fetching messages:', err));
     }
 
-    // Actualizacion automatica de 3 segundos
     if (window.location.search.includes('user_id')) {
         refreshInterval = setInterval(fetchMessages, 3000);
     }
     
-    // Eliminar conversación
     function confirmDeleteConversation(userId) {
         if(confirm('¿Eliminar toda la conversación? Esta acción no se puede deshacer.')) {
             document.getElementById('delete-conversation-user-id').value = userId;

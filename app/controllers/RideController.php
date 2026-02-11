@@ -168,43 +168,52 @@ class RideController {
 
         $rideId = $_GET['ride_id'] ?? null;
         if (!$rideId) {
-             header('Location: dashboard.php');
-             exit;
+            header('Location: dashboard.php');
+            exit;
         }
 
         // Recoger detalles del viaje
         $ride = $this->ride->getRideById($rideId);
         
         if (!$ride) {
-             header('Location: dashboard.php?error=not_found');
-             exit;
+            header('Location: dashboard.php?error=not_found');
+            exit;
         }
 
         // Evitar la reserva de viajes de tipo busco
         if (strtolower($ride['tipo']) === 'busco') {
-             header('Location: dashboard.php?error=invalid_type');
-             exit;
+            header('Location: dashboard.php?error=invalid_type');
+            exit;
         }
 
-        // Evite reservar viaje propio
+        // Evitar reservar viaje propio
         if ($ride['idUsuario'] == $_SESSION['user_id']) {
-             header('Location: dashboard.php?error=own_ride');
-             exit;
+            header('Location: dashboard.php?error=own_ride');
+            exit;
         }
 
         // Evitar la doble reserva
         if ($this->ride->hasBooking($rideId, $_SESSION['user_id'])) {
-             header('Location: dashboard.php?error=already_booked');
-             exit;
+            header('Location: dashboard.php?error=already_booked');
+            exit;
         }
 
         // Verificar disponibilidad de plazas
         if ($ride['plazasDisponibles'] <= 0) {
-             header('Location: dashboard.php?error=no_seats');
-             exit;
+            header('Location: dashboard.php?error=no_seats');
+            exit;
         }
 
         if ($this->ride->requestReservation($rideId, $_SESSION['user_id'])) {
+            /*
+            Enviar notificación por email al conductor
+            try {
+                $this->sendReservationNotification($ride, $_SESSION['user_id'], 'nueva');
+            } catch (Exception $e) {
+                error_log("Error enviando notificación: " . $e->getMessage());
+                // Continuar aunque falle el email
+            }*/
+            
             header('Location: my-rides.php?success=reserved');
         } else {
             header('Location: dashboard.php?error=reservation_failed');
@@ -218,14 +227,13 @@ class RideController {
 
         $rideId = $_POST['ride_id'] ?? null;
         $passengerId = $_POST['passenger_id'] ?? null;
-        $action = $_POST['action'] ?? null; 
+        $action = $_POST['action'] ?? null;
 
         if (!$rideId || !$passengerId || !$action) {
              header('Location: my-rides.php?error=missing_params');
              exit;
         }
 
-        // Verificar propiedad del viaje
         $ride = $this->ride->getRideById($rideId);
         if (!$ride || $ride['idUsuario'] != $_SESSION['user_id']) {
              header('Location: my-rides.php?error=unauthorized');
@@ -235,11 +243,136 @@ class RideController {
         $status = ($action === 'accept') ? 'aceptado' : 'rechazado';
 
         if ($this->ride->updateReservationStatus($rideId, $passengerId, $status)) {
-             header('Location: my-rides.php?success=status_updated');
+             // Enviar notificación al pasajero
+             /*$this->sendReservationNotification($ride, $passengerId, $status);*/
+             
+             header('Location: my-rides.php?success=status_updated&action=' . $action);
         } else {
              header('Location: my-rides.php?error=update_failed');
         }
     }
+
+    // Cancelar una reserva
+    public function cancelReservation() {
+        if (!isset($_SESSION['user_id'])) {
+            exit;
+        }
+
+        $rideId = $_POST['ride_id'] ?? null;
+        
+        if (!$rideId) {
+            header('Location: my-rides.php?error=missing_params');
+            exit;
+        }
+
+        // Verificar que el usuario tiene una reserva activa
+        $booking = $this->ride->hasBooking($rideId, $_SESSION['user_id']);
+        
+        if (!$booking) {
+            header('Location: my-rides.php?error=no_booking');
+            exit;
+        }
+
+        // No permitir cancelar reservas aceptadas a menos que falten más de 24h
+        if ($booking['estado'] === 'aceptado') {
+            $ride = $this->ride->getRideById($rideId);
+            $rideDateTime = strtotime($ride['fechaSalida'] . ' ' . $ride['horaSalida']);
+            $now = time();
+            $hoursUntilRide = ($rideDateTime - $now) / 3600;
+            
+            if ($hoursUntilRide < 24) {
+                header('Location: my-rides.php?error=too_late_to_cancel');
+                exit;
+            }
+        }
+
+        if ($this->ride->cancelReservation($rideId, $_SESSION['user_id'])) {
+            // Notificar al conductor
+            $ride = $this->ride->getRideById($rideId);
+            /*$this->sendReservationNotification($ride, $_SESSION['user_id'], 'cancelada');*/
+            
+            header('Location: my-rides.php?success=reservation_cancelled');
+        } else {
+            header('Location: my-rides.php?error=cancel_failed');
+        }
+    }
+
+    /* Enviar notificaciones por email
+    private function sendReservationNotification($ride, $userId, $type) {
+        // Obtener información del usuario
+        $stmt = $this->db->prepare("SELECT nombre, correo FROM usuarios WHERE idUsuario = :id");
+        $stmt->execute([':id' => $userId]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$user) return;
+
+        $subject = '';
+        $message = '';
+        $to = '';
+
+        switch ($type) {
+            case 'nueva':
+                // Notificar al conductor sobre nueva solicitud
+                $stmt = $this->db->prepare("SELECT nombre, correo FROM usuarios WHERE idUsuario = :id");
+                $stmt->execute([':id' => $ride['idUsuario']]);
+                $conductor = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                $to = $conductor['correo'];
+                $subject = '🚗 Nueva solicitud de reserva - Ride4Study';
+                $message = "Hola {$conductor['nombre']},\n\n";
+                $message .= "{$user['nombre']} ha solicitado una plaza en tu viaje:\n";
+                $message .= "📍 Desde: {$ride['nombreOrigen']}\n";
+                $message .= "📍 Hasta: {$ride['nombreDestino']}\n";
+                $message .= "📅 Fecha: " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "\n";
+                $message .= "🕐 Hora: " . substr($ride['horaSalida'], 0, 5) . "\n\n";
+                $message .= "Entra en tu panel para aceptar o rechazar la solicitud.\n\n";
+                $message .= "Saludos,\nEl equipo de Ride4Study";
+                break;
+
+            case 'aceptado':
+                $to = $user['correo'];
+                $subject = '✅ Tu reserva ha sido aceptada - Ride4Study';
+                $message = "¡Buenas noticias, {$user['nombre']}!\n\n";
+                $message .= "Tu solicitud de reserva ha sido aceptada para el viaje:\n";
+                $message .= "📍 Desde: {$ride['nombreOrigen']}\n";
+                $message .= "📍 Hasta: {$ride['nombreDestino']}\n";
+                $message .= "📅 Fecha: " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "\n";
+                $message .= "🕐 Hora: " . substr($ride['horaSalida'], 0, 5) . "\n\n";
+                $message .= "Ponte en contacto con el conductor para coordinar los detalles.\n\n";
+                $message .= "¡Buen viaje!\nEl equipo de Ride4Study";
+                break;
+
+            case 'rechazado':
+                $to = $user['correo'];
+                $subject = '❌ Actualización de tu reserva - Ride4Study';
+                $message = "Hola {$user['nombre']},\n\n";
+                $message .= "Lamentamos informarte que tu solicitud de reserva no ha sido aceptada para el viaje:\n";
+                $message .= "📍 Desde: {$ride['nombreOrigen']}\n";
+                $message .= "📍 Hasta: {$ride['nombreDestino']}\n\n";
+                $message .= "No te preocupes, puedes buscar otros viajes disponibles en la plataforma.\n\n";
+                $message .= "Saludos,\nEl equipo de Ride4Study";
+                break;
+
+            case 'cancelada':
+                $stmt = $this->db->prepare("SELECT nombre, correo FROM usuarios WHERE idUsuario = :id");
+                $stmt->execute([':id' => $ride['idUsuario']]);
+                $conductor = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                $to = $conductor['correo'];
+                $subject = '🔔 Reserva cancelada - Ride4Study';
+                $message = "Hola {$conductor['nombre']},\n\n";
+                $message .= "{$user['nombre']} ha cancelado su reserva para tu viaje:\n";
+                $message .= "📍 Desde: {$ride['nombreOrigen']}\n";
+                $message .= "📍 Hasta: {$ride['nombreDestino']}\n";
+                $message .= "📅 Fecha: " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "\n\n";
+                $message .= "La plaza vuelve a estar disponible.\n\n";
+                $message .= "Saludos,\nEl equipo de Ride4Study";
+                break;
+        }
+
+        Por hacer todavía
+    } */
+
 
     public function edit() {
         if (!isset($_SESSION['user_id'])) {

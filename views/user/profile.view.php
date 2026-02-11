@@ -2,110 +2,247 @@
     $error = $_GET['error'] ?? null;
     $success = $_GET['success'] ?? null;
     $tab = $_GET['tab'] ?? 'profile';
+    
+    // Calcular estadísticas del usuario
+    $userStats = [
+        'total_viajes' => 0,
+        'viajes_completados' => 0,
+        'valoracion_promedio' => 0,
+        'viajes_como_conductor' => 0,
+        'viajes_como_pasajero' => 0,
+    ];
 ?>
 
-<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
     <!-- Encabezado del perfil -->
     <div class="bg-surface rounded-2xl border border-gray-700 shadow-xl overflow-hidden mb-8">
-        <div class="h-32 bg-gradient-to-r from-primary to-purple-600 relative">
-            <div class="absolute inset-0 bg-black/10"></div>
+        <!-- Banner superior con gradiente -->
+        <div class="h-40 bg-gradient-to-r from-primary via-blue-500 to-purple-600 relative">
+            <div class="absolute inset-0 bg-black/20"></div>
+            <!-- Patrón decorativo -->
+            <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
         </div>
-        <div class="px-8 pb-8 flex flex-col md:flex-row items-end -mt-12 gap-6 relative">
+        
+        <div class="px-8 pb-8 flex flex-col md:flex-row items-start gap-6 -mt-16 relative">
+             <!-- Avatar -->
              <div class="relative group">
-                <div class="w-32 h-32 rounded-full border-4 border-surface bg-gray-800 flex items-center justify-center overflow-hidden">
+                <div class="w-32 h-32 rounded-2xl border-4 border-surface bg-gray-800 flex items-center justify-center overflow-hidden shadow-2xl shadow-black/50 ring-4 ring-primary/20">
                     <?php if (!empty($profileUser['foto_perfil'])): ?>
                         <img src="public/uploads/profiles/<?= htmlspecialchars($profileUser['foto_perfil']) ?>" alt="Profile" class="w-full h-full object-cover">
                     <?php else: ?>
-                        <span class="text-4xl font-bold text-white"><?= strtoupper(substr($profileUser['nombre'], 0, 2)) ?></span>
+                        <span class="text-5xl font-bold text-white"><?= strtoupper(substr($profileUser['nombre'], 0, 2)) ?></span>
                     <?php endif; ?>
                 </div>
+                
+                <!-- Insignia de verificación -->
+                <?php if($profileUser['estado_verificacion'] == 2): ?>
+                <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center border-4 border-surface shadow-lg">
+                    <i class="fas fa-check text-white text-sm"></i>
+                </div>
+                <?php endif; ?>
+                
                 <?php if ($isOwnProfile): ?>
-                <button onclick="document.getElementById('photo-input').click()" class="absolute bottom-0 right-0 bg-gray-900 text-white p-2 rounded-full border border-gray-700 hover:bg-primary transition-colors cursor-pointer shadow-lg" title="Cambiar foto">
+                <button onclick="document.getElementById('photo-input').click()" class="absolute bottom-0 right-0 bg-primary text-secondary p-2.5 rounded-full border-2 border-surface hover:bg-primary-dark transition-colors cursor-pointer shadow-lg opacity-0 group-hover:opacity-100" title="Cambiar foto">
                     <i class="fas fa-camera text-sm"></i>
                 </button>
                 <?php endif; ?>
              </div>
              
-             <div class="flex-1 mb-2">
-                 <h1 class="text-3xl font-bold text-white"><?= htmlspecialchars($profileUser['nombre']) ?></h1>
-                 <p class="text-gray-400 flex items-center gap-2">
-                     <i class="fas fa-map-marker-alt text-gray-500"></i> <?= htmlspecialchars($profileUser['ciudad'] ?? 'Sin localidad') ?>
-                     <span class="mx-1">•</span>
-                     <i class="fas fa-university text-gray-500"></i> <?= htmlspecialchars($profileUser['institucion'] ?? 'Sin institución') ?>
-                 </p>
-             </div>
-
-             <?php if (!$isOwnProfile): ?>
-                <a href="chat.php?user_id=<?= $profileUser['idUsuario'] ?>" class="mb-4 px-6 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-colors shadow-lg shadow-primary/20">
-                    <i class="fas fa-comment-alt mr-2"></i> Contactar
-                </a>
-             <?php else: ?>
-                 <!-- Navegación de pestañas -->
-                 <div class="flex gap-2 mb-2 w-full md:w-auto overflow-x-auto">
-                     <button onclick="switchTab('profile')" id="tab-profile" class="px-4 py-2 rounded-lg bg-gray-800 text-white font-medium hover:bg-gray-700 transition-colors border border-gray-700">Perfil</button>
-                     <button onclick="switchTab('security')" id="tab-security" class="px-4 py-2 rounded-lg bg-transparent text-gray-400 font-medium hover:text-white hover:bg-gray-800 transition-colors border border-transparent">Seguridad</button>
-                     <button onclick="switchTab('privacy')" id="tab-privacy" class="px-4 py-2 rounded-lg bg-transparent text-gray-400 font-medium hover:text-white hover:bg-gray-800 transition-colors border border-transparent">Privacidad</button>
-                     <button onclick="switchTab('verification')" id="tab-verification" class="px-4 py-2 rounded-lg bg-transparent text-gray-400 font-medium hover:text-white hover:bg-gray-800 transition-colors border border-transparent">Verificación</button>
+             <!-- Información del usuario -->
+             <div class="flex-1 pt-6">
+                 <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+                     <div>
+                         <h1 class="text-3xl font-bold text-white mb-2"><?= htmlspecialchars($profileUser['nombre']) ?></h1>
+                         <div class="flex flex-wrap items-center gap-4 text-sm text-gray-400">
+                             <span class="flex items-center gap-2">
+                                 <i class="fas fa-map-marker-alt text-primary"></i> 
+                                 <?= htmlspecialchars($profileUser['ciudad'] ?? 'Sin localidad') ?>
+                             </span>
+                             <?php if (!empty($profileUser['institucion'])): ?>
+                             <span class="flex items-center gap-2">
+                                 <i class="fas fa-university text-blue-400"></i> 
+                                 <?= htmlspecialchars($profileUser['institucion']) ?>
+                             </span>
+                             <?php endif; ?>
+                             <?php if (!empty($profileUser['vehiculo'])): ?>
+                             <span class="flex items-center gap-2">
+                                 <i class="fas fa-car text-purple-400"></i> 
+                                 <?= htmlspecialchars($profileUser['vehiculo']) ?>
+                             </span>
+                             <?php endif; ?>
+                         </div>
+                     </div>
+                     
+                     <!-- Acciones según tipo de perfil -->
+                     <?php if (!$isOwnProfile): ?>
+                     <div class="flex gap-2">
+                         <a href="chat.php?user_id=<?= $profileUser['idUsuario'] ?>" class="px-6 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-colors shadow-lg shadow-primary/20 flex items-center gap-2">
+                             <i class="fas fa-comment-alt"></i> Contactar
+                         </a>
+                     </div>
+                     <?php endif; ?>
                  </div>
-             <?php endif; ?>
+                 
+                 <!-- Estadísticas en cards -->
+                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                     <div class="bg-gray-800/50 rounded-xl p-3 border border-gray-700/50">
+                         <div class="flex items-center gap-2 mb-1">
+                             <i class="fas fa-star text-yellow-500 text-sm"></i>
+                             <span class="text-xs text-gray-400">Valoración</span>
+                         </div>
+                         <p class="text-xl font-bold text-white">
+                             <?= number_format($userStats['valoracion_promedio'] ?? 0, 1) ?>
+                         </p>
+                     </div>
+                     
+                     <div class="bg-gray-800/50 rounded-xl p-3 border border-gray-700/50">
+                         <div class="flex items-center gap-2 mb-1">
+                             <i class="fas fa-route text-blue-400 text-sm"></i>
+                             <span class="text-xs text-gray-400">Viajes</span>
+                         </div>
+                         <p class="text-xl font-bold text-white"><?= $userStats['total_viajes'] ?></p>
+                     </div>
+                     
+                     <div class="bg-gray-800/50 rounded-xl p-3 border border-gray-700/50">
+                         <div class="flex items-center gap-2 mb-1">
+                             <i class="fas fa-steering-wheel text-primary text-sm"></i>
+                             <span class="text-xs text-gray-400">Conductor</span>
+                         </div>
+                         <p class="text-xl font-bold text-white"><?= $userStats['viajes_como_conductor'] ?></p>
+                     </div>
+                     
+                     <div class="bg-gray-800/50 rounded-xl p-3 border border-gray-700/50">
+                         <div class="flex items-center gap-2 mb-1">
+                             <i class="fas fa-users text-purple-400 text-sm"></i>
+                             <span class="text-xs text-gray-400">Pasajero</span>
+                         </div>
+                         <p class="text-xl font-bold text-white"><?= $userStats['viajes_como_pasajero'] ?></p>
+                     </div>
+                 </div>
+             </div>
         </div>
+        
+        <!-- Navegación de pestañas -->
+        <?php if ($isOwnProfile): ?>
+        <div class="px-8 pb-6">
+            <div class="flex gap-2 overflow-x-auto border-t border-gray-700 pt-4">
+                <button onclick="switchTab('profile')" id="tab-profile" class="px-4 py-2 rounded-lg bg-primary/10 text-primary font-medium border border-primary/20 whitespace-nowrap transition-colors">
+                    <i class="fas fa-user mr-2"></i>Perfil
+                </button>
+                <button onclick="switchTab('security')" id="tab-security" class="px-4 py-2 rounded-lg bg-transparent text-gray-400 font-medium hover:text-white hover:bg-gray-800 transition-colors whitespace-nowrap border border-transparent">
+                    <i class="fas fa-lock mr-2"></i>Seguridad
+                </button>
+                <button onclick="switchTab('privacy')" id="tab-privacy" class="px-4 py-2 rounded-lg bg-transparent text-gray-400 font-medium hover:text-white hover:bg-gray-800 transition-colors whitespace-nowrap border border-transparent">
+                    <i class="fas fa-shield-alt mr-2"></i>Privacidad
+                </button>
+                <button onclick="switchTab('verification')" id="tab-verification" class="px-4 py-2 rounded-lg bg-transparent text-gray-400 font-medium hover:text-white hover:bg-gray-800 transition-colors whitespace-nowrap border border-transparent">
+                    <i class="fas fa-check-circle mr-2"></i>Verificación
+                </button>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 
     <!-- Contenido principal -->
      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
          
-        <!-- Información del perfil -->
+        <!-- Columna izquierda - Información adicional -->
         <div class="space-y-6">
+            <!-- Insignias (para futuro) -->
+            <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                 <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+                     <i class="fas fa-trophy text-yellow-500"></i> Logros
+                 </h3>
+                 <div class="grid grid-cols-2 gap-3">
+                     <?php if($profileUser['estado_verificacion'] == 2): ?>
+                     <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-center">
+                         <i class="fas fa-shield-check text-2xl text-green-500 mb-1"></i>
+                         <p class="text-xs font-medium text-green-400">Verificado</p>
+                     </div>
+                     <?php endif; ?>
+                     
+                     <?php if($userStats['total_viajes'] >= 5): ?>
+                     <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 text-center">
+                         <i class="fas fa-road text-2xl text-blue-500 mb-1"></i>
+                         <p class="text-xs font-medium text-blue-400">Viajero</p>
+                     </div>
+                     <?php endif; ?>
+                     
+                     <?php if($userStats['viajes_como_conductor'] >= 3): ?>
+                     <div class="bg-purple-500/10 border border-purple-500/20 rounded-xl p-3 text-center">
+                         <i class="fas fa-steering-wheel text-2xl text-purple-500 mb-1"></i>
+                         <p class="text-xs font-medium text-purple-400">Conductor</p>
+                     </div>
+                     <?php endif; ?>
+                     
+                     <?php if($userStats['valoracion_promedio'] >= 4.5): ?>
+                     <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 text-center">
+                         <i class="fas fa-star text-2xl text-yellow-500 mb-1"></i>
+                         <p class="text-xs font-medium text-yellow-400">Top rated</p>
+                     </div>
+                     <?php endif; ?>
+                 </div>
+            </div>
+            
+            <!-- Información adicional -->
             <div class="bg-surface rounded-2xl border border-gray-700 p-6">
                  <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Información</h3>
                  <div class="space-y-4">
                      <div>
                          <p class="text-xs text-gray-500">Estado de verificación</p>
-                         <div class="mt-1">
+                         <div class="mt-1.5">
                              <?php if($profileUser['estado_verificacion'] == 2): ?>
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-500 border border-green-500/20">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-green-500/10 text-green-500 border border-green-500/20">
                                     <i class="fas fa-check-circle"></i> Verificado
                                 </span>
                              <?php elseif($profileUser['estado_verificacion'] == 1): ?>
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">
                                     <i class="fas fa-clock"></i> Pendiente
                                 </span>
                              <?php else: ?>
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-500/10 text-gray-400 border border-gray-500/20">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gray-500/10 text-gray-400 border border-gray-500/20">
                                     No verificado
                                 </span>
                              <?php endif; ?>
                          </div>
                      </div>
-                     <div>
-                         <p class="text-xs text-gray-500">Vehículo</p>
-                         <p class="text-white"><?= htmlspecialchars($profileUser['vehiculo'] ?? 'No especificado') ?></p>
-                     </div>
+                     
                      <div>
                          <p class="text-xs text-gray-500">Miembro desde</p>
-                         <p class="text-white">Octubre 2025</p>
+                         <p class="text-white mt-1">Octubre 2025</p>
                      </div>
+                     
+                     <?php if (!$isOwnProfile && !empty($profileUser['telefono'])): ?>
+                     <div>
+                         <p class="text-xs text-gray-500">Contacto</p>
+                         <p class="text-white mt-1"><?= htmlspecialchars($profileUser['telefono']) ?></p>
+                     </div>
+                     <?php endif; ?>
                  </div>
             </div>
 
             <!-- Sobre mí -->
              <div class="bg-surface rounded-2xl border border-gray-700 p-6">
-                 <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Sobre mí</h3>
+                 <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+                     <i class="fas fa-quote-left text-primary"></i> Sobre mí
+                 </h3>
                  <p class="text-gray-400 text-sm leading-relaxed italic">
                      <?= !empty($profileUser['biografia']) ? nl2br(htmlspecialchars($profileUser['biografia'])) : 'Este usuario no ha escrito nada sobre sí mismo aún.' ?>
                  </p>
              </div>
         </div>
 
-        <!-- Formulario de edición -->
+        <!-- Columna derecha - Formulario de edición -->
         <div class="lg:col-span-2">
             
             <?php if ($isOwnProfile): ?>
                 
                 <!-- Perfil -->
                 <div id="content-profile" class="bg-surface rounded-2xl border border-gray-700 p-8">
-                     <h3 class="text-xl font-bold text-white mb-6">Editar Perfil</h3>
+                     <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                         <i class="fas fa-user-edit text-primary"></i> Editar Perfil
+                     </h3>
                      <form action="profile.php?action=update" method="POST" enctype="multipart/form-data">
                          <!-- Input oculto para la foto de perfil -->
                          <input type="file" name="foto_perfil" id="photo-input" class="hidden" accept="image/*">
@@ -137,12 +274,12 @@
                              </div>
                              <div class="md:col-span-2">
                                  <label class="block text-sm font-medium text-gray-400 mb-2">Biografía</label>
-                                 <textarea name="biografia" rows="4" class="w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm resize-none"><?= htmlspecialchars($profileUser['biografia'] ?? '') ?></textarea>
+                                 <textarea name="biografia" rows="4" class="w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm resize-none" placeholder="Cuéntanos algo sobre ti..."><?= htmlspecialchars($profileUser['biografia'] ?? '') ?></textarea>
                              </div>
                          </div>
                          <div class="flex justify-end">
-                             <button type="submit" class="px-6 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20">
-                                 Guardar Cambios
+                             <button type="submit" class="px-6 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
+                                 <i class="fas fa-save"></i> Guardar Cambios
                              </button>
                          </div>
                      </form>
@@ -150,7 +287,9 @@
 
                 <!-- Seguridad -->
                 <div id="content-security" class="hidden bg-surface rounded-2xl border border-gray-700 p-8">
-                    <h3 class="text-xl font-bold text-white mb-6">Cambiar Contraseña</h3>
+                    <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <i class="fas fa-lock text-primary"></i> Cambiar Contraseña
+                    </h3>
                     <?php if ($error && $tab === 'security'): ?>
                         <div class="mb-6 rounded-xl border border-red-500 bg-red-500/10 px-4 py-3 text-sm text-red-400">
                             <?php
@@ -195,8 +334,8 @@
                             </div>
                         </div>
                         <div class="flex justify-end">
-                             <button type="submit" class="px-6 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20">
-                                 Actualizar Contraseña
+                             <button type="submit" class="px-6 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
+                                 <i class="fas fa-key"></i> Actualizar Contraseña
                              </button>
                          </div>
                     </form>
@@ -204,19 +343,21 @@
 
                 <!-- Verificación -->
                 <div id="content-verification" class="hidden bg-surface rounded-2xl border border-gray-700 p-8">
-                     <h3 class="text-xl font-bold text-white mb-4">Verificación de Estudiante</h3>
+                     <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                         <i class="fas fa-shield-check text-primary"></i> Verificación de Estudiante
+                     </h3>
                      
                      <?php if ($profileUser['estado_verificacion'] == 2): ?>
                         <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-6 text-center">
-                            <i class="fas fa-check-circle text-4xl text-green-500 mb-3"></i>
-                            <h4 class="text-lg font-bold text-green-500">¡Tu cuenta está verificada!</h4>
-                            <p class="text-gray-400 mt-2 text-sm">Ya puedes disfrutar de todas las ventajas de ser un estudiante verificado.</p>
+                            <i class="fas fa-check-circle text-5xl text-green-500 mb-3"></i>
+                            <h4 class="text-lg font-bold text-green-500 mb-2">¡Tu cuenta está verificada!</h4>
+                            <p class="text-gray-400 text-sm">Ya puedes disfrutar de todas las ventajas de ser un estudiante verificado.</p>
                         </div>
                      <?php elseif ($profileUser['estado_verificacion'] == 1): ?>
                         <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-6 text-center">
-                            <i class="fas fa-clock text-4xl text-yellow-500 mb-3"></i>
-                            <h4 class="text-lg font-bold text-yellow-500">Solicitud en revisión</h4>
-                            <p class="text-gray-400 mt-2 text-sm">Estamos revisando tus documentos. Te notificaremos pronto.</p>
+                            <i class="fas fa-clock text-5xl text-yellow-500 mb-3"></i>
+                            <h4 class="text-lg font-bold text-yellow-500 mb-2">Solicitud en revisión</h4>
+                            <p class="text-gray-400 text-sm">Estamos revisando tus documentos. Te notificaremos pronto.</p>
                         </div>
                      <?php else: ?>
                         <div class="mb-8">
@@ -235,8 +376,8 @@
                                   hover:file:bg-primary-dark
                                   cursor-pointer mb-6 mx-auto max-w-xs
                                 ">
-                                <button type="submit" class="px-6 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20">
-                                    Enviar Documentación
+                                <button type="submit" class="px-6 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 flex items-center gap-2 mx-auto">
+                                    <i class="fas fa-paper-plane"></i> Enviar Documentación
                                 </button>
                             </form>
                         </div>
@@ -245,7 +386,9 @@
 
                 <!-- Privacidad -->
                 <div id="content-privacy" class="hidden bg-surface rounded-2xl border border-gray-700 p-8">
-                    <h3 class="text-xl font-bold text-white mb-6">Privacidad y Configuración</h3>
+                    <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <i class="fas fa-user-shield text-primary"></i> Privacidad y Configuración
+                    </h3>
                     <form action="profile.php?action=update_privacy" method="POST">
                         <div class="space-y-6 mb-8">
                              <div>
@@ -289,18 +432,25 @@
                              </div>
                         </div>
                         <div class="flex justify-end">
-                             <button type="submit" class="px-6 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20">
-                                 Guardar Preferencias
+                             <button type="submit" class="px-6 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
+                                 <i class="fas fa-save"></i> Guardar Preferencias
                              </button>
                          </div>
                     </form>
                 </div>
 
             <?php else: ?>
-                <!-- Información privada protegida -->
-                <div class="bg-surface rounded-2xl border border-gray-700 p-8 h-full flex flex-col items-center justify-center text-center opacity-50">
-                     <i class="fas fa-user-lock text-4xl text-gray-600 mb-4"></i>
-                     <p class="text-gray-400">La información privada de este usuario está protegida.</p>
+                <!-- Actividad reciente del usuario -->
+                <div class="bg-surface rounded-2xl border border-gray-700 p-8">
+                     <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                         <i class="fas fa-clock text-primary"></i> Actividad Reciente
+                     </h3>
+                     <div class="space-y-4">
+                         <div class="text-center py-12 text-gray-500">
+                             <i class="fas fa-eye-slash text-4xl mb-3"></i>
+                             <p>La actividad de este usuario es privada</p>
+                         </div>
+                     </div>
                 </div>
             <?php endif; ?>
 
@@ -319,14 +469,14 @@ function switchTab(tabName) {
     const tabs = ['profile', 'security', 'privacy', 'verification'];
     tabs.forEach(t => {
         const btn = document.getElementById('tab-' + t);
-        btn.classList.remove('bg-gray-800', 'text-white', 'border-gray-700');
+        btn.classList.remove('bg-primary/10', 'text-primary', 'border-primary/20');
         btn.classList.add('bg-transparent', 'text-gray-400', 'border-transparent');
     });
 
     document.getElementById('content-' + tabName).classList.remove('hidden');
     const activeBtn = document.getElementById('tab-' + tabName);
     activeBtn.classList.remove('bg-transparent', 'text-gray-400', 'border-transparent');
-    activeBtn.classList.add('bg-gray-800', 'text-white', 'border-gray-700');
+    activeBtn.classList.add('bg-primary/10', 'text-primary', 'border-primary/20');
 }
 
 const urlParams = new URLSearchParams(window.location.search);

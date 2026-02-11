@@ -266,22 +266,45 @@ class Ride {
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
     public function requestReservation($rideId, $userId) {
-        $query = "INSERT INTO viajes (idAnuncio, idConductor, idPasajero, estado, fechaSalida)
-                  SELECT :rideId, idUsuario, :userId, 'pendiente', ADDTIME(fechaSalida, horaSalida)
-                  FROM " . $this->table . " WHERE idAnuncio = :rideId";
-        
         try {
+            // Primero obtener el conductor del viaje
+            $getRideQuery = "SELECT idUsuario FROM " . $this->table . " WHERE idAnuncio = :rideId";
+            $stmt = $this->conn->prepare($getRideQuery);
+            $stmt->execute([':rideId' => $rideId]);
+            $ride = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$ride) {
+                error_log("Viaje no encontrado: " . $rideId);
+                return false;
+            }
+            
+            $conductorId = $ride['idUsuario'];
+            
+            // Crear la reserva
+            $query = "INSERT INTO viajes (idAnuncio, idConductor, idPasajero, estado)
+                    VALUES (:rideId, :conductorId, :userId, 'pendiente')";
+            
             $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':rideId', $rideId);
-            $stmt->bindParam(':userId', $userId);
-            return $stmt->execute();
+            $result = $stmt->execute([
+                ':rideId' => $rideId,
+                ':conductorId' => $conductorId,
+                ':userId' => $userId
+            ]);
+            
+            if ($result) {
+                error_log("✓ Reserva creada correctamente - Viaje: $rideId, Pasajero: $userId");
+            }
+            
+            return $result;
+            
         } catch (PDOException $e) {
-            error_log("Reservation Error: " . $e->getMessage());
+            error_log("✗ Error en requestReservation: " . $e->getMessage());
+            error_log("Código error: " . $e->getCode());
             return false;
         }
     }
-
 
     // Función para obtener si se ha actualizado el estatus de la reserva de una plaza en un viaje
     public function updateReservationStatus($rideId, $passengerId, $status) {
@@ -341,5 +364,93 @@ class Ride {
         $stmt = $this->conn->query("SELECT COUNT(*) as total FROM {$this->table}");
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return (int)$row['total'];
+    }
+
+    // Cancelar una reserva
+    public function cancelReservation($rideId, $userId) {
+        try {
+            $this->conn->beginTransaction();
+
+            // Obtener el estado actual de la reserva
+            $checkQuery = "SELECT estado FROM viajes 
+                          WHERE idAnuncio = :rideId AND idPasajero = :userId";
+            $stmt = $this->conn->prepare($checkQuery);
+            $stmt->execute([
+                ':rideId' => $rideId,
+                ':userId' => $userId
+            ]);
+            $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$booking) {
+                $this->conn->rollBack();
+                return false;
+            }
+
+            // Si la reserva estaba aceptada, devolver la plaza
+            if ($booking['estado'] === 'aceptado') {
+                $updateSeats = "UPDATE " . $this->table . " 
+                               SET plazasDisponibles = plazasDisponibles + 1 
+                               WHERE idAnuncio = :rideId";
+                $stmtSeats = $this->conn->prepare($updateSeats);
+                $stmtSeats->execute([':rideId' => $rideId]);
+            }
+
+            // Eliminar la reserva
+            $deleteQuery = "DELETE FROM viajes 
+                           WHERE idAnuncio = :rideId AND idPasajero = :userId";
+            $stmt = $this->conn->prepare($deleteQuery);
+            $result = $stmt->execute([
+                ':rideId' => $rideId,
+                ':userId' => $userId
+            ]);
+
+            $this->conn->commit();
+            return $result;
+
+        } catch (PDOException $e) {
+            $this->conn->rollBack();
+            error_log("Cancel Reservation Error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // Obtener detalles de una reserva específica para un usuario
+    public function getBookingDetails($rideId, $userId) {
+        $query = "SELECT v.*, a.fechaSalida, a.horaSalida,
+                  u.nombre as conductorNombre, u.telefono as conductorTelefono,
+                  u.correo as conductorCorreo
+                  FROM viajes v
+                  JOIN " . $this->table . " a ON v.idAnuncio = a.idAnuncio
+                  JOIN usuarios u ON a.idUsuario = u.idUsuario
+                  WHERE v.idAnuncio = :rideId AND v.idPasajero = :userId";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([
+            ':rideId' => $rideId,
+            ':userId' => $userId
+        ]);
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Obtener todas las reservas pendientes para un conductor
+    public function getPendingReservations($conductorId) {
+        $query = "SELECT v.*, u.nombre as pasajeroNombre, u.foto_perfil,
+                  a.origen, a.destino, a.fechaSalida, a.horaSalida,
+                  lo.nombreLocalidad as nombreOrigen, 
+                  ld.nombreLocalidad as nombreDestino
+                  FROM viajes v
+                  JOIN usuarios u ON v.idPasajero = u.idUsuario
+                  JOIN " . $this->table . " a ON v.idAnuncio = a.idAnuncio
+                  JOIN localidades lo ON a.origen = lo.idLocalidad
+                  JOIN localidades ld ON a.destino = ld.idLocalidad
+                  WHERE v.idConductor = :conductorId 
+                  AND v.estado = 'pendiente'
+                  ORDER BY v.fechaSalida ASC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([':conductorId' => $conductorId]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

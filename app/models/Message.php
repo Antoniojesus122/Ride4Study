@@ -9,9 +9,6 @@ class Message {
 
     // Obtener lista de conversaciones (último mensaje por usuario)
     public function getConversations($userId) {
-        // Esta consulta busca el último mensaje con cada usuario distinto
-        // Es una consulta compleja: Union de enviados y recibidos, agrupados.
-        
         $query = "
         SELECT 
             u.idUsuario, 
@@ -20,7 +17,8 @@ class Message {
             m.mensaje,
             m.fechaCreacion,
             m.leido,
-            m.idEmisor
+            m.idEmisor,
+            m.tipo
         FROM usuarios u
         JOIN (
             SELECT 
@@ -64,6 +62,68 @@ class Message {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+
+    public function createContextMessage($data) {
+        // Primero verificar que no exista ya un mensaje de contexto
+        $checkQuery = "SELECT COUNT(*) as count FROM " . $this->table . " 
+                       WHERE ((idEmisor = :userId AND idReceptor = :otherUserId) 
+                          OR (idEmisor = :otherUserId AND idReceptor = :userId))
+                       AND tipo = 'sistema'
+                       AND ride_id = :rideId";
+        
+        $stmt = $this->conn->prepare($checkQuery);
+        $stmt->bindParam(':userId', $data['idEmisor']);
+        $stmt->bindParam(':otherUserId', $data['idReceptor']);
+        $stmt->bindParam(':rideId', $data['ride_id']);
+        $stmt->execute();
+        
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Si ya existe, no crear otro
+        if ($result['count'] > 0) {
+            return false;
+        }
+
+        $query = "INSERT INTO " . $this->table . " 
+                  (idEmisor, idReceptor, mensaje, tipo, ride_id, leido) 
+                  VALUES (:idEmisor, :idReceptor, :mensaje, :tipo, :rideId, 1)";
+        
+        $stmt = $this->conn->prepare($query);
+
+        $data['mensaje'] = htmlspecialchars(strip_tags($data['mensaje']));
+
+        $stmt->bindParam(':idEmisor', $data['idEmisor']);
+        $stmt->bindParam(':idReceptor', $data['idReceptor']);
+        $stmt->bindParam(':mensaje', $data['mensaje']);
+        $stmt->bindParam(':tipo', $data['tipo']);
+        $stmt->bindParam(':rideId', $data['ride_id']);
+
+        return $stmt->execute();
+    }
+
+    // Obtener contexto de una conversación
+    public function getConversationContext($userId, $otherUserId) {
+        $query = "SELECT m.ride_id, a.*, 
+                  lo.nombreLocalidad as nombreOrigen,
+                  ld.nombreLocalidad as nombreDestino
+                  FROM " . $this->table . " m
+                  JOIN anuncios a ON m.ride_id = a.idAnuncio
+                  JOIN localidades lo ON a.origen = lo.idLocalidad
+                  JOIN localidades ld ON a.destino = ld.idLocalidad
+                  WHERE ((m.idEmisor = :userId AND m.idReceptor = :otherUserId)
+                      OR (m.idEmisor = :otherUserId AND m.idReceptor = :userId))
+                  AND m.tipo = 'sistema'
+                  AND m.ride_id IS NOT NULL
+                  LIMIT 1";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':userId', $userId);
+        $stmt->bindParam(':otherUserId', $otherUserId);
+        $stmt->execute();
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function markAsRead($userId, $senderId) {
         $query = "UPDATE " . $this->table . " 
                   SET leido = 1 
@@ -90,7 +150,7 @@ class Message {
         return $stmt->execute();
     }
 
-    // Editar mensaje (Solo si < 1 hora)
+    // Editar mensaje (Solo se puede editar si no ha pasado 1 hora)
     public function updateMessage($idMensaje, $userId, $newText) {
         // Verificar tiempo y propiedad
         $checkQuery = "SELECT fechaCreacion FROM " . $this->table . " 
@@ -122,11 +182,9 @@ class Message {
         return $stmt->execute();
     }
 
-    public function deleteMessage($idMensaje, $userId) {
-        // Solo permitir borrar si eres el emisor (o receptor, dependiendo de requisitos, asumo emisor para "eliminar sus mensajes")
-        // El usuario pidió "eliminar sus mensajes... para todos".
-        // Si borro de la BDD, se borra para ambos.
-        
+
+    // Eliminar un mensaje
+    public function deleteMessage($idMensaje, $userId) {        
         $query = "DELETE FROM " . $this->table . " WHERE idMensaje = :idMensaje AND idEmisor = :userId";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':idMensaje', $idMensaje);
@@ -135,6 +193,7 @@ class Message {
         return $stmt->execute();
     }
 
+    // Eliminar toda la conversación
     public function deleteConversation($userId, $otherUserId) {
         // Eliminar todos los mensajes entre dos usuarios
         $query = "DELETE FROM " . $this->table . " 
