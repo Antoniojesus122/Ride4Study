@@ -1,10 +1,12 @@
 <?php
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../models/Ride.php';
+require_once __DIR__ . '/../../services/MailService.php';
 
 class RideController {
     private $db;
     private $ride;
+    private $mailService;
 
     public function __construct() {
         // Asegurar que la sesión esté iniciada para manejar autenticación
@@ -15,6 +17,7 @@ class RideController {
         $database = new Database();
         $this->db = $database->connect();
         $this->ride = new Ride($this->db);
+        $this->mailService = new MailService();
     }
 
     public function index() {
@@ -205,14 +208,13 @@ class RideController {
         }
 
         if ($this->ride->requestReservation($rideId, $_SESSION['user_id'])) {
-            /*
-            Enviar notificación por email al conductor
+            // Enviar notificación por email al conductor
             try {
                 $this->sendReservationNotification($ride, $_SESSION['user_id'], 'nueva');
             } catch (Exception $e) {
                 error_log("Error enviando notificación: " . $e->getMessage());
                 // Continuar aunque falle el email
-            }*/
+            }
             
             header('Location: my-rides.php?success=reserved');
         } else {
@@ -244,7 +246,7 @@ class RideController {
 
         if ($this->ride->updateReservationStatus($rideId, $passengerId, $status)) {
              // Enviar notificación al pasajero
-             /*$this->sendReservationNotification($ride, $passengerId, $status);*/
+             $this->sendReservationNotification($ride, $passengerId, $status);
              
              header('Location: my-rides.php?success=status_updated&action=' . $action);
         } else {
@@ -289,7 +291,7 @@ class RideController {
         if ($this->ride->cancelReservation($rideId, $_SESSION['user_id'])) {
             // Notificar al conductor
             $ride = $this->ride->getRideById($rideId);
-            /*$this->sendReservationNotification($ride, $_SESSION['user_id'], 'cancelada');*/
+            $this->sendReservationNotification($ride, $_SESSION['user_id'], 'cancelada');
             
             header('Location: my-rides.php?success=reservation_cancelled');
         } else {
@@ -297,18 +299,19 @@ class RideController {
         }
     }
 
-    /* Enviar notificaciones por email
+    // Enviar notificaciones por email
     private function sendReservationNotification($ride, $userId, $type) {
-        // Obtener información del usuario
+        // Obtener información del usuario que hizo la reserva
         $stmt = $this->db->prepare("SELECT nombre, correo FROM usuarios WHERE idUsuario = :id");
         $stmt->execute([':id' => $userId]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if (!$user) return;
 
         $subject = '';
         $message = '';
         $to = '';
+        $toName = '';
 
         switch ($type) {
             case 'nueva':
@@ -316,62 +319,86 @@ class RideController {
                 $stmt = $this->db->prepare("SELECT nombre, correo FROM usuarios WHERE idUsuario = :id");
                 $stmt->execute([':id' => $ride['idUsuario']]);
                 $conductor = $stmt->fetch(PDO::FETCH_ASSOC);
-                
+
                 $to = $conductor['correo'];
+                $toName = $conductor['nombre'];
                 $subject = '🚗 Nueva solicitud de reserva - Ride4Study';
-                $message = "Hola {$conductor['nombre']},\n\n";
-                $message .= "{$user['nombre']} ha solicitado una plaza en tu viaje:\n";
-                $message .= "📍 Desde: {$ride['nombreOrigen']}\n";
-                $message .= "📍 Hasta: {$ride['nombreDestino']}\n";
-                $message .= "📅 Fecha: " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "\n";
-                $message .= "🕐 Hora: " . substr($ride['horaSalida'], 0, 5) . "\n\n";
-                $message .= "Entra en tu panel para aceptar o rechazar la solicitud.\n\n";
-                $message .= "Saludos,\nEl equipo de Ride4Study";
+                $message = "
+                    <p>Hola {$conductor['nombre']},</p>
+                    <p>{$user['nombre']} ha solicitado una plaza en tu viaje:</p>
+                    <ul>
+                        <li>📍 Desde: {$ride['nombreOrigen']}</li>
+                        <li>📍 Hasta: {$ride['nombreDestino']}</li>
+                        <li>📅 Fecha: " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</li>
+                        <li>🕐 Hora: " . substr($ride['horaSalida'], 0, 5) . "</li>
+                    </ul>
+                    <p>Entra en tu panel para aceptar o rechazar la solicitud.</p>
+                    <p>Saludos,<br>El equipo de Ride4Study</p>
+                ";
                 break;
 
             case 'aceptado':
                 $to = $user['correo'];
+                $toName = $user['nombre'];
                 $subject = '✅ Tu reserva ha sido aceptada - Ride4Study';
-                $message = "¡Buenas noticias, {$user['nombre']}!\n\n";
-                $message .= "Tu solicitud de reserva ha sido aceptada para el viaje:\n";
-                $message .= "📍 Desde: {$ride['nombreOrigen']}\n";
-                $message .= "📍 Hasta: {$ride['nombreDestino']}\n";
-                $message .= "📅 Fecha: " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "\n";
-                $message .= "🕐 Hora: " . substr($ride['horaSalida'], 0, 5) . "\n\n";
-                $message .= "Ponte en contacto con el conductor para coordinar los detalles.\n\n";
-                $message .= "¡Buen viaje!\nEl equipo de Ride4Study";
+                $message = "
+                    <p>¡Buenas noticias, {$user['nombre']}!</p>
+                    <p>Tu solicitud de reserva ha sido aceptada para el viaje:</p>
+                    <ul>
+                        <li>📍 Desde: {$ride['nombreOrigen']}</li>
+                        <li>📍 Hasta: {$ride['nombreDestino']}</li>
+                        <li>📅 Fecha: " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</li>
+                        <li>🕐 Hora: " . substr($ride['horaSalida'], 0, 5) . "</li>
+                    </ul>
+                    <p>Ponte en contacto con el conductor para coordinar los detalles.</p>
+                    <p>¡Buen viaje!<br>El equipo de Ride4Study</p>
+                ";
                 break;
 
             case 'rechazado':
                 $to = $user['correo'];
+                $toName = $user['nombre'];
                 $subject = '❌ Actualización de tu reserva - Ride4Study';
-                $message = "Hola {$user['nombre']},\n\n";
-                $message .= "Lamentamos informarte que tu solicitud de reserva no ha sido aceptada para el viaje:\n";
-                $message .= "📍 Desde: {$ride['nombreOrigen']}\n";
-                $message .= "📍 Hasta: {$ride['nombreDestino']}\n\n";
-                $message .= "No te preocupes, puedes buscar otros viajes disponibles en la plataforma.\n\n";
-                $message .= "Saludos,\nEl equipo de Ride4Study";
+                $message = "
+                    <p>Hola {$user['nombre']},</p>
+                    <p>Lamentamos informarte que tu solicitud de reserva no ha sido aceptada para el viaje:</p>
+                    <ul>
+                        <li>📍 Desde: {$ride['nombreOrigen']}</li>
+                        <li>📍 Hasta: {$ride['nombreDestino']}</li>
+                    </ul>
+                    <p>No te preocupes, puedes buscar otros viajes disponibles en la plataforma.</p>
+                    <p>Saludos,<br>El equipo de Ride4Study</p>
+                ";
                 break;
 
             case 'cancelada':
                 $stmt = $this->db->prepare("SELECT nombre, correo FROM usuarios WHERE idUsuario = :id");
                 $stmt->execute([':id' => $ride['idUsuario']]);
                 $conductor = $stmt->fetch(PDO::FETCH_ASSOC);
-                
+
                 $to = $conductor['correo'];
+                $toName = $conductor['nombre'];
                 $subject = '🔔 Reserva cancelada - Ride4Study';
-                $message = "Hola {$conductor['nombre']},\n\n";
-                $message .= "{$user['nombre']} ha cancelado su reserva para tu viaje:\n";
-                $message .= "📍 Desde: {$ride['nombreOrigen']}\n";
-                $message .= "📍 Hasta: {$ride['nombreDestino']}\n";
-                $message .= "📅 Fecha: " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "\n\n";
-                $message .= "La plaza vuelve a estar disponible.\n\n";
-                $message .= "Saludos,\nEl equipo de Ride4Study";
+                $message = "
+                    <p>Hola {$conductor['nombre']},</p>
+                    <p>{$user['nombre']} ha cancelado su reserva para tu viaje:</p>
+                    <ul>
+                        <li>📍 Desde: {$ride['nombreOrigen']}</li>
+                        <li>📍 Hasta: {$ride['nombreDestino']}</li>
+                        <li>📅 Fecha: " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</li>
+                    </ul>
+                    <p>La plaza vuelve a estar disponible.</p>
+                    <p>Saludos,<br>El equipo de Ride4Study</p>
+                ";
                 break;
         }
 
-        Por hacer todavía
-    } */
+        // Enviar correo si hay destinatario definido
+        if ($to && $toName && $subject && $message) {
+            $this->mailService->send($to, $toName, $subject, $message);
+        }
+    }
+
 
 
     public function edit() {
