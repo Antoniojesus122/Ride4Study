@@ -105,7 +105,7 @@
             <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
                  <div class="p-6 rounded-2xl bg-gray-900/50 border border-white/5">
                      <i class="fas fa-envelope text-2xl text-primary mb-3"></i>
-                     <p class="text-sm text-gray-400">soporte@ride4study.com</p>
+                     <p class="text-sm text-gray-400">ride4study@outlook.es</p>
                  </div>
                  <div class="p-6 rounded-2xl bg-gray-900/50 border border-white/5">
                      <i class="fas fa-clock text-2xl text-blue-400 mb-3"></i>

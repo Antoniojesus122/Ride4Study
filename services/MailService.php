@@ -1,14 +1,26 @@
 <?php
 
+require_once __DIR__ . '/../config/env.php';
+
 class MailService
 {
     private $apiKey;
 
     public function __construct()
     {
-        $this->apiKey = "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";
+
+    $this->apiKey = $_ENV['BREVO_API_KEY'] ?? null;
+
+    if (!$this->apiKey) {
+            throw new Exception("API Key no encontrada en variables de entorno.");
     }
 
+    }
+
+    /**
+     * Send an email via Brevo SMTP API.
+     * Returns an array with keys: success (bool), http_code (int), response, curl_errno, curl_error
+     */
     public function send($toEmail, $toName, $subject, $html)
     {
         $data = [
@@ -34,10 +46,31 @@ class MailService
             "content-type: application/json"
         ]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
         $response = curl_exec($ch);
+        $curlErrNo = curl_errno($ch);
+        $curlError = curl_error($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        return $response;
+        $decoded = json_decode($response, true);
+
+        $success = ($curlErrNo === 0 && $httpCode >= 200 && $httpCode < 300);
+
+        $result = [
+            'success' => $success,
+            'http_code' => $httpCode,
+            'response' => $decoded !== null ? $decoded : $response,
+            'curl_errno' => $curlErrNo,
+            'curl_error' => $curlError
+        ];
+
+        if (!$success) {
+            $errMsg = 'MailService error: ' . json_encode($result);
+            error_log($errMsg);
+        }
+
+        return $result;
     }
 }

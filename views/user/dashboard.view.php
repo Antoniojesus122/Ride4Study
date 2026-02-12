@@ -460,7 +460,7 @@
         // Verificar que el viaje es de tipo ofrezco, para que se habilite la posibilidad de reservar plaza
         else if (ride.tipo.toLowerCase() === 'ofrezco') {
              btnReserve.onclick = function() {
-                 window.location.href = 'reserve.php?ride_id=' + ride.idAnuncio;
+                 window.location.href = "reserve.php?ride_id=<?= $ride['idAnuncio'] ?>";
              };
         }
         else {

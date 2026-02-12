@@ -13,21 +13,24 @@ class SupportController {
             $message = htmlspecialchars($_POST['message'] ?? '');
             $subject = htmlspecialchars($_POST['subject'] ?? 'Solicitud de Soporte');
 
-            $to = 'antoniojesusgonzalezdomingo4@gmail.com';
-            $headers = "From: $email\r\n";
-            $headers .= "Reply-To: $email\r\n";
-            $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+            require_once __DIR__ . '/../../services/MailService.php';
+            $mailService = new MailService();
 
-            $fullMessage = "Nombre: $name\n";
-            $fullMessage .= "Email: $email\n\n";
-            $fullMessage .= "Mensaje:\n$message";
+            $to = 'ride4study@outlook.es';
 
-            if (mail($to, $subject, $fullMessage, $headers)) {
+            $html = "<p><strong>Nombre:</strong> {$name}</p>";
+            $html .= "<p><strong>Email:</strong> {$email}</p>";
+            $html .= "<p><strong>Asunto:</strong> {$subject}</p>";
+            $html .= "<hr><p><strong>Mensaje:</strong></p><p>" . nl2br($message) . "</p>";
+
+            $response = $mailService->send($to, 'Soporte Ride4Study', $subject, $html);
+
+            if (is_array($response) && !empty($response['success'])) {
                 $status = 'success';
                 $msg = 'Tu mensaje ha sido enviado correctamente.';
             } else {
-                $status = 'success';
-                $msg = 'Tu mensaje ha sido enviado correctamente (Simulación Local).';
+                $status = 'error';
+                $msg = 'No se pudo enviar el mensaje. Comprueba la configuración de correo.';
             }
 
             header("Location: support.php?status=$status&msg=" . urlencode($msg));
