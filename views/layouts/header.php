@@ -60,9 +60,19 @@
 
               <div class="relative">
                 <button type="button" onclick="document.getElementById('user-menu').classList.toggle('hidden')" class="flex items-center gap-2 rounded-full pr-1 pl-1 py-1 hover:bg-white/10 transition-all border border-transparent hover:border-white/10" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-                  <div class="h-9 w-9 rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 flex items-center justify-center text-white font-bold text-sm ring-2 ring-gray-900">
-                      <?= $userInitial ?>
-                  </div>
+                    <div class="h-9 w-9 rounded-full overflow-hidden ring-2 ring-gray-900 bg-gray-800 flex items-center justify-center">
+                      <?php if (!empty($_SESSION['user_photo']) && file_exists(__DIR__ . '/../../public/uploads/profiles/' . $_SESSION['user_photo'])): 
+                        $photoPath = 'public/uploads/profiles/' . $_SESSION['user_photo'];
+                        $fsPath = __DIR__ . '/../../public/uploads/profiles/' . $_SESSION['user_photo'];
+                        $ver = filemtime($fsPath);
+                      ?>
+                        <img src="<?= $photoPath ?>?v=<?= $ver ?>" alt="Avatar" class="w-full h-full object-cover">
+                      <?php else: ?>
+                        <div class="w-full h-full bg-gradient-to-tr from-gray-700 to-gray-600 flex items-center justify-center text-white font-bold text-sm">
+                          <?= $userInitial ?>
+                        </div>
+                      <?php endif; ?>
+                    </div>
                   <i class="fas fa-chevron-down text-gray-400 text-xs mr-2 transition-transform duration-200" style="transform: rotate(0deg);" id="menu-arrow"></i>
                 </button>
                 

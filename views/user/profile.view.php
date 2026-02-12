@@ -24,12 +24,14 @@
             <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
         </div>
         
+
         <div class="px-8 pb-8 flex flex-col md:flex-row items-start gap-6 -mt-16 relative">
              <!-- Avatar -->
              <div class="relative group">
-                <div class="w-32 h-32 rounded-2xl border-4 border-surface bg-gray-800 flex items-center justify-center overflow-hidden shadow-2xl shadow-black/50 ring-4 ring-primary/20">
-                    <?php if (!empty($profileUser['foto_perfil'])): ?>
-                        <img src="public/uploads/profiles/<?= htmlspecialchars($profileUser['foto_perfil']) ?>" alt="Profile" class="w-full h-full object-cover">
+                <div id="profile-avatar" class="w-32 h-32 rounded-2xl border-4 border-surface bg-gray-800 flex items-center justify-center overflow-hidden shadow-2xl shadow-black/50 ring-4 ring-primary/20">
+                    <?php if (!empty($profileUser['foto_perfil']) && file_exists(__DIR__ . '/../../public/uploads/profiles/' . $profileUser['foto_perfil'])): ?>
+                        <?php $pf = htmlspecialchars($profileUser['foto_perfil']); $ver = filemtime(__DIR__ . '/../../public/uploads/profiles/' . $profileUser['foto_perfil']); ?>
+                        <img src="public/uploads/profiles/<?= $pf ?>?v=<?= $ver ?>" alt="Profile" class="w-full h-full object-cover">
                     <?php else: ?>
                         <span class="text-5xl font-bold text-white"><?= strtoupper(substr($profileUser['nombre'], 0, 2)) ?></span>
                     <?php endif; ?>
@@ -145,46 +147,65 @@
     </div>
 
     <!-- Contenido principal -->
+            <!-- Valoraciones -->
+            <div class="mt-6">
+                <div class="bg-surface rounded-2xl border border-gray-700 p-6 mb-6">
+                    <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fas fa-star text-yellow-400"></i> Valoraciones
+                    </h3>
+                    <div class="mb-4">
+                        <div class="flex items-center gap-4">
+                            <div class="text-3xl font-bold text-white"><?= number_format($userStats['valoracion_promedio'] ?? 0, 1) ?></div>
+                            <div class="text-sm text-gray-400">(Media basada en <?= count($ratings ?? []) ?> valoraciones)</div>
+                        </div>
+                    </div>
+
+                    <?php if (!$isOwnProfile && isset($_SESSION['user_id'])): ?>
+                        <form id="rating-form" class="mb-4">
+                            <input type="hidden" name="idValorado" value="<?= $profileUser['idUsuario'] ?>">
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm text-gray-400">Tu valoración:</label>
+                                <select name="puntuacion" id="rating-select" class="bg-gray-800 border border-gray-600 rounded-xl px-3 py-2 text-white text-sm">
+                                    <option value="5">5 — Excelente</option>
+                                    <option value="4">4 — Muy buena</option>
+                                    <option value="3">3 — Correcta</option>
+                                    <option value="2">2 — Mejorable</option>
+                                    <option value="1">1 — Mala</option>
+                                </select>
+                                <button type="submit" class="ml-3 px-4 py-2 bg-primary text-secondary rounded-xl font-bold">Valorar</button>
+                            </div>
+                            <div id="rating-msg" class="text-sm text-yellow-300 mt-2"></div>
+                        </form>
+                    <?php endif; ?>
+
+                    <div class="space-y-3">
+                        <?php if (empty($ratings)): ?>
+                            <p class="text-sm text-gray-400">Aún no hay valoraciones para este usuario.</p>
+                        <?php else: ?>
+                            <?php foreach ($ratings as $rv): ?>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-md overflow-hidden bg-gray-800 flex-shrink-0">
+                                        <?php if (!empty($rv['valoradorFoto']) && file_exists(__DIR__ . '/../../public/uploads/profiles/' . $rv['valoradorFoto'])): ?>
+                                            <?php $vpf = htmlspecialchars($rv['valoradorFoto']); $vver = filemtime(__DIR__ . '/../../public/uploads/profiles/' . $rv['valoradorFoto']); ?>
+                                            <img src="public/uploads/profiles/<?= $vpf ?>?v=<?= $vver ?>" class="w-full h-full object-cover" alt="">
+                                        <?php else: ?>
+                                            <div class="w-full h-full flex items-center justify-center text-xs text-white font-bold bg-gradient-to-tr from-gray-700 to-gray-600"><?= strtoupper(substr($rv['valoradorNombre'], 0, 2)) ?></div>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-white"><?= htmlspecialchars($rv['valoradorNombre']) ?></div>
+                                        <div class="text-xs text-gray-400">Puntuación: <span class="text-yellow-400 font-semibold"><?= (int)$rv['puntuacion'] ?></span></div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
          
-        <!-- Columna izquierda - Información adicional -->
-        <div class="space-y-6">
-            <!-- Insignias (para futuro) -->
-            <div class="bg-surface rounded-2xl border border-gray-700 p-6">
-                 <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">
-                     <i class="fas fa-trophy text-yellow-500"></i> Logros
-                 </h3>
-                 <div class="grid grid-cols-2 gap-3">
-                     <?php if($profileUser['estado_verificacion'] == 2): ?>
-                     <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-center">
-                         <i class="fas fa-shield-check text-2xl text-green-500 mb-1"></i>
-                         <p class="text-xs font-medium text-green-400">Verificado</p>
-                     </div>
-                     <?php endif; ?>
-                     
-                     <?php if($userStats['total_viajes'] >= 5): ?>
-                     <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 text-center">
-                         <i class="fas fa-road text-2xl text-blue-500 mb-1"></i>
-                         <p class="text-xs font-medium text-blue-400">Viajero</p>
-                     </div>
-                     <?php endif; ?>
-                     
-                     <?php if($userStats['viajes_como_conductor'] >= 3): ?>
-                     <div class="bg-purple-500/10 border border-purple-500/20 rounded-xl p-3 text-center">
-                         <i class="fas fa-steering-wheel text-2xl text-purple-500 mb-1"></i>
-                         <p class="text-xs font-medium text-purple-400">Conductor</p>
-                     </div>
-                     <?php endif; ?>
-                     
-                     <?php if($userStats['valoracion_promedio'] >= 4.5): ?>
-                     <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 text-center">
-                         <i class="fas fa-star text-2xl text-yellow-500 mb-1"></i>
-                         <p class="text-xs font-medium text-yellow-400">Top rated</p>
-                     </div>
-                     <?php endif; ?>
-                 </div>
-            </div>
-            
+        <!-- Columna izquierda -->
+        <div class="space-y-6">            
             <!-- Información adicional -->
             <div class="bg-surface rounded-2xl border border-gray-700 p-6">
                  <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Información</h3>
@@ -233,7 +254,7 @@
              </div>
         </div>
 
-        <!-- Columna derecha - Formulario de edición -->
+        <!-- Columna derecha -->
         <div class="lg:col-span-2">
             
             <?php if ($isOwnProfile): ?>
@@ -244,7 +265,6 @@
                          <i class="fas fa-user-edit text-primary"></i> Editar Perfil
                      </h3>
                      <form action="profile.php?action=update" method="POST" enctype="multipart/form-data">
-                         <!-- Input oculto para la foto de perfil -->
                          <input type="file" name="foto_perfil" id="photo-input" class="hidden" accept="image/*">
                          
                          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -460,30 +480,90 @@
 </div>
 
 <script>
-function switchTab(tabName) {
-    document.getElementById('content-profile').classList.add('hidden');
-    document.getElementById('content-security').classList.add('hidden');
-    document.getElementById('content-privacy').classList.add('hidden');
-    document.getElementById('content-verification').classList.add('hidden');
+    function switchTab(tabName) {
+        document.getElementById('content-profile').classList.add('hidden');
+        document.getElementById('content-security').classList.add('hidden');
+        document.getElementById('content-privacy').classList.add('hidden');
+        document.getElementById('content-verification').classList.add('hidden');
 
-    const tabs = ['profile', 'security', 'privacy', 'verification'];
-    tabs.forEach(t => {
-        const btn = document.getElementById('tab-' + t);
-        btn.classList.remove('bg-primary/10', 'text-primary', 'border-primary/20');
-        btn.classList.add('bg-transparent', 'text-gray-400', 'border-transparent');
+        const tabs = ['profile', 'security', 'privacy', 'verification'];
+        tabs.forEach(t => {
+            const btn = document.getElementById('tab-' + t);
+            btn.classList.remove('bg-primary/10', 'text-primary', 'border-primary/20');
+            btn.classList.add('bg-transparent', 'text-gray-400', 'border-transparent');
+        });
+
+        document.getElementById('content-' + tabName).classList.remove('hidden');
+        const activeBtn = document.getElementById('tab-' + tabName);
+        activeBtn.classList.remove('bg-transparent', 'text-gray-400', 'border-transparent');
+        activeBtn.classList.add('bg-primary/10', 'text-primary', 'border-primary/20');
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    if (tab) {
+        switchTab(tab);
+    }
+</script>
+
+<?php if (!$isOwnProfile && isset($_SESSION['user_id'])): ?>
+
+<script>
+    document.getElementById('rating-form')?.addEventListener('submit', function(e){
+        e.preventDefault();
+        const form = e.currentTarget;
+        const data = new FormData(form);
+
+        fetch('rating.php', { method: 'POST', body: data })
+            .then(r => r.json())
+            .then(res => {
+                const msg = document.getElementById('rating-msg');
+                if (res.success) {
+                    msg.textContent = 'Valoración enviada. Media actual: ' + (res.avg || res.avg === 0 ? res.avg : '-');
+                    // actualizar número principal
+                    const el = document.querySelector('.text-3xl.font-bold.text-white');
+                    if (el) el.textContent = (res.avg ? parseFloat(res.avg).toFixed(1) : el.textContent);
+                    form.querySelector('button').disabled = true;
+                } else {
+                    msg.textContent = res.message || 'Error al enviar valoración';
+                }
+            }).catch(()=>{
+                document.getElementById('rating-msg').textContent = 'Error de red';
+            });
     });
+</script>
 
-    document.getElementById('content-' + tabName).classList.remove('hidden');
-    const activeBtn = document.getElementById('tab-' + tabName);
-    activeBtn.classList.remove('bg-transparent', 'text-gray-400', 'border-transparent');
-    activeBtn.classList.add('bg-primary/10', 'text-primary', 'border-primary/20');
-}
+<?php endif; ?>
 
-const urlParams = new URLSearchParams(window.location.search);
-const tab = urlParams.get('tab');
-if (tab) {
-    switchTab(tab);
-}
+<script>
+    const photoInput = document.getElementById('photo-input');
+    const avatarContainer = document.getElementById('profile-avatar');
+    if (photoInput && avatarContainer) {
+        photoInput.addEventListener('change', function(e){
+            const file = this.files && this.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) return;
+
+            const url = URL.createObjectURL(file);
+            avatarContainer.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = 'Profile preview';
+            img.className = 'w-full h-full object-cover';
+            avatarContainer.appendChild(img);
+
+            img.onload = () => {
+                URL.revokeObjectURL(url);
+            };
+        });
+
+        if (<?= $isOwnProfile ? 'true' : 'false' ?>) {
+            avatarContainer.style.cursor = 'pointer';
+            avatarContainer.addEventListener('click', function(){
+                photoInput.click();
+            });
+        }
+    }
 </script>
 
 </body>

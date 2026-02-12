@@ -113,15 +113,26 @@
 
                             <!-- Usuario del anuncio -->
                             <div class="flex items-center gap-3 mb-6 pr-16">
-                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center text-base font-bold text-white shadow-inner">
-                                    <?= strtoupper(substr($ride['nombreUsuario'], 0, 2)) ?>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center text-base font-bold text-white shadow-inner overflow-hidden">
+                                    <?php if (!empty($ride['foto_perfil']) && file_exists(__DIR__ . '/../../public/uploads/profiles/' . $ride['foto_perfil'])): ?>
+                                        <?php $rpf = htmlspecialchars($ride['foto_perfil']); $rver = filemtime(__DIR__ . '/../../public/uploads/profiles/' . $ride['foto_perfil']); ?>
+                                        <img src="public/uploads/profiles/<?= $rpf ?>?v=<?= $rver ?>" alt="avatar" class="w-full h-full object-cover">
+                                    <?php else: ?>
+                                        <?= strtoupper(substr($ride['nombreUsuario'], 0, 2)) ?>
+                                    <?php endif; ?>
                                 </div>
                                 <div>
                                     <h4 class="text-sm font-bold text-white"><?= htmlspecialchars($ride['nombreUsuario']) ?></h4>
                                     <div class="flex items-center text-xs gap-2">
-                                        <span class="text-gray-400"><i class="fas fa-star text-yellow-500 mr-1"></i> 4.8</span>
+                                        <span class="text-gray-400"><i class="fas fa-star text-yellow-500 mr-1"></i> <?= number_format((float)($ride['rating'] ?? 0), 1) ?></span>
                                         <span class="text-gray-600">•</span>
-                                        <span class="text-gray-400">Verificado</span>
+                                        <?php if ($ride['estado_verificacion'] == 2): ?>
+                                            <span class="text-green-400">Verificado</span>
+                                        <?php elseif ($ride['estado_verificacion'] == 1): ?>
+                                            <span class="text-yellow-400">Pendiente</span>
+                                        <?php else: ?>
+                                            <span class="text-gray-400">No verificado</span>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -340,7 +351,7 @@
                                     <h4 class="font-bold text-white truncate" id="modal-driver-name">Juan David</h4>
                                     <div class="flex items-center justify-center gap-2 mt-1 text-sm">
                                         <span class="bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded-full border border-yellow-500/20 flex items-center gap-1">
-                                            <i class="fas fa-star text-xs"></i> <span id="modal-rating">4.8</span>
+                                            <i class="fas fa-star text-xs"></i> <span id="modal-rating">0.0</span>
                                         </span>
                                     </div>
                                 </div>
@@ -401,7 +412,11 @@
         
         // Datos del usuario
         document.getElementById('modal-driver-name').textContent = ride.nombreUsuario;
-        document.getElementById('modal-avatar').textContent = ride.nombreUsuario.substring(0, 2).toUpperCase();
+        if (ride.foto_perfil) {
+            document.getElementById('modal-avatar').innerHTML = '<img src="public/uploads/profiles/' + encodeURIComponent(ride.foto_perfil) + '?v=' + Date.now() + '" alt="avatar" class="w-full h-full object-cover rounded-full">';
+        } else {
+            document.getElementById('modal-avatar').textContent = ride.nombreUsuario.substring(0, 2).toUpperCase();
+        }
         document.getElementById('modal-profile-link').href = 'profile.php?id=' + ride.idUsuario;
         document.getElementById('btn-contact').href = 'chat.php?user_id=' + ride.idUsuario;
         
@@ -410,16 +425,21 @@
         document.getElementById('modal-rating').textContent = rating;
         
         // Verificación
-        const verifiedEl = document.getElementById('modal-verified');
-        if (ride.estado_verificacion == 1 || ride.estado_verificacion == 2) {
-             verifiedEl.textContent = 'Verificado';
-             verifiedEl.className = 'text-green-400';
-             verifiedEl.previousElementSibling.className = 'fas fa-shield-alt w-5 text-center text-green-400';
-        } else {
-             verifiedEl.textContent = 'No verificado';
-             verifiedEl.className = 'text-gray-500';
-             verifiedEl.previousElementSibling.className = 'fas fa-shield-alt w-5 text-center text-gray-500';
-        }
+           const verifiedEl = document.getElementById('modal-verified');
+           // 2 = verificado, 1 = pendiente, 0 = no verificado
+           if (ride.estado_verificacion == 2) {
+               verifiedEl.textContent = 'Verificado';
+               verifiedEl.className = 'text-green-400';
+               verifiedEl.previousElementSibling.className = 'fas fa-shield-alt w-5 text-center text-green-400';
+           } else if (ride.estado_verificacion == 1) {
+               verifiedEl.textContent = 'Pendiente';
+               verifiedEl.className = 'text-yellow-400';
+               verifiedEl.previousElementSibling.className = 'fas fa-shield-alt w-5 text-center text-yellow-400';
+           } else {
+               verifiedEl.textContent = 'No verificado';
+               verifiedEl.className = 'text-gray-500';
+               verifiedEl.previousElementSibling.className = 'fas fa-shield-alt w-5 text-center text-gray-500';
+           }
 
         // Lógica para reserva
         const btnReserve = document.getElementById('btn-reserve');

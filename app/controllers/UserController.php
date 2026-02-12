@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/Rating.php';
 
 class UserController {
     private $db;
@@ -31,8 +32,13 @@ class UserController {
             exit;
         }
 
+        // Estadísticas: valoracion promedio y últimas valoraciones
+        $ratingModel = new Rating($this->db);
+        $userStats['valoracion_promedio'] = round($ratingModel->getAverage($viewUserId), 1);
+        $ratings = $ratingModel->getByUser($viewUserId, 10);
+
         $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
-        
+
         require_once __DIR__ . '/../../views/user/profile.view.php';
     }
 
@@ -80,6 +86,9 @@ class UserController {
 
         if ($this->user->updateUser($id, $data)) {
             $_SESSION['user_name'] = $data['nombre'];
+            if (isset($data['foto_perfil'])) {
+                $_SESSION['user_photo'] = $data['foto_perfil'];
+            }
             header('Location: profile.php?success=updated');
             exit;
         }

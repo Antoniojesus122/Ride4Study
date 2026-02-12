@@ -57,6 +57,7 @@ class AuthController {
                     try {
                         $userData = $this->user->login($correo, $contrasena);
 
+
                         if ($userData !== false) {
 
                             session_regenerate_id(true);
@@ -64,6 +65,11 @@ class AuthController {
                             $_SESSION['user_id']   = $userData['idUsuario'];
                             $_SESSION['user_role'] = $userData['idRol'];
                             $_SESSION['user_name'] = $userData['nombre'] ?? '';
+                            // Cargar foto de perfil en sesión para mostrarla globalmente
+                            $full = $this->user->getUserById((int)$userData['idUsuario']);
+                            if ($full && !empty($full['foto_perfil'])) {
+                                $_SESSION['user_photo'] = $full['foto_perfil'];
+                            }
 
                             $idRol = (int)$userData['idRol'];
                             if (in_array($idRol, [1, 3], true)) {
