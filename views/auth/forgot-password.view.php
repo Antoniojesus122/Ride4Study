@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-secondary">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recuperar Contraseña - Ride4Study</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="public/js/tailwind-config.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="h-full text-text flex items-center justify-center">
+  <div class="w-full max-w-md mx-4">
+    <div class="bg-surface rounded-xl shadow-lg p-8 space-y-6">
+      <div class="text-center">
+        <a href="index.php" class="inline-flex items-center gap-2 mb-4">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-secondary font-bold text-xl">R</div>
+          <span class="text-xl font-bold text-white">Ride4Study</span>
+        </a>
+        <h2 class="text-2xl font-semibold text-white">Recupera tu acceso</h2>
+        <p class="text-sm text-text-muted mt-2">Te enviaremos un código a tu correo para restablecer tu contraseña.</p>
+      </div>
+
+      <!-- Mensajes -->
+      <?php if (!empty($error)): ?>
+        <div class="p-3 bg-red-900/20 rounded border border-red-500/20 text-red-200 text-sm"><?= htmlspecialchars($error) ?></div>
+      <?php endif; ?>
+      <?php if (!empty($_GET['sent'])): ?>
+        <div class="p-3 bg-green-900/20 rounded border border-green-500/20 text-green-200 text-sm">Código enviado. Revisa tu correo (válido 15 minutos).</div>
+      <?php endif; ?>
+
+      <!-- Formulario -->
+      <?php if (empty($success)): ?>
+      <form method="POST" action="forgot-password.php" class="space-y-4">
+        <div>
+          <label for="correo" class="block text-sm font-medium text-gray-300">Correo Electrónico</label>
+          <input id="correo" name="correo" type="email" autocomplete="email" required
+                 value="<?= htmlspecialchars($_POST['correo'] ?? '') ?>"
+                 placeholder="tu@correo.com"
+                 class="mt-1 block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white focus:ring-2 focus:ring-primary">
+        </div>
+        <button type="submit" class="w-full flex items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold text-secondary hover:bg-primary/90 transition">
+          <i class="fas fa-paper-plane"></i> Enviar código
+        </button>
+      </form>
+      <?php endif; ?>
+
+      <div class="text-center text-sm text-text-muted">
+        <a href="login.php" class="underline">Volver a iniciar sesión</a> · <a href="register.php" class="underline">Crear cuenta</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

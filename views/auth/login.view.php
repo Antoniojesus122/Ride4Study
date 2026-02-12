@@ -89,7 +89,7 @@
 
                   <div class="flex items-center justify-between">
                     <div class="text-sm leading-6">
-                      <a href="recuperar_contrasena.php" class="font-semibold text-primary hover:text-primary-dark transition-colors">¿Olvidaste tu contraseña?</a>
+                      <a href="forgot-password.php" class="font-semibold text-primary hover:text-primary-dark transition-colors">¿Olvidaste tu contraseña?</a>
                     </div>
                   </div>
 

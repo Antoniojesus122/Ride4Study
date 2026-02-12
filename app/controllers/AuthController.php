@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../../services/MailService.php';
 
 class AuthController {
 
@@ -154,5 +155,106 @@ class AuthController {
 
         header('Location: login.php');
         exit;
+    }
+
+    // Solicitar código de reseteo
+    public function forgotPassword(): void
+    {
+
+        $error = '';
+        $success = '';
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            $correo = trim($_POST['correo'] ?? '');
+
+            // Validaciones básicas
+            if (!$correo) {
+                $error = 'Introduce tu correo.';
+            }
+            elseif (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+                $error = 'Correo inválido.';
+            }
+            else {
+                // Evitar spam de solicitudes de codigos
+                if (isset($_SESSION['last_reset']) && time() - $_SESSION['last_reset'] < 30) {
+                    $error = 'Espera unos segundos antes de volver a solicitarlo.';
+                }
+                else {
+                    $userData = $this->user->getUserByEmail($correo);
+
+                    //Importante, no revelar el correo evidentemente pero si existe el usuario, generar código y enviarlo
+                    if ($userData) {
+                        $code = $this->user->createResetCode((int)$userData['idUsuario']);
+
+                        if ($code) {
+                            $subject = "Código de recuperación - Ride4Study";
+                            $html = "
+                                <h2>Hola {$userData['nombre']}</h2>
+                                <p>Tu código de recuperación es:</p>
+                                <h1 style='font-size:32px;letter-spacing:6px'>{$code}</h1>
+                                <p>Válido por 15 minutos.</p>
+                            ";
+                            $mail = new MailService();
+                            $mail->send($correo, $userData['nombre'], $subject, $html);
+                        }
+                    }
+
+                    $_SESSION['last_reset'] = time();
+                    header("Location: reset-password.php?sent=1");
+                    exit;
+                }
+            }
+        }
+
+        require __DIR__ . '/../../views/auth/forgot-password.view.php';
+    }
+
+    // Validar código y resetear contraseña
+    public function resetPassword(): void
+    {
+        $error = '';
+        $success = '';
+
+        // Obtener código desde GET si existe
+        $resetData = null;
+        if (isset($_GET['code'])) {
+            $resetData = $this->user->validateResetCode($_GET['code']);
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $code = trim($_POST['code'] ?? '');
+            $pass = $_POST['contrasena'] ?? '';
+            $confirm = $_POST['confirmar_contrasena'] ?? '';
+
+            // Validaciones básicas
+            if (!$code || !$pass || !$confirm) {
+                $error = 'Completa todos los campos.';
+            } elseif (!preg_match('/^\d{6}$/', $code)) {
+                $error = 'Código inválido.';
+            } elseif (strlen($pass) < 6) {
+                $error = 'La contraseña debe tener al menos 6 caracteres.';
+            } elseif ($pass !== $confirm) {
+                $error = 'Las contraseñas no coinciden.';
+            } else {
+                $_SESSION['reset_attempts'] = ($_SESSION['reset_attempts'] ?? 0) + 1;
+
+                if ($_SESSION['reset_attempts'] > 5) {
+                    $error = 'Demasiados intentos. Solicita un nuevo código.';
+                } else {
+                    $data = $this->user->validateResetCode($code);
+                    if (!$data) {
+                        $error = 'Código inválido o expirado.';
+                    } else {
+                        $this->user->resetPasswordWithCode((int)$data['user_id'], $pass);
+                        unset($_SESSION['reset_attempts']);
+                        $success = 'Contraseña cambiada correctamente. Redirigiendo...';
+                        header("Refresh:3; url=login.php");
+                    }
+                }
+            }
+        }
+
+        require __DIR__ . '/../../views/auth/reset-password.view.php';
     }
 }

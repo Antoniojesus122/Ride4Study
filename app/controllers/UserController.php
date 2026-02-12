@@ -121,7 +121,7 @@ class UserController {
             exit;
         }
 
-        // Actualizar contraseña (UNA SOLA VEZ)
+        // Actualizar contraseña
         if (!$this->user->updatePassword($_SESSION['user_id'], $new)) {
             header('Location: profile.php?error=update_failed&tab=security');
             exit;

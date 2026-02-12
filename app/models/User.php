@@ -128,6 +128,73 @@ class User {
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return (int) $row['total'];
     }
+
+     
+    public function getUserByEmail(string $email): array|false {
+        $sql = "SELECT idUsuario, nombre, correo FROM {$this->table} WHERE correo = :correo LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':correo' => $email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Crear código de reseteo
+    public function createResetCode(int $userId): string|false {
+        try {
+            $this->conn->prepare("DELETE FROM password_resets WHERE user_id = ?")
+                ->execute([$userId]);
+
+            $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $expiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+
+            $stmt = $this->conn->prepare("
+                INSERT INTO password_resets (user_id, code, expires_at)
+                VALUES (?, ?, ?)
+            ");
+
+            $stmt->execute([$userId, $code, $expiresAt]);
+
+            return $code;
+
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return false;
+        }
+    }
+
+
+    // Validar codigo
+    public function validateResetCode(string $code): array|false {
+
+        $stmt = $this->conn->prepare("
+            SELECT pr.user_id, u.nombre, u.correo
+            FROM password_resets pr
+            JOIN usuarios u ON u.idUsuario = pr.user_id
+            WHERE pr.code = ?
+            AND pr.expires_at > NOW()
+            LIMIT 1
+        ");
+
+        $stmt->execute([$code]);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+
+    // Resetear contraseña con código
+    public function resetPasswordWithCode(int $userId, string $password): bool {
+
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+
+        $this->conn->prepare("
+            UPDATE usuarios SET contrasena = ? WHERE idUsuario = ?
+        ")->execute([$hash, $userId]);
+
+        $this->conn->prepare("
+            DELETE FROM password_resets WHERE user_id = ?
+        ")->execute([$userId]);
+
+        return true;
+    }
 }
 
 
