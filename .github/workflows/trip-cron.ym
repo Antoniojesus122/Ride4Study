@@ -1,0 +1,13 @@
+name: Trip Cron
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  run-cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call script
+        run: curl -A "Mozilla/5.0" https://ride4study.gt.tc//check_trips.php?token=PRUEBA
