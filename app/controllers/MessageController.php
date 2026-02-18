@@ -1,14 +1,14 @@
 <?php
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../models/Message.php';
+require_once __DIR__ . '/../models/Conversation.php';
 require_once __DIR__ . '/../models/User.php';
-require_once __DIR__ . '/../models/Ride.php';
 
 class MessageController {
     private $db;
     private $message;
+    private $conversation;
     private $user;
-    private $ride;
 
     public function __construct() {
         if (session_status() === PHP_SESSION_NONE) {
@@ -16,197 +16,228 @@ class MessageController {
         }
 
         $database = new Database();
-        $this->db = $database->connect();
-        $this->message = new Message($this->db);
-        $this->user = new User($this->db);
-        $this->ride = new Ride($this->db);
+        $this->db           = $database->connect();
+        $this->message      = new Message($this->db);
+        $this->conversation = new Conversation($this->db);
+        $this->user         = new User($this->db);
     }
 
+    // Buscar o crear conversación
+    private function getOrCreateConversation(int $idAnuncio, int $currentUserId, int $otherUserId): int {
+        return $this->conversation->getOrCreate($idAnuncio, $currentUserId, $otherUserId);
+    }
+
+    // Listado de conversaciones del usuario
     public function index() {
         if (!isset($_SESSION['user_id'])) {
             header('Location: login.php');
             exit;
         }
 
-        $userId = $_SESSION['user_id'];
-        $chats = $this->message->getConversations($userId);
-        
-        $selectedUserId = null;
-        $messages = [];
-        $otherUser = null;
-        $contextRide = null;
+        $userId = (int) $_SESSION['user_id'];
+        $chats  = $this->message->getConversations($userId);
+
+        $selectedConversationId = null;
+        $messages               = [];
+        $otherUser              = null;
+        $contextRide            = null;
 
         $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
 
         require_once __DIR__ . '/../../views/user/chat.view.php';
     }
 
-    public function fetchMessages() {
-        if (!isset($_SESSION['user_id'])) {
-            exit;
-        }
-
-        $userId = $_SESSION['user_id'];
-        $otherUserId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : null;
-
-        if (!$otherUserId) exit;
-
-        $messages = $this->message->getMessages($userId, $otherUserId);
-        
-        require_once __DIR__ . '/../../views/user/chat-messages.partial.php';
-    }
-
+    // Punto de entrada al chat
     public function chat() {
         if (!isset($_SESSION['user_id'])) {
             header('Location: login.php');
             exit;
         }
 
-        $userId = $_SESSION['user_id'];
-        $chats = $this->message->getConversations($userId);
+        $userId = (int) $_SESSION['user_id'];
 
-        $otherUserId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : null;
+        // // Desde contactar mediante un anuncio
+        if (isset($_GET['anuncio_id']) && isset($_GET['other_user_id'])) {
+            $idAnuncio   = (int) $_GET['anuncio_id'];
+            $otherUserId = (int) $_GET['other_user_id'];
 
-        if (!$otherUserId) {
-             $this->index();
-             return;
-        }
-
-        $selectedUserId = $otherUserId;
-        $messages = $this->message->getMessages($userId, $otherUserId);
-        $otherUser = $this->user->getUserById($otherUserId);
-
-        $contextRide = null;
-        $rideId = isset($_GET['ride_id']) ? (int)$_GET['ride_id'] : null;
-
-        if ($rideId && count($messages) == 0) {
-            $contextRide = $this->ride->getRideById($rideId);
-            
-            if ($contextRide) {
-                // Crear mensaje de sistema con contexto del viaje
-                $this->createContextMessage($userId, $otherUserId, $contextRide);
-                // Recargar mensajes después de crear el contexto
-                $messages = $this->message->getMessages($userId, $otherUserId);
+            // Validaciones básicas
+            if ($idAnuncio <= 0 || $otherUserId <= 0 || $otherUserId === $userId) {
+                header('Location: messages.php');
+                exit;
             }
-        } else if ($rideId) {
-            // Solo cargar contexto si existe
-            $contextRide = $this->ride->getRideById($rideId);
+
+            $conversationId = $this->getOrCreateConversation($idAnuncio, $userId, $otherUserId);
+            header('Location: chat.php?conversation_id=' . $conversationId);
+            exit;
         }
 
-        // Verificar si hay mensaje de contexto en la conversación
-        if (!$contextRide && count($messages) > 0) {
-            $contextRide = $this->message->getConversationContext($userId, $otherUserId);
+        // Desde contactar mediante el perfil
+        $conversationId = isset($_GET['conversation_id']) ? (int) $_GET['conversation_id'] : null;
+
+        if (!$conversationId) {
+            $this->index();
+            return;
         }
 
+        // Verificar que el usuario pertenece a esta conversación
+        $contextRide = $this->conversation->getByIdForUser($conversationId, $userId);
+        if (!$contextRide) {
+            header('Location: messages.php');
+            exit;
+        }
+
+        // Determinar el otro usuario
+        $otherUserId = ((int) $contextRide['user1_id'] === $userId)
+            ? (int) $contextRide['user2_id']
+            : (int) $contextRide['user1_id'];
+
+        $otherUser = $this->user->getUserById($otherUserId);
+        $messages  = $this->message->getMessages($conversationId, $userId);
+        $chats     = $this->message->getConversations($userId);
+
+        $selectedConversationId = $conversationId;
         $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
 
         require_once __DIR__ . '/../../views/user/chat.view.php';
     }
 
-    // Crear mensaje de contexto del viaje
-    private function createContextMessage($userId, $otherUserId, $ride) {
-        $userName = $_SESSION['user_name'] ?? 'Usuario';
-        
-        $contextText = "Conversación iniciada sobre el viaje:\n";
-        $contextText .= "{$ride['nombreOrigen']} → {$ride['nombreDestino']}\n";
-        $contextText .=  date('d/m/Y', strtotime($ride['fechaSalida'])) . " a las " . substr($ride['horaSalida'], 0, 5) . "\n";
-        
-        if (!empty($ride['precio'])) {
-            $contextText .= number_format($ride['precio'], 2) . "€ por plaza\n";
-        }
-        
-        if (!empty($ride['plazasDisponibles'])) {
-            $contextText .= "🪑 {$ride['plazasDisponibles']} plazas disponibles";
+    // Carga de mensajes vía AJAX
+    public function fetchMessages() {
+        if (!isset($_SESSION['user_id'])) {
+            exit;
         }
 
-        // Guardar como mensaje del sistema
-        $data = [
-            'idEmisor' => $userId,
-            'idReceptor' => $otherUserId,
-            'mensaje' => $contextText,
-            'tipo' => 'sistema',
-            'ride_id' => $ride['idAnuncio']
-        ];
+        $userId         = (int) $_SESSION['user_id'];
+        $conversationId = isset($_GET['conversation_id']) ? (int) $_GET['conversation_id'] : null;
 
-        $this->message->createContextMessage($data);
+        if (!$conversationId) exit;
+
+        // Verificar pertenencia
+        if (!$this->conversation->belongsToUser($conversationId, $userId)) {
+            exit;
+        }
+
+        $messages = $this->message->getMessages($conversationId, $userId);
+
+        require_once __DIR__ . '/../../views/user/chat-messages.partial.php';
     }
 
     // Enviar mensaje
     public function send() {
         if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-             header('Location: login.php');
-             exit;
+            header('Location: login.php');
+            exit;
+        }
+
+        $userId         = (int) $_SESSION['user_id'];
+        $conversationId = isset($_POST['conversation_id']) ? (int) $_POST['conversation_id'] : 0;
+        $receiverId     = isset($_POST['receiver_id'])     ? (int) $_POST['receiver_id']     : 0;
+        $mensaje        = $_POST['message'] ?? '';
+
+        // Validaciones
+        if ($conversationId <= 0 || $receiverId <= 0 || trim($mensaje) === '') {
+            header('Location: messages.php');
+            exit;
+        }
+
+        // Verificar que el usuario pertenece a la conversación
+        if (!$this->conversation->belongsToUser($conversationId, $userId)) {
+            header('Location: messages.php');
+            exit;
         }
 
         $data = [
-            'idEmisor' => $_SESSION['user_id'],
-            'idReceptor' => $_POST['receiver_id'],
-            'mensaje' => $_POST['message']
+            'idConversation' => $conversationId,
+            'idEmisor'       => $userId,
+            'idReceptor'     => $receiverId,
+            'mensaje'        => $mensaje,
         ];
 
-        if (!empty($data['mensaje'])) {
-            $this->message->createMessage($data);
-        }
+        $this->message->createMessage($data);
 
-        $redirect = 'chat.php?user_id=' . $data['idReceptor'];
-        if(isset($_POST['ride_id'])) {
-            $redirect .= '&ride_id=' . $_POST['ride_id'];
-        }
-        
-        header('Location: ' . $redirect);
+        header('Location: chat.php?conversation_id=' . $conversationId);
+        exit;
     }
-
 
     // Eliminar mensaje
     public function delete() {
-         if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-             exit;
+        if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            exit;
         }
-        
-        $msgId = $_POST['message_id'] ?? null;
-        if ($msgId) {
-            $this->message->deleteMessage($msgId, $_SESSION['user_id']);
+
+        $userId = (int) $_SESSION['user_id'];
+        $msgId  = isset($_POST['message_id']) ? (int) $_POST['message_id'] : 0;
+
+        if ($msgId > 0) {
+            $this->message->deleteMessage($msgId, $userId);
         }
-        
-        if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-             echo json_encode(['success' => true]);
+
+        if (
+            isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
+        ) {
+            echo json_encode(['success' => true]);
         } else {
-             header('Location: ' . $_SERVER['HTTP_REFERER']);
+            header('Location: ' . $_SERVER['HTTP_REFERER']);
         }
     }
-
 
     // Editar mensaje
     public function edit() {
         if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
             exit;
-       }
+        }
 
-       $msgId = $_POST['message_id'];
-       $newText = $_POST['message'];
-       
-       $result = $this->message->updateMessage($msgId, $_SESSION['user_id'], $newText);
-       
-       if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        $userId  = (int) $_SESSION['user_id'];
+        $msgId   = (int) ($_POST['message_id'] ?? 0);
+        $newText = $_POST['message'] ?? '';
+
+        $result = $this->message->updateMessage($msgId, $userId, $newText);
+
+        if (
+            isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
+        ) {
             if ($result === 'expired') {
-                 echo json_encode(['success' => false, 'error' => 'Time limit exceeded']);
+                echo json_encode(['success' => false, 'error' => 'Time limit exceeded']);
             } else {
-                 echo json_encode(['success' => $result]);
+                echo json_encode(['success' => (bool) $result]);
             }
-       } else {
+        } else {
             header('Location: ' . $_SERVER['HTTP_REFERER']);
-       }
+        }
     }
-    
+
     // Eliminar conversación completa
     public function deleteConversation() {
         if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-             exit;
+            exit;
         }
 
-        $otherUserId = $_POST['user_id'];
-        $this->message->deleteConversation($_SESSION['user_id'], $otherUserId);
-        
+        $userId         = (int) $_SESSION['user_id'];
+        $conversationId = isset($_POST['conversation_id']) ? (int) $_POST['conversation_id'] : 0;
+
+        if ($conversationId <= 0) {
+            header('Location: messages.php');
+            exit;
+        }
+
+        // Verificar pertenencia antes de eliminar
+        if (!$this->conversation->belongsToUser($conversationId, $userId)) {
+            header('Location: messages.php');
+            exit;
+        }
+
+        $this->message->deleteConversationMessages($conversationId);
+
+        // Eliminar también la conversación vacía
+        $query = "DELETE FROM conversations WHERE idConversation = :id";
+        $stmt  = $this->db->prepare($query);
+        $stmt->bindParam(':id', $conversationId, PDO::PARAM_INT);
+        $stmt->execute();
+
         header('Location: messages.php');
+        exit;
     }
 }

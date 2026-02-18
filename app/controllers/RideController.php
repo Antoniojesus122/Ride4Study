@@ -492,4 +492,33 @@ class RideController {
              require_once __DIR__ . '/../../views/user/publish.view.php';
         }
     }
+
+    public function delete() {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: login.php');
+            exit;
+        }
+
+        $rideId = $_GET['id'] ?? null;
+        $userId = $_SESSION['user_id'];
+
+        if (!$rideId) {
+            header('Location: my-rides.php?error=missing_id');
+            exit;
+        }
+
+        // Verificar que el usuario sea el dueño del viaje
+        $ride = $this->ride->getRideById($rideId);
+        if (!$ride || $ride['idUsuario'] != $userId) {
+            header('Location: my-rides.php?error=unauthorized');
+            exit;
+        }
+
+        // Eliminar viaje
+        if ($this->ride->deleteRide($rideId)) {
+            header('Location: my-rides.php?success=deleted');
+        } else {
+            header('Location: my-rides.php?error=delete_failed');
+        }
+    }
 }

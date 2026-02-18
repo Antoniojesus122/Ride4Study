@@ -17,10 +17,6 @@ class MailService
 
     }
 
-    /**
-     * Send an email via Brevo SMTP API.
-     * Returns an array with keys: success (bool), http_code (int), response, curl_errno, curl_error
-     */
     public function send($toEmail, $toName, $subject, $html)
     {
         $data = [

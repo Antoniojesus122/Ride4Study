@@ -418,7 +418,7 @@
             document.getElementById('modal-avatar').textContent = ride.nombreUsuario.substring(0, 2).toUpperCase();
         }
         document.getElementById('modal-profile-link').href = 'profile.php?id=' + ride.idUsuario;
-        document.getElementById('btn-contact').href = 'chat.php?user_id=' + ride.idUsuario;
+        document.getElementById('btn-contact').href = 'chat.php?anuncio_id=' + ride.idAnuncio + '&other_user_id=' + ride.idUsuario;
         
         // Valoración
         const rating = parseFloat(ride.rating || 0).toFixed(1);

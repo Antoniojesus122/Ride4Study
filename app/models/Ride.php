@@ -453,4 +453,11 @@ class Ride {
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    // Eliminar viaje
+    public function deleteRide($rideId) {
+        $query = "DELETE FROM " . $this->table . " WHERE idAnuncio = :rideId";
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute([':rideId' => $rideId]);
+    }
 }

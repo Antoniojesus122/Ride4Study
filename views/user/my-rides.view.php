@@ -24,6 +24,8 @@
                     Estado de la reserva actualizado correctamente.
                 <?php elseif ($_GET['success'] == 'updated'): ?>
                      ¡Viaje actualizado correctamente!
+                <?php elseif ($_GET['success'] == 'deleted'): ?>
+                    ¡Viaje eliminado correctamente!
                 <?php endif; ?>
             </div>
         </div>
@@ -351,7 +353,7 @@ function renderBookingCard($booking) {
                     </div>
                     
                     <div class="space-y-3 mt-auto">
-                        <a href="chat.php?user_id=<?= $booking['idUsuario'] ?>" class="flex items-center justify-center gap-2 px-4 py-2 bg-primary hover:bg-primary-dark text-secondary rounded-lg text-sm font-bold transition-all">
+                        <a href="chat.php?anuncio_id=<?= $booking['idAnuncio'] ?>&other_user_id=<?= $booking['idUsuario'] ?>" class="flex items-center justify-center gap-2 px-4 py-2 bg-primary hover:bg-primary-dark text-secondary rounded-lg text-sm font-bold transition-all">
                             <i class="fas fa-comment"></i> Contactar
                         </a>
                         <a href="profile.php?id=<?= $booking['idUsuario'] ?>" class="flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors border border-gray-600">

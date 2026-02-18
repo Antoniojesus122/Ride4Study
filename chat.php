@@ -2,7 +2,7 @@
 require_once __DIR__ . '/app/controllers/MessageController.php';
 
 $controller = new MessageController();
-$action = $_GET['action'] ?? null;
+$action     = $_GET['action'] ?? null;
 
 if ($action === 'send') {
     $controller->send();

@@ -4,14 +4,14 @@
 <div class="h-[calc(100vh-80px)] flex flex-col md:flex-row overflow-hidden bg-[#111827]">
     
     <!-- Barra lateral de chats -->
-    <div class="w-full md:w-80 lg:w-96 border-r border-gray-700 bg-surface flex flex-col shrink-0 <?= $selectedUserId ? 'hidden md:flex' : 'flex' ?>">
+    <div class="w-full md:w-80 lg:w-96 border-r border-gray-700 bg-surface flex flex-col shrink-0 <?= $selectedConversationId ? 'hidden md:flex' : 'flex' ?>">
         
         <!-- Header de chats -->
         <div class="p-4 border-b border-gray-700">
             <h2 class="text-xl font-bold text-white">Mensajes</h2>
         </div>
 
-        <!-- Listado de chats -->
+        <!-- Listado de conversaciones -->
         <div class="flex-1 overflow-y-auto">
             <?php if (empty($chats)): ?>
                 <div class="p-8 text-center text-gray-400">
@@ -21,27 +21,31 @@
             <?php else: ?>
                 <ul class="divide-y divide-gray-800">
                     <?php foreach ($chats as $chat): ?>
-                        <?php $isActive = ($selectedUserId == $chat['idUsuario']); ?>
+                        <?php $isActive = ($selectedConversationId == $chat['idConversation']); ?>
                         <li>
-                            <a href="chat.php?user_id=<?= $chat['idUsuario'] ?>" class="block p-4 hover:bg-white/5 transition-colors <?= $isActive ? 'bg-white/5 border-l-4 border-primary' : 'border-l-4 border-transparent' ?>">
+                            <a href="chat.php?conversation_id=<?= $chat['idConversation'] ?>" class="block p-4 hover:bg-white/5 transition-colors <?= $isActive ? 'bg-white/5 border-l-4 border-primary' : 'border-l-4 border-transparent' ?>">
                                 <div class="flex items-center gap-3">
                                     <div class="relative">
                                         <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-600 flex items-center justify-center text-sm font-bold text-white uppercase">
-                                            <?= substr($chat['nombre'], 0, 2) ?>
+                                            <?= substr($chat['otherUserName'], 0, 2) ?>
                                         </div>
                                         <?php if (!$chat['leido'] && $chat['idEmisor'] != $_SESSION['user_id']): ?>
                                             <div class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-surface"></div>
                                         <?php endif; ?>
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <div class="flex justify-between items-baseline mb-1">
-                                            <h4 class="text-sm font-bold text-white truncate <?= $isActive ? 'text-primary' : '' ?>"><?= htmlspecialchars($chat['nombre']) ?></h4>
-                                            <span class="text-[10px] text-gray-500"><?= date('H:i', strtotime($chat['fechaCreacion'])) ?></span>
+                                        <div class="flex justify-between items-baseline mb-0.5">
+                                            <h4 class="text-sm font-bold text-white truncate <?= $isActive ? 'text-primary' : '' ?>"><?= htmlspecialchars($chat['otherUserName']) ?></h4>
+                                            <span class="text-[10px] text-gray-500 shrink-0 ml-2"><?= date('H:i', strtotime($chat['fechaCreacion'])) ?></span>
                                         </div>
+                                        <!-- Ruta del anuncio -->
+                                        <p class="text-[10px] text-primary/70 truncate mb-0.5">
+                                            <i class="fas fa-car text-[9px] mr-1"></i>
+                                            <?= htmlspecialchars($chat['nombreOrigen']) ?> → <?= htmlspecialchars($chat['nombreDestino']) ?>
+                                        </p>
+                                        <!-- Último mensaje -->
                                         <p class="text-xs text-gray-400 truncate <?= (!$chat['leido'] && $chat['idEmisor'] != $_SESSION['user_id']) ? 'font-semibold text-white' : '' ?>">
-                                            <?php if (isset($chat['tipo']) && $chat['tipo'] === 'sistema'): ?>
-                                                <i class="fas fa-car text-[10px] mr-1"></i>
-                                            <?php elseif ($chat['idEmisor'] == $_SESSION['user_id']): ?>
+                                            <?php if ($chat['idEmisor'] == $_SESSION['user_id']): ?>
                                                 <i class="fas fa-reply text-[10px] mr-1"></i>
                                             <?php endif; ?>
                                             <?= htmlspecialchars($chat['mensaje']) ?>
@@ -57,9 +61,9 @@
     </div>
 
     <!-- Contenido principal -->
-    <div class="flex-1 flex flex-col min-w-0 bg-[#0B1120] relative <?= !$selectedUserId ? 'hidden md:flex' : 'flex' ?>">
+    <div class="flex-1 flex flex-col min-w-0 bg-[#0B1120] relative <?= !$selectedConversationId ? 'hidden md:flex' : 'flex' ?>">
         
-        <?php if ($selectedUserId): ?>
+        <?php if ($selectedConversationId): ?>
             <!-- Encabezado del chat -->
             <div class="h-16 border-b border-gray-700 bg-surface flex items-center justify-between px-4 shrink-0 shadow-sm z-10">
                 <div class="flex items-center gap-3">
@@ -77,12 +81,12 @@
                 </div>
 
                 <!-- Opciones de conversación -->
-                <button onclick="confirmDeleteConversation(<?= $selectedUserId ?>)" class="p-2 text-gray-400 hover:text-red-400 transition-colors" title="Eliminar conversación">
+                <button onclick="confirmDeleteConversation(<?= $selectedConversationId ?>)" class="p-2 text-gray-400 hover:text-red-400 transition-colors" title="Eliminar conversación">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
 
-            <!-- Tarjeta de contexto del viaje -->
+            <!-- Tarjeta de contexto del anuncio (desde conversations JOIN anuncios) -->
             <?php if ($contextRide): ?>
             <div class="bg-gradient-to-r from-gray-800 to-gray-800/50 border-b border-gray-700 p-4 shrink-0 shadow-lg">
                 <div class="flex items-center justify-between gap-4">
@@ -115,9 +119,9 @@
                             </div>
                         </div>
                     </div>
-                    <a href="dashboard.php#ride-<?= $contextRide['idAnuncio'] ?>" 
+                    <a href="reserve.php?ride_id=<?= $contextRide['idAnuncio'] ?>" 
                        class="px-4 py-2 text-xs border border-primary/30 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors whitespace-nowrap shrink-0 font-medium">
-                        <i class="fas fa-external-link-alt mr-1"></i> Ver viaje
+                        <i class="fas fa-user-plus mr-1"></i> Solicitar plaza
                     </a>
                 </div>
             </div>
@@ -131,10 +135,8 @@
             <!-- Area del input -->
             <div class="p-4 bg-surface border-t border-gray-700 shrink-0">
                 <form action="chat.php?action=send" method="POST" class="flex items-end gap-3">
-                    <input type="hidden" name="receiver_id" value="<?= $selectedUserId ?>">
-                    <?php if (isset($_GET['ride_id'])): ?>
-                        <input type="hidden" name="ride_id" value="<?= $_GET['ride_id'] ?>">
-                    <?php endif; ?>
+                    <input type="hidden" name="conversation_id" value="<?= $selectedConversationId ?>">
+                    <input type="hidden" name="receiver_id"     value="<?= $otherUser['idUsuario'] ?>">
                     
                     <div class="flex-1 bg-gray-800 rounded-xl border border-gray-600 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
                         <textarea name="message" rows="1" class="block w-full bg-transparent p-3 text-white placeholder-gray-500 outline-none text-sm resize-none max-h-32" placeholder="Escribe un mensaje..." required oninput="this.style.height='auto'; this.style.height=this.scrollHeight + 'px'"></textarea>
@@ -159,7 +161,7 @@
 
 <!-- Formularios y modales -->
 <form id="delete-conversation-form" action="messages.php?action=delete_conversation" method="POST" class="hidden">
-    <input type="hidden" name="user_id" id="delete-conversation-user-id">
+    <input type="hidden" name="conversation_id" id="delete-conversation-id">
 </form>
 
 <div id="edit-modal" class="fixed inset-0 z-[60] hidden">
@@ -181,8 +183,8 @@
 
 <script>
     const container = document.getElementById('messages-container');
-    const textarea = document.querySelector('textarea[name="message"]');
-    const form = document.querySelector('form[action="chat.php?action=send"]');
+    const textarea  = document.querySelector('textarea[name="message"]');
+    const form      = document.querySelector('form[action="chat.php?action=send"]');
     let isUserScrolling = false;
     let refreshInterval;
 
@@ -206,56 +208,56 @@
     }
 
     function fetchMessages() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('user_id');
+        const urlParams        = new URLSearchParams(window.location.search);
+        const conversationId   = urlParams.get('conversation_id');
         
-        if (!userId) return;
+        if (!conversationId) return;
 
-        fetch(`chat.php?action=fetch_messages&user_id=${userId}`)
+        fetch(`chat.php?action=fetch_messages&conversation_id=${conversationId}`)
             .then(response => response.text())
             .then(html => {
                 if (container) {
-                     const oldScrollHeight = container.scrollHeight;
                      const oldScrollTop = container.scrollTop;
-
                      container.innerHTML = html;
                      if (!isUserScrolling) {
                           container.scrollTop = container.scrollHeight;
                      } else {
-                          container.scrollTop = oldScrollTop; 
+                          container.scrollTop = oldScrollTop;
                      }
                 }
             })
             .catch(err => console.error('Error fetching messages:', err));
     }
 
-    if (window.location.search.includes('user_id')) {
+    if (window.location.search.includes('conversation_id')) {
         refreshInterval = setInterval(fetchMessages, 3000);
     }
     
-    function confirmDeleteConversation(userId) {
-        if(confirm('¿Eliminar toda la conversación? Esta acción no se puede deshacer.')) {
-            document.getElementById('delete-conversation-user-id').value = userId;
+    function confirmDeleteConversation(conversationId) {
+        if (confirm('¿Eliminar toda la conversación? Esta acción no se puede deshacer.')) {
+            document.getElementById('delete-conversation-id').value = conversationId;
             document.getElementById('delete-conversation-form').submit();
         }
     }
 
     function deleteMessage(id) {
-        if(confirm('¿Eliminar este mensaje?')) {
+        if (confirm('¿Eliminar este mensaje?')) {
             const formData = new FormData();
             formData.append('message_id', id);
             fetch('chat.php?action=delete', { method: 'POST', body: formData, headers: {'X-Requested-With': 'XMLHttpRequest'} })
             .then(res => res.json())
-            .then(data => { if(data.success) { 
-                const el = document.getElementById('msg-' + id);
-                if(el) el.remove(); 
-            }});
+            .then(data => {
+                if (data.success) {
+                    const el = document.getElementById('msg-' + id);
+                    if (el) el.remove();
+                }
+            });
         }
     }
 
     function editMessage(id) {
         const text = document.querySelector(`#msg-${id} .message-content`).textContent;
-        document.getElementById('edit-msg-id').value = id;
+        document.getElementById('edit-msg-id').value   = id;
         document.getElementById('edit-msg-text').value = text;
         document.getElementById('edit-modal').classList.remove('hidden');
     }
@@ -264,8 +266,8 @@
 
     function submitEdit(e) {
         e.preventDefault();
-        const id = document.getElementById('edit-msg-id').value;
-        const text = document.getElementById('edit-msg-text').value;
+        const id      = document.getElementById('edit-msg-id').value;
+        const text    = document.getElementById('edit-msg-text').value;
         const formData = new FormData();
         formData.append('message_id', id);
         formData.append('message', text);
@@ -273,9 +275,9 @@
         fetch('chat.php?action=edit', { method: 'POST', body: formData, headers: {'X-Requested-With': 'XMLHttpRequest'} })
         .then(res => res.json())
         .then(data => {
-              if(data.success) {
+              if (data.success) {
                   const el = document.querySelector(`#msg-${id} .message-content`);
-                  if(el) el.textContent = text;
+                  if (el) el.textContent = text;
                   closeEditModal();
               } else { alert(data.error || 'Error'); }
         });
