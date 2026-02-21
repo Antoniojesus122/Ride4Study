@@ -103,6 +103,7 @@ class AuthController {
 
             $nombre   = trim($_POST['nombre'] ?? '');
             $correo   = trim($_POST['correo'] ?? '');
+            $telefono = (int)($_POST['telefono'] ?? 0);
             $password = $_POST['contrasena'] ?? '';
             $confirm  = $_POST['confirmar_contrasena'] ?? '';
 
@@ -114,6 +115,8 @@ class AuthController {
                 $error = 'Las contraseñas no coinciden.';
             } elseif (strlen($password) < 6) {
                 $error = 'La contraseña debe tener al menos 6 caracteres.';
+            } elseif ($telefono !== 0 && (!is_numeric($telefono) || strlen((string)$telefono) !== 9)) {
+                $error = 'El teléfono debe ser numérico y tener 9 dígitos.';
             } else {
 
                 try {
@@ -121,7 +124,8 @@ class AuthController {
                         $nombre,
                         $correo,
                         $password,
-                        2
+                        2,
+                        $telefono
                     );
 
                     if ($registered) {

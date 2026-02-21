@@ -9,10 +9,10 @@ class User {
         $this->conn = $db;
     }
 
-    public function register(string $nombre, string $correo, string $password, int $idRol = 2): bool {
+    public function register(string $nombre, string $correo, string $password, int $idRol = 2, int $telefono): bool {
 
-        $sql = "INSERT INTO {$this->table} (nombre, correo, contrasena, idRol)
-                VALUES (:nombre, :correo, :contrasena, :idRol)";
+        $sql = "INSERT INTO {$this->table} (nombre, correo, contrasena, idRol, telefono)
+                VALUES (:nombre, :correo, :contrasena, :idRol, :telefono)";
 
         $stmt = $this->conn->prepare($sql);
 
@@ -22,7 +22,8 @@ class User {
             ':nombre'     => htmlspecialchars(strip_tags($nombre)),
             ':correo'     => htmlspecialchars(strip_tags($correo)),
             ':contrasena' => $hashedPassword,
-            ':idRol'      => $idRol
+            ':idRol'      => $idRol,
+            ':telefono'   => htmlspecialchars(strip_tags($telefono))
         ]);
     }
 

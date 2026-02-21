@@ -1,8 +1,8 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
 
     <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="mb-8">
-            <h2 class="text-3xl font-bold leading-tight text-white">Explorar Viajes</h2>
+        <div class="mb-6 sm:mb-8">
+            <h2 class="text-2xl sm:text-3xl font-bold leading-tight text-white">Explorar Viajes</h2>
             <p class="mt-2 text-gray-400">Encuentra compañeros para tu próximo trayecto.</p>
         </div>  
 

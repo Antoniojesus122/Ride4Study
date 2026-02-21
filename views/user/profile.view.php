@@ -202,7 +202,7 @@
                     </div>
                 </div>
             </div>
-     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
          
         <!-- Columna izquierda -->
         <div class="space-y-6">            

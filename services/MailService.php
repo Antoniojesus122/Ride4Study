@@ -12,7 +12,7 @@ class MailService
     $this->apiKey = $_ENV['BREVO_API_KEY'] ?? null;
 
     if (!$this->apiKey) {
-            throw new Exception("API Key no encontrada en variables de entorno.");
+        throw new Exception("API Key no encontrada en variables de entorno.");
     }
 
     }

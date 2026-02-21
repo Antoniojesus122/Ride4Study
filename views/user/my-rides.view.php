@@ -1,6 +1,6 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
     
     <div class="mb-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -131,7 +131,7 @@ function renderRideCard($ride, $isActive) {
     ob_start();
     ?>
     <div class="bg-surface rounded-2xl border border-gray-700 overflow-hidden hover:border-gray-600 transition-colors shadow-lg">
-        <div class="p-6">
+        <div class="p-4 sm:p-6">
             <div class="flex flex-col md:flex-row gap-6">
                 <!-- Información principal -->
                 <div class="flex-1">
@@ -276,7 +276,7 @@ function renderBookingCard($booking) {
     ob_start();
     ?>
     <div class="bg-surface rounded-2xl border border-gray-700 overflow-hidden hover:border-gray-600 transition-colors shadow-lg">
-        <div class="p-6">
+        <div class="p-4 sm:p-6">
             <div class="flex flex-col md:flex-row gap-6">
                 <!-- Información principal -->
                 <div class="flex-1">
