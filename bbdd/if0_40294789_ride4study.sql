@@ -3,13 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 12-02-2026 a las 18:39:30
+-- Tiempo de generación: 21-02-2026 a las 16:45:31
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
-
-CREATE DATABASE IF NOT EXISTS if0_40294789_ride4study;
-
-USE if0_40294789_ride4study;
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -61,9 +57,33 @@ INSERT INTO `anuncios` (`idAnuncio`, `idUsuario`, `tipo`, `origen`, `destino`, `
 (8, 8, 'ofrezco', 12, 20, '2025-11-28', '03:03:00', '06:06:00', 4, NULL, NULL, '2025-11-12 22:05:08'),
 (9, 8, 'ofrezco', 3, 17, '2025-11-29', '04:04:00', NULL, 4, NULL, NULL, '2025-11-12 22:06:08'),
 (10, 1, 'ofrezco', 18, 3, '2026-01-23', '03:02:00', '11:01:00', 2, NULL, 'Esto es una prueba', '2026-01-11 23:26:23'),
-(12, 5, 'ofrezco', 10, 7, '2026-03-22', '09:30:00', NULL, 1, 12.00, '', '2026-02-09 23:03:56'),
 (13, 9, 'ofrezco', 2, 12, '2026-02-12', '20:20:00', NULL, 1, NULL, '', '2026-02-09 23:20:13'),
-(14, 9, 'ofrezco', 4, 16, '2026-02-13', '17:45:00', NULL, 1, NULL, '', '2026-02-10 17:45:38');
+(14, 9, 'ofrezco', 4, 16, '2026-02-13', '17:45:00', NULL, 1, NULL, '', '2026-02-10 17:45:38'),
+(15, 9, 'ofrezco', 20, 13, '2026-02-25', '21:37:00', NULL, 0, NULL, '', '2026-02-18 16:32:57'),
+(16, 9, 'ofrezco', 14, 7, '2026-02-27', '21:06:00', NULL, 1, NULL, '', '2026-02-18 17:02:48'),
+(17, 5, 'ofrezco', 2, 11, '2026-02-18', '01:56:00', NULL, 1, NULL, '', '2026-02-18 22:55:18');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `conversations`
+--
+
+CREATE TABLE `conversations` (
+  `idConversation` int(11) NOT NULL,
+  `idAnuncio` int(11) NOT NULL,
+  `user1_id` int(11) NOT NULL,
+  `user2_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `conversations`
+--
+
+INSERT INTO `conversations` (`idConversation`, `idAnuncio`, `user1_id`, `user2_id`, `created_at`) VALUES
+(1, 15, 5, 9, '2026-02-18 16:01:52'),
+(2, 16, 5, 9, '2026-02-18 16:03:02');
 
 -- --------------------------------------------------------
 
@@ -128,11 +148,11 @@ INSERT INTO `localidades` (`idLocalidad`, `nombreLocalidad`, `provincia`) VALUES
 
 CREATE TABLE `mensajes` (
   `idMensaje` int(11) NOT NULL,
+  `idConversation` int(11) NOT NULL,
   `idEmisor` int(11) NOT NULL,
   `idReceptor` int(11) NOT NULL,
   `mensaje` text NOT NULL,
   `tipo` enum('normal','sistema') DEFAULT 'normal' COMMENT 'Tipo de mensaje: normal (usuario) o sistema (contexto automático)',
-  `ride_id` int(11) DEFAULT NULL COMMENT 'ID del viaje asociado al mensaje de contexto',
   `fechaCreacion` timestamp NOT NULL DEFAULT current_timestamp(),
   `leido` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -141,29 +161,11 @@ CREATE TABLE `mensajes` (
 -- Volcado de datos para la tabla `mensajes`
 --
 
-INSERT INTO `mensajes` (`idMensaje`, `idEmisor`, `idReceptor`, `mensaje`, `tipo`, `ride_id`, `fechaCreacion`, `leido`) VALUES
-(1, 5, 8, 'Hola', 'normal', NULL, '2025-11-12 22:37:17', 1),
-(2, 8, 5, 'Hey', 'normal', NULL, '2025-11-12 22:37:43', 1),
-(3, 5, 8, 'Waaa', 'normal', NULL, '2025-11-12 22:37:54', 1),
-(4, 5, 8, 'jejeje', 'normal', NULL, '2025-11-12 22:37:58', 1),
-(5, 8, 5, 'Que guay', 'normal', NULL, '2025-11-12 22:38:01', 1),
-(6, 8, 5, 'En verdad', 'normal', NULL, '2025-11-12 22:38:03', 1),
-(7, 8, 5, 'Si', 'normal', NULL, '2025-11-12 22:38:06', 1),
-(8, 8, 5, 'Señor', 'normal', NULL, '2025-11-12 22:38:07', 1),
-(9, 8, 5, 'ffew', 'normal', NULL, '2025-11-12 22:38:13', 1),
-(10, 5, 8, 'fewf', 'normal', NULL, '2025-11-12 22:48:13', 1),
-(11, 5, 8, 'fwe', 'normal', NULL, '2025-11-12 22:48:14', 1),
-(12, 5, 8, 'fwe', 'normal', NULL, '2025-11-12 22:48:15', 1),
-(13, 5, 8, 'Hola', 'normal', NULL, '2025-11-12 22:59:05', 1),
-(14, 5, 8, 'Hola', 'normal', NULL, '2025-11-12 23:01:24', 1),
-(15, 5, 8, 'Que tal', 'normal', NULL, '2025-11-12 23:01:29', 1),
-(16, 8, 5, 'Bien bien', 'normal', NULL, '2025-11-12 23:01:39', 1),
-(17, 8, 5, 'Y tu ??', 'normal', NULL, '2025-11-12 23:01:44', 1),
-(18, 5, 8, 'Nah muy bien', 'normal', NULL, '2025-11-12 23:01:48', 1),
-(19, 8, 5, 'Me alegro jeje', 'normal', NULL, '2025-11-12 23:01:52', 1),
-(27, 9, 5, 'Buenas', 'normal', NULL, '2026-02-09 22:04:14', 1),
-(28, 5, 9, 'Hola', 'normal', NULL, '2026-02-10 16:46:00', 1),
-(29, 9, 5, 'Hola', 'normal', NULL, '2026-02-12 10:21:50', 1);
+INSERT INTO `mensajes` (`idMensaje`, `idConversation`, `idEmisor`, `idReceptor`, `mensaje`, `tipo`, `fechaCreacion`, `leido`) VALUES
+(30, 0, 9, 5, 'Hola!', 'normal', '2026-02-16 16:32:41', 1),
+(31, 0, 5, 9, 'Hey!', 'normal', '2026-02-16 16:33:19', 0),
+(32, 1, 5, 9, 'Hola', 'normal', '2026-02-18 16:02:08', 1),
+(33, 2, 5, 9, 'y', 'normal', '2026-02-18 16:03:08', 1);
 
 -- --------------------------------------------------------
 
@@ -192,6 +194,14 @@ CREATE TABLE `password_resets` (
   `expires_at` datetime NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `password_resets`
+--
+
+INSERT INTO `password_resets` (`id`, `user_id`, `code`, `expires_at`, `created_at`) VALUES
+(12, 1, '309466', '2026-02-15 16:36:18', '2026-02-15 15:21:18'),
+(13, 5, '110389', '2026-02-18 22:59:34', '2026-02-18 21:44:34');
 
 -- --------------------------------------------------------
 
@@ -281,14 +291,16 @@ INSERT INTO `usuarios` (`idUsuario`, `nombre`, `correo`, `telefono`, `ciudad`, `
 (2, 'Admin', 'admin@ride4study.local', '600000000', NULL, NULL, NULL, NULL, NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 0, NULL, NULL, 'public', 'rides_only', 1),
 (3, 'Antonio Jesús', 'ibt_ag2@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$k7Sx5fs0kCDgHuiEBGtLeuYvpXW7vJIJyEzGSmDn/ri8.3hXpukZO', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
 (4, 'Antonio Jesús', 'ibt_ag9@yopmail.com', '', NULL, NULL, NULL, NULL, NULL, '$2y$10$0VRX1y4fQg5ETpV.gZKK/.Qmx4tfUNVOSaQ0Pf6JVwtNSxli8bDYu', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
-(5, 'Antonio Jesús', 'ibt_ag10@yopmail.com', '', NULL, NULL, NULL, NULL, NULL, '$2y$10$7mcYggAZUcXVO7inTtWFOuy3tIYTUsTu1UviJDCGoEcTR2T8EuDBi', 2, 1, '6915085dcb57d-reza-madani-UI6feF4NbQs-unsplash.jpg', NULL, 'public', 'rides_only', 1),
+(5, 'Antonio Jesús', 'ibt_ag10@yopmail.com', '624897163', 'Lepe', '', '', 'profile_698e529350944.jpg', '', '$2y$10$wPDjeIYeyWeF0epZA9fk2ODCg5eSz5q7vomz7zGXR/nskGk8RvAPO', 2, 1, '6915085dcb57d-reza-madani-UI6feF4NbQs-unsplash.jpg', NULL, 'private', 'rides_only', 1),
 (6, 'Administrador', 'admin@ride4study.com', '600000000', NULL, NULL, NULL, NULL, NULL, '$2y$10$YcPnD9StN5jL1BqOq7wHkeHTdY9aHw.5Fh0A1r7SV3gIfhTzKkSm2', 1, 0, NULL, NULL, 'public', 'rides_only', 1),
 (7, 'Manuel Hernandez', 'antoniodomingo.gd@gmail.com', '', NULL, NULL, NULL, NULL, NULL, '$2y$10$aA2cOTEE6OXyk4FMutL6CezP2OPP7QSRLFaLDCkzvd06gSfQwxlvq', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
 (8, 'González Domingo', 'ibt_11@yopmail.com', '', NULL, NULL, NULL, NULL, NULL, '$2y$10$N06dxbYdBrxjGpiDJX.Bx.I6cdRrUoWK4Xn4Mp.C8RbzyftvRO.my', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
 (9, 'Fernando Domingo', 'ibt_ag120@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, '$2y$10$wRC7JgGK23TfxJrieun27egyBWccpJ0NLUade0uChwCIGtAZGyqvm', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
 (10, '', 'ibt_ag12@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, 'Antonio122', 1, 0, NULL, NULL, 'public', 'rides_only', 1),
 (12, 'admin', 'ibt_ag14@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, 'Antonio122', 1, 0, NULL, NULL, 'public', 'rides_only', 1),
-(13, 'Paco', 'ibt_02@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, '$2y$10$kwSkiKcAWTCEb06/DlZQKu5SM6eGRf2qOkLfvHrV/wwqqecxt72Bq', 2, 0, NULL, NULL, 'public', 'rides_only', 1);
+(13, 'Paco', 'ibt_02@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, '$2y$10$kwSkiKcAWTCEb06/DlZQKu5SM6eGRf2qOkLfvHrV/wwqqecxt72Bq', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
+(24, 'Pedro', 'ag@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$7gJYR2mJHdvRaRBOmrX/SO9bu3/hArQwm1HiIgHy4BOg3yfXDnXm2', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
+(25, 'Prueba', 'ag12@yopmail.com', '0', NULL, NULL, NULL, NULL, NULL, '$2y$10$aMjZ1kFAVDasUx3tjHkC/OUicpalRK85rfgqYo1PAlZ4Dk4yh4iPS', 2, 0, NULL, NULL, 'public', 'rides_only', 1);
 
 -- --------------------------------------------------------
 
@@ -302,6 +314,13 @@ CREATE TABLE `valoraciones` (
   `idValorado` int(11) NOT NULL,
   `puntuacion` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `valoraciones`
+--
+
+INSERT INTO `valoraciones` (`idValoracion`, `idValorador`, `idValorado`, `puntuacion`) VALUES
+(0, 5, 9, 5);
 
 -- --------------------------------------------------------
 
@@ -326,7 +345,8 @@ CREATE TABLE `viajes` (
 INSERT INTO `viajes` (`idViaje`, `idAnuncio`, `idConductor`, `idPasajero`, `estado`, `fechaSalida`, `fechaRegreso`) VALUES
 (1, 10, 1, 9, '', '2026-01-23 03:02:00', NULL),
 (2, 6, 1, 7, 'pendiente', '2025-10-29 23:50:24', '2025-10-29 23:50:24'),
-(3, 12, 5, 9, 'pendiente', NULL, NULL);
+(4, 14, 9, 5, 'pendiente', NULL, NULL),
+(5, 15, 9, 5, '', NULL, NULL);
 
 --
 -- Índices para tablas volcadas
@@ -340,6 +360,15 @@ ALTER TABLE `anuncios`
   ADD KEY `fk_anuncio_usuario` (`idUsuario`),
   ADD KEY `fk_anuncio_origen` (`origen`),
   ADD KEY `fk_anuncio_destino` (`destino`);
+
+--
+-- Indices de la tabla `conversations`
+--
+ALTER TABLE `conversations`
+  ADD PRIMARY KEY (`idConversation`),
+  ADD UNIQUE KEY `idAnuncio` (`idAnuncio`,`user1_id`,`user2_id`),
+  ADD KEY `user1_id` (`user1_id`),
+  ADD KEY `user2_id` (`user2_id`);
 
 --
 -- Indices de la tabla `instituciones`
@@ -360,8 +389,7 @@ ALTER TABLE `localidades`
 ALTER TABLE `mensajes`
   ADD PRIMARY KEY (`idMensaje`),
   ADD KEY `idEmisor` (`idEmisor`),
-  ADD KEY `idReceptor` (`idReceptor`),
-  ADD KEY `idx_ride_id` (`ride_id`);
+  ADD KEY `idReceptor` (`idReceptor`);
 
 --
 -- Indices de la tabla `notificaciones`
@@ -413,9 +441,6 @@ ALTER TABLE `usuarios`
 --
 ALTER TABLE `viajes`
   ADD PRIMARY KEY (`idViaje`),
-  ADD UNIQUE KEY `idAnuncio` (`idAnuncio`,`idPasajero`),
-  ADD UNIQUE KEY `idAnuncio_2` (`idAnuncio`,`idPasajero`),
-  ADD UNIQUE KEY `idAnuncio_3` (`idAnuncio`,`idPasajero`),
   ADD UNIQUE KEY `unique_reserva` (`idAnuncio`,`idPasajero`),
   ADD KEY `fk_viaje_anuncio` (`idAnuncio`),
   ADD KEY `fk_viaje_conductor` (`idConductor`),
@@ -429,7 +454,13 @@ ALTER TABLE `viajes`
 -- AUTO_INCREMENT de la tabla `anuncios`
 --
 ALTER TABLE `anuncios`
-  MODIFY `idAnuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `idAnuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+
+--
+-- AUTO_INCREMENT de la tabla `conversations`
+--
+ALTER TABLE `conversations`
+  MODIFY `idConversation` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `instituciones`
@@ -447,7 +478,7 @@ ALTER TABLE `localidades`
 -- AUTO_INCREMENT de la tabla `mensajes`
 --
 ALTER TABLE `mensajes`
-  MODIFY `idMensaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `idMensaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
@@ -459,7 +490,7 @@ ALTER TABLE `notificaciones`
 -- AUTO_INCREMENT de la tabla `password_resets`
 --
 ALTER TABLE `password_resets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `reportes`
@@ -483,23 +514,30 @@ ALTER TABLE `sesiones`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT de la tabla `viajes`
 --
 ALTER TABLE `viajes`
-  MODIFY `idViaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `idViaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Restricciones para tablas volcadas
 --
 
 --
+-- Filtros para la tabla `conversations`
+--
+ALTER TABLE `conversations`
+  ADD CONSTRAINT `conversations_ibfk_1` FOREIGN KEY (`idAnuncio`) REFERENCES `anuncios` (`idAnuncio`) ON DELETE CASCADE,
+  ADD CONSTRAINT `conversations_ibfk_2` FOREIGN KEY (`user1_id`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE,
+  ADD CONSTRAINT `conversations_ibfk_3` FOREIGN KEY (`user2_id`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE;
+
+--
 -- Filtros para la tabla `mensajes`
 --
 ALTER TABLE `mensajes`
-  ADD CONSTRAINT `fk_mensaje_ride` FOREIGN KEY (`ride_id`) REFERENCES `anuncios` (`idAnuncio`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`idEmisor`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE,
   ADD CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`idReceptor`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE;
 
