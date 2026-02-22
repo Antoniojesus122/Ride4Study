@@ -117,14 +117,6 @@
                     }
                 });
               </script>
-              
-          <?php else: ?>
-              <div class="flex items-center gap-3">
-                <a href="login.php" class="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Iniciar Sesión</a>
-                <a href="register.php" class="bg-primary text-secondary hover:bg-primary-dark rounded-full px-5 py-2 text-sm font-bold transition-all hover:scale-105 shadow-lg shadow-primary/25">
-                    Registrarse
-                </a>
-              </div>
           <?php endif; ?>
         </div>
       </div>

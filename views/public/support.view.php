@@ -119,22 +119,6 @@
 
         </div>
     </main>
-
-    <!-- Footer -->
-    <footer class="bg-black py-12 border-t border-white/5">
-        <div class="mx-auto max-w-7xl px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="flex items-center gap-2 opacity-50 hover:opacity-100 transition-opacity">
-                <div class="w-6 h-6 bg-white rounded-md flex items-center justify-center text-black font-bold text-xs">R</div>
-                <span class="font-bold tracking-tight text-white">Ride4Study</span>
-            </div>
-            <div class="flex gap-8 text-sm text-gray-400">
-                <a href="privacy.php" class="hover:text-primary transition-colors">Privacidad</a>
-                <a href="terms.php" class="hover:text-primary transition-colors">Condiciones</a>
-                <a href="support.php" class="text-primary font-bold">Soporte</a>
-            </div>
-            <p class="text-xs text-gray-600">© 2025 Ride4Study. Todos los derechos reservados.</p>
-        </div>
-    </footer>
-
+    <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
 </body>
 </html>
