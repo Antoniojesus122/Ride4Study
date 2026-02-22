@@ -15,18 +15,32 @@
 <body class="h-full text-white flex flex-col">
 
     <!-- Barra de navegación -->
-    <nav class="absolute w-full z-10 px-6 py-6 flex justify-between items-center max-w-7xl mx-auto left-0 right-0">
+    <nav class="absolute w-full z-10 px-4 sm:px-6 py-4 sm:py-6 flex justify-between items-center max-w-7xl mx-auto left-0 right-0">
         <div class="flex items-center gap-2">
-            <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-secondary font-bold text-xl shadow-lg shadow-primary/20">R</div>
-            <span class="font-bold text-2xl tracking-tight">Ride4Study</span>
+            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-xl flex items-center justify-center text-secondary font-bold text-lg sm:text-xl shadow-lg shadow-primary/20">
+                R
+            </div>
+            <span class="font-bold text-lg sm:text-2xl tracking-tight">
+                Ride4Study
+            </span>
         </div>
+
         <div class="hidden md:flex gap-8 items-center">
-            <a href="#como-funciona" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Cómo funciona</a>
-            <a href="#ventajas" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Ventajas</a>
+            <a href="#como-funciona" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                Cómo funciona
+            </a>
+            <a href="#ventajas" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                Ventajas
+            </a>
         </div>
-        <div class="flex gap-4">
-            <a href="login.php" class="text-white hover:text-primary font-medium px-4 py-2 transition-colors">Entrar</a>
-            <a href="register.php" class="bg-white text-secondary hover:bg-gray-200 font-bold px-6 py-2 rounded-full transition-all transform hover:scale-105">Registrarse</a>
+
+        <div class="flex items-center gap-2 sm:gap-4">
+            <a href="login.php" class="text-xs sm:text-sm md:text-base text-white hover:text-primary font-medium px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 transition-colors whitespace-nowrap">
+                Entrar
+            </a>
+            <a href="register.php" class="bg-white text-secondary hover:bg-gray-200 text-xs sm:text-sm md:text-base font-bold px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-full transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
+                Registrarse
+            </a>
         </div>
     </nav>
 
@@ -168,13 +182,13 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                     <div class="order-2 lg:order-1 relative">
                          <div class="absolute inset-0 bg-primary/20 blur-3xl rounded-full -z-10"></div>
-                         <div class="grid grid-cols-2 gap-6">
+                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                              <div class="bg-gray-900/80 backdrop-blur-sm p-6 rounded-2xl border border-white/5 hover:border-primary/50 transition-colors">
                                  <i class="fas fa-wallet text-3xl text-primary mb-4"></i>
                                  <h4 class="font-bold text-lg mb-2">Ahorro garantizado</h4>
                                  <p class="text-sm text-gray-400">Comparte gastos de gasolina y peajes. Viajar acompañado es mucho más barato.</p>
                              </div>
-                             <div class="bg-gray-900/80 backdrop-blur-sm p-6 rounded-2xl border border-white/5 hover:border-blue-400/50 transition-colors mt-8">
+                             <div class="bg-gray-900/80 backdrop-blur-sm p-6 rounded-2xl border border-white/5 hover:border-blue-400/50 transition-colors sm:mt-8">
                                  <i class="fas fa-shield-alt text-3xl text-blue-400 mb-4"></i>
                                  <h4 class="font-bold text-lg mb-2">Seguridad total</h4>
                                  <p class="text-sm text-gray-400">Perfiles verificados con email institucional. Sabes con quién viajas.</p>
@@ -184,7 +198,7 @@
                                  <h4 class="font-bold text-lg mb-2">Sostenible</h4>
                                  <p class="text-sm text-gray-400">Menos coches en la carretera = menos emisiones. Ayuda al planeta.</p>
                              </div>
-                             <div class="bg-gray-900/80 backdrop-blur-sm p-6 rounded-2xl border border-white/5 hover:border-pink-400/50 transition-colors mt-8">
+                             <div class="bg-gray-900/80 backdrop-blur-sm p-6 rounded-2xl border border-white/5 hover:border-pink-400/50 transition-colors sm:mt-8">
                                  <i class="fas fa-users text-3xl text-pink-400 mb-4"></i>
                                  <h4 class="font-bold text-lg mb-2">Comunidad</h4>
                                  <p class="text-sm text-gray-400">Conecta con compañeros de tu misma institución o campus.</p>
@@ -228,7 +242,6 @@
                 </div>
             </div>
         </section>
-
     </main>
     <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
 </body>

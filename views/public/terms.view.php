@@ -15,16 +15,23 @@
 <body class="h-full text-white flex flex-col">
 
     <!-- Barra de navegación -->
-    <nav class="absolute w-full z-10 px-6 py-6 flex justify-between items-center max-w-7xl mx-auto left-0 right-0">
+    <nav class="absolute w-full z-10 px-4 sm:px-6 py-4 sm:py-6 flex justify-between items-center max-w-7xl mx-auto left-0 right-0">
         <div class="flex items-center gap-2">
-            <a href="index.php" class="flex items-center gap-2">
-                <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-secondary font-bold text-xl shadow-lg shadow-primary/20">R</div>
-                <span class="font-bold text-2xl tracking-tight text-white">Ride4Study</span>
-            </a>
+            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-xl flex items-center justify-center text-secondary font-bold text-lg sm:text-xl shadow-lg shadow-primary/20">
+                R
+            </div>
+            <span class="font-bold text-lg sm:text-2xl tracking-tight">
+                Ride4Study
+            </span>
         </div>
-        <div class="flex gap-4">
-            <a href="login.php" class="text-white hover:text-primary font-medium px-4 py-2 transition-colors">Entrar</a>
-            <a href="register.php" class="bg-white text-secondary hover:bg-gray-200 font-bold px-6 py-2 rounded-full transition-all transform hover:scale-105">Registrarse</a>
+
+        <div class="flex items-center gap-2 sm:gap-4">
+            <a href="login.php" class="text-xs sm:text-sm md:text-base text-white hover:text-primary font-medium px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 transition-colors whitespace-nowrap">
+                Entrar
+            </a>
+            <a href="register.php" class="bg-white text-secondary hover:bg-gray-200 text-xs sm:text-sm md:text-base font-bold px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-full transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
+                Registrarse
+            </a>
         </div>
     </nav>
 
