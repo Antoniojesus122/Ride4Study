@@ -106,6 +106,7 @@ class AuthController {
             $telefono = (int)($_POST['telefono'] ?? 0);
             $password = $_POST['contrasena'] ?? '';
             $confirm  = $_POST['confirmar_contrasena'] ?? '';
+            $poliza   = isset($_POST['acepta_politicas']) ? 1 : 0;
 
             if (empty($nombre) || empty($correo) || empty($password) || empty($confirm)) {
                 $error = 'Todos los campos son obligatorios.';
@@ -117,6 +118,8 @@ class AuthController {
                 $error = 'La contraseña debe tener al menos 6 caracteres.';
             } elseif ($telefono !== 0 && (!is_numeric($telefono) || strlen((string)$telefono) !== 9)) {
                 $error = 'El teléfono debe ser numérico y tener 9 dígitos.';
+            } elseif ($poliza !== 1) {
+                $error = 'Debes aceptar la política de privacidad.';
             } else {
 
                 try {

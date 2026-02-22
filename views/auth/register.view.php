@@ -103,6 +103,27 @@
                     </div>
                   </div>
 
+                  <div class="flex items-start gap-3">
+                    <div class="flex items-center h-5">
+                      <input id="acepta_politicas" name="acepta_politicas" type="checkbox" required class="h-4 w-4 rounded border-gray-600 bg-secondary/50 text-primary focus:ring-primary focus:ring-2">
+                    </div>
+
+                    <div class="text-sm leading-6">
+                      <label for="acepta_politicas" class="text-gray-300">
+                        Acepto la 
+                        <a href="privacy.php" target="_blank"
+                          class="text-primary hover:text-primary-dark font-medium transition-colors">
+                          Política de Privacidad
+                        </a>
+                        y las 
+                        <a href="terms.php" target="_blank"
+                          class="text-primary hover:text-primary-dark font-medium transition-colors">
+                          Condiciones de Uso
+                        </a>
+                      </label>
+                    </div>
+                  </div>
+
                   <div class="pt-2">
                     <button type="submit" name="register"
                       class="flex w-full justify-center rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold leading-6 text-secondary shadow-lg shadow-primary/20 hover:bg-primary-dark hover:shadow-primary/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-all transform hover:-translate-y-0.5">
@@ -117,14 +138,25 @@
 
         <!-- Sección de la imagen -->
         <div class="relative hidden w-0 flex-1 lg:block">
-          <div class="absolute inset-0 flex flex-col justify-between p-12 text-white split-bg">
+          <div class="absolute inset-0 flex flex-col justify-between p-12 text-white split-bg" style="background-image: url('public/img/imgRegister.jpg');">
             <div class="absolute inset-0 bg-gradient-to-r from-secondary/80 to-transparent"></div>
             <div class="z-10 relative">
               <h1 class="text-5xl font-bold leading-tight tracking-tight drop-shadow-lg">Explora nuevos<br>horizontes.</h1>
               <p class="mt-6 text-xl max-w-md text-gray-200 drop-shadow-md">Registro en segundos. Sin comisiones ocultas. Solo comunidad.</p>
             </div>
             <div class="z-10 relative text-sm text-gray-400">
-              &copy; <?= date('Y') ?> Ride4Study. Todos los derechos reservados.
+              <div class="flex items-center gap-4">
+                  <div class="flex -space-x-2">
+                    <!-- Simulación de avatars -->
+                    <div class="h-8 w-8 rounded-full ring-2 ring-secondary bg-gray-500"></div>
+                    <div class="h-8 w-8 rounded-full ring-2 ring-secondary bg-gray-600"></div>
+                    <div class="h-8 w-8 rounded-full ring-2 ring-secondary bg-gray-700"></div>
+                  </div>
+                  <span>+100 estudiantes registrados</span>
+              </div>
+              <div class="mt-4">
+                &copy; <?= date('Y') ?> Ride4Study. Todos los derechos reservados.
+              </div>
             </div>
           </div>
         </div>
@@ -144,6 +176,27 @@
             passwordIcon.classList.add('fa-eye');
           }
         }
+
+        const telefonoInput = document.getElementById('telefono');
+          telefonoInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 9);
+          });
+
+          const checkbox = document.getElementById('acepta_politicas');
+          const submitBtn = document.querySelector('button[name="register"]');
+
+          submitBtn.disabled = true;
+          submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+          checkbox.addEventListener('change', function () {
+            if (this.checked) {
+              submitBtn.disabled = false;
+              submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+              submitBtn.disabled = true;
+              submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+          });
       </script>
     </body>
   </html>

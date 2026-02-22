@@ -114,18 +114,7 @@
               <p class="mt-6 text-xl max-w-md text-gray-200 drop-shadow-md">Únete a la plataforma de carpooling estudiantil más segura y eficiente.</p>
             </div>
             <div class="z-10 relative text-sm text-gray-400">
-              <div class="flex items-center gap-4">
-                  <div class="flex -space-x-2">
-                    <!-- Simulación de avatars -->
-                    <div class="h-8 w-8 rounded-full ring-2 ring-secondary bg-gray-500"></div>
-                    <div class="h-8 w-8 rounded-full ring-2 ring-secondary bg-gray-600"></div>
-                    <div class="h-8 w-8 rounded-full ring-2 ring-secondary bg-gray-700"></div>
-                  </div>
-                  <span>+100 estudiantes registrados</span>
-              </div>
-              <div class="mt-4">
-                &copy; <?= date('Y') ?> Ride4Study. Todos los derechos reservados.
-              </div>
+              &copy; <?= date('Y') ?> Ride4Study. Todos los derechos reservados.
             </div>
           </div>
         </div>
