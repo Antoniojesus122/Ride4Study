@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 21-02-2026 a las 16:45:31
+-- Tiempo de generación: 26-02-2026 a las 18:41:05
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -58,10 +58,13 @@ INSERT INTO `anuncios` (`idAnuncio`, `idUsuario`, `tipo`, `origen`, `destino`, `
 (9, 8, 'ofrezco', 3, 17, '2025-11-29', '04:04:00', NULL, 4, NULL, NULL, '2025-11-12 22:06:08'),
 (10, 1, 'ofrezco', 18, 3, '2026-01-23', '03:02:00', '11:01:00', 2, NULL, 'Esto es una prueba', '2026-01-11 23:26:23'),
 (13, 9, 'ofrezco', 2, 12, '2026-02-12', '20:20:00', NULL, 1, NULL, '', '2026-02-09 23:20:13'),
-(14, 9, 'ofrezco', 4, 16, '2026-02-13', '17:45:00', NULL, 1, NULL, '', '2026-02-10 17:45:38'),
-(15, 9, 'ofrezco', 20, 13, '2026-02-25', '21:37:00', NULL, 0, NULL, '', '2026-02-18 16:32:57'),
-(16, 9, 'ofrezco', 14, 7, '2026-02-27', '21:06:00', NULL, 1, NULL, '', '2026-02-18 17:02:48'),
-(17, 5, 'ofrezco', 2, 11, '2026-02-18', '01:56:00', NULL, 1, NULL, '', '2026-02-18 22:55:18');
+(14, 9, 'ofrezco', 4, 16, '2026-02-13', '17:45:00', NULL, 0, NULL, '', '2026-02-10 17:45:38'),
+(15, 9, 'ofrezco', 20, 13, '2026-02-25', '21:37:00', NULL, 1, NULL, '', '2026-02-18 16:32:57'),
+(17, 5, 'ofrezco', 2, 11, '2026-02-18', '01:56:00', NULL, 1, NULL, '', '2026-02-18 22:55:18'),
+(19, 9, 'ofrezco', 18, 8, '2026-02-25', '20:49:00', NULL, 1, NULL, '', '2026-02-22 18:48:05'),
+(20, 9, 'ofrezco', 14, 15, '2026-02-24', '23:54:00', NULL, 2, NULL, '', '2026-02-22 18:50:13'),
+(21, 5, 'ofrezco', 9, 20, '2026-02-28', '20:51:00', NULL, 0, NULL, '', '2026-02-26 17:48:26'),
+(24, 5, 'busco', 11, 12, '2026-03-07', '21:30:00', NULL, 1, NULL, '', '2026-02-26 18:27:43');
 
 -- --------------------------------------------------------
 
@@ -83,7 +86,8 @@ CREATE TABLE `conversations` (
 
 INSERT INTO `conversations` (`idConversation`, `idAnuncio`, `user1_id`, `user2_id`, `created_at`) VALUES
 (1, 15, 5, 9, '2026-02-18 16:01:52'),
-(2, 16, 5, 9, '2026-02-18 16:03:02');
+(4, 24, 5, 9, '2026-02-26 17:36:19'),
+(5, 21, 5, 9, '2026-02-26 17:40:00');
 
 -- --------------------------------------------------------
 
@@ -300,7 +304,10 @@ INSERT INTO `usuarios` (`idUsuario`, `nombre`, `correo`, `telefono`, `ciudad`, `
 (12, 'admin', 'ibt_ag14@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, 'Antonio122', 1, 0, NULL, NULL, 'public', 'rides_only', 1),
 (13, 'Paco', 'ibt_02@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, '$2y$10$kwSkiKcAWTCEb06/DlZQKu5SM6eGRf2qOkLfvHrV/wwqqecxt72Bq', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
 (24, 'Pedro', 'ag@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$7gJYR2mJHdvRaRBOmrX/SO9bu3/hArQwm1HiIgHy4BOg3yfXDnXm2', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
-(25, 'Prueba', 'ag12@yopmail.com', '0', NULL, NULL, NULL, NULL, NULL, '$2y$10$aMjZ1kFAVDasUx3tjHkC/OUicpalRK85rfgqYo1PAlZ4Dk4yh4iPS', 2, 0, NULL, NULL, 'public', 'rides_only', 1);
+(25, 'Prueba', 'ag12@yopmail.com', '0', NULL, NULL, NULL, NULL, NULL, '$2y$10$aMjZ1kFAVDasUx3tjHkC/OUicpalRK85rfgqYo1PAlZ4Dk4yh4iPS', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
+(26, 'fewrf', 'ibt_ag1320@yopmail.com', '0', NULL, NULL, NULL, NULL, NULL, '$2y$10$xVeedDxKL1eAjtBDjwqI0.o5LjBkzzBu8Q2V72P6105DtjfFT.gF2', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
+(27, 'González Domingo', 'ibt_ag4320@yopmail.com', '423432432', NULL, NULL, NULL, NULL, NULL, '$2y$10$KSlMQQzRQogMrWK2qEBLNePHIWt4SJWnsJiA76VDWIe4yB0hUN8we', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
+(28, 'Antonio', 'ag01@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$2nU1crqEcs0V4N6XHHj.JOzEa7UqzNiUi4kF1osr0TxUn7GJRV/Qq', 2, 0, NULL, NULL, 'public', 'rides_only', 1);
 
 -- --------------------------------------------------------
 
@@ -333,7 +340,7 @@ CREATE TABLE `viajes` (
   `idAnuncio` int(11) NOT NULL,
   `idConductor` int(11) NOT NULL,
   `idPasajero` int(11) NOT NULL,
-  `estado` enum('pendiente','parcial','verificado','no_verificado') NOT NULL DEFAULT 'pendiente',
+  `estado` enum('pendiente','aceptado','rechazado') NOT NULL DEFAULT 'pendiente',
   `fechaSalida` datetime DEFAULT NULL,
   `fechaRegreso` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -345,8 +352,10 @@ CREATE TABLE `viajes` (
 INSERT INTO `viajes` (`idViaje`, `idAnuncio`, `idConductor`, `idPasajero`, `estado`, `fechaSalida`, `fechaRegreso`) VALUES
 (1, 10, 1, 9, '', '2026-01-23 03:02:00', NULL),
 (2, 6, 1, 7, 'pendiente', '2025-10-29 23:50:24', '2025-10-29 23:50:24'),
-(4, 14, 9, 5, 'pendiente', NULL, NULL),
-(5, 15, 9, 5, '', NULL, NULL);
+(4, 14, 9, 5, '', NULL, NULL),
+(5, 15, 9, 5, '', NULL, NULL),
+(6, 15, 9, 28, '', NULL, NULL),
+(7, 21, 5, 9, 'aceptado', NULL, NULL);
 
 --
 -- Índices para tablas volcadas
@@ -454,13 +463,13 @@ ALTER TABLE `viajes`
 -- AUTO_INCREMENT de la tabla `anuncios`
 --
 ALTER TABLE `anuncios`
-  MODIFY `idAnuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `idAnuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT de la tabla `conversations`
 --
 ALTER TABLE `conversations`
-  MODIFY `idConversation` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idConversation` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `instituciones`
@@ -514,13 +523,13 @@ ALTER TABLE `sesiones`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT de la tabla `viajes`
 --
 ALTER TABLE `viajes`
-  MODIFY `idViaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `idViaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Restricciones para tablas volcadas

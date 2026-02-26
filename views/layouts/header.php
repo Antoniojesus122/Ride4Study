@@ -89,6 +89,9 @@
                         <a href="my-rides.php" class="group flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 rounded-lg hover:bg-primary hover:text-secondary transition-all">
                             <i class="fas fa-car w-6 text-center text-gray-400 group-hover:text-secondary/70"></i> Mis Viajes
                         </a>
+                        <a href="my-rides.php?tab=bookings" class="group flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 rounded-lg hover:bg-primary hover:text-secondary transition-all">
+                            <i class="fas fa-ticket-alt w-6 text-center text-gray-400 group-hover:text-secondary/70"></i> Mis Reservas
+                        </a>
                     </div>
                     
                     <div class="mt-2 pt-2 border-t border-white/5 px-2">

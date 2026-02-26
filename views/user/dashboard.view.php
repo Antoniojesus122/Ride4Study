@@ -66,11 +66,14 @@
                     </div>
                 </div>
 
-                <!-- Botón de buscar -->
-                <div class="md:col-span-2">
-                    <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-secondary font-bold py-3 px-4 rounded-xl transition-all shadow-lg shadow-primary/20 transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                <!-- Botones de acción -->
+                <div class="md:col-span-2 flex gap-2">
+                    <button type="submit" class="flex-1 bg-primary hover:bg-primary-dark text-secondary font-bold py-3 px-4 rounded-xl transition-all shadow-lg shadow-primary/20 transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
                         <i class="fas fa-search"></i> Buscar
                     </button>
+                    <a href="dashboard.php" class="flex items-center justify-center px-3 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl transition-all border border-gray-600 group" title="Limpiar filtros">
+                        <i class="fas fa-times group-hover:rotate-90 transition-transform duration-300"></i>
+                    </a>
                 </div>
             </form>
             
@@ -246,7 +249,7 @@
                         <i class="fas fa-arrow-right opacity-0 group-hover:opacity-100 transition-opacity"></i>
                     </a>
                     
-                    <a href="my-rides.php" class="flex items-center justify-between p-3 rounded-xl bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-750 border border-gray-700 transition-all">
+                    <a href="my-rides.php?tab=bookings" class="flex items-center justify-between p-3 rounded-xl bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-750 border border-gray-700 transition-all">
                         <span class="flex items-center gap-3">
                             <i class="fas fa-network-wired text-gray-500"></i> Mis reservas
                         </span>

@@ -119,10 +119,16 @@
                             </div>
                         </div>
                     </div>
-                    <a href="reserve.php?ride_id=<?= $contextRide['idAnuncio'] ?>" 
-                       class="px-4 py-2 text-xs border border-primary/30 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors whitespace-nowrap shrink-0 font-medium">
-                        <i class="fas fa-user-plus mr-1"></i> Solicitar plaza
-                    </a>
+                    <?php if (isset($contextRide['anuncioTipo']) && strtolower($contextRide['anuncioTipo']) === 'ofrezco'): ?>
+                        <a href="reserve.php?ride_id=<?= $contextRide['idAnuncio'] ?>" 
+                           class="px-4 py-2 text-xs border border-primary/30 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors whitespace-nowrap shrink-0 font-medium">
+                            <i class="fas fa-user-plus mr-1"></i> Solicitar plaza
+                        </a>
+                    <?php else: ?>
+                        <span class="px-4 py-2 text-xs bg-gray-800 text-gray-500 rounded-lg whitespace-nowrap shrink-0 font-medium border border-gray-700">
+                            <i class="fas fa-info-circle mr-1"></i> Busca transporte
+                        </span>
+                    <?php endif; ?>
                 </div>
             </div>
             <?php endif; ?>

@@ -333,7 +333,8 @@ class Ride {
 
     public function updateRide($id, $data) {
         $query = "UPDATE " . $this->table . " 
-                  SET origen = :origen, 
+                  SET tipo = :tipo,
+                      origen = :origen, 
                       destino = :destino, 
                       fechaSalida = :fechaSalida, 
                       horaSalida = :horaSalida, 
@@ -347,6 +348,7 @@ class Ride {
 
         $data['descripcion'] = htmlspecialchars(strip_tags($data['descripcion']));
 
+        $stmt->bindParam(':tipo', $data['tipo']);
         $stmt->bindParam(':origen', $data['origen']);
         $stmt->bindParam(':destino', $data['destino']);
         $stmt->bindParam(':fechaSalida', $data['fechaSalida']);

@@ -18,10 +18,31 @@ class SupportController {
 
             $to = 'ride4study@outlook.es';
 
-            $html = "<p><strong>Nombre:</strong> {$name}</p>";
-            $html .= "<p><strong>Email:</strong> {$email}</p>";
-            $html .= "<p><strong>Asunto:</strong> {$subject}</p>";
-            $html .= "<hr><p><strong>Mensaje:</strong></p><p>" . nl2br($message) . "</p>";
+            $contenido = "
+                <p>Has recibido un nuevo mensaje de soporte desde la plataforma Ride4Study.</p>
+                
+                <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
+                    <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">👤 Nombre:</strong> {$name}</p>
+                    <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📧 Email:</strong> {$email}</p>
+                    <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">📋 Asunto:</strong> {$subject}</p>
+                </div>
+                
+                <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
+                    <p style=\"margin:0 0 10px 0; color:#34d399; font-weight:bold;\">💬 Mensaje:</p>
+                    <p style=\"margin:0; color:#cbd5e1; white-space:pre-wrap;\">" . nl2br($message) . "</p>
+                </div>
+                
+                <p style=\"color:#94a3b8; font-size:13px;\">Responde directamente a <strong>{$email}</strong> para contactar con el usuario.</p>
+            ";
+            
+            $html = $mailService->generarPlantilla(
+                'Equipo de Ride4Study',
+                'Nuevo mensaje de soporte',
+                $contenido,
+                null,
+                null,
+                null
+            );
 
             $response = $mailService->send($to, 'Soporte Ride4Study', $subject, $html);
 

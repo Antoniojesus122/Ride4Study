@@ -152,18 +152,25 @@ function renderRideCard($ride, $isActive) {
                     </div>
 
                     <!-- Línea de ruta -->
-                    <div class="relative pl-8 border-l-2 border-gray-700 py-2 space-y-6 mb-6">
-                        <div class="relative">
-                            <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full border-2 border-primary bg-surface"></div>
-                            <h4 class="text-lg font-bold text-white leading-none"><?= htmlspecialchars($ride['nombreOrigen']) ?></h4>
-                            <p class="text-sm text-primary font-mono mt-1"><?= substr($ride['horaSalida'], 0, 5) ?></p>
+                    <div class="relative py-4 mb-6">
+                        <!-- Línea vertical -->
+                        <div class="absolute left-[7px] top-6 bottom-6 w-0.5 bg-gray-700"></div>
+                        
+                        <div class="flex items-start mb-6 relative">
+                            <div class="w-4 h-4 rounded-full border-2 border-primary bg-surface z-10 shrink-0 mt-1"></div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-bold text-white leading-none"><?= htmlspecialchars($ride['nombreOrigen']) ?></h4>
+                                <p class="text-sm text-primary font-mono mt-1"><?= substr($ride['horaSalida'], 0, 5) ?></p>
+                            </div>
                         </div>
-                        <div class="relative">
-                            <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full border-2 border-gray-500 bg-surface"></div>
-                             <h4 class="text-lg font-bold text-white leading-none"><?= htmlspecialchars($ride['nombreDestino']) ?></h4>
-                             <?php if ($ride['horaRegreso']): ?>
-                                <p class="text-sm text-gray-400 font-mono mt-1">Regreso: <?= substr($ride['horaRegreso'], 0, 5) ?></p>
-                             <?php endif; ?>
+                        <div class="flex items-start relative">
+                            <div class="w-4 h-4 rounded-full border-2 border-gray-500 bg-surface z-10 shrink-0 mt-1"></div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-bold text-white leading-none"><?= htmlspecialchars($ride['nombreDestino']) ?></h4>
+                                <?php if ($ride['horaRegreso']): ?>
+                                    <p class="text-sm text-gray-400 font-mono mt-1">Regreso: <?= substr($ride['horaRegreso'], 0, 5) ?></p>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
 
@@ -308,18 +315,25 @@ function renderBookingCard($booking) {
                     </div>
 
                     <!-- Línea de ruta -->
-                    <div class="relative pl-8 border-l-2 border-gray-700 py-2 space-y-6 mb-6">
-                        <div class="relative">
-                            <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full border-2 border-primary bg-surface"></div>
-                            <h4 class="text-lg font-bold text-white leading-none"><?= htmlspecialchars($booking['nombreOrigen']) ?></h4>
-                            <p class="text-sm text-primary font-mono mt-1"><?= substr($booking['horaSalida'], 0, 5) ?></p>
+                    <div class="relative py-4 mb-6">
+                        <!-- Línea vertical -->
+                        <div class="absolute left-[7px] top-6 bottom-6 w-0.5 bg-gray-700"></div>
+                        
+                        <div class="flex items-start mb-6 relative">
+                            <div class="w-4 h-4 rounded-full border-2 border-primary bg-surface z-10 shrink-0 mt-1"></div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-bold text-white leading-none"><?= htmlspecialchars($booking['nombreOrigen']) ?></h4>
+                                <p class="text-sm text-primary font-mono mt-1"><?= substr($booking['horaSalida'], 0, 5) ?></p>
+                            </div>
                         </div>
-                        <div class="relative">
-                            <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full border-2 border-gray-500 bg-surface"></div>
-                             <h4 class="text-lg font-bold text-white leading-none"><?= htmlspecialchars($booking['nombreDestino']) ?></h4>
-                             <?php if ($booking['horaRegreso']): ?>
-                                <p class="text-sm text-gray-400 font-mono mt-1">Regreso: <?= substr($booking['horaRegreso'], 0, 5) ?></p>
-                             <?php endif; ?>
+                        <div class="flex items-start relative">
+                            <div class="w-4 h-4 rounded-full border-2 border-gray-500 bg-surface z-10 shrink-0 mt-1"></div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-bold text-white leading-none"><?= htmlspecialchars($booking['nombreDestino']) ?></h4>
+                                <?php if ($booking['horaRegreso']): ?>
+                                    <p class="text-sm text-gray-400 font-mono mt-1">Regreso: <?= substr($booking['horaRegreso'], 0, 5) ?></p>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
 
@@ -405,12 +419,97 @@ function switchTab(tab) {
     }
 }
 
+let rideToDelete = null;
+
 function confirmDelete(rideId) {
-    if(confirm('¿Estás seguro de que quieres eliminar este viaje? Esta acción no se puede deshacer.')) {
-        window.location.href = `delete-ride.php?id=${rideId}`;
+    rideToDelete = rideId;
+    document.getElementById('deleteModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    rideToDelete = null;
+}
+
+function executeDelete() {
+    if (rideToDelete) {
+        window.location.href = `delete-ride.php?id=${rideToDelete}`;
     }
 }
+
+// Detectar parámetro 'tab' en la URL al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    
+    if (tabParam === 'bookings') {
+        switchTab('bookings');
+    } else if (tabParam === 'past') {
+        switchTab('past');
+    } else {
+        // Por defecto mostrar viajes activos
+        switchTab('active');
+    }
+    
+    // Cerrar modal al hacer clic fuera
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+    
+    // Cerrar modal con tecla ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDeleteModal();
+        }
+    });
+});
 </script>
+
+<!-- Modal de confirmación para eliminar viaje -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-surface rounded-2xl border border-gray-700 shadow-2xl max-w-md w-full transform transition-all">
+        <!-- Header del modal -->
+        <div class="p-6 border-b border-gray-700">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white">Eliminar viaje</h3>
+                    <p class="text-sm text-gray-400">Esta acción no se puede deshacer</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contenido del modal -->
+        <div class="p-6">
+            <p class="text-gray-300 leading-relaxed">
+                ¿Estás seguro de que deseas eliminar este viaje? Todos los pasajeros que hayan reservado recibirán una notificación y perderán su plaza.
+            </p>
+            
+            <div class="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                <p class="text-sm text-red-400 flex items-start gap-2">
+                    <i class="fas fa-info-circle mt-0.5"></i>
+                    <span>Una vez eliminado, no podrás recuperar la información del viaje ni revertir esta acción.</span>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Footer con botones -->
+        <div class="p-6 bg-gray-800/50 border-t border-gray-700 flex gap-3">
+            <button onclick="closeDeleteModal()" class="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-medium transition-all">
+                <i class="fas fa-times mr-2"></i>Cancelar
+            </button>
+            <button onclick="executeDelete()" class="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all shadow-lg shadow-red-500/20 hover:shadow-red-500/40">
+                <i class="fas fa-trash-alt mr-2"></i>Eliminar
+            </button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

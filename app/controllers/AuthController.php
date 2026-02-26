@@ -202,13 +202,27 @@ class AuthController {
 
                         if ($code) {
                             $subject = "Código de recuperación - Ride4Study";
-                            $html = "
-                                <h2>Hola {$userData['nombre']}</h2>
-                                <p>Tu código de recuperación es:</p>
-                                <h1 style='font-size:32px;letter-spacing:6px'>{$code}</h1>
-                                <p>Válido por 15 minutos.</p>
-                            ";
+                            
                             $mail = new MailService();
+                            $contenido = "
+                                <p>Has solicitado recuperar tu contraseña. Utiliza el siguiente código de verificación para continuar con el proceso:</p>
+                                <p style=\"font-size:14px; color:#94a3b8; margin-top:15px;\">
+                                    Este código es válido por <strong>15 minutos</strong>.
+                                </p>
+                                <p style=\"font-size:14px; color:#94a3b8;\">
+                                    Si no solicitaste este cambio, puedes ignorar este mensaje de forma segura.
+                                </p>
+                            ";
+                            
+                            $html = $mail->generarPlantilla(
+                                $userData['nombre'],
+                                "Hola {$userData['nombre']},",
+                                $contenido,
+                                $code,
+                                null,
+                                null
+                            );
+                            
                             $mail->send($correo, $userData['nombre'], $subject, $html);
                         }
                     }

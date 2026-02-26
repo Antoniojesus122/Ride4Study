@@ -110,23 +110,30 @@ class RideController {
 
         // Validación de inputs
         $errors = [];
+        $tipo = $_POST['tipo'] ?? '';
+        
         $data = [
             'idUsuario' => $_SESSION['user_id'],
-            'tipo' => $_POST['tipo'] ?? '',
+            'tipo' => $tipo,
             'origen' => $_POST['origen'] ?? '',
             'destino' => $_POST['destino'] ?? '',
             'fechaSalida' => $_POST['fechaSalida'] ?? '',
             'horaSalida' => $_POST['horaSalida'] ?? '',
             'horaRegreso' => !empty($_POST['horaRegreso']) ? $_POST['horaRegreso'] : null,
-            'plazasDisponibles' => $_POST['plazasDisponibles'] ?? '',
+            'plazasDisponibles' => ($tipo === 'busco') ? 1 : ($_POST['plazasDisponibles'] ?? ''),
             'precio' => !empty($_POST['precio']) ? $_POST['precio'] : null,
             'descripcion' => $_POST['descripcion'] ?? ''
         ];
 
         // Validaciones básicas
         if (empty($data['tipo']) || empty($data['origen']) || empty($data['destino']) || 
-            empty($data['fechaSalida']) || empty($data['horaSalida']) || empty($data['plazasDisponibles'])) {
+            empty($data['fechaSalida']) || empty($data['horaSalida'])) {
             $errors[] = 'Todos los campos obligatorios deben ser completados.';
+        }
+        
+        // Validar plazas solo si NO es tipo "busco"
+        if ($data['tipo'] !== 'busco' && empty($data['plazasDisponibles'])) {
+            $errors[] = 'Debes especificar las plazas disponibles.';
         }
 
         // Validaciones lógicas
@@ -136,6 +143,14 @@ class RideController {
 
         if ($data['fechaSalida'] < date('Y-m-d')) {
              $errors[] = 'La fecha de salida no puede ser en el pasado.';
+        }
+        
+        // Validar hora de salida si el viaje es para el mismo día
+        if ($data['fechaSalida'] === date('Y-m-d')) {
+            $horaActual = date('H:i');
+            if ($data['horaSalida'] <= $horaActual) {
+                $errors[] = 'Para viajes del mismo día, la hora de salida debe ser posterior a la hora actual.';
+            }
         }
 
         if ($data['horaRegreso']) {
@@ -323,52 +338,83 @@ class RideController {
                 $to = $conductor['correo'];
                 $toName = $conductor['nombre'];
                 $subject = '🚗 Nueva solicitud de reserva - Ride4Study';
-                $message = "
-                    <p>Hola {$conductor['nombre']},</p>
-                    <p>{$user['nombre']} ha solicitado una plaza en tu viaje:</p>
-                    <ul>
-                        <li>📍 Desde: {$ride['nombreOrigen']}</li>
-                        <li>📍 Hasta: {$ride['nombreDestino']}</li>
-                        <li>📅 Fecha: " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</li>
-                        <li>🕐 Hora: " . substr($ride['horaSalida'], 0, 5) . "</li>
-                    </ul>
-                    <p>Entra en tu panel para aceptar o rechazar la solicitud.</p>
-                    <p>Saludos,<br>El equipo de Ride4Study</p>
+                
+                $contenido = "
+                    <p><strong>{$user['nombre']}</strong> ha solicitado una plaza en tu viaje.</p>
+                    
+                    <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📍 Origen:</strong> {$ride['nombreOrigen']}</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📍 Destino:</strong> {$ride['nombreDestino']}</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">📅 Fecha:</strong> " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</p>
+                        <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">🕐 Hora:</strong> " . substr($ride['horaSalida'], 0, 5) . "</p>
+                    </div>
+                    
+                    <p style=\"color:#94a3b8;\">Entra en tu panel de <strong>Mis Viajes</strong> para aceptar o rechazar la solicitud.</p>
                 ";
+                
+                $message = $this->mailService->generarPlantilla(
+                    $conductor['nombre'],
+                    "Hola {$conductor['nombre']},",
+                    $contenido,
+                    null,
+                    'http://localhost/Ride4Study/my-rides.php',
+                    'Ver Mis Viajes'
+                );
                 break;
 
             case 'aceptado':
                 $to = $user['correo'];
                 $toName = $user['nombre'];
                 $subject = '✅ Tu reserva ha sido aceptada - Ride4Study';
-                $message = "
-                    <p>¡Buenas noticias, {$user['nombre']}!</p>
-                    <p>Tu solicitud de reserva ha sido aceptada para el viaje:</p>
-                    <ul>
-                        <li>📍 Desde: {$ride['nombreOrigen']}</li>
-                        <li>📍 Hasta: {$ride['nombreDestino']}</li>
-                        <li>📅 Fecha: " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</li>
-                        <li>🕐 Hora: " . substr($ride['horaSalida'], 0, 5) . "</li>
-                    </ul>
-                    <p>Ponte en contacto con el conductor para coordinar los detalles.</p>
-                    <p>¡Buen viaje!<br>El equipo de Ride4Study</p>
+                
+                $contenido = "
+                    <p>¡Buenas noticias! Tu solicitud de reserva ha sido <strong style=\"color:#34d399;\">aceptada</strong>.</p>
+                    
+                    <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📍 Origen:</strong> {$ride['nombreOrigen']}</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📍 Destino:</strong> {$ride['nombreDestino']}</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">📅 Fecha:</strong> " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</p>
+                        <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">🕐 Hora:</strong> " . substr($ride['horaSalida'], 0, 5) . "</p>
+                    </div>
+                    
+                    <p style=\"color:#94a3b8;\">Ponte en contacto con el conductor para coordinar los detalles del viaje.</p>
+                    <p style=\"color:#34d399; font-weight:bold;\">¡Buen viaje! 🚗</p>
                 ";
+                
+                $message = $this->mailService->generarPlantilla(
+                    $user['nombre'],
+                    "¡Reserva confirmada!",
+                    $contenido,
+                    null,
+                    'http://localhost/Ride4Study/my-rides.php?tab=bookings',
+                    'Ver Mis Reservas'
+                );
                 break;
 
             case 'rechazado':
                 $to = $user['correo'];
                 $toName = $user['nombre'];
                 $subject = '❌ Actualización de tu reserva - Ride4Study';
-                $message = "
-                    <p>Hola {$user['nombre']},</p>
-                    <p>Lamentamos informarte que tu solicitud de reserva no ha sido aceptada para el viaje:</p>
-                    <ul>
-                        <li>📍 Desde: {$ride['nombreOrigen']}</li>
-                        <li>📍 Hasta: {$ride['nombreDestino']}</li>
-                    </ul>
-                    <p>No te preocupes, puedes buscar otros viajes disponibles en la plataforma.</p>
-                    <p>Saludos,<br>El equipo de Ride4Study</p>
+                
+                $contenido = "
+                    <p>Lamentamos informarte que tu solicitud de reserva no ha sido aceptada para el siguiente viaje:</p>
+                    
+                    <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📍 Origen:</strong> {$ride['nombreOrigen']}</p>
+                        <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📍 Destino:</strong> {$ride['nombreDestino']}</p>
+                    </div>
+                    
+                    <p style=\"color:#94a3b8;\">No te preocupes, hay muchos otros viajes disponibles. Sigue buscando en la plataforma para encontrar el viaje perfecto para ti.</p>
                 ";
+                
+                $message = $this->mailService->generarPlantilla(
+                    $user['nombre'],
+                    "Hola {$user['nombre']},",
+                    $contenido,
+                    null,
+                    'http://localhost/Ride4Study/dashboard.php',
+                    'Buscar Otros Viajes'
+                );
                 break;
 
             case 'cancelada':
@@ -379,17 +425,27 @@ class RideController {
                 $to = $conductor['correo'];
                 $toName = $conductor['nombre'];
                 $subject = '🔔 Reserva cancelada - Ride4Study';
-                $message = "
-                    <p>Hola {$conductor['nombre']},</p>
-                    <p>{$user['nombre']} ha cancelado su reserva para tu viaje:</p>
-                    <ul>
-                        <li>📍 Desde: {$ride['nombreOrigen']}</li>
-                        <li>📍 Hasta: {$ride['nombreDestino']}</li>
-                        <li>📅 Fecha: " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</li>
-                    </ul>
-                    <p>La plaza vuelve a estar disponible.</p>
-                    <p>Saludos,<br>El equipo de Ride4Study</p>
+                
+                $contenido = "
+                    <p><strong>{$user['nombre']}</strong> ha cancelado su reserva para tu viaje.</p>
+                    
+                    <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📍 Origen:</strong> {$ride['nombreOrigen']}</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📍 Destino:</strong> {$ride['nombreDestino']}</p>
+                        <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">📅 Fecha:</strong> " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</p>
+                    </div>
+                    
+                    <p style=\"color:#94a3b8;\">La plaza vuelve a estar disponible para otros pasajeros.</p>
                 ";
+                
+                $message = $this->mailService->generarPlantilla(
+                    $conductor['nombre'],
+                    "Hola {$conductor['nombre']},",
+                    $contenido,
+                    null,
+                    'http://localhost/Ride4Study/my-rides.php',
+                    'Ver Mis Viajes'
+                );
                 break;
         }
 
@@ -420,6 +476,15 @@ class RideController {
             exit;
         }
 
+        // Verificar si hay pasajeros con reserva aceptada
+        $hasAcceptedPassengers = false;
+        if ($ride['tipo'] === 'ofrezco') {
+            $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM viajes WHERE idAnuncio = :rideId AND estado = 'aceptado'");
+            $stmt->execute([':rideId' => $rideId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $hasAcceptedPassengers = $result['count'] > 0;
+        }
+
         $locations = $this->ride->getAllLocations();
         $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
         
@@ -445,20 +510,39 @@ class RideController {
         }
 
         $errors = [];
+        
+        // Verificar si se puede cambiar el tipo
+        $hasAcceptedPassengers = false;
+        if ($ride['tipo'] === 'ofrezco') {
+            $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM viajes WHERE idAnuncio = :rideId AND estado = 'aceptado'");
+            $stmt->execute([':rideId' => $rideId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $hasAcceptedPassengers = $result['count'] > 0;
+        }
+        
+        // Si hay pasajeros aceptados, mantener el tipo actual; si no, permitir cambio
+        $tipo = ($hasAcceptedPassengers) ? $ride['tipo'] : ($_POST['tipo'] ?? $ride['tipo']);
+        
         $data = [
+            'tipo' => $tipo,
             'origen' => $_POST['origen'] ?? '',
             'destino' => $_POST['destino'] ?? '',
             'fechaSalida' => $_POST['fechaSalida'] ?? '',
             'horaSalida' => $_POST['horaSalida'] ?? '',
             'horaRegreso' => !empty($_POST['horaRegreso']) ? $_POST['horaRegreso'] : null,
-            'plazasDisponibles' => $_POST['plazasDisponibles'] ?? '',
+            'plazasDisponibles' => ($tipo === 'busco') ? 1 : ($_POST['plazasDisponibles'] ?? ''),
             'precio' => !empty($_POST['precio']) ? $_POST['precio'] : null,
             'descripcion' => $_POST['descripcion'] ?? ''
         ];
 
         if (empty($data['origen']) || empty($data['destino']) || 
-            empty($data['fechaSalida']) || empty($data['horaSalida']) || empty($data['plazasDisponibles'])) {
+            empty($data['fechaSalida']) || empty($data['horaSalida'])) {
             $errors[] = 'Todos los campos obligatorios deben ser completados.';
+        }
+        
+        // Validar plazas solo si NO es tipo "busco"
+        if ($tipo !== 'busco' && empty($data['plazasDisponibles'])) {
+            $errors[] = 'Debes especificar las plazas disponibles.';
         }
 
         if ($data['origen'] == $data['destino']) {
@@ -467,6 +551,14 @@ class RideController {
 
         if ($data['fechaSalida'] < date('Y-m-d')) {
              $errors[] = 'La fecha de salida no puede ser en el pasado.';
+        }
+        
+        // Validar hora de salida si el viaje es para el mismo día
+        if ($data['fechaSalida'] === date('Y-m-d')) {
+            $horaActual = date('H:i');
+            if ($data['horaSalida'] <= $horaActual) {
+                $errors[] = 'Para viajes del mismo día, la hora de salida debe ser posterior a la hora actual.';
+            }
         }
 
         if ($data['horaRegreso']) {

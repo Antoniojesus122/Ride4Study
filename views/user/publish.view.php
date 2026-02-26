@@ -51,17 +51,35 @@ function getVal($field, $ride, $post, $default = '') {
                             <?php 
                                 $currentType = isset($_POST['tipo']) ? $_POST['tipo'] : ($isEdit ? strtolower($ride['tipo']) : 'ofrezco');
                             ?>
+                            
+                            <?php if ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers): ?>
+                                <!-- Mensaje informativo cuando hay pasajeros confirmados -->
+                                <div class="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl mb-3">
+                                    <div class="flex items-start gap-3">
+                                        <i class="fas fa-lock text-yellow-500 mt-0.5"></i>
+                                        <div>
+                                            <p class="text-yellow-400 text-sm font-medium">No puedes cambiar el tipo de viaje</p>
+                                            <p class="text-yellow-300/70 text-xs mt-1">Ya hay pasajeros con reserva confirmada en este viaje.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                            
                             <div class="flex gap-4">
                                 <label class="flex-1">
-                                    <input type="radio" name="tipo" value="ofrezco" class="peer hidden" <?= $currentType == 'ofrezco' ? 'checked' : '' ?>>
-                                    <div class="p-4 rounded-xl border border-gray-600 cursor-pointer peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-white text-gray-400 transition-all text-center hover:bg-gray-800">
+                                    <input type="radio" name="tipo" value="ofrezco" class="peer hidden" 
+                                           <?= $currentType == 'ofrezco' ? 'checked' : '' ?>
+                                           <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'disabled' : '' ?>>
+                                    <div class="p-4 rounded-xl border border-gray-600 <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-800' ?> peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-white text-gray-400 transition-all text-center">
                                         <i class="fas fa-car text-xl mb-2"></i>
                                         <div class="font-bold">Llevo coche</div>
                                     </div>
                                 </label>
                                 <label class="flex-1">
-                                    <input type="radio" name="tipo" value="busco" class="peer hidden" <?= $currentType == 'busco' ? 'checked' : '' ?>>
-                                    <div class="p-4 rounded-xl border border-gray-600 cursor-pointer peer-checked:border-purple-500 peer-checked:bg-purple-500/10 peer-checked:text-white text-gray-400 transition-all text-center hover:bg-gray-800">
+                                    <input type="radio" name="tipo" value="busco" class="peer hidden" 
+                                           <?= $currentType == 'busco' ? 'checked' : '' ?>
+                                           <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'disabled' : '' ?>>
+                                    <div class="p-4 rounded-xl border border-gray-600 <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-800' ?> peer-checked:border-purple-500 peer-checked:bg-purple-500/10 peer-checked:text-white text-gray-400 transition-all text-center">
                                         <i class="fas fa-walking text-xl mb-2"></i>
                                         <div class="font-bold">Busco plaza</div>
                                     </div>
@@ -210,13 +228,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (selectedType === 'busco') {
             // Campos deshabilitados para tipo busco transporte
             seatsInput.disabled = true;
-            seatsInput.value = '';
+            seatsInput.value = '1'; // Valor por defecto para que no falle la validación
             priceInput.disabled = true;
             priceInput.value = '';
             
             // Estilo visual para los campos deshabilitados
             seatsInput.classList.add('opacity-50', 'cursor-not-allowed');
             priceInput.classList.add('opacity-50', 'cursor-not-allowed');
+            
+            // Quitar el required de plazas cuando es tipo busco
+            seatsInput.removeAttribute('required');
         } else {
             // Campos habilitados
             seatsInput.disabled = false;
@@ -224,6 +245,14 @@ document.addEventListener('DOMContentLoaded', function() {
             
             seatsInput.classList.remove('opacity-50', 'cursor-not-allowed');
             priceInput.classList.remove('opacity-50', 'cursor-not-allowed');
+            
+            // Restaurar el required de plazas
+            seatsInput.setAttribute('required', 'required');
+            
+            // Si estaba vacío, poner valor por defecto
+            if (!seatsInput.value) {
+                seatsInput.value = '1';
+            }
         }
     }
 
@@ -248,18 +277,30 @@ document.getElementById('publishForm').addEventListener('submit', function(e) {
         return;
     }
 
-    // Validación hora de regreso
-    if (horaRegreso && horaRegreso <= horaSalida) {
-        e.preventDefault();
-        alert('La hora de regreso debe ser posterior a la hora de salida.');
-        return;
-    }
-
     // Validación fecha de salida
     const today = new Date().toISOString().split('T')[0];
     if (fecha < today) {
         e.preventDefault();
         alert('La fecha de salida no puede ser en el pasado.');
+        return;
+    }
+    
+    // Validación hora de salida para viajes del mismo día
+    if (fecha === today) {
+        const ahora = new Date();
+        const horaActual = ahora.getHours().toString().padStart(2, '0') + ':' + ahora.getMinutes().toString().padStart(2, '0');
+        
+        if (horaSalida <= horaActual) {
+            e.preventDefault();
+            alert('Para viajes del mismo día, la hora de salida debe ser posterior a la hora actual.');
+            return;
+        }
+    }
+
+    // Validación hora de regreso
+    if (horaRegreso && horaRegreso <= horaSalida) {
+        e.preventDefault();
+        alert('La hora de regreso debe ser posterior a la hora de salida.');
         return;
     }
 });
