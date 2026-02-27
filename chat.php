@@ -12,6 +12,8 @@ if ($action === 'send') {
     $controller->delete();
 } elseif ($action === 'fetch_messages') {
     $controller->fetchMessages();
+} elseif ($action === 'offer_ride') {
+    $controller->offerRide();
 } else {
     $controller->chat();
 }

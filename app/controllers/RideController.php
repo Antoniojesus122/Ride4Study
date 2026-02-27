@@ -178,6 +178,7 @@ class RideController {
     }
 
 
+    // Función para manejar tanto reservas en anuncios tipo "ofrezco" como ofertas en anuncios tipo "busco"
     public function reserve() {
         if (!isset($_SESSION['user_id'])) {
             header('Location: login.php');
@@ -198,34 +199,37 @@ class RideController {
             exit;
         }
 
-        // Evitar la reserva de viajes de tipo busco
-        if (strtolower($ride['tipo']) === 'busco') {
-            header('Location: dashboard.php?error=invalid_type');
-            exit;
-        }
+        $tipoAnuncio = strtolower($ride['tipo']);
 
-        // Evitar reservar viaje propio
+        // Evitar reservar/ofrecer en anuncio propio
         if ($ride['idUsuario'] == $_SESSION['user_id']) {
             header('Location: dashboard.php?error=own_ride');
             exit;
         }
 
-        // Evitar la doble reserva
+        // Evitar la doble reserva/oferta
         if ($this->ride->hasBooking($rideId, $_SESSION['user_id'])) {
             header('Location: dashboard.php?error=already_booked');
             exit;
         }
 
-        // Verificar disponibilidad de plazas
-        if ($ride['plazasDisponibles'] <= 0) {
+        // Verificar si hay plazas disponibles (solo para tipo "ofrezco")
+        if ($tipoAnuncio === 'ofrezco' && $ride['plazasDisponibles'] <= 0) {
             header('Location: dashboard.php?error=no_seats');
             exit;
         }
 
+        // Crear reserva/oferta
         if ($this->ride->requestReservation($rideId, $_SESSION['user_id'])) {
-            // Enviar notificación por email al conductor
+            // Enviar notificación por email según el tipo
             try {
-                $this->sendReservationNotification($ride, $_SESSION['user_id'], 'nueva');
+                if ($tipoAnuncio === 'ofrezco') {
+                    // Notificar al conductor que alguien reservó
+                    $this->sendReservationNotification($ride, $_SESSION['user_id'], 'nueva');
+                } else {
+                    // Notificar al pasajero que alguien ofrece llevarlo
+                    $this->sendReservationNotification($ride, $_SESSION['user_id'], 'oferta_nueva');
+                }
             } catch (Exception $e) {
                 error_log("Error enviando notificación: " . $e->getMessage());
                 // Continuar aunque falle el email
@@ -316,7 +320,7 @@ class RideController {
 
     // Enviar notificaciones por email
     private function sendReservationNotification($ride, $userId, $type) {
-        // Obtener información del usuario que hizo la reserva
+        // Obtener información del usuario que hizo la reserva/oferta
         $stmt = $this->db->prepare("SELECT nombre, correo FROM usuarios WHERE idUsuario = :id");
         $stmt->execute([':id' => $userId]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -330,6 +334,7 @@ class RideController {
 
         switch ($type) {
             case 'nueva':
+                // Alguien reserva en anuncio tipo "ofrezco"
                 // Notificar al conductor sobre nueva solicitud
                 $stmt = $this->db->prepare("SELECT nombre, correo FROM usuarios WHERE idUsuario = :id");
                 $stmt->execute([':id' => $ride['idUsuario']]);
@@ -337,16 +342,16 @@ class RideController {
 
                 $to = $conductor['correo'];
                 $toName = $conductor['nombre'];
-                $subject = '🚗 Nueva solicitud de reserva - Ride4Study';
+                $subject = 'Nueva solicitud de reserva - Ride4Study';
                 
                 $contenido = "
                     <p><strong>{$user['nombre']}</strong> ha solicitado una plaza en tu viaje.</p>
                     
                     <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
-                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📍 Origen:</strong> {$ride['nombreOrigen']}</p>
-                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📍 Destino:</strong> {$ride['nombreDestino']}</p>
-                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">📅 Fecha:</strong> " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</p>
-                        <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">🕐 Hora:</strong> " . substr($ride['horaSalida'], 0, 5) . "</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Origen:</strong> {$ride['nombreOrigen']}</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Destino:</strong> {$ride['nombreDestino']}</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Fecha:</strong> " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</p>
+                        <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Hora:</strong> " . substr($ride['horaSalida'], 0, 5) . "</p>
                     </div>
                     
                     <p style=\"color:#94a3b8;\">Entra en tu panel de <strong>Mis Viajes</strong> para aceptar o rechazar la solicitud.</p>
@@ -365,20 +370,20 @@ class RideController {
             case 'aceptado':
                 $to = $user['correo'];
                 $toName = $user['nombre'];
-                $subject = '✅ Tu reserva ha sido aceptada - Ride4Study';
+                $subject = 'Tu reserva ha sido aceptada - Ride4Study';
                 
                 $contenido = "
                     <p>¡Buenas noticias! Tu solicitud de reserva ha sido <strong style=\"color:#34d399;\">aceptada</strong>.</p>
                     
                     <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
-                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📍 Origen:</strong> {$ride['nombreOrigen']}</p>
-                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📍 Destino:</strong> {$ride['nombreDestino']}</p>
-                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">📅 Fecha:</strong> " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</p>
-                        <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">🕐 Hora:</strong> " . substr($ride['horaSalida'], 0, 5) . "</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Origen:</strong> {$ride['nombreOrigen']}</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Destino:</strong> {$ride['nombreDestino']}</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Fecha:</strong> " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</p>
+                        <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Hora:</strong> " . substr($ride['horaSalida'], 0, 5) . "</p>
                     </div>
                     
                     <p style=\"color:#94a3b8;\">Ponte en contacto con el conductor para coordinar los detalles del viaje.</p>
-                    <p style=\"color:#34d399; font-weight:bold;\">¡Buen viaje! 🚗</p>
+                    <p style=\"color:#34d399; font-weight:bold;\">¡Buen viaje!</p>
                 ";
                 
                 $message = $this->mailService->generarPlantilla(
@@ -394,7 +399,7 @@ class RideController {
             case 'rechazado':
                 $to = $user['correo'];
                 $toName = $user['nombre'];
-                $subject = '❌ Actualización de tu reserva - Ride4Study';
+                $subject = 'Actualización de tu reserva - Ride4Study';
                 
                 $contenido = "
                     <p>Lamentamos informarte que tu solicitud de reserva no ha sido aceptada para el siguiente viaje:</p>
@@ -417,6 +422,40 @@ class RideController {
                 );
                 break;
 
+            case 'oferta_nueva':
+                // Alguien ofrece llevar en anuncio tipo "busco"
+                // Notificar al pasajero (publicador) sobre nueva oferta
+                $stmt = $this->db->prepare("SELECT nombre, correo FROM usuarios WHERE idUsuario = :id");
+                $stmt->execute([':id' => $ride['idUsuario']]);
+                $pasajero = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                $to = $pasajero['correo'];
+                $toName = $pasajero['nombre'];
+                $subject = '¡Alguien puede llevarte! - Ride4Study';
+                
+                $contenido = "
+                    <p>¡Buenas noticias! <strong>{$user['nombre']}</strong> ha ofrecido llevarte en tu viaje.</p>
+                    
+                    <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Origen:</strong> {$ride['nombreOrigen']}</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Destino:</strong> {$ride['nombreDestino']}</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Fecha:</strong> " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</p>
+                        <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Hora:</strong> " . substr($ride['horaSalida'], 0, 5) . "</p>
+                    </div>
+                    
+                    <p style=\"color:#94a3b8;\">Entra en tu panel de <strong>Mis Viajes</strong> para aceptar o rechazar la oferta.</p>
+                ";
+                
+                $message = $this->mailService->generarPlantilla(
+                    $pasajero['nombre'],
+                    "Hola {$pasajero['nombre']},",
+                    $contenido,
+                    null,
+                    'http://localhost/Ride4Study/my-rides.php',
+                    'Ver Mis Viajes'
+                );
+                break;
+
             case 'cancelada':
                 $stmt = $this->db->prepare("SELECT nombre, correo FROM usuarios WHERE idUsuario = :id");
                 $stmt->execute([':id' => $ride['idUsuario']]);
@@ -424,15 +463,15 @@ class RideController {
 
                 $to = $conductor['correo'];
                 $toName = $conductor['nombre'];
-                $subject = '🔔 Reserva cancelada - Ride4Study';
+                $subject = 'Reserva cancelada - Ride4Study';
                 
                 $contenido = "
                     <p><strong>{$user['nombre']}</strong> ha cancelado su reserva para tu viaje.</p>
                     
                     <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
-                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📍 Origen:</strong> {$ride['nombreOrigen']}</p>
-                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📍 Destino:</strong> {$ride['nombreDestino']}</p>
-                        <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">📅 Fecha:</strong> " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Origen:</strong> {$ride['nombreOrigen']}</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Destino:</strong> {$ride['nombreDestino']}</p>
+                        <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Fecha:</strong> " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</p>
                     </div>
                     
                     <p style=\"color:#94a3b8;\">La plaza vuelve a estar disponible para otros pasajeros.</p>

@@ -119,15 +119,108 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Botones según tipo de anuncio -->
                     <?php if (isset($contextRide['anuncioTipo']) && strtolower($contextRide['anuncioTipo']) === 'ofrezco'): ?>
+                        <!-- ANUNCIO TIPO OFREZCO: Botón de solicitar plaza -->
                         <a href="reserve.php?ride_id=<?= $contextRide['idAnuncio'] ?>" 
-                           class="px-4 py-2 text-xs border border-primary/30 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors whitespace-nowrap shrink-0 font-medium">
+                           class="px-4 py-2 text-xs border border-primary/30 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors whitespace-nowrap shrink-0 font-medium shadow-sm">
                             <i class="fas fa-user-plus mr-1"></i> Solicitar plaza
                         </a>
                     <?php else: ?>
-                        <span class="px-4 py-2 text-xs bg-gray-800 text-gray-500 rounded-lg whitespace-nowrap shrink-0 font-medium border border-gray-700">
-                            <i class="fas fa-info-circle mr-1"></i> Busca transporte
-                        </span>
+                        <!-- ANUNCIO TIPO BUSCO: Botones dinámicos según estado y usuario -->
+                        <?php
+                        // Obtener información del anuncio y determinar roles
+                        $anuncioId = $contextRide['idAnuncio'];
+                        $publisherId = null;
+                        
+                        // Obtener quien publicó el anuncio
+                        $publisherQuery = "SELECT idUsuario FROM anuncios WHERE idAnuncio = :anuncioId";
+                        $stmtPub = $this->db->prepare($publisherQuery);
+                        $stmtPub->execute([':anuncioId' => $anuncioId]);
+                        $pubResult = $stmtPub->fetch(PDO::FETCH_ASSOC);
+                        if ($pubResult) {
+                            $publisherId = $pubResult['idUsuario'];
+                        }
+                        
+                        $isPublisher = ($publisherId == $_SESSION['user_id']);
+                        
+                        // Verificar si ya existe una oferta/viaje para este anuncio con este usuario
+                        $offerQuery = "SELECT estado FROM viajes 
+                                      WHERE idAnuncio = :anuncioId 
+                                      AND (idConductor = :userId OR idPasajero = :userId)";
+                        $stmtOffer = $this->db->prepare($offerQuery);
+                        $stmtOffer->execute([
+                            ':anuncioId' => $anuncioId,
+                            ':userId' => $_SESSION['user_id']
+                        ]);
+                        $existingOffer = $stmtOffer->fetch(PDO::FETCH_ASSOC);
+                        ?>
+                        
+                        <?php if (!$isPublisher && !$existingOffer): ?>
+                            <!-- Usuario NO es el publicador y NO ha ofrecido: Mostrar botón "Ofrecer llevarlo" -->
+                            <button onclick="offerRide(<?= $anuncioId ?>, <?= $_SESSION['user_id'] ?>)" 
+                                    class="px-4 py-2 text-xs border border-green-500/30 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors whitespace-nowrap shrink-0 font-medium shadow-sm hover:shadow-md">
+                                <i class="fas fa-hand-holding-heart mr-1"></i> Ofrecer llevarlo
+                            </button>
+                        <?php elseif (!$isPublisher && $existingOffer && $existingOffer['estado'] === 'pendiente'): ?>
+                            <!-- Usuario ofreció y está pendiente de aceptación -->
+                            <span class="px-4 py-2 text-xs bg-yellow-500/10 text-yellow-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-yellow-500/30 shadow-sm">
+                                <i class="fas fa-clock mr-1"></i> Oferta enviada
+                            </span>
+                        <?php elseif (!$isPublisher && $existingOffer && $existingOffer['estado'] === 'aceptado'): ?>
+                            <!-- Usuario ofreció y fue aceptado -->
+                            <span class="px-4 py-2 text-xs bg-green-500/10 text-green-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-green-500/30 shadow-sm">
+                                <i class="fas fa-check-circle mr-1"></i> Oferta aceptada
+                            </span>
+                        <?php elseif (!$isPublisher && $existingOffer && $existingOffer['estado'] === 'rechazado'): ?>
+                            <!-- Usuario ofreció pero fue rechazado -->
+                            <span class="px-4 py-2 text-xs bg-red-500/10 text-red-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-red-500/30 shadow-sm">
+                                <i class="fas fa-times-circle mr-1"></i> Oferta rechazada
+                            </span>
+                        <?php elseif ($isPublisher): ?>
+                            <!-- Usuario ES el publicador: Mostrar botones si hay ofertas pendientes -->
+                            <?php
+                            // Verificar si hay ofertas pendientes para este anuncio
+                            $pendingOffersQuery = "SELECT v.idViaje, v.idConductor, u.nombre as conductorNombre
+                                                  FROM viajes v
+                                                  JOIN usuarios u ON v.idConductor = u.idUsuario
+                                                  WHERE v.idAnuncio = :anuncioId 
+                                                  AND v.idPasajero = :userId
+                                                  AND v.estado = 'pendiente'
+                                                  LIMIT 1";
+                            $stmtPending = $this->db->prepare($pendingOffersQuery);
+                            $stmtPending->execute([
+                                ':anuncioId' => $anuncioId,
+                                ':userId' => $_SESSION['user_id']
+                            ]);
+                            $pendingOffer = $stmtPending->fetch(PDO::FETCH_ASSOC);
+                            ?>
+                            
+                            <?php if ($pendingOffer): ?>
+                                <!-- Hay oferta pendiente: Mostrar botones Aceptar/Rechazar -->
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-gray-400 mr-1">
+                                        <i class="fas fa-user-circle"></i> <?= htmlspecialchars($pendingOffer['conductorNombre']) ?>
+                                    </span>
+                                    <button onclick="handleOfferResponse(<?= $anuncioId ?>, <?= $pendingOffer['idConductor'] ?>, 'accept')"
+                                            class="px-3 py-1.5 text-xs bg-green-500/10 border border-green-500/30 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors font-medium shadow-sm hover:shadow-md"
+                                            title="Aceptar oferta">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button onclick="handleOfferResponse(<?= $anuncioId ?>, <?= $pendingOffer['idConductor'] ?>, 'reject')"
+                                            class="px-3 py-1.5 text-xs bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors font-medium shadow-sm hover:shadow-md"
+                                            title="Rechazar oferta">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            <?php else: ?>
+                                <!-- No hay ofertas pendientes: Mostrar "Esperando ofertas" -->
+                                <span class="px-4 py-2 text-xs bg-blue-500/10 text-blue-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-blue-500/30 shadow-sm animate-pulse">
+                                    <i class="fas fa-hourglass-half mr-1"></i> Esperando ofertas
+                                </span>
+                            <?php endif; ?>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </div>
@@ -286,6 +379,69 @@
                   if (el) el.textContent = text;
                   closeEditModal();
               } else { alert(data.error || 'Error'); }
+        });
+    }
+
+    // Función para ofrecer llevarlo en anuncio tipo "busco"
+    function offerRide(anuncioId, userId) {
+        if (!confirm('¿Confirmas que quieres ofrecer llevarlo en este viaje?')) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('anuncio_id', anuncioId);
+        formData.append('user_id', userId);
+
+        fetch('chat.php?action=offer_ride', {
+            method: 'POST',
+            body: formData,
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message || '¡Oferta enviada con éxito!'); // Alert temporal, ya cambiar después
+                location.reload();
+            } else {
+                alert(data.message || 'Error al enviar la oferta'); // Lo mismo que el otro
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            alert('Error de conexión. Inténtalo de nuevo.');
+        });
+    }
+
+    // Función para aceptar/rechazar oferta en anuncio tipo "busco"
+    function handleOfferResponse(anuncioId, conductorId, action) {
+        const actionText = action === 'accept' ? 'aceptar' : 'rechazar';
+        if (!confirm(`¿Confirmas que quieres ${actionText} esta oferta?`)) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('ride_id', anuncioId);
+        formData.append('passenger_id', conductorId); // En realidad es el conductor, pero el endpoint espera este nombre
+        formData.append('action', action);
+
+        fetch('manage-reservation.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => {
+            if (res.ok) {
+                const msg = action === 'accept' 
+                    ? 'Oferta aceptada con éxito' 
+                    : 'Oferta rechazada';
+                alert(msg);
+                location.reload();
+            } else {
+                alert('Error al procesar la respuesta');
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            alert('Error de conexión. Inténtalo de nuevo.');
         });
     }
 </script>

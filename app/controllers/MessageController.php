@@ -240,4 +240,80 @@ class MessageController {
         header('Location: messages.php');
         exit;
     }
+
+    // Función para ofrecer llevar a alguien que ha publicado un anuncio "busco"
+    public function offerRide() {
+        if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'No autorizado']);
+            exit;
+        }
+
+        $userId = (int) $_SESSION['user_id'];
+        $anuncioId = isset($_POST['anuncio_id']) ? (int) $_POST['anuncio_id'] : 0;
+
+        if ($anuncioId <= 0) {
+            echo json_encode(['success' => false, 'message' => 'ID de anuncio inválido']);
+            exit;
+        }
+
+        // Verificar que el anuncio existe y es tipo "busco"
+        $checkQuery = "SELECT idUsuario, tipo FROM anuncios WHERE idAnuncio = :anuncioId";
+        $stmt = $this->db->prepare($checkQuery);
+        $stmt->execute([':anuncioId' => $anuncioId]);
+        $anuncio = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$anuncio) {
+            echo json_encode(['success' => false, 'message' => 'Anuncio no encontrado']);
+            exit;
+        }
+
+        if (strtolower($anuncio['tipo']) !== 'busco') {
+            echo json_encode(['success' => false, 'message' => 'Este anuncio no es de tipo "busco"']);
+            exit;
+        }
+
+        // Verificar que no es el propietario del anuncio
+        if ($anuncio['idUsuario'] == $userId) {
+            echo json_encode(['success' => false, 'message' => 'No puedes ofrecer llevarte a ti mismo']);
+            exit;
+        }
+
+        // Verificar que no haya ofrecido ya
+        $existingQuery = "SELECT idViaje FROM viajes 
+                         WHERE idAnuncio = :anuncioId 
+                         AND idConductor = :userId";
+        $stmt = $this->db->prepare($existingQuery);
+        $stmt->execute([
+            ':anuncioId' => $anuncioId,
+            ':userId' => $userId
+        ]);
+        
+        if ($stmt->fetch()) {
+            echo json_encode(['success' => false, 'message' => 'Ya has ofrecido llevarlo en este viaje']);
+            exit;
+        }
+
+        // Crear la oferta (viaje con estado pendiente)
+        // En anuncios "busco": quien ofrece es conductor, quien publicó es pasajero
+        $insertQuery = "INSERT INTO viajes (idAnuncio, idConductor, idPasajero, estado)
+                       VALUES (:anuncioId, :conductorId, :pasajeroId, 'pendiente')";
+        
+        $stmt = $this->db->prepare($insertQuery);
+        $result = $stmt->execute([
+            ':anuncioId' => $anuncioId,
+            ':conductorId' => $userId,           // Quien ofrece
+            ':pasajeroId' => $anuncio['idUsuario'] // Quien publicó
+        ]);
+
+        if ($result) {
+            //Enviar notificación por email al publicador
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Oferta enviada con éxito. El usuario recibirá una notificación.'
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Error al crear la oferta']);
+        }
+        exit;
+    }
 }

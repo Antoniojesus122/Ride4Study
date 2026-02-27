@@ -198,11 +198,20 @@ function renderRideCard($ride, $isActive) {
                 <div class="w-full md:w-72 border-t md:border-t-0 md:border-l border-gray-700 pt-6 md:pt-0 md:pl-6 flex flex-col">
                     
                     <?php if ($ride['tipo'] === 'ofrezco'): ?>
-                    <h5 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Pasajeros (<?= count($ride['passengers']) ?>)</h5>
+                        <!-- TIPO OFREZCO: Mostrar pasajeros que reservaron -->
+                        <h5 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Pasajeros (<?= count($ride['passengers']) ?>)</h5>
+                    <?php else: ?>
+                        <!-- TIPO BUSCO: Mostrar conductores que ofrecieron -->
+                        <h5 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Ofertas de conductores (<?= count($ride['passengers']) ?>)</h5>
+                    <?php endif; ?>
                     
                     <div class="flex-grow">
                         <?php if (empty($ride['passengers'])): ?>
-                            <p class="text-sm text-gray-500 italic mb-4">Aún no hay pasajeros.</p>
+                            <?php if ($ride['tipo'] === 'ofrezco'): ?>
+                                <p class="text-sm text-gray-500 italic mb-4">Aún no hay pasajeros.</p>
+                            <?php else: ?>
+                                <p class="text-sm text-gray-500 italic mb-4">Aún no hay ofertas de conductores.</p>
+                            <?php endif; ?>
                         <?php else: ?>
                             <div class="space-y-3 mb-6">
                                 <?php foreach ($ride['passengers'] as $passenger): ?>
@@ -226,7 +235,7 @@ function renderRideCard($ride, $isActive) {
                                                     <input type="hidden" name="ride_id" value="<?= $ride['idAnuncio'] ?>">
                                                     <input type="hidden" name="passenger_id" value="<?= $passenger['idUsuario'] ?>">
                                                     <input type="hidden" name="action" value="accept">
-                                                    <button type="submit" class="w-full py-1 bg-green-500/10 hover:bg-green-500/20 text-green-500 rounded text-xs font-bold border border-green-500/20 transition-colors">
+                                                    <button type="submit" class="w-full py-1 bg-green-500/10 hover:bg-green-500/20 text-green-500 rounded text-xs font-bold border border-green-500/20 transition-colors" title="<?= $ride['tipo'] === 'ofrezco' ? 'Aceptar pasajero' : 'Aceptar oferta del conductor' ?>">
                                                         <i class="fas fa-check"></i>
                                                     </button>
                                                 </form>
@@ -234,7 +243,7 @@ function renderRideCard($ride, $isActive) {
                                                      <input type="hidden" name="ride_id" value="<?= $ride['idAnuncio'] ?>">
                                                     <input type="hidden" name="passenger_id" value="<?= $passenger['idUsuario'] ?>">
                                                     <input type="hidden" name="action" value="reject">
-                                                    <button type="submit" class="w-full py-1 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded text-xs font-bold border border-red-500/20 transition-colors">
+                                                    <button type="submit" class="w-full py-1 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded text-xs font-bold border border-red-500/20 transition-colors" title="<?= $ride['tipo'] === 'ofrezco' ? 'Rechazar pasajero' : 'Rechazar oferta' ?>">
                                                         <i class="fas fa-times"></i>
                                                     </button>
                                                 </form>
@@ -253,7 +262,6 @@ function renderRideCard($ride, $isActive) {
                             </div>
                         <?php endif; ?>
                     </div>
-                    <?php endif; ?>
 
                     <?php if ($isActive): ?>
                         <div class="grid grid-cols-2 gap-3 mt-auto">

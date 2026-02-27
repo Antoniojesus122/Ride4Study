@@ -480,14 +480,21 @@
             btnReserve.textContent = 'Completo';
             btnReserve.className = "w-full inline-flex justify-center rounded-xl border border-gray-600 bg-gray-800 px-4 py-2 text-base font-bold text-gray-500 cursor-not-allowed sm:ml-3 sm:w-auto sm:text-sm";
         }
-        // Verificar que el viaje es de tipo ofrezco, para que se habilite la posibilidad de reservar plaza
+        // Configurar botón según tipo de anuncio
         else if (ride.tipo.toLowerCase() === 'ofrezco') {
-             btnReserve.onclick = function() {
-                 window.location.href = "reserve.php?ride_id=<?= $ride['idAnuncio'] ?>";
-             };
+            // TIPO OFREZCO: Usuario puede reservar una plaza directamente
+            btnReserve.innerHTML = '<i class="fas fa-ticket-alt mr-2"></i>Reservar Plaza';
+            btnReserve.className = 'bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition flex items-center justify-center shadow-lg';
+            btnReserve.onclick = function() {
+                window.location.href = "reserve.php?ride_id=" + ride.idAnuncio;
+            };
+        }
+        else if (ride.tipo.toLowerCase() === 'busco') {
+            // TIPO BUSCO: Solo se puede contactar por chat, no reservar directamente
+            btnReserve.style.display = 'none';
         }
         else {
-             // Para los viajes donde el usuario busca transporte, se deshabilita el botón de reservar
+            // Tipo desconocido
             btnReserve.style.display = 'none';
         }
 

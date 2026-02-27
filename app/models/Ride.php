@@ -267,10 +267,11 @@ class Ride {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    // Función para solicitar una reserva u oferta en un viaje, manejando ambos casos (ofrezco y busco)
     public function requestReservation($rideId, $userId) {
         try {
-            // Primero obtener el conductor del viaje
-            $getRideQuery = "SELECT idUsuario FROM " . $this->table . " WHERE idAnuncio = :rideId";
+            // Obtener información completa del anuncio
+            $getRideQuery = "SELECT idUsuario, tipo FROM " . $this->table . " WHERE idAnuncio = :rideId";
             $stmt = $this->conn->prepare($getRideQuery);
             $stmt->execute([':rideId' => $rideId]);
             $ride = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -280,21 +281,39 @@ class Ride {
                 return false;
             }
             
-            $conductorId = $ride['idUsuario'];
+            // Determinar roles según tipo de anuncio
+            $tipo = strtolower($ride['tipo']);
             
-            // Crear la reserva
+            if ($tipo === 'ofrezco') {
+                // TIPO OFREZCO: Usuario reserva plaza en viaje ofrecido
+                $conductorId = $ride['idUsuario'];  // Quien publicó es conductor
+                $pasajeroId = $userId;              // Quien reserva es pasajero
+                error_log("Reserva tipo 'ofrezco' - Conductor: $conductorId, Pasajero: $pasajeroId");
+                
+            } else if ($tipo === 'busco') {
+                // TIPO  BUSCO: Usuario ofrece llevar a quien busca viaje
+                $conductorId = $userId;             // Quien responde es conductor
+                $pasajeroId = $ride['idUsuario'];   // Quien publicó es pasajero
+                error_log("Oferta tipo 'busco' - Conductor: $conductorId, Pasajero: $pasajeroId");
+                
+            } else {
+                error_log("Tipo de anuncio inválido: " . $tipo);
+                return false;
+            }
+            
+            // Crear la reserva/oferta con roles correctos
             $query = "INSERT INTO viajes (idAnuncio, idConductor, idPasajero, estado)
-                    VALUES (:rideId, :conductorId, :userId, 'pendiente')";
+                    VALUES (:rideId, :conductorId, :pasajeroId, 'pendiente')";
             
             $stmt = $this->conn->prepare($query);
             $result = $stmt->execute([
                 ':rideId' => $rideId,
                 ':conductorId' => $conductorId,
-                ':userId' => $userId
+                ':pasajeroId' => $pasajeroId
             ]);
             
             if ($result) {
-                error_log("✓ Reserva creada correctamente - Viaje: $rideId, Pasajero: $userId");
+                error_log("Reserva/Oferta creada correctamente - Anuncio: $rideId, Tipo: $tipo");
             }
             
             return $result;
