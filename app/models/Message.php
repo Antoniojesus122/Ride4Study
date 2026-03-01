@@ -7,13 +7,7 @@ class Message {
         $this->conn = $db;
     }
 
-    /**
-     * Obtiene la lista de conversaciones del usuario con el último mensaje,
-     * nombre del otro usuario e información del anuncio.
-     *
-     * @param int $userId
-     * @return array
-     */
+    // Funciones para manejar conversaciones
     public function getConversations(int $userId): array {
         $query = "
             SELECT
@@ -55,14 +49,7 @@ class Message {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Obtiene todos los mensajes de una conversación, ordenados por fecha ASC.
-     * Marca como leídos los mensajes recibidos por el usuario actual.
-     *
-     * @param int $conversationId
-     * @param int $userId  Usuario actual (para marcar como leídos)
-     * @return array
-     */
+    // Función para obtener los mensajes de una conversación específica
     public function getMessages(int $conversationId, int $userId): array {
         $query = "SELECT m.*, u.nombre AS nombreEmisor
                   FROM {$this->table} m
@@ -80,12 +67,7 @@ class Message {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Inserta un nuevo mensaje en una conversación.
-     *
-     * @param array $data  Debe contener: idConversation, idEmisor, idReceptor, mensaje
-     * @return bool
-     */
+    // Función para enviar un mensaje
     public function createMessage(array $data): bool {
         $query = "INSERT INTO {$this->table}
                     (idConversation, idEmisor, idReceptor, mensaje)
@@ -104,12 +86,7 @@ class Message {
         return $stmt->execute();
     }
 
-    /**
-     * Marca como leídos los mensajes de una conversación dirigidos al usuario actual.
-     *
-     * @param int $conversationId
-     * @param int $userId
-     */
+    // Función para marcar mensajes como leídos
     public function markAsRead(int $conversationId, int $userId): void {
         $query = "UPDATE {$this->table}
                   SET leido = 1
@@ -123,14 +100,7 @@ class Message {
         $stmt->execute();
     }
 
-    /**
-     * Edita un mensaje (solo el emisor, dentro de la primera hora).
-     *
-     * @param int    $idMensaje
-     * @param int    $userId
-     * @param string $newText
-     * @return bool|string  true si ok, 'expired' si pasó 1 hora, false si no es tuyo
-     */
+    // Función para actualizar un mensaje (solo el emisor puede actualizarlo y solo dentro de la primera hora)
     public function updateMessage(int $idMensaje, int $userId, string $newText) {
         $checkQuery = "SELECT fechaCreacion FROM {$this->table}
                        WHERE idMensaje = :idMensaje AND idEmisor = :userId";
@@ -158,13 +128,7 @@ class Message {
         return $stmt->execute();
     }
 
-    /**
-     * Elimina un mensaje (solo el emisor puede eliminarlo).
-     *
-     * @param int $idMensaje
-     * @param int $userId
-     * @return bool
-     */
+    // Función para eliminar un mensaje (solo el emisor puede eliminarlo)
     public function deleteMessage(int $idMensaje, int $userId): bool {
         $query = "DELETE FROM {$this->table}
                   WHERE idMensaje = :idMensaje AND idEmisor = :userId";
@@ -175,13 +139,7 @@ class Message {
         return $stmt->execute();
     }
 
-    /**
-     * Elimina todos los mensajes de una conversación.
-     * Solo lo puede hacer un participante de la conversación (validado en el controlador).
-     *
-     * @param int $conversationId
-     * @return bool
-     */
+    // Función para eliminar todos los mensajes de una conversación (usada al eliminar la conversación)
     public function deleteConversationMessages(int $conversationId): bool {
         $query = "DELETE FROM {$this->table} WHERE idConversation = :conversationId";
         $stmt  = $this->conn->prepare($query);
@@ -190,12 +148,7 @@ class Message {
         return $stmt->execute();
     }
 
-    /**
-     * Cuenta los mensajes no leídos del usuario en todas sus conversaciones.
-     *
-     * @param int $userId
-     * @return int
-     */
+    // Función para contar mensajes no leídos de un usuario
     public function countUnread(int $userId): int {
         $query = "SELECT COUNT(*) FROM {$this->table}
                   WHERE idReceptor = :userId AND leido = 0";

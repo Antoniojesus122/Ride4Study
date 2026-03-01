@@ -287,243 +287,311 @@
 <!-- Modal de detalles del viaje -->
 <div id="ride-modal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <!-- Fondo oscuro -->
-    <div class="fixed inset-0 bg-gray-900/90 backdrop-blur-sm transition-opacity opacity-0" id="modal-backdrop"></div>
+    <div class="fixed inset-0 bg-gray-900/90 backdrop-blur-sm transition-opacity duration-300 opacity-0" id="modal-backdrop"></div>
 
     <div class="fixed inset-0 z-10 overflow-y-auto">
         <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <!-- Panel del modal -->
-            <div class="relative transform overflow-hidden rounded-2xl bg-[#1F2937] text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl border border-gray-700 opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" id="modal-panel">
-                
-                <!-- Header del modal -->
-                <div class="bg-gray-800/50 px-4 py-3 sm:px-6 border-b border-gray-700 flex justify-between items-center">
-                    <h3 class="text-lg font-semibold leading-6 text-white" id="modal-title">Detalles del Viaje</h3>
-                    <button type="button" class="text-gray-400 hover:text-white transition-colors" onclick="closeRideModal()">
-                        <i class="fas fa-times text-xl"></i>
+
+            <div class="relative transform overflow-hidden rounded-2xl bg-surface text-left shadow-2xl transition-all duration-300 sm:my-8 sm:w-full sm:max-w-2xl border border-gray-700 opacity-0 translate-y-4 sm:scale-95" id="modal-panel">
+
+                <!-- Header -->
+                <div class="px-5 py-4 border-b border-gray-700 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <i class="fas fa-route text-primary text-sm"></i>
+                        </div>
+                        <h3 class="text-base font-semibold text-white" id="modal-title">Detalles del Viaje</h3>
+                    </div>
+                    <button type="button" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-all" onclick="closeRideModal()">
+                        <i class="fas fa-times"></i>
                     </button>
                 </div>
 
                 <!-- Contenido -->
-                <div class="px-4 py-5 sm:p-6">
+                <div class="px-5 py-5 sm:p-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Informacion del viaje -->
-                        <div class="md:col-span-2 space-y-6">
-                            <!-- Linea de ruta -->
-                            <div class="relative pl-8 border-l-2 border-gray-700 space-y-8">
-                                <div class="relative">
-                                    <div class="absolute -left-[39px] top-1 h-5 w-5 rounded-full border-4 border-[#1F2937] bg-primary"></div>
-                                    <h4 class="text-lg font-bold text-white" id="modal-origin">Madrigal de la Vera</h4>
-                                    <p class="text-sm text-primary font-mono" id="modal-time-start">17:00</p>
+
+                        <!-- Info del viaje -->
+                        <div class="md:col-span-2 space-y-5">
+
+                            <!-- Tipo badge + fecha -->
+                            <div class="flex items-center justify-between">
+                                <span id="modal-tipo-badge" class="px-3 py-1 rounded-full text-xs font-semibold border"></span>
+                                <span class="text-xs text-gray-400 flex items-center gap-1.5">
+                                    <i class="far fa-calendar-alt text-gray-500"></i>
+                                    <span id="modal-fecha">—</span>
+                                </span>
+                            </div>
+
+                            <!-- Ruta -->
+                            <div class="relative pl-7 space-y-5">
+                                <div class="absolute left-[7px] top-2 bottom-2 w-0.5 bg-gray-700"></div>
+
+                                <div class="relative flex items-start gap-3">
+                                    <div class="absolute -left-[27px] top-1 w-3.5 h-3.5 rounded-full border-2 border-primary bg-surface z-10"></div>
+                                    <div>
+                                        <p class="text-base font-bold text-white" id="modal-origin"></p>
+                                        <p class="text-xs text-primary font-mono mt-0.5" id="modal-time-start"></p>
+                                    </div>
                                 </div>
-                                <div class="relative">
-                                    <div class="absolute -left-[39px] top-1 h-5 w-5 rounded-full border-4 border-[#1F2937] bg-white"></div>
-                                    <h4 class="text-lg font-bold text-white" id="modal-dest">Móstoles</h4>
-                                    <p class="text-sm text-gray-400 font-mono" id="modal-time-end">19:10</p>
+
+                                <div class="relative flex items-start gap-3">
+                                    <div class="absolute -left-[27px] top-1 w-3.5 h-3.5 rounded-full border-2 border-gray-500 bg-surface z-10"></div>
+                                    <div>
+                                        <p class="text-base font-bold text-white" id="modal-dest"></p>
+                                        <p class="text-xs text-gray-500 mt-0.5" id="modal-time-end"></p>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Especificaciones -->
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="bg-gray-800/50 rounded-xl p-3 border border-gray-700/50" id="modal-price-container">
+                            <!-- Precio y plazas -->
+                            <div class="grid grid-cols-2 gap-3" id="modal-specs">
+                                <div class="bg-gray-800 rounded-xl p-3.5 border border-gray-700" id="modal-price-container">
                                     <p class="text-xs text-gray-400 mb-1">Precio por plaza</p>
-                                    <p class="text-xl font-bold text-primary" id="modal-price">14,50 €</p>
+                                    <p class="text-xl font-bold text-primary" id="modal-price"></p>
                                 </div>
-                                <div class="bg-gray-800/50 rounded-xl p-3 border border-gray-700/50" id="modal-seats-container">
+                                <div class="bg-gray-800 rounded-xl p-3.5 border border-gray-700">
                                     <p class="text-xs text-gray-400 mb-1">Plazas disponibles</p>
                                     <p class="text-xl font-bold text-white flex items-center gap-2">
-                                        <span id="modal-seats">2</span> <i class="fas fa-chair text-sm text-gray-500"></i>
+                                        <span id="modal-seats"></span>
+                                        <i class="fas fa-chair text-sm text-gray-500"></i>
                                     </p>
                                 </div>
                             </div>
 
-                            <!-- Descripcion -->
+                            <!-- Descripción -->
                             <div>
-                                <h5 class="text-sm font-semibold text-gray-300 mb-2">Comentarios del viaje</h5>
-                                <p class="text-sm text-gray-400 leading-relaxed bg-gray-800/30 p-4 rounded-xl border border-gray-700/30 italic" id="modal-desc">
-                                    Sin descripción.
-                                </p>
+                                <h5 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Comentarios del viaje</h5>
+                                <p class="text-sm text-gray-400 leading-relaxed bg-gray-800/50 p-4 rounded-xl border border-gray-700/50 italic" id="modal-desc"></p>
                             </div>
                         </div>
 
-                        <!-- Informacion del conductor o solicitante -->
+                        <!-- Info del usuario -->
                         <div class="md:col-span-1">
-                            <div class="bg-gray-800 rounded-xl p-4 border border-gray-700 h-full">
+                            <div class="bg-gray-800 rounded-xl p-4 border border-gray-700 h-full flex flex-col">
                                 <div class="text-center mb-4">
-                                    <div class="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-blue-600 mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg shadow-primary/20" id="modal-avatar">
-                                        JD
-                                    </div>
-                                    <h4 class="font-bold text-white truncate" id="modal-driver-name">Juan David</h4>
-                                    <div class="flex items-center justify-center gap-2 mt-1 text-sm">
-                                        <span class="bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded-full border border-yellow-500/20 flex items-center gap-1">
-                                            <i class="fas fa-star text-xs"></i> <span id="modal-rating">0.0</span>
+                                    <div class="w-20 h-20 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700" id="modal-avatar"></div>
+                                    <h4 class="font-bold text-white truncate" id="modal-driver-name"></h4>
+                                    <div class="flex items-center justify-center mt-2">
+                                        <span class="bg-yellow-500/10 text-yellow-500 px-2.5 py-1 rounded-full border border-yellow-500/20 flex items-center gap-1.5 text-xs font-semibold">
+                                            <i class="fas fa-star text-xs"></i>
+                                            <span id="modal-rating"></span>
                                         </span>
                                     </div>
                                 </div>
 
-                                <div class="space-y-3 pt-4 border-t border-gray-700">
-                                    <div class="flex items-center gap-3 text-sm text-gray-300">
-                                        <i class="fas fa-shield-alt w-5 text-center text-green-400"></i>
-                                        <span id="modal-verified">Verificado</span>
+                                <div class="space-y-2.5 pt-4 border-t border-gray-700 flex-1">
+                                    <div class="flex items-center gap-2.5 text-sm">
+                                        <i class="fas fa-shield-alt w-4 text-center" id="modal-verified-icon"></i>
+                                        <span id="modal-verified" class="text-sm"></span>
                                     </div>
-                                    <div class="flex items-center gap-3 text-sm text-gray-300">
-                                        <i class="fas fa-user-clock w-5 text-center text-blue-400"></i>
-                                        <span>Miembro veterano</span>
+                                    <div class="flex items-center gap-2.5 text-sm text-gray-400" id="modal-member-info">
+                                        <i class="far fa-calendar w-4 text-center text-gray-500"></i>
+                                        <span id="modal-member-since"></span>
                                     </div>
                                 </div>
 
-                                <div class="mt-6">
-                                    <a href="#" id="modal-profile-link" class="w-full flex justify-center bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg py-2 text-sm font-medium transition-all">
-                                        Ver perfil completo
+                                <div class="mt-4 pt-4 border-t border-gray-700">
+                                    <a href="#" id="modal-profile-link" class="w-full flex justify-center items-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg py-2 text-sm font-medium transition-all">
+                                        <i class="fas fa-user text-xs"></i> Ver perfil
                                     </a>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
 
-                <!-- Footer del modal -->
-                <div class="bg-gray-800/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-700 gap-2">
-                    <button type="button" id="btn-reserve" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-primary px-4 py-2 text-base font-bold text-secondary shadow-sm hover:bg-primary-dark sm:ml-3 sm:w-auto sm:text-sm transition-all shadow-primary/20 hover:shadow-primary/40">
-                        Solicitar plaza
-                    </button>
-                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-600 bg-transparent px-4 py-2 text-base font-medium text-gray-300 shadow-sm hover:bg-gray-800 hover:text-white sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-all" onclick="closeRideModal()">
+                <!-- Footer -->
+                <div class="px-5 py-4 sm:px-6 border-t border-gray-700 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+                    <button type="button"
+                            class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-gray-600 bg-transparent text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-white transition-all"
+                            onclick="closeRideModal()">
                         Cerrar
                     </button>
-                    <a href="#" id="btn-contact" class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-600 bg-transparent px-4 py-2 text-base font-medium text-gray-300 shadow-sm hover:bg-gray-800 hover:text-white sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-all text-center items-center">
-                        Contactar
+                    <a href="#" id="btn-contact"
+                       class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-gray-600 bg-gray-800 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-comment-alt text-xs"></i> Contactar
                     </a>
+                    <button type="button" id="btn-reserve"
+                            class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-secondary text-sm font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                        <i class="fas fa-ticket-alt text-xs"></i> Solicitar Plaza
+                    </button>
                 </div>
+
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    const modal = document.getElementById('ride-modal');
-    const backdrop = document.getElementById('modal-backdrop');
-    const panel = document.getElementById('modal-panel');
+    const modal       = document.getElementById('ride-modal');
+    const backdrop    = document.getElementById('modal-backdrop');
+    const panel       = document.getElementById('modal-panel');
     const currentUserId = <?= $_SESSION['user_id'] ?>;
 
+    // Clases reutilizables para el botón de acción
+    const btnStyles = {
+        active:    'w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-secondary text-sm font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2',
+        disabled:  'w-full sm:w-auto px-5 py-2.5 rounded-xl border border-gray-700 bg-gray-800 text-sm font-bold text-gray-500 cursor-not-allowed flex items-center justify-center gap-2',
+        pending:   'w-full sm:w-auto px-5 py-2.5 rounded-xl border border-yellow-500/30 bg-yellow-500/10 text-sm font-bold text-yellow-400 cursor-not-allowed flex items-center justify-center gap-2',
+        confirmed: 'w-full sm:w-auto px-5 py-2.5 rounded-xl border border-green-500/30 bg-green-500/10 text-sm font-bold text-green-400 cursor-not-allowed flex items-center justify-center gap-2',
+        rejected:  'w-full sm:w-auto px-5 py-2.5 rounded-xl border border-red-500/30 bg-red-500/10 text-sm font-bold text-red-400 cursor-not-allowed flex items-center justify-center gap-2',
+    };
+
     function openRideModal(ride) {
-        // Datos del viaje
-        document.getElementById('modal-origin').textContent = ride.nombreOrigen;
-        document.getElementById('modal-dest').textContent = ride.nombreDestino;
-        document.getElementById('modal-time-start').textContent = ride.horaSalida.substring(0, 5);
-        document.getElementById('modal-time-end').textContent = ride.horaRegreso ? 'Regreso: ' + ride.horaRegreso.substring(0, 5) : '—'; 
-        document.getElementById('modal-price').textContent = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(ride.precio);
-        document.getElementById('modal-seats').textContent = ride.plazasDisponibles;
-        document.getElementById('modal-desc').textContent = ride.descripcion || 'Sin descripción adicional.';
-        
-        // Datos del usuario
-        document.getElementById('modal-driver-name').textContent = ride.nombreUsuario;
-        if (ride.foto_perfil) {
-            document.getElementById('modal-avatar').innerHTML = '<img src="public/uploads/profiles/' + encodeURIComponent(ride.foto_perfil) + '?v=' + Date.now() + '" alt="avatar" class="w-full h-full object-cover rounded-full">';
-        } else {
-            document.getElementById('modal-avatar').textContent = ride.nombreUsuario.substring(0, 2).toUpperCase();
-        }
-        document.getElementById('modal-profile-link').href = 'profile.php?id=' + ride.idUsuario;
-        document.getElementById('btn-contact').href = 'chat.php?anuncio_id=' + ride.idAnuncio + '&other_user_id=' + ride.idUsuario;
-        
-        // Valoración
-        const rating = parseFloat(ride.rating || 0).toFixed(1);
-        document.getElementById('modal-rating').textContent = rating;
-        
-        // Verificación
-           const verifiedEl = document.getElementById('modal-verified');
-           // 2 = verificado, 1 = pendiente, 0 = no verificado
-           if (ride.estado_verificacion == 2) {
-               verifiedEl.textContent = 'Verificado';
-               verifiedEl.className = 'text-green-400';
-               verifiedEl.previousElementSibling.className = 'fas fa-shield-alt w-5 text-center text-green-400';
-           } else if (ride.estado_verificacion == 1) {
-               verifiedEl.textContent = 'Pendiente';
-               verifiedEl.className = 'text-yellow-400';
-               verifiedEl.previousElementSibling.className = 'fas fa-shield-alt w-5 text-center text-yellow-400';
-           } else {
-               verifiedEl.textContent = 'No verificado';
-               verifiedEl.className = 'text-gray-500';
-               verifiedEl.previousElementSibling.className = 'fas fa-shield-alt w-5 text-center text-gray-500';
-           }
-
-        // Lógica para reserva
         const btnReserve = document.getElementById('btn-reserve');
-        btnReserve.onclick = null;
-        btnReserve.style.display = 'inline-flex';
-        
-        // Resetear estilos y estados
-        btnReserve.disabled = false;
-        btnReserve.className = "w-full inline-flex justify-center rounded-xl border border-transparent bg-primary px-4 py-2 text-base font-bold text-secondary shadow-sm hover:bg-primary-dark sm:ml-3 sm:w-auto sm:text-sm transition-all shadow-primary/20 hover:shadow-primary/40";
-        btnReserve.textContent = 'Solicitar plaza';
 
-        // Esconder viajes propios del usuario
+        // — Tipo badge —
+        const badge = document.getElementById('modal-tipo-badge');
+        if (ride.tipo.toLowerCase() === 'ofrezco') {
+            badge.textContent = 'Conductor';
+            badge.className = 'px-3 py-1 rounded-full text-xs font-semibold border bg-primary/10 text-primary border-primary/30';
+        } else {
+            badge.textContent = 'Pasajero';
+            badge.className = 'px-3 py-1 rounded-full text-xs font-semibold border bg-purple-500/10 text-purple-400 border-purple-500/30';
+        }
+
+        // — Fecha —
+        document.getElementById('modal-fecha').textContent = ride.fechaSalida
+            ? new Date(ride.fechaSalida).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
+            : '—';
+
+        // — Ruta —
+        document.getElementById('modal-origin').textContent    = ride.nombreOrigen;
+        document.getElementById('modal-dest').textContent      = ride.nombreDestino;
+        document.getElementById('modal-time-start').textContent = ride.horaSalida.substring(0, 5);
+        document.getElementById('modal-time-end').textContent  = ride.horaRegreso
+            ? 'Regreso: ' + ride.horaRegreso.substring(0, 5)
+            : 'Llegada aprox.';
+
+        // — Precio y plazas —
+        const priceEl     = document.getElementById('modal-price');
+        const priceContainer = document.getElementById('modal-price-container');
+        if (ride.tipo.toLowerCase() === 'ofrezco' && ride.precio != null) {
+            priceEl.textContent = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(ride.precio);
+            priceContainer.style.display = '';
+        } else {
+            priceContainer.style.display = 'none';
+        }
+        document.getElementById('modal-seats').textContent = ride.plazasDisponibles ?? '—';
+
+        // — Descripción —
+        document.getElementById('modal-desc').textContent = ride.descripcion?.trim()
+            ? ride.descripcion
+            : 'Este usuario no ha añadido comentarios sobre el viaje.';
+
+        // — Avatar —
+        const avatarEl = document.getElementById('modal-avatar');
+        if (ride.foto_perfil) {
+            avatarEl.innerHTML = `<img src="public/uploads/profiles/${encodeURIComponent(ride.foto_perfil)}" alt="avatar" class="w-full h-full object-cover">`;
+        } else {
+            avatarEl.innerHTML = ride.nombreUsuario.substring(0, 2).toUpperCase();
+            avatarEl.className = 'w-20 h-20 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg bg-gradient-to-br from-primary to-primary-dark';
+        }
+
+        // — Nombre y rating —
+        document.getElementById('modal-driver-name').textContent = ride.nombreUsuario;
+        document.getElementById('modal-rating').textContent = parseFloat(ride.rating || 0).toFixed(1);
+
+        // — Verificación —
+        const verifiedEl   = document.getElementById('modal-verified');
+        const verifiedIcon = document.getElementById('modal-verified-icon');
+        if (ride.estado_verificacion == 2) {
+            verifiedEl.textContent  = 'Verificado';
+            verifiedEl.className    = 'text-sm text-green-400';
+            verifiedIcon.className  = 'fas fa-shield-alt w-4 text-center text-green-400';
+        } else if (ride.estado_verificacion == 1) {
+            verifiedEl.textContent  = 'Verificación pendiente';
+            verifiedEl.className    = 'text-sm text-yellow-400';
+            verifiedIcon.className  = 'fas fa-shield-alt w-4 text-center text-yellow-400';
+        } else {
+            verifiedEl.textContent  = 'No verificado';
+            verifiedEl.className    = 'text-sm text-gray-500';
+            verifiedIcon.className  = 'fas fa-shield-alt w-4 text-center text-gray-500';
+        }
+
+        // — Miembro desde (si existe el campo) —
+        const memberEl = document.getElementById('modal-member-since');
+        const memberInfo = document.getElementById('modal-member-info');
+        if (ride.fechaRegistro) {
+            memberEl.textContent = 'Miembro desde ' + new Date(ride.fechaRegistro).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
+            memberInfo.style.display = '';
+        } else {
+            memberInfo.style.display = 'none';
+        }
+
+        // — Links —
+        document.getElementById('modal-profile-link').href = 'profile.php?id=' + ride.idUsuario;
+        document.getElementById('btn-contact').href        = 'messages.php?anuncio_id=' + ride.idAnuncio + '&other_user_id=' + ride.idUsuario;
+
+        // — Botón de acción —
+        btnReserve.onclick   = null;
+        btnReserve.disabled  = false;
+        btnReserve.style.display = 'flex';
+
         if (ride.idUsuario == currentUserId) {
-            btnReserve.disabled = true;
-            btnReserve.textContent = 'Tu viaje';
-            btnReserve.className = "w-full inline-flex justify-center rounded-xl border border-gray-600 bg-gray-800 px-4 py-2 text-base font-bold text-gray-500 cursor-not-allowed sm:ml-3 sm:w-auto sm:text-sm";
-        }
-        // Verificar si el usuario ya ha reservado el viaje que está viendo
-        else if (ride.booking_status) {
-            btnReserve.disabled = true;
-            if (ride.booking_status === 'pendiente') {
-                btnReserve.textContent = 'Solicitud Pendiente';
-                btnReserve.className = "w-full inline-flex justify-center rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-2 text-base font-bold text-yellow-500 cursor-not-allowed sm:ml-3 sm:w-auto sm:text-sm";
-            } else if (ride.booking_status === 'aceptado') {
-                btnReserve.textContent = 'Plaza Confirmada';
-                btnReserve.className = "w-full inline-flex justify-center rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-2 text-base font-bold text-green-500 cursor-not-allowed sm:ml-3 sm:w-auto sm:text-sm";
-            } else {
-                btnReserve.textContent = 'Rechazado';
-                btnReserve.className = "w-full inline-flex justify-center rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2 text-base font-bold text-red-500 cursor-not-allowed sm:ml-3 sm:w-auto sm:text-sm";
-            }
-        }
-        // Verificar si no hay plazas disponibles en ese viaje
-        else if (ride.plazasDisponibles <= 0) {
-            btnReserve.disabled = true;
-            btnReserve.textContent = 'Completo';
-            btnReserve.className = "w-full inline-flex justify-center rounded-xl border border-gray-600 bg-gray-800 px-4 py-2 text-base font-bold text-gray-500 cursor-not-allowed sm:ml-3 sm:w-auto sm:text-sm";
-        }
-        // Configurar botón según tipo de anuncio
-        else if (ride.tipo.toLowerCase() === 'ofrezco') {
-            // TIPO OFREZCO: Usuario puede reservar una plaza directamente
-            btnReserve.innerHTML = '<i class="fas fa-ticket-alt mr-2"></i>Reservar Plaza';
-            btnReserve.className = 'bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition flex items-center justify-center shadow-lg';
-            btnReserve.onclick = function() {
-                window.location.href = "reserve.php?ride_id=" + ride.idAnuncio;
-            };
-        }
-        else if (ride.tipo.toLowerCase() === 'busco') {
-            // TIPO BUSCO: Solo se puede contactar por chat, no reservar directamente
-            btnReserve.style.display = 'none';
-        }
-        else {
-            // Tipo desconocido
+            btnReserve.disabled   = true;
+            btnReserve.className  = btnStyles.disabled;
+            btnReserve.innerHTML  = '<i class="fas fa-user text-xs"></i> Tu anuncio';
+
+        } else if (ride.booking_status === 'pendiente') {
+            btnReserve.disabled   = true;
+            btnReserve.className  = btnStyles.pending;
+            btnReserve.innerHTML  = '<i class="fas fa-clock text-xs"></i> Solicitud pendiente';
+
+        } else if (ride.booking_status === 'aceptado') {
+            btnReserve.disabled   = true;
+            btnReserve.className  = btnStyles.confirmed;
+            btnReserve.innerHTML  = '<i class="fas fa-check text-xs"></i> Plaza confirmada';
+
+        } else if (ride.booking_status === 'rechazado') {
+            btnReserve.disabled   = true;
+            btnReserve.className  = btnStyles.rejected;
+            btnReserve.innerHTML  = '<i class="fas fa-times text-xs"></i> Solicitud rechazada';
+
+        } else if (ride.plazasDisponibles <= 0) {
+            btnReserve.disabled   = true;
+            btnReserve.className  = btnStyles.disabled;
+            btnReserve.innerHTML  = '<i class="fas fa-ban text-xs"></i> Viaje completo';
+
+        } else if (ride.tipo.toLowerCase() === 'ofrezco') {
+            btnReserve.className  = btnStyles.active;
+            btnReserve.innerHTML  = '<i class="fas fa-ticket-alt text-xs"></i> Solicitar Plaza';
+            btnReserve.onclick    = () => { window.location.href = 'reserve.php?ride_id=' + ride.idAnuncio; };
+
+        } else {
+            // Tipo "busco" — solo contactar
             btnReserve.style.display = 'none';
         }
 
-        // Mostrar modal
+        // — Mostrar modal con animación —
         modal.classList.remove('hidden');
-        // Animaciones de entrada
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             backdrop.classList.remove('opacity-0');
-            panel.classList.remove('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+            panel.classList.remove('opacity-0', 'translate-y-4', 'sm:scale-95');
             panel.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100');
-        }, 10);
+        });
     }
 
     function closeRideModal() {
         backdrop.classList.add('opacity-0');
         panel.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100');
-        panel.classList.add('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
-        
-        setTimeout(() => {
-            modal.classList.add('hidden');
-        }, 300);
+        panel.classList.add('opacity-0', 'translate-y-4', 'sm:scale-95');
+        setTimeout(() => { modal.classList.add('hidden'); }, 300);
     }
 
-    // Eventos para los botones
+    // Cerrar al hacer click en el fondo
+    backdrop.addEventListener('click', closeRideModal);
+
+    // Cerrar con Escape
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeRideModal(); });
+
+    // Eventos en las tarjetas
     document.querySelectorAll('.view-ride-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', e => {
             e.preventDefault();
-            const rideData = JSON.parse(btn.getAttribute('data-ride'));
-            openRideModal(rideData);
+            openRideModal(JSON.parse(btn.getAttribute('data-ride')));
         });
     });
 </script>

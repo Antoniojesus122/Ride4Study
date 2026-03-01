@@ -160,23 +160,6 @@
                         </div>
                     </div>
 
-                    <?php if (!$isOwnProfile && isset($_SESSION['user_id'])): ?>
-                        <form id="rating-form" class="mb-4">
-                            <input type="hidden" name="idValorado" value="<?= $profileUser['idUsuario'] ?>">
-                            <div class="flex items-center gap-2">
-                                <label class="text-sm text-gray-400">Tu valoración:</label>
-                                <select name="puntuacion" id="rating-select" class="bg-gray-800 border border-gray-600 rounded-xl px-3 py-2 text-white text-sm">
-                                    <option value="5">5 — Excelente</option>
-                                    <option value="4">4 — Muy buena</option>
-                                    <option value="3">3 — Correcta</option>
-                                    <option value="2">2 — Mejorable</option>
-                                    <option value="1">1 — Mala</option>
-                                </select>
-                                <button type="submit" class="ml-3 px-4 py-2 bg-primary text-secondary rounded-xl font-bold">Valorar</button>
-                            </div>
-                            <div id="rating-msg" class="text-sm text-yellow-300 mt-2"></div>
-                        </form>
-                    <?php endif; ?>
 
                     <div class="space-y-3">
                         <?php if (empty($ratings)): ?>
