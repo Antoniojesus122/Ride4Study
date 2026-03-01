@@ -31,8 +31,7 @@
       <div class="flex items-center">
         <a href="index.php" class="flex-shrink-0 group">
           <div class="flex items-center gap-3">
-            <img src="public/img/logoPrincipal.png" alt="Ride4Study" class="w-10 h-10 object-contain transition-transform group-hover:scale-110">
-            <span class="font-bold text-lg tracking-tight text-white group-hover:text-primary transition-colors hidden sm:block">Ride4Study</span>
+            <img src="public/img/logoRide.svg" alt="Ride4Study" class="w-10 h-10 object-contain transition-transform group-hover:scale-110">
           </div>
         </a>
       </div>

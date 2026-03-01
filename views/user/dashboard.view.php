@@ -269,7 +269,7 @@
                 <p class="text-xs text-gray-300 mb-4 relative z-10 leading-relaxed">
                     Recuerda verificar siempre las valoraciones de tus compañeros antes de reservar.
                 </p>
-                <a href="#" class="text-xs text-primary font-bold hover:underline relative z-10">Ver consejos de seguridad &rarr;</a>
+                <a href="safety.php" class="text-xs text-primary font-bold hover:underline relative z-10">Ver consejos de seguridad &rarr;</a>
             </div>
             
             <!-- Mini footer con links  -->
