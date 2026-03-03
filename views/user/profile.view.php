@@ -75,15 +75,6 @@
                              <?php endif; ?>
                          </div>
                      </div>
-                     
-                     <!-- Acciones según tipo de perfil -->
-                     <?php if (!$isOwnProfile): ?>
-                     <div class="flex gap-2">
-                         <a href="chat.php?user_id=<?= $profileUser['idUsuario'] ?>" class="px-6 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-colors shadow-lg shadow-primary/20 flex items-center gap-2">
-                             <i class="fas fa-comment-alt"></i> Contactar
-                         </a>
-                     </div>
-                     <?php endif; ?>
                  </div>
                  
                  <!-- Estadísticas en cards -->
