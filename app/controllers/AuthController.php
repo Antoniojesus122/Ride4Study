@@ -91,6 +91,7 @@ class AuthController {
         }
 
         require __DIR__ . '/../../views/auth/login.view.php';
+        require_once __DIR__ . '/cron_send_rating_notifications.php';
     }
 
 

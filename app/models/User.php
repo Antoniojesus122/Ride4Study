@@ -82,6 +82,15 @@ class User {
         return $stmt->execute($params);
     }
 
+    public function getPasswordHash(int $userId): string
+    {
+        $sql = "SELECT contrasena FROM {$this->table} WHERE idUsuario = :id LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':id' => $userId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? $row['contrasena'] : '';
+    }
+
     public function verifyPassword(int $userId, string $password): bool
     {
         $sql = "SELECT contrasena 

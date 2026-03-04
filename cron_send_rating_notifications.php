@@ -1,44 +1,31 @@
 <?php
 // Este script se ejecuta periódicamente para enviar notificaciones de valoración a los usuarios que han completado un viaje recientemente.
+// Por ahora lo voy a poner para que se ejecute cada vez que se inice sesión
 
 require_once __DIR__ . '/services/RatingNotificationService.php';
 
 // Iniciar output buffering para logging
 ob_start();
 
-echo "===========================================\n";
-echo "RIDE4STUDY - Rating Notifications Cron Job\n";
-echo "Fecha: " . date('Y-m-d H:i:s') . "\n";
-echo "===========================================\n\n";
-
 try {
-    $service = new RatingNotificationService();
-    
-    echo "Procesando viajes completados...\n\n";
-    
+    $service = new RatingNotificationService();    
     $stats = $service->processCompletedTrips();
     
-    echo "RESULTADOS:\n";
-    echo "- Viajes procesados: {$stats['trips_processed']}\n";
-    echo "- Emails enviados: {$stats['emails_sent']}\n";
-    
     if (!empty($stats['errors'])) {
-        echo "- Errores encontrados: " . count($stats['errors']) . "\n\n";
-        echo "DETALLE DE ERRORES:\n";
+        error_log("- Errores encontrados: " . count($stats['errors']) . "\n\n");
+        error_log("DETALLE DE ERRORES:\n");
         foreach ($stats['errors'] as $error) {
-            echo "  ✗ {$error}\n";
+            error_log("  ✗ {$error}\n");
         }
     } else {
-        echo "- Sin errores ✓\n";
+        error_log("- Sin errores ✓\n");
     }
     
-    echo "\n===========================================\n";
-    echo "Proceso completado exitosamente\n";
-    echo "===========================================\n";
+    error_log("Proceso completado exitosamente\n");
     
 } catch (Exception $e) {
-    echo "\n❌ ERROR CRÍTICO:\n";
-    echo $e->getMessage() . "\n";
-    echo "\nStack trace:\n";
-    echo $e->getTraceAsString() . "\n";
+    error_log("\n❌ ERROR CRÍTICO:\n");
+    error_log($e->getMessage() . "\n");
+    error_log("\nStack trace:\n");
+    error_log($e->getTraceAsString() . "\n");
 }

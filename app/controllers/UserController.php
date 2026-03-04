@@ -109,24 +109,39 @@ class UserController {
         $new     = $_POST['new_password'] ?? '';
         $confirm = $_POST['confirm_password'] ?? '';
 
+        // Campos vacíos
         if (empty($current) || empty($new) || empty($confirm)) {
             header('Location: profile.php?error=empty_fields&tab=security');
             exit;
         }
 
+        // Las nuevas contraseñas no coinciden
         if ($new !== $confirm) {
             header('Location: profile.php?error=password_mismatch&tab=security');
             exit;
         }
 
+        // Longitud mínima
         if (strlen($new) < 8) {
             header('Location: profile.php?error=password_too_short&tab=security');
             exit;
         }
 
-        // Verificar contraseña actual
+        // La nueva contraseña debe contener al menos una letra mayúscula y un número
+        if (!preg_match('/[A-Z]/', $new) || !preg_match('/[0-9]/', $new)) {
+            header('Location: profile.php?error=password_weak&tab=security');
+            exit;
+        }
+
+        // Verificar que la contraseña actual es correcta
         if (!$this->user->verifyPassword($_SESSION['user_id'], $current)) {
             header('Location: profile.php?error=wrong_password&tab=security');
+            exit;
+        }
+
+        // La nueva contraseña no puede ser igual a la actual
+        if (password_verify($new, $this->user->getPasswordHash($_SESSION['user_id']))) {
+            header('Location: profile.php?error=same_password&tab=security');
             exit;
         }
 

@@ -291,17 +291,23 @@
                                     case 'wrong_password':
                                         echo 'La contraseña actual no es correcta.';
                                         break;
+                                    case 'same_password':
+                                        echo 'La nueva contraseña no puede ser igual a la actual.';
+                                        break;
                                     case 'password_mismatch':
                                         echo 'Las nuevas contraseñas no coinciden.';
                                         break;
                                     case 'password_too_short':
                                         echo 'La nueva contraseña debe tener al menos 8 caracteres.';
                                         break;
+                                    case 'password_weak':
+                                        echo 'La contraseña debe incluir al menos una letra mayúscula y un número.';
+                                        break;
                                     case 'empty_fields':
                                         echo 'Debes rellenar todos los campos.';
                                         break;
                                     default:
-                                        echo 'Ha ocurrido un error.';
+                                        echo 'Ha ocurrido un error. Inténtalo de nuevo.';
                                 }
                             ?>
                         </div>
@@ -321,6 +327,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-400 mb-2">Nueva Contraseña</label>
                                 <input type="password" name="new_password" required class="w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm">
+                                <p class="mt-1.5 text-xs text-gray-500">Mínimo 8 caracteres, al menos una mayúscula y un número.</p>
                             </div>
                              <div>
                                 <label class="block text-sm font-medium text-gray-400 mb-2">Confirmar Nueva Contraseña</label>
