@@ -37,10 +37,26 @@ class UserController {
         $userStats['valoracion_promedio'] = round($ratingModel->getAverage($viewUserId), 1);
         $ratings = $ratingModel->getByUser($viewUserId, 10);
 
+        // Anuncios activos del usuario visitado (para mostrar en su perfil)
+        $stmt = $this->db->prepare("
+            SELECT a.idAnuncio, a.tipo, a.fechaSalida, a.horaSalida, a.precio, a.plazasDisponibles,
+                   lo.nombreLocalidad AS nombreOrigen, ld.nombreLocalidad AS nombreDestino
+            FROM anuncios a
+            JOIN localidades lo ON a.origen = lo.idLocalidad
+            JOIN localidades ld ON a.destino = ld.idLocalidad
+            WHERE a.idUsuario = :id
+              AND CONCAT(a.fechaSalida, ' ', a.horaSalida) >= NOW()
+            ORDER BY a.fechaSalida ASC, a.horaSalida ASC
+            LIMIT 6
+        ");
+        $stmt->execute([':id' => $viewUserId]);
+        $activeRides = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
 
         require_once __DIR__ . '/../../views/user/profile.view.php';
     }
+
 
     public function update()
     {

@@ -488,10 +488,16 @@ class RideController {
                 break;
         }
 
-        // Enviar correo si hay destinatario definido
+        // Enviar correo si hay destinatario definido y tiene las notificaciones activadas
         if ($to && $toName && $subject && $message) {
-            $this->mailService->send($to, $toName, $subject, $message);
+            $stmt = $this->db->prepare("SELECT notificaciones_email FROM usuarios WHERE correo = :correo LIMIT 1");
+            $stmt->execute([':correo' => $to]);
+            $pref = $stmt->fetchColumn();
+            if ($pref !== false && (int)$pref === 1) {
+                $this->mailService->send($to, $toName, $subject, $message);
+            }
         }
+
     }
 
 
