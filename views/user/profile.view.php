@@ -853,7 +853,7 @@
         }
 
         // Contactar
-        document.getElementById('prm-btn-contact').href = 'messages.php?anuncio_id=' + ride.idAnuncio + '&other_user_id=' + ride.idUsuario;
+        document.getElementById('prm-btn-contact').href = 'chat.php?anuncio_id=' + ride.idAnuncio + '&other_user_id=' + ride.idUsuario;
 
         // Botón de reserva
         btnReserve.onclick  = null;

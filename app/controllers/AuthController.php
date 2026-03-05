@@ -133,6 +133,27 @@ class AuthController {
                     );
 
                     if ($registered) {
+                        try {
+                            $mail = new MailService();
+                            $contenido = "
+                                <p>Tu cuenta ha sido creada correctamente. Ya puedes iniciar sesión y empezar a compartir trayectos con otros estudiantes.</p>
+                                <p style=\"font-size:14px; color:#94a3b8; margin-top:15px;\">
+                                    Si tienes alguna duda, no dudes en contactarnos.
+                                </p>
+                            ";
+                            $html = $mail->generarPlantilla(
+                                $nombre,
+                                "¡Bienvenido a Ride4Study!",
+                                $contenido,
+                                null,
+                                'http://localhost/ride4study/login.php',
+                                'Iniciar sesión'
+                            );
+                            $mail->send($correo, $nombre, '¡Bienvenido a Ride4Study!', $html);
+                        } catch (Exception $e) {
+                            error_log('Welcome email error: ' . $e->getMessage());
+                        }
+
                         header('Location: login.php?msg=registrado');
                         exit;
                     } else {
