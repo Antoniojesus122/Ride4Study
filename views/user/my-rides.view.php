@@ -26,6 +26,8 @@
                      ¡Viaje actualizado correctamente!
                 <?php elseif ($_GET['success'] == 'deleted'): ?>
                     ¡Viaje eliminado correctamente!
+                <?php elseif ($_GET['success'] == 'reservation_cancelled'): ?>
+                    Tu reserva ha sido cancelada correctamente. El dueño del anuncio ha sido notificado.
                 <?php endif; ?>
             </div>
         </div>
@@ -39,6 +41,12 @@
                     No se pudo actualizar el estado. Inténtalo de nuevo.
                 <?php elseif ($_GET['error'] == 'unauthorized'): ?>
                     No tienes permiso para realizar esta acción.
+                <?php elseif ($_GET['error'] == 'too_late_to_cancel'): ?>
+                    No puedes cancelar esta reserva porque faltan menos de 24 horas para la salida.
+                <?php elseif ($_GET['error'] == 'no_booking'): ?>
+                    No se encontró ninguna reserva activa para cancelar.
+                <?php elseif ($_GET['error'] == 'cancel_failed'): ?>
+                    No se pudo cancelar la reserva. Inténtalo de nuevo.
                 <?php else: ?>
                     Ha ocurrido un error inesperado.
                 <?php endif; ?>
@@ -381,6 +389,11 @@ function renderBookingCard($booking) {
                         <a href="<?= url('/profile') ?>?id=<?= $booking['idUsuario'] ?>" class="flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors border border-gray-600">
                             <i class="fas fa-user"></i> Ver perfil
                         </a>
+                        <?php if ($booking['estadoReserva'] !== 'rechazado'): ?>
+                            <button onclick="confirmCancelReservation(<?= $booking['idAnuncio'] ?>, '<?= $booking['estadoReserva'] ?>')" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-400 rounded-lg text-sm font-medium transition-colors border border-red-500/20">
+                                <i class="fas fa-times-circle"></i> Cancelar reserva
+                            </button>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -427,6 +440,41 @@ function switchTab(tab) {
     }
 }
 
+let rideToCancelReservation = null;
+
+function confirmCancelReservation(rideId, estado) {
+    rideToCancelReservation = rideId;
+    const warningEl = document.getElementById('cancelReservationWarning');
+    if (estado === 'aceptado') {
+        warningEl.textContent = 'Esta reserva ya fue aceptada. Solo puedes cancelarla si faltan más de 24 horas para la salida.';
+    } else {
+        warningEl.textContent = 'La solicitud de reserva será eliminada y el conductor será notificado.';
+    }
+    document.getElementById('cancelReservationModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCancelReservationModal() {
+    document.getElementById('cancelReservationModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    rideToCancelReservation = null;
+}
+
+function executeCancelReservation() {
+    if (rideToCancelReservation) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '<?= url("/cancel-reservation") ?>';
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'ride_id';
+        input.value = rideToCancelReservation;
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
 let rideToDelete = null;
 
 function confirmDelete(rideId) {
@@ -461,17 +509,23 @@ document.addEventListener('DOMContentLoaded', function() {
         switchTab('active');
     }
     
-    // Cerrar modal al hacer clic fuera
+    // Cerrar modales al hacer clic fuera
     document.getElementById('deleteModal').addEventListener('click', function(e) {
         if (e.target === this) {
             closeDeleteModal();
         }
     });
-    
-    // Cerrar modal con tecla ESC
+    document.getElementById('cancelReservationModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeCancelReservationModal();
+        }
+    });
+
+    // Cerrar modales con tecla ESC
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeDeleteModal();
+            closeCancelReservationModal();
         }
     });
 });
@@ -514,6 +568,48 @@ document.addEventListener('DOMContentLoaded', function() {
             </button>
             <button onclick="executeDelete()" class="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all shadow-lg shadow-red-500/20 hover:shadow-red-500/40">
                 <i class="fas fa-trash-alt mr-2"></i>Eliminar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para cancelar reserva -->
+<div id="cancelReservationModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-surface rounded-2xl border border-gray-700 shadow-2xl max-w-md w-full transform transition-all">
+        <!-- Header del modal -->
+        <div class="p-6 border-b border-gray-700">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
+                    <i class="fas fa-times-circle text-red-500 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white">Cancelar reserva</h3>
+                    <p class="text-sm text-gray-400">Esta acción no se puede deshacer</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido del modal -->
+        <div class="p-6">
+            <p class="text-gray-300 leading-relaxed">
+                ¿Estás seguro de que deseas cancelar tu reserva? El dueño del anuncio será notificado por correo electrónico.
+            </p>
+
+            <div class="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                <p class="text-sm text-red-400 flex items-start gap-2">
+                    <i class="fas fa-info-circle mt-0.5"></i>
+                    <span id="cancelReservationWarning">La solicitud de reserva será eliminada y el conductor será notificado.</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer con botones -->
+        <div class="p-6 bg-gray-800/50 border-t border-gray-700 flex gap-3">
+            <button onclick="closeCancelReservationModal()" class="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-medium transition-all">
+                <i class="fas fa-arrow-left mr-2"></i>Volver
+            </button>
+            <button onclick="executeCancelReservation()" class="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all shadow-lg shadow-red-500/20 hover:shadow-red-500/40">
+                <i class="fas fa-times-circle mr-2"></i>Cancelar reserva
             </button>
         </div>
     </div>

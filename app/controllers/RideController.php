@@ -290,7 +290,7 @@ class RideController {
         $booking = $this->ride->hasBooking($rideId, $_SESSION['user_id']);
         
         if (!$booking) {
-            header('Location: ' . url('/my-rides') . '?error=no_booking');
+            header('Location: ' . url('/my-rides') . '?error=no_booking&tab=bookings');
             exit;
         }
 
@@ -300,21 +300,21 @@ class RideController {
             $rideDateTime = strtotime($ride['fechaSalida'] . ' ' . $ride['horaSalida']);
             $now = time();
             $hoursUntilRide = ($rideDateTime - $now) / 3600;
-            
+
             if ($hoursUntilRide < 24) {
-                header('Location: ' . url('/my-rides') . '?error=too_late_to_cancel');
+                header('Location: ' . url('/my-rides') . '?error=too_late_to_cancel&tab=bookings');
                 exit;
             }
         }
 
         if ($this->ride->cancelReservation($rideId, $_SESSION['user_id'])) {
-            // Notificar al conductor
+            // Notificar al dueño del anuncio por email
             $ride = $this->ride->getRideById($rideId);
             $this->sendReservationNotification($ride, $_SESSION['user_id'], 'cancelada');
-            
-            header('Location: ' . url('/my-rides') . '?success=reservation_cancelled');
+
+            header('Location: ' . url('/my-rides') . '?success=reservation_cancelled&tab=bookings');
         } else {
-            header('Location: ' . url('/my-rides') . '?error=cancel_failed');
+            header('Location: ' . url('/my-rides') . '?error=cancel_failed&tab=bookings');
         }
     }
 
