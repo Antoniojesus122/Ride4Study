@@ -127,23 +127,32 @@ class Ride {
     }
 
     // Comprobar si el usuario tiene una reserva para un viaje específico
+    // Busca tanto como pasajero (ofrezco) como conductor (busco)
     public function hasBooking($rideId, $userId) {
-        $query = "SELECT estado FROM viajes WHERE idAnuncio = :rideId AND idPasajero = :userId";
+        $query = "SELECT v.estado FROM viajes v
+                  WHERE v.idAnuncio = :rideId
+                  AND (v.idPasajero = :userId1 OR v.idConductor = :userId2)";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':rideId', $rideId);
-        $stmt->bindParam(':userId', $userId);
+        $stmt->bindParam(':userId1', $userId);
+        $stmt->bindParam(':userId2', $userId);
         $stmt->execute();
-        
+
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-    
-    // Obtener todas las reservar de un usuario
+
+    // Obtener todas las reservas de un usuario (para el dashboard)
+    // Incluye reservas como pasajero en "ofrezco" y ofertas como conductor en "busco"
     public function getUserBookings($userId) {
-        $query = "SELECT idAnuncio, estado FROM viajes WHERE idPasajero = :userId";
+        $query = "SELECT v.idAnuncio, v.estado FROM viajes v
+                  JOIN " . $this->table . " a ON v.idAnuncio = a.idAnuncio
+                  WHERE (v.idPasajero = :userId1 AND LOWER(a.tipo) = 'ofrezco')
+                     OR (v.idConductor = :userId2 AND LOWER(a.tipo) = 'busco')";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':userId', $userId);
+        $stmt->bindParam(':userId1', $userId);
+        $stmt->bindParam(':userId2', $userId);
         $stmt->execute();
-        
+
         $bookings = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $bookings[$row['idAnuncio']] = $row['estado'];
@@ -172,11 +181,20 @@ class Ride {
         $pastRides = [];
         
         foreach ($allRides as &$ride) {
-            // Obtener los pasajeros de un viaje
-            $passengerQuery = "SELECT u.idUsuario, u.nombre, u.foto_perfil, v.fechaSalida as fechaUnido, v.estado
-                               FROM viajes v
-                               JOIN usuarios u ON v.idPasajero = u.idUsuario
-                               WHERE v.idAnuncio = :idAnuncio";
+            // Obtener los usuarios asociados al viaje según el tipo de anuncio
+            // Para "busco": mostrar conductores que ofrecieron llevar
+            // Para "ofrezco": mostrar pasajeros que reservaron plaza
+            if (strtolower($ride['tipo']) === 'busco') {
+                $passengerQuery = "SELECT u.idUsuario, u.nombre, u.foto_perfil, v.fechaSalida as fechaUnido, v.estado
+                                   FROM viajes v
+                                   JOIN usuarios u ON v.idConductor = u.idUsuario
+                                   WHERE v.idAnuncio = :idAnuncio";
+            } else {
+                $passengerQuery = "SELECT u.idUsuario, u.nombre, u.foto_perfil, v.fechaSalida as fechaUnido, v.estado
+                                   FROM viajes v
+                                   JOIN usuarios u ON v.idPasajero = u.idUsuario
+                                   WHERE v.idAnuncio = :idAnuncio";
+            }
             $pStmt = $this->conn->prepare($passengerQuery);
             $pStmt->bindParam(':idAnuncio', $ride['idAnuncio']);
             $pStmt->execute();
@@ -195,20 +213,25 @@ class Ride {
     }
 
     public function getPassengerBookings($userId) {
-        $query = "SELECT a.*, u.nombre as nombreUsuario, u.foto_perfil, v.estado as estadoReserva, 
+        // Para "ofrezco": el usuario reservó plaza como pasajero (v.idPasajero = userId)
+        // Para "busco": el usuario ofreció llevar como conductor (v.idConductor = userId)
+        // En ambos casos mostramos la info del publicador del anuncio (a.idUsuario)
+        $query = "SELECT a.*, u.nombre as nombreUsuario, u.foto_perfil, v.estado as estadoReserva,
                   lo.nombreLocalidad as nombreOrigen, ld.nombreLocalidad as nombreDestino
                   FROM viajes v
                   JOIN " . $this->table . " a ON v.idAnuncio = a.idAnuncio
                   JOIN usuarios u ON a.idUsuario = u.idUsuario
                   JOIN localidades lo ON a.origen = lo.idLocalidad
                   JOIN localidades ld ON a.destino = ld.idLocalidad
-                  WHERE v.idPasajero = :userId
+                  WHERE (v.idPasajero = :userId1 AND LOWER(a.tipo) = 'ofrezco')
+                     OR (v.idConductor = :userId2 AND LOWER(a.tipo) = 'busco')
                   ORDER BY a.fechaSalida DESC";
-        
+
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':userId', $userId);
+        $stmt->bindParam(':userId1', $userId);
+        $stmt->bindParam(':userId2', $userId);
         $stmt->execute();
-        
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -325,11 +348,12 @@ class Ride {
         }
     }
 
-    // Función para obtener si se ha actualizado el estatus de la reserva de una plaza en un viaje
-    public function updateReservationStatus($rideId, $passengerId, $status) {
-        
+    // Actualizar el estado de una reserva/oferta
+    // $userId puede ser idPasajero (ofrezco) o idConductor (busco)
+    public function updateReservationStatus($rideId, $userId, $status) {
+
         if ($status === 'aceptado') {
-            $updateSeats = "UPDATE " . $this->table . " SET plazasDisponibles = plazasDisponibles - 1 
+            $updateSeats = "UPDATE " . $this->table . " SET plazasDisponibles = plazasDisponibles - 1
                             WHERE idAnuncio = :rideId AND plazasDisponibles > 0";
             $stmtSeats = $this->conn->prepare($updateSeats);
             $stmtSeats->bindParam(':rideId', $rideId);
@@ -340,13 +364,15 @@ class Ride {
             }
         }
 
-        $query = "UPDATE viajes SET estado = :status 
-                  WHERE idAnuncio = :rideId AND idPasajero = :passengerId";
+        $query = "UPDATE viajes SET estado = :status
+                  WHERE idAnuncio = :rideId
+                  AND (idPasajero = :userId1 OR idConductor = :userId2)";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':status', $status);
         $stmt->bindParam(':rideId', $rideId);
-        $stmt->bindParam(':passengerId', $passengerId);
-        
+        $stmt->bindParam(':userId1', $userId);
+        $stmt->bindParam(':userId2', $userId);
+
         return $stmt->execute();
     }
 
@@ -387,18 +413,20 @@ class Ride {
         return (int)$row['total'];
     }
 
-    // Cancelar una reserva
+    // Cancelar una reserva (funciona tanto para pasajero en "ofrezco" como conductor en "busco")
     public function cancelReservation($rideId, $userId) {
         try {
             $this->conn->beginTransaction();
 
             // Obtener el estado actual de la reserva
-            $checkQuery = "SELECT estado FROM viajes 
-                          WHERE idAnuncio = :rideId AND idPasajero = :userId";
+            $checkQuery = "SELECT estado FROM viajes
+                          WHERE idAnuncio = :rideId
+                          AND (idPasajero = :userId1 OR idConductor = :userId2)";
             $stmt = $this->conn->prepare($checkQuery);
             $stmt->execute([
                 ':rideId' => $rideId,
-                ':userId' => $userId
+                ':userId1' => $userId,
+                ':userId2' => $userId
             ]);
             $booking = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -409,20 +437,22 @@ class Ride {
 
             // Si la reserva estaba aceptada, devolver la plaza
             if ($booking['estado'] === 'aceptado') {
-                $updateSeats = "UPDATE " . $this->table . " 
-                               SET plazasDisponibles = plazasDisponibles + 1 
+                $updateSeats = "UPDATE " . $this->table . "
+                               SET plazasDisponibles = plazasDisponibles + 1
                                WHERE idAnuncio = :rideId";
                 $stmtSeats = $this->conn->prepare($updateSeats);
                 $stmtSeats->execute([':rideId' => $rideId]);
             }
 
             // Eliminar la reserva
-            $deleteQuery = "DELETE FROM viajes 
-                           WHERE idAnuncio = :rideId AND idPasajero = :userId";
+            $deleteQuery = "DELETE FROM viajes
+                           WHERE idAnuncio = :rideId
+                           AND (idPasajero = :userId1 OR idConductor = :userId2)";
             $stmt = $this->conn->prepare($deleteQuery);
             $result = $stmt->execute([
                 ':rideId' => $rideId,
-                ':userId' => $userId
+                ':userId1' => $userId,
+                ':userId2' => $userId
             ]);
 
             $this->conn->commit();
@@ -472,6 +502,33 @@ class Ride {
         $stmt = $this->conn->prepare($query);
         $stmt->execute([':conductorId' => $conductorId]);
         
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Obtener todos los usuarios conectados a un anuncio (para notificar al eliminar)
+    // Para "ofrezco": pasajeros que reservaron. Para "busco": conductores que ofrecieron.
+    public function getConnectedUsers($rideId) {
+        $typeQuery = "SELECT tipo FROM " . $this->table . " WHERE idAnuncio = :rideId";
+        $stmt = $this->conn->prepare($typeQuery);
+        $stmt->execute([':rideId' => $rideId]);
+        $ride = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$ride) return [];
+
+        if (strtolower($ride['tipo']) === 'ofrezco') {
+            $query = "SELECT u.idUsuario, u.nombre, u.correo, u.notificaciones_email
+                      FROM viajes v
+                      JOIN usuarios u ON v.idPasajero = u.idUsuario
+                      WHERE v.idAnuncio = :rideId";
+        } else {
+            $query = "SELECT u.idUsuario, u.nombre, u.correo, u.notificaciones_email
+                      FROM viajes v
+                      JOIN usuarios u ON v.idConductor = u.idUsuario
+                      WHERE v.idAnuncio = :rideId";
+        }
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([':rideId' => $rideId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

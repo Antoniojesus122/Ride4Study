@@ -305,9 +305,15 @@ function renderBookingCard($booking) {
                 <div class="flex-1">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
-                             <div class="px-3 py-1 bg-<?= $booking['tipo'] === 'ofrezco' ? 'blue' : 'purple' ?>-500/10 text-<?= $booking['tipo'] === 'ofrezco' ? 'blue' : 'purple' ?>-400 rounded-full text-xs font-bold border border-<?= $booking['tipo'] === 'ofrezco' ? 'blue' : 'purple' ?>-500/20 uppercase tracking-wide">
-                                <?= $booking['tipo'] === 'ofrezco' ? 'Conductor' : 'Pasajero' ?>
-                            </div>
+                             <?php if ($booking['tipo'] === 'ofrezco'): ?>
+                                <div class="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-xs font-bold border border-blue-500/20 uppercase tracking-wide">
+                                    <i class="fas fa-user-friends mr-1"></i> Pasajero
+                                </div>
+                             <?php else: ?>
+                                <div class="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full text-xs font-bold border border-purple-500/20 uppercase tracking-wide">
+                                    <i class="fas fa-car mr-1"></i> Conductor
+                                </div>
+                             <?php endif; ?>
                             <span class="text-sm text-gray-400 flex items-center gap-2">
                                 <i class="far fa-calendar"></i>
                                 <?= date('d M, Y', strtotime($booking['fechaSalida'])) ?>
@@ -360,14 +366,14 @@ function renderBookingCard($booking) {
                         </div>
                     <?php endif; ?>
 
-                    <!-- Info del conductor -->
+                    <!-- Info del otro usuario -->
                     <div class="flex items-center gap-3 p-3 bg-gray-800/50 rounded-xl border border-gray-700/50">
                         <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-sm font-bold text-secondary">
                             <?= strtoupper(substr($booking['nombreUsuario'], 0, 2)) ?>
                         </div>
                         <div class="flex-1">
                             <p class="text-sm font-bold text-white"><?= htmlspecialchars($booking['nombreUsuario']) ?></p>
-                            <p class="text-xs text-gray-400">Conductor</p>
+                            <p class="text-xs text-gray-400"><?= $booking['tipo'] === 'ofrezco' ? 'Conductor' : 'Pasajero' ?></p>
                         </div>
                         <a href="<?= url('/profile') ?>?id=<?= $booking['idUsuario'] ?>" class="text-primary hover:text-primary-dark transition-colors">
                             <i class="fas fa-external-link-alt"></i>
@@ -378,8 +384,12 @@ function renderBookingCard($booking) {
                 <!-- Acciones -->
                 <div class="w-full md:w-56 border-t md:border-t-0 md:border-l border-gray-700 pt-6 md:pt-0 md:pl-6 flex flex-col">
                     <div class="text-center mb-4">
-                         <span class="text-2xl font-bold text-primary"><?= number_format($booking['precio'], 2) ?>€</span>
-                         <p class="text-xs text-gray-500">por plaza</p>
+                        <?php if ($booking['tipo'] === 'ofrezco' && $booking['precio']): ?>
+                            <span class="text-2xl font-bold text-primary"><?= number_format($booking['precio'], 2) ?>€</span>
+                            <p class="text-xs text-gray-500">por plaza</p>
+                        <?php else: ?>
+                            <span class="text-sm font-medium text-gray-400">Precio a convenir</span>
+                        <?php endif; ?>
                     </div>
                     
                     <div class="space-y-3 mt-auto">
