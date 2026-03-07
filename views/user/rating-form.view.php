@@ -1,13 +1,13 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) session_start();
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /Ride4Study/login.php');
+    header('Location: ' . url('/login'));
     exit;
 }
 
 if (!isset($tripDetails) || !isset($userToRate)) {
     $_SESSION['error'] = 'No se han proporcionado los datos necesarios para valorar el viaje.';
-    header('Location: /Ride4Study/dashboard.php');
+    header('Location: ' . url('/dashboard'));
     exit;
 }
 ?>
@@ -271,7 +271,7 @@ if (!isset($tripDetails) || !isset($userToRate)) {
                 <!-- Botones -->
                 <div class="flex gap-3 pt-2">
                     <button type="button"
-                            onclick="window.location.href='/Ride4Study/dashboard.php'"
+                            onclick="window.location.href='<?= url("/dashboard") ?>'"
                             class="flex-1 px-5 py-3 bg-gray-800 border border-gray-700 text-gray-300 rounded-xl text-sm font-semibold hover:bg-gray-700 hover:border-gray-600 transition-all flex items-center justify-center gap-2">
                         <i class="fas fa-times"></i> Cancelar
                     </button>
@@ -327,12 +327,12 @@ if (!isset($tripDetails) || !isset($userToRate)) {
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Enviando...';
 
                 try {
-                    const res    = await fetch('/Ride4Study/rating.php', { method: 'POST', body: new FormData(form) });
+                    const res    = await fetch('<?= url("/rating") ?>', { method: 'POST', body: new FormData(form) });
                     const result = await res.json();
 
                     if (result.success) {
                         showMessage(result.message || '¡Valoración enviada con éxito!', 'success');
-                        setTimeout(() => { window.location.href = '/Ride4Study/dashboard.php'; }, 2000);
+                        setTimeout(() => { window.location.href = '<?= url("/dashboard") ?>'; }, 2000);
                     } else {
                         showMessage(result.message || 'Error al enviar la valoración.', 'error');
                         submitBtn.disabled = false;

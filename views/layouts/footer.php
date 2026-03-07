@@ -20,9 +20,9 @@
 
                 <div class="flex flex-col gap-4 text-sm">
                     <h4 class="text-white font-medium mb-2">Legal</h4>
-                        <a href="privacy.php" class="text-gray-400 hover:text-emerald-400 transition-colors duration-200">Privacidad</a>
-                        <a href="terms.php" class="text-gray-400 hover:text-emerald-400 transition-colors duration-200">Condiciones</a>
-                        <a href="support.php" class="text-gray-400 hover:text-emerald-400 transition-colors duration-200">Soporte</a>
+                        <a href="<?= url('/privacy') ?>" class="text-gray-400 hover:text-emerald-400 transition-colors duration-200">Privacidad</a>
+                        <a href="<?= url('/terms') ?>" class="text-gray-400 hover:text-emerald-400 transition-colors duration-200">Condiciones</a>
+                        <a href="<?= url('/support') ?>" class="text-gray-400 hover:text-emerald-400 transition-colors duration-200">Soporte</a>
                 </div>
 
                 <div class="flex flex-col gap-4 text-sm">

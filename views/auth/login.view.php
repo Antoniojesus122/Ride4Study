@@ -24,7 +24,7 @@
         <div class="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24 bg-secondary">
           <div class="mx-auto w-full max-w-sm lg:w-96">
             <div class="text-center lg:text-left">
-              <a href="index.php" class="inline-flex items-center gap-2 group">
+              <a href="<?= url('/') ?>" class="inline-flex items-center gap-2 group">
                   <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-secondary font-bold text-xl transition-transform group-hover:rotate-12 shadow-lg shadow-primary/20">
                       R
                   </div>
@@ -33,7 +33,7 @@
               <h2 class="mt-8 text-3xl font-bold leading-9 tracking-tight text-white">¡Hola de nuevo!</h2>
               <p class="mt-2 text-sm leading-6 text-text-muted">
                 ¿Aún no tienes cuenta?
-                <a href="register.php" class="font-semibold text-primary hover:text-primary-dark transition-colors">Regístrate gratis</a>
+                <a href="<?= url('/register') ?>" class="font-semibold text-primary hover:text-primary-dark transition-colors">Regístrate gratis</a>
               </p>
             </div>
 
@@ -66,7 +66,7 @@
                   </div>
                 <?php endif; ?>
 
-                <form method="POST" action="login.php" class="space-y-6">
+                <form method="POST" action="<?= url('/login') ?>" class="space-y-6">
                   <div>
                     <label for="correo" class="block text-sm font-medium leading-6 text-gray-300">Correo Electrónico</label>
                     <div class="mt-2">
@@ -89,7 +89,7 @@
 
                   <div class="flex items-center justify-between">
                     <div class="text-sm leading-6">
-                      <a href="forgot-password.php" class="font-semibold text-primary hover:text-primary-dark transition-colors">¿Olvidaste tu contraseña?</a>
+                      <a href="<?= url('/forgot-password') ?>" class="font-semibold text-primary hover:text-primary-dark transition-colors">¿Olvidaste tu contraseña?</a>
                     </div>
                   </div>
 

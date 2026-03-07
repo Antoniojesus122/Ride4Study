@@ -13,7 +13,7 @@
   <div class="w-full max-w-md mx-4">
     <div class="bg-surface rounded-xl shadow-lg p-8 space-y-6">
       <div class="text-center">
-        <a href="index.php" class="inline-flex items-center gap-2 mb-4">
+        <a href="<?= url('/') ?>" class="inline-flex items-center gap-2 mb-4">
           <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-secondary font-bold text-xl">R</div>
           <span class="text-xl font-bold text-white">Ride4Study</span>
         </a>
@@ -34,7 +34,7 @@
 
       <!-- Formulario -->
       <?php if (empty($success)): ?>
-      <form method="POST" action="reset-password.php" class="space-y-4">
+      <form method="POST" action="<?= url('/reset-password') ?>" class="space-y-4">
         <div>
             <label class="block text-sm font-medium text-gray-300 mb-2">Código</label>
             <div id="otp" class="flex justify-center gap-2">
@@ -80,7 +80,7 @@
             <?php endif; ?>
 
             <div class="text-center text-sm text-text-muted">
-                <a href="forgot-password.php" class="underline">Volver a solicitar código</a> · <a href="login.php" class="underline">Iniciar sesión</a>
+                <a href="<?= url('/forgot-password') ?>" class="underline">Volver a solicitar código</a> · <a href="<?= url('/login') ?>" class="underline">Iniciar sesión</a>
             </div>
             </div>
         </div>

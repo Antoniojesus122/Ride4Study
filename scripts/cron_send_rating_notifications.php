@@ -2,7 +2,7 @@
 // Este script se ejecuta periódicamente para enviar notificaciones de valoración a los usuarios que han completado un viaje recientemente.
 // Por ahora lo voy a poner para que se ejecute cada vez que se inice sesión
 
-require_once __DIR__ . '/services/RatingNotificationService.php';
+require_once __DIR__ . '/../services/RatingNotificationService.php';
 
 // Iniciar output buffering para logging
 ob_start();

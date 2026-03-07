@@ -28,10 +28,10 @@
                 </div>
 
                 <div class="flex items-center gap-2 sm:gap-4">
-                    <a href="login.php" class="text-xs sm:text-sm md:text-base text-white hover:text-primary font-medium px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 transition-colors whitespace-nowrap">
+                    <a href="<?= url('/login') ?>" class="text-xs sm:text-sm md:text-base text-white hover:text-primary font-medium px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 transition-colors whitespace-nowrap">
                         Entrar
                     </a>
-                    <a href="register.php" class="bg-white text-secondary hover:bg-gray-200 text-xs sm:text-sm md:text-base font-bold px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-full transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
+                    <a href="<?= url('/register') ?>" class="bg-white text-secondary hover:bg-gray-200 text-xs sm:text-sm md:text-base font-bold px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-full transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
                         Registrarse
                     </a>
                 </div>
@@ -62,7 +62,7 @@
                     <?php endif; ?>
 
                     <div class="bg-gray-900 rounded-3xl p-8 md:p-12 border border-white/10 shadow-2xl">
-                        <form action="support.php" method="POST" class="space-y-8">
+                        <form action="<?= url('/support') ?>" method="POST" class="space-y-8">
                             <input type="hidden" name="action" value="contact">
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">

@@ -84,14 +84,14 @@ class RatingController {
     // Mostrar formulario de valoración
     public function showRatingForm() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: /Ride4Study/login.php');
+            header('Location: ' . url('/login'));
             exit;
         }
 
         $idViaje = isset($_GET['viaje']) ? (int)$_GET['viaje'] : 0;
 
         if ($idViaje <= 0) {
-            header('Location: /Ride4Study/dashboard.php');
+            header('Location: ' . url('/dashboard'));
             exit;
         }
 
@@ -100,7 +100,7 @@ class RatingController {
 
         if (!$tripDetails) {
             $_SESSION['error'] = 'No se encontró el viaje o no tienes permiso para valorarlo';
-            header('Location: /Ride4Study/dashboard.php');
+            header('Location: ' . url('/dashboard'));
             exit;
         }
 

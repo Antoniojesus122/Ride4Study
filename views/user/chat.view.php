@@ -23,7 +23,7 @@
                     <?php foreach ($chats as $chat): ?>
                         <?php $isActive = ($selectedConversationId == $chat['idConversation']); ?>
                         <li>
-                            <a href="chat.php?conversation_id=<?= $chat['idConversation'] ?>" class="block p-4 hover:bg-white/5 transition-colors <?= $isActive ? 'bg-white/5 border-l-4 border-primary' : 'border-l-4 border-transparent' ?>">
+                            <a href="<?= url('/chat') ?>?conversation_id=<?= $chat['idConversation'] ?>" class="block p-4 hover:bg-white/5 transition-colors <?= $isActive ? 'bg-white/5 border-l-4 border-primary' : 'border-l-4 border-transparent' ?>">
                                 <div class="flex items-center gap-3">
                                     <div class="relative">
                                         <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-600 flex items-center justify-center text-sm font-bold text-white uppercase">
@@ -67,7 +67,7 @@
             <!-- Encabezado del chat -->
             <div class="h-16 border-b border-gray-700 bg-surface flex items-center justify-between px-4 shrink-0 shadow-sm z-10">
                 <div class="flex items-center gap-3">
-                    <a href="messages.php" class="md:hidden p-2 -ml-2 text-gray-400 hover:text-white">
+                    <a href="<?= url('/messages') ?>" class="md:hidden p-2 -ml-2 text-gray-400 hover:text-white">
                         <i class="fas fa-arrow-left"></i>
                     </a>
                     
@@ -76,7 +76,7 @@
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-white leading-tight"><?= htmlspecialchars($otherUser['nombre']) ?></h3>
-                        <a href="profile.php?id=<?= $otherUser['idUsuario'] ?>" class="text-xs text-primary hover:underline">Ver perfil</a>
+                        <a href="<?= url('/profile') ?>?id=<?= $otherUser['idUsuario'] ?>" class="text-xs text-primary hover:underline">Ver perfil</a>
                     </div>
                 </div>
 
@@ -123,7 +123,7 @@
                     <!-- Botones según tipo de anuncio -->
                     <?php if (isset($contextRide['anuncioTipo']) && strtolower($contextRide['anuncioTipo']) === 'ofrezco'): ?>
                         <!-- ANUNCIO TIPO OFREZCO: Botón de solicitar plaza -->
-                        <a href="reserve.php?ride_id=<?= $contextRide['idAnuncio'] ?>" 
+                        <a href="<?= url('/reserve') ?>?ride_id=<?= $contextRide['idAnuncio'] ?>" 
                            class="px-4 py-2 text-xs border border-primary/30 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors whitespace-nowrap shrink-0 font-medium shadow-sm">
                             <i class="fas fa-user-plus mr-1"></i> Solicitar plaza
                         </a>
@@ -233,7 +233,7 @@
 
             <!-- Area del input -->
             <div class="p-4 bg-surface border-t border-gray-700 shrink-0">
-                <form action="chat.php?action=send" method="POST" class="flex items-end gap-3">
+                <form action="<?= url('/chat') ?>?action=send" method="POST" class="flex items-end gap-3">
                     <input type="hidden" name="conversation_id" value="<?= $selectedConversationId ?>">
                     <input type="hidden" name="receiver_id"     value="<?= $otherUser['idUsuario'] ?>">
                     
@@ -259,7 +259,7 @@
 </div>
 
 <!-- Formularios y modales -->
-<form id="delete-conversation-form" action="messages.php?action=delete_conversation" method="POST" class="hidden">
+<form id="delete-conversation-form" action="<?= url('/messages') ?>?action=delete_conversation" method="POST" class="hidden">
     <input type="hidden" name="conversation_id" id="delete-conversation-id">
 </form>
 
@@ -283,7 +283,7 @@
 <script>
     const container = document.getElementById('messages-container');
     const textarea  = document.querySelector('textarea[name="message"]');
-    const form      = document.querySelector('form[action="chat.php?action=send"]');
+    const form      = document.querySelector('form[action="<?= url("/chat") ?>?action=send"]');
     let isUserScrolling = false;
     let refreshInterval;
 
@@ -312,7 +312,7 @@
         
         if (!conversationId) return;
 
-        fetch(`chat.php?action=fetch_messages&conversation_id=${conversationId}`)
+        fetch(`<?= url("/chat") ?>?action=fetch_messages&conversation_id=${conversationId}`)
             .then(response => response.text())
             .then(html => {
                 if (container) {
@@ -343,7 +343,7 @@
         if (confirm('¿Eliminar este mensaje?')) {
             const formData = new FormData();
             formData.append('message_id', id);
-            fetch('chat.php?action=delete', { method: 'POST', body: formData, headers: {'X-Requested-With': 'XMLHttpRequest'} })
+            fetch('<?= url("/chat") ?>?action=delete', { method: 'POST', body: formData, headers: {'X-Requested-With': 'XMLHttpRequest'} })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -371,7 +371,7 @@
         formData.append('message_id', id);
         formData.append('message', text);
 
-        fetch('chat.php?action=edit', { method: 'POST', body: formData, headers: {'X-Requested-With': 'XMLHttpRequest'} })
+        fetch('<?= url("/chat") ?>?action=edit', { method: 'POST', body: formData, headers: {'X-Requested-With': 'XMLHttpRequest'} })
         .then(res => res.json())
         .then(data => {
               if (data.success) {
@@ -392,7 +392,7 @@
         formData.append('anuncio_id', anuncioId);
         formData.append('user_id', userId);
 
-        fetch('chat.php?action=offer_ride', {
+        fetch('<?= url("/chat") ?>?action=offer_ride', {
             method: 'POST',
             body: formData,
             headers: {'X-Requested-With': 'XMLHttpRequest'}
@@ -424,7 +424,7 @@
         formData.append('passenger_id', conductorId); // En realidad es el conductor, pero el endpoint espera este nombre
         formData.append('action', action);
 
-        fetch('manage-reservation.php', {
+        fetch('<?= url("/manage-reservation") ?>', {
             method: 'POST',
             body: formData
         })

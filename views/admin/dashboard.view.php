@@ -33,7 +33,7 @@
                     </svg>
                 </div>
             </div>
-            <a href="/admin/users.php" class="text-primary text-xs hover:text-primary/80 mt-4 inline-block">Ver todos →</a>
+            <a href="<?= url('/admin/users') ?>" class="text-primary text-xs hover:text-primary/80 mt-4 inline-block">Ver todos →</a>
         </div>
 
         <!-- Anuncios -->
@@ -52,7 +52,7 @@
                     </svg>
                 </div>
             </div>
-            <a href="/admin/ads.php" class="text-primary text-xs hover:text-primary/80 mt-4 inline-block">Moderar →</a>
+            <a href="<?= url('/admin/ads') ?>" class="text-primary text-xs hover:text-primary/80 mt-4 inline-block">Moderar →</a>
         </div>
 
         <!-- Reportes -->
@@ -71,7 +71,7 @@
                     </svg>
                 </div>
             </div>
-            <a href="/admin/reports.php" class="text-primary text-xs hover:text-primary/80 mt-4 inline-block">Revisar →</a>
+            <a href="<?= url('/admin/reports') ?>" class="text-primary text-xs hover:text-primary/80 mt-4 inline-block">Revisar →</a>
         </div>
 
         <!-- Instituciones -->
@@ -90,7 +90,7 @@
                     </svg>
                 </div>
             </div>
-            <a href="/admin/instituciones.php" class="text-primary text-xs hover:text-primary/80 mt-4 inline-block">Administrar →</a>
+            <a href="<?= url('/admin/instituciones') ?>" class="text-primary text-xs hover:text-primary/80 mt-4 inline-block">Administrar →</a>
         </div>
     </section>
 
@@ -129,16 +129,16 @@
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
             <h3 class="text-lg font-semibold text-white mb-4">Acciones Rápidas</h3>
             <div class="space-y-2">
-                <a href="/admin/users.php" class="block px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition text-center">
+                <a href="<?= url('/admin/users') ?>" class="block px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition text-center">
                     Gestionar Usuarios
                 </a>
-                <a href="/admin/reports.php" class="block px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition text-center">
+                <a href="<?= url('/admin/reports') ?>" class="block px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition text-center">
                     Revisar Reportes
                 </a>
-                <a href="/admin/ads.php" class="block px-4 py-2 bg-gray-700 hover:bg-gray-650 text-white rounded-lg font-medium transition text-center">
+                <a href="<?= url('/admin/ads') ?>" class="block px-4 py-2 bg-gray-700 hover:bg-gray-650 text-white rounded-lg font-medium transition text-center">
                     Moderar Anuncios
                 </a>
-                <a href="/admin/instituciones.php" class="block px-4 py-2 bg-gray-700 hover:bg-gray-650 text-white rounded-lg font-medium transition text-center">
+                <a href="<?= url('/admin/instituciones') ?>" class="block px-4 py-2 bg-gray-700 hover:bg-gray-650 text-white rounded-lg font-medium transition text-center">
                     Instituciones
                 </a>
             </div>
@@ -151,7 +151,7 @@
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6 overflow-hidden">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-semibold text-white">Reportes Pendientes</h3>
-                <a href="/admin/reports.php?tab=usuario" class="text-primary text-sm hover:underline">Ver todos</a>
+                <a href="<?= url('/admin/reports') ?>?tab=usuario" class="text-primary text-sm hover:underline">Ver todos</a>
             </div>
             <?php if (!empty($pendingReports)): ?>
                 <div class="overflow-x-auto">
@@ -197,7 +197,7 @@
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6 overflow-hidden">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-semibold text-white">Últimos Anuncios</h3>
-                <a href="/admin/ads.php" class="text-primary text-sm hover:underline">Ver todos</a>
+                <a href="<?= url('/admin/ads') ?>" class="text-primary text-sm hover:underline">Ver todos</a>
             </div>
             <?php if (!empty($recentAds)): ?>
                 <div class="space-y-3">
@@ -236,7 +236,7 @@
     <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6 overflow-hidden">
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-lg font-semibold text-white">Últimos Usuarios Registrados</h3>
-            <a href="/admin/users.php" class="text-primary text-sm hover:underline">Ver todos</a>
+            <a href="<?= url('/admin/users') ?>" class="text-primary text-sm hover:underline">Ver todos</a>
         </div>
         <?php if (!empty($recentUsers)): ?>
             <div class="overflow-x-auto">
@@ -269,7 +269,7 @@
                                 ?>
                             </td>
                             <td class="px-4 py-3">
-                                <a href="/admin/users.php?action=view&id=<?= $user['idUsuario'] ?>" class="text-primary hover:underline text-xs">
+                                <a href="<?= url('/admin/users') ?>?action=view&id=<?= $user['idUsuario'] ?>" class="text-primary hover:underline text-xs">
                                     Ver detalles
                                 </a>
                             </td>

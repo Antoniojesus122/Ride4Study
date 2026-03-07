@@ -307,7 +307,7 @@
                     <!-- CTA bottom -->
                     <div class="text-center py-6">
                         <p class="text-gray-500 text-sm mb-4">¿Tienes alguna duda o quieres reportar algo?</p>
-                        <a href="support.php" class="inline-flex items-center gap-2 bg-primary text-secondary font-bold px-6 py-3 rounded-full hover:bg-primary-dark transition-all transform hover:scale-105 shadow-lg shadow-primary/20">
+                        <a href="<?= url('/support') ?>" class="inline-flex items-center gap-2 bg-primary text-secondary font-bold px-6 py-3 rounded-full hover:bg-primary-dark transition-all transform hover:scale-105 shadow-lg shadow-primary/20">
                             <i class="fas fa-headset"></i> Contactar con soporte
                         </a>
                     </div>

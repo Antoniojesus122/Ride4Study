@@ -54,7 +54,7 @@ class SupportController {
                 $msg = 'No se pudo enviar el mensaje. Comprueba la configuración de correo.';
             }
 
-            header("Location: support.php?status=$status&msg=" . urlencode($msg));
+            header("Location: " . url('/support') . "?status=$status&msg=" . urlencode($msg));
             exit;
         }
     }

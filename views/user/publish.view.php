@@ -2,7 +2,7 @@
 
 <?php
 $isEdit = isset($ride); // Verificar si se está en modo de edición 
-$formAction = $isEdit ? 'edit-ride.php' : 'publish.php';
+$formAction = $isEdit ? url('/edit-ride') : url('/publish');
 $submitText = $isEdit ? 'Guardar Cambios' : 'Publicar Viaje';
 $pageTitle = $isEdit ? 'Editar Viaje' : 'Publicar un viaje';
 $pageDesc = $isEdit ? 'Modifica los detalles de tu viaje.' : 'Rellena los detalles para encontrar compañeros de viaje.';
@@ -202,7 +202,7 @@ function getVal($field, $ride, $post, $default = '') {
                 </div>
 
                 <div class="pt-6 border-t border-gray-700 flex items-center justify-end gap-4">
-                    <a href="dashboard.php" class="px-6 py-3 rounded-xl border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-800 transition-all font-medium">Cancelar</a>
+                    <a href="<?= url('/dashboard') ?>" class="px-6 py-3 rounded-xl border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-800 transition-all font-medium">Cancelar</a>
                     <button type="submit" class="px-8 py-3 rounded-xl bg-primary text-secondary font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5">
                         <?= $submitText ?> <i class="fas fa-paper-plane ml-2"></i>
                     </button>

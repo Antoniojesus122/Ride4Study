@@ -92,7 +92,7 @@
                                     </td>
                                     <td class="px-6 py-3 text-sm space-x-1">
                                         <?php if ($reporte['estado'] !== 'resuelto'): ?>
-                                            <form class="inline" method="post" action="reports.php">
+                                            <form class="inline" method="post" action="<?= url('/admin/reports') ?>">
                                                 <input type="hidden" name="action" value="resolve">
                                                 <input type="hidden" name="idReporte" value="<?= $reporte['idReporte'] ?>">
                                                 <button type="submit" class="px-3 py-1 bg-green-600 rounded hover:bg-green-500 text-white transition text-xs font-semibold">
@@ -100,7 +100,7 @@
                                                 </button>
                                             </form>
                                         <?php endif; ?>
-                                        <form class="inline" method="post" action="reports.php" onsubmit="return confirm('¿Eliminar este reporte?');">
+                                        <form class="inline" method="post" action="<?= url('/admin/reports') ?>" onsubmit="return confirm('¿Eliminar este reporte?');">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="idReporte" value="<?= $reporte['idReporte'] ?>">
                                             <button type="submit" class="px-3 py-1 bg-red-600 rounded hover:bg-red-500 text-white transition text-xs font-semibold">
@@ -146,8 +146,8 @@
                 }
             });
             
-            // Actualizar URL (ruta relativa para entornos con subcarpeta)
-            window.history.replaceState({}, '', `reports.php?tab=${tab}`);
+            // Actualizar URL (usa url() helper para entornos con subcarpeta)
+            window.history.replaceState({}, '', `<?= url('/admin/reports') ?>?tab=${tab}`);
         });
     });
 </script>

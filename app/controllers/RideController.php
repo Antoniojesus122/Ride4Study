@@ -22,7 +22,7 @@ class RideController {
 
     public function index() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: login.php');
+            header('Location: ' . url('/login'));
             exit;
         }
 
@@ -58,7 +58,7 @@ class RideController {
 
     public function myRides() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: login.php');
+            header('Location: ' . url('/login'));
             exit;
         }
 
@@ -92,19 +92,19 @@ class RideController {
 
     public function create() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: login.php');
+            header('Location: ' . url('/login'));
             exit;
         }
-        
+
         $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
         $locations = $this->ride->getAllLocations();
-        
+
         require_once __DIR__ . '/../../views/user/publish.view.php';
     }
 
     public function store() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: login.php');
+            header('Location: ' . url('/login'));
             exit;
         }
 
@@ -168,7 +168,7 @@ class RideController {
 
         // Creación de viaje
         if ($this->ride->createRide($data)) {
-            header('Location: my-rides.php?success=created');
+            header('Location: ' . url('/my-rides') . '?success=created');
         } else {
              $errors[] = 'Error al publicar el viaje. Inténtalo de nuevo.';
              $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
@@ -181,13 +181,13 @@ class RideController {
     // Función para manejar tanto reservas en anuncios tipo "ofrezco" como ofertas en anuncios tipo "busco"
     public function reserve() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: login.php');
+            header('Location: ' . url('/login'));
             exit;
         }
 
         $rideId = $_GET['ride_id'] ?? null;
         if (!$rideId) {
-            header('Location: dashboard.php');
+            header('Location: ' . url('/dashboard'));
             exit;
         }
 
@@ -195,7 +195,7 @@ class RideController {
         $ride = $this->ride->getRideById($rideId);
         
         if (!$ride) {
-            header('Location: dashboard.php?error=not_found');
+            header('Location: ' . url('/dashboard') . '?error=not_found');
             exit;
         }
 
@@ -203,19 +203,19 @@ class RideController {
 
         // Evitar reservar/ofrecer en anuncio propio
         if ($ride['idUsuario'] == $_SESSION['user_id']) {
-            header('Location: dashboard.php?error=own_ride');
+            header('Location: ' . url('/dashboard') . '?error=own_ride');
             exit;
         }
 
         // Evitar la doble reserva/oferta
         if ($this->ride->hasBooking($rideId, $_SESSION['user_id'])) {
-            header('Location: dashboard.php?error=already_booked');
+            header('Location: ' . url('/dashboard') . '?error=already_booked');
             exit;
         }
 
         // Verificar si hay plazas disponibles (solo para tipo "ofrezco")
         if ($tipoAnuncio === 'ofrezco' && $ride['plazasDisponibles'] <= 0) {
-            header('Location: dashboard.php?error=no_seats');
+            header('Location: ' . url('/dashboard') . '?error=no_seats');
             exit;
         }
 
@@ -235,9 +235,9 @@ class RideController {
                 // Continuar aunque falle el email
             }
             
-            header('Location: my-rides.php?success=reserved');
+            header('Location: ' . url('/my-rides') . '?success=reserved');
         } else {
-            header('Location: dashboard.php?error=reservation_failed');
+            header('Location: ' . url('/dashboard') . '?error=reservation_failed');
         }
     }
 
@@ -251,13 +251,13 @@ class RideController {
         $action = $_POST['action'] ?? null;
 
         if (!$rideId || !$passengerId || !$action) {
-             header('Location: my-rides.php?error=missing_params');
+             header('Location: ' . url('/my-rides') . '?error=missing_params');
              exit;
         }
 
         $ride = $this->ride->getRideById($rideId);
         if (!$ride || $ride['idUsuario'] != $_SESSION['user_id']) {
-             header('Location: my-rides.php?error=unauthorized');
+             header('Location: ' . url('/my-rides') . '?error=unauthorized');
              exit;
         }
 
@@ -266,10 +266,10 @@ class RideController {
         if ($this->ride->updateReservationStatus($rideId, $passengerId, $status)) {
              // Enviar notificación al pasajero
              $this->sendReservationNotification($ride, $passengerId, $status);
-             
-             header('Location: my-rides.php?success=status_updated&action=' . $action);
+
+             header('Location: ' . url('/my-rides') . '?success=status_updated&action=' . $action);
         } else {
-             header('Location: my-rides.php?error=update_failed');
+             header('Location: ' . url('/my-rides') . '?error=update_failed');
         }
     }
 
@@ -282,7 +282,7 @@ class RideController {
         $rideId = $_POST['ride_id'] ?? null;
         
         if (!$rideId) {
-            header('Location: my-rides.php?error=missing_params');
+            header('Location: ' . url('/my-rides') . '?error=missing_params');
             exit;
         }
 
@@ -290,7 +290,7 @@ class RideController {
         $booking = $this->ride->hasBooking($rideId, $_SESSION['user_id']);
         
         if (!$booking) {
-            header('Location: my-rides.php?error=no_booking');
+            header('Location: ' . url('/my-rides') . '?error=no_booking');
             exit;
         }
 
@@ -302,7 +302,7 @@ class RideController {
             $hoursUntilRide = ($rideDateTime - $now) / 3600;
             
             if ($hoursUntilRide < 24) {
-                header('Location: my-rides.php?error=too_late_to_cancel');
+                header('Location: ' . url('/my-rides') . '?error=too_late_to_cancel');
                 exit;
             }
         }
@@ -312,9 +312,9 @@ class RideController {
             $ride = $this->ride->getRideById($rideId);
             $this->sendReservationNotification($ride, $_SESSION['user_id'], 'cancelada');
             
-            header('Location: my-rides.php?success=reservation_cancelled');
+            header('Location: ' . url('/my-rides') . '?success=reservation_cancelled');
         } else {
-            header('Location: my-rides.php?error=cancel_failed');
+            header('Location: ' . url('/my-rides') . '?error=cancel_failed');
         }
     }
 
@@ -362,7 +362,7 @@ class RideController {
                     "Hola {$conductor['nombre']},",
                     $contenido,
                     null,
-                    'http://localhost/Ride4Study/my-rides.php',
+                    'http://localhost/Ride4Study/my-rides',
                     'Ver Mis Viajes'
                 );
                 break;
@@ -417,7 +417,7 @@ class RideController {
                     "Hola {$user['nombre']},",
                     $contenido,
                     null,
-                    'http://localhost/Ride4Study/dashboard.php',
+                    'http://localhost/Ride4Study/dashboard',
                     'Buscar Otros Viajes'
                 );
                 break;
@@ -451,7 +451,7 @@ class RideController {
                     "Hola {$pasajero['nombre']},",
                     $contenido,
                     null,
-                    'http://localhost/Ride4Study/my-rides.php',
+                    'http://localhost/Ride4Study/my-rides',
                     'Ver Mis Viajes'
                 );
                 break;
@@ -482,7 +482,7 @@ class RideController {
                     "Hola {$conductor['nombre']},",
                     $contenido,
                     null,
-                    'http://localhost/Ride4Study/my-rides.php',
+                    'http://localhost/Ride4Study/my-rides',
                     'Ver Mis Viajes'
                 );
                 break;
@@ -504,20 +504,20 @@ class RideController {
 
     public function edit() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: login.php');
+            header('Location: ' . url('/login'));
             exit;
         }
 
         $rideId = $_GET['id'] ?? null;
         if (!$rideId) {
-            header('Location: my-rides.php');
+            header('Location: ' . url('/my-rides'));
             exit;
         }
 
         $ride = $this->ride->getRideById($rideId);
 
         if (!$ride || $ride['idUsuario'] != $_SESSION['user_id']) {
-            header('Location: my-rides.php?error=unauthorized');
+            header('Location: ' . url('/my-rides') . '?error=unauthorized');
             exit;
         }
 
@@ -538,24 +538,24 @@ class RideController {
 
     public function update() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: login.php');
+            header('Location: ' . url('/login'));
             exit;
         }
 
         $rideId = $_POST['ride_id'] ?? null;
         if (!$rideId) {
-            header('Location: my-rides.php');
+            header('Location: ' . url('/my-rides'));
             exit;
         }
 
         $ride = $this->ride->getRideById($rideId);
         if (!$ride || $ride['idUsuario'] != $_SESSION['user_id']) {
-            header('Location: my-rides.php?error=unauthorized');
+            header('Location: ' . url('/my-rides') . '?error=unauthorized');
             exit;
         }
 
         $errors = [];
-        
+
         // Verificar si se puede cambiar el tipo
         $hasAcceptedPassengers = false;
         if ($ride['tipo'] === 'ofrezco') {
@@ -621,7 +621,7 @@ class RideController {
 
         // Actualizar viaje
         if ($this->ride->updateRide($rideId, $data)) {
-            header('Location: my-rides.php?success=updated');
+            header('Location: ' . url('/my-rides') . '?success=updated');
         } else {
              $errors[] = 'Error al actualizar el viaje. Inténtalo de nuevo.';
              $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
@@ -632,7 +632,7 @@ class RideController {
 
     public function delete() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: login.php');
+            header('Location: ' . url('/login'));
             exit;
         }
 
@@ -640,22 +640,22 @@ class RideController {
         $userId = $_SESSION['user_id'];
 
         if (!$rideId) {
-            header('Location: my-rides.php?error=missing_id');
+            header('Location: ' . url('/my-rides') . '?error=missing_id');
             exit;
         }
 
         // Verificar que el usuario sea el dueño del viaje
         $ride = $this->ride->getRideById($rideId);
         if (!$ride || $ride['idUsuario'] != $userId) {
-            header('Location: my-rides.php?error=unauthorized');
+            header('Location: ' . url('/my-rides') . '?error=unauthorized');
             exit;
         }
 
         // Eliminar viaje
         if ($this->ride->deleteRide($rideId)) {
-            header('Location: my-rides.php?success=deleted');
+            header('Location: ' . url('/my-rides') . '?success=deleted');
         } else {
-            header('Location: my-rides.php?error=delete_failed');
+            header('Location: ' . url('/my-rides') . '?error=delete_failed');
         }
     }
 }

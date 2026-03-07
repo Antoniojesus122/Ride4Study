@@ -275,7 +275,7 @@
                      <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
                          <i class="fas fa-user-edit text-primary"></i> Editar Perfil
                      </h3>
-                     <form action="profile.php?action=update" method="POST" enctype="multipart/form-data">
+                     <form action="<?= url('/profile') ?>?action=update" method="POST" enctype="multipart/form-data">
                          <input type="file" name="foto_perfil" id="photo-input" class="hidden" accept="image/*">
                          
                          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -355,7 +355,7 @@
                             Contraseña actualizada correctamente.
                         </div>
                     <?php endif; ?>
-                    <form action="profile.php?action=change_password" method="POST" class="max-w-md">
+                    <form action="<?= url('/profile') ?>?action=change_password" method="POST" class="max-w-md">
                         <div class="space-y-6 mb-8">
                             <div>
                                 <label class="block text-sm font-medium text-gray-400 mb-2">Contraseña Actual</label>
@@ -401,7 +401,7 @@
                         <div class="mb-8">
                             <p class="text-gray-400 text-sm mb-4">Sube una foto de tu carnet de estudiante o matrícula para verificar tu estatus.</p>
                             
-                            <form action="profile.php?action=verify" method="POST" enctype="multipart/form-data" class="bg-gray-800/50 p-6 rounded-xl border border-dashed border-gray-600 text-center">
+                            <form action="<?= url('/profile') ?>?action=verify" method="POST" enctype="multipart/form-data" class="bg-gray-800/50 p-6 rounded-xl border border-dashed border-gray-600 text-center">
                                 <div class="mb-4">
                                     <i class="fas fa-cloud-upload-alt text-4xl text-gray-500 mb-2"></i>
                                     <p class="text-sm text-gray-400">Arrastra tu archivo aquí o haz clic para seleccionar</p>
@@ -427,7 +427,7 @@
                     <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
                         <i class="fas fa-user-shield text-primary"></i> Privacidad y Configuración
                     </h3>
-                    <form action="profile.php?action=update_privacy" method="POST">
+                    <form action="<?= url('/profile') ?>?action=update_privacy" method="POST">
                         <div class="space-y-6 mb-8">
                              <div>
                                  <h4 class="text-white font-semibold mb-3">Visibilidad del Perfil</h4>
@@ -601,7 +601,7 @@
         const form = e.currentTarget;
         const data = new FormData(form);
 
-        fetch('rating.php', { method: 'POST', body: data })
+        fetch('<?= url("/rating") ?>', { method: 'POST', body: data })
             .then(r => r.json())
             .then(res => {
                 const msg = document.getElementById('rating-msg');
@@ -744,7 +744,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-4 pt-4 border-t border-gray-700">
-                                    <a href="profile.php?id=<?= (int)$profileUser['idUsuario'] ?>" class="w-full flex justify-center items-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg py-2 text-sm font-medium transition-all">
+                                    <a href="<?= url('/profile') ?>?id=<?= (int)$profileUser['idUsuario'] ?>" class="w-full flex justify-center items-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg py-2 text-sm font-medium transition-all">
                                         <i class="fas fa-user text-xs"></i> Ver perfil
                                     </a>
                                 </div>
@@ -853,7 +853,7 @@
         }
 
         // Contactar
-        document.getElementById('prm-btn-contact').href = 'chat.php?anuncio_id=' + ride.idAnuncio + '&other_user_id=' + ride.idUsuario;
+        document.getElementById('prm-btn-contact').href = '<?= url("/chat") ?>?anuncio_id=' + ride.idAnuncio + '&other_user_id=' + ride.idUsuario;
 
         // Botón de reserva
         btnReserve.onclick  = null;
@@ -863,7 +863,7 @@
         if (ride.tipo.toLowerCase() === 'ofrezco' && ride.plazasDisponibles > 0) {
             btnReserve.className = prmBtnStyles.active;
             btnReserve.innerHTML = '<i class="fas fa-ticket-alt text-xs"></i> Solicitar Plaza';
-            btnReserve.onclick   = () => { window.location.href = 'reserve.php?ride_id=' + ride.idAnuncio; };
+            btnReserve.onclick   = () => { window.location.href = '<?= url("/reserve") ?>?ride_id=' + ride.idAnuncio; };
         } else if (ride.tipo.toLowerCase() === 'ofrezco' && ride.plazasDisponibles <= 0) {
             btnReserve.className = prmBtnStyles.disabled;
             btnReserve.innerHTML = '<i class="fas fa-ban text-xs"></i> Viaje completo';

@@ -18,7 +18,7 @@ class ReportController
         $this->user = new User($db);
 
         if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 1) {
-            header('Location: ../../login.php');
+            header('Location: ' . url('/login'));
             exit;
         }
     }
@@ -43,10 +43,10 @@ class ReportController
         $idReporte = $_POST['idReporte'] ?? null;
         if ($idReporte) {
             $this->report->markAsResolved((int)$idReporte);
-            header("Location: reports.php?tab=$tab&success=resolved");
+            header("Location: " . url('/admin/reports') . "?tab=$tab&success=resolved");
             exit;
         }
-        header("Location: reports.php?tab=$tab&error=missing_id");
+        header("Location: " . url('/admin/reports') . "?tab=$tab&error=missing_id");
         exit;
     }
 
@@ -56,10 +56,10 @@ class ReportController
         $idReporte = $_POST['idReporte'] ?? null;
         if ($idReporte) {
             $this->report->deleteReport((int)$idReporte);
-            header("Location: reports.php?tab=$tab&success=deleted");
+            header("Location: " . url('/admin/reports') . "?tab=$tab&success=deleted");
             exit;
         }
-        header("Location: reports.php?tab=$tab&error=missing_id");
+        header("Location: " . url('/admin/reports') . "?tab=$tab&error=missing_id");
         exit;
     }
 
@@ -74,7 +74,7 @@ class ReportController
                 exit;
             }
         }
-        header('Location: reports.php?error=not_found');
+        header('Location: ' . url('/admin/reports') . '?error=not_found');
         exit;
     }
 

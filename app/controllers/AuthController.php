@@ -31,9 +31,9 @@ class AuthController {
             if ($user) {
                 $idRol = (int)$user['idRol'];
                 if (in_array($idRol, [1, 3], true)) {
-                    header('Location: admin.php');
+                    header('Location: ' . url('/admin'));
                 } else {
-                    header('Location: dashboard.php');
+                    header('Location: ' . url('/dashboard'));
                 }
                 exit;
             }
@@ -73,9 +73,9 @@ class AuthController {
 
                             $idRol = (int)$userData['idRol'];
                             if (in_array($idRol, [1, 3], true)) {
-                                header('Location: admin/dashboard.php');
+                                header('Location: ' . url('/admin/dashboard'));
                             } else {
-                                header('Location: dashboard.php');
+                                header('Location: ' . url('/dashboard'));
                             }
                             exit;
 
@@ -91,7 +91,7 @@ class AuthController {
         }
 
         require __DIR__ . '/../../views/auth/login.view.php';
-        require_once __DIR__ . '/cron_send_rating_notifications.php';
+        require_once __DIR__ . '/../../scripts/cron_send_rating_notifications.php';
     }
 
 
@@ -146,7 +146,7 @@ class AuthController {
                                 "¡Bienvenido a Ride4Study!",
                                 $contenido,
                                 null,
-                                'http://localhost/ride4study/login.php',
+                                'http://localhost/Ride4Study/login',
                                 'Iniciar sesión'
                             );
                             $mail->send($correo, $nombre, '¡Bienvenido a Ride4Study!', $html);
@@ -154,7 +154,7 @@ class AuthController {
                             error_log('Welcome email error: ' . $e->getMessage());
                         }
 
-                        header('Location: login.php?msg=registrado');
+                        header('Location: ' . url('/login') . '?msg=registrado');
                         exit;
                     } else {
                         $error = 'El correo ya está registrado o ha ocurrido un error.';
@@ -188,7 +188,7 @@ class AuthController {
 
         session_destroy();
 
-        header('Location: login.php');
+        header('Location: ' . url('/login'));
         exit;
     }
 
@@ -250,7 +250,7 @@ class AuthController {
                     }
 
                     $_SESSION['last_reset'] = time();
-                    header("Location: reset-password.php?sent=1");
+                    header("Location: " . url('/reset-password') . "?sent=1");
                     exit;
                 }
             }
@@ -298,7 +298,7 @@ class AuthController {
                         $this->user->resetPasswordWithCode((int)$data['user_id'], $pass);
                         unset($_SESSION['reset_attempts']);
                         $success = 'Contraseña cambiada correctamente. Redirigiendo...';
-                        header("Refresh:3; url=login.php");
+                        header("Refresh:3; url=" . url('/login'));
                     }
                 }
             }

@@ -71,7 +71,7 @@
                     <button type="submit" class="flex-1 bg-primary hover:bg-primary-dark text-secondary font-bold py-3 px-4 rounded-xl transition-all shadow-lg shadow-primary/20 transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
                         <i class="fas fa-search"></i> Buscar
                     </button>
-                    <a href="dashboard.php" class="flex items-center justify-center px-3 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl transition-all border border-gray-600 group" title="Limpiar filtros">
+                    <a href="<?= url('/dashboard') ?>" class="flex items-center justify-center px-3 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl transition-all border border-gray-600 group" title="Limpiar filtros">
                         <i class="fas fa-times group-hover:rotate-90 transition-transform duration-300"></i>
                     </a>
                 </div>
@@ -99,7 +99,7 @@
                         </div>
                         <h3 class="text-lg font-medium text-white">No hemos encontrado viajes</h3>
                         <p class="text-gray-400 mt-2 max-w-sm mx-auto">Parece que no hay viajes que coincidan con tus filtros. ¡Prueba a cambiar la fecha!</p>
-                        <a href="dashboard.php" class="inline-block mt-4 text-primary font-semibold hover:underline">Limpiar filtros</a>
+                        <a href="<?= url('/dashboard') ?>" class="inline-block mt-4 text-primary font-semibold hover:underline">Limpiar filtros</a>
                     </div>
                 <?php else: ?>
                     <?php foreach ($rides as $ride): ?>
@@ -242,19 +242,19 @@
                 </div>
                 
                 <nav class="space-y-3">
-                    <a href="publish.php" class="flex items-center justify-between p-3 rounded-xl bg-primary text-secondary font-bold hover:bg-primary-dark transition-all group">
+                    <a href="<?= url('/publish') ?>" class="flex items-center justify-between p-3 rounded-xl bg-primary text-secondary font-bold hover:bg-primary-dark transition-all group">
                         <span class="flex items-center gap-3">
                             <i class="fas fa-plus-circle"></i> Publicar viaje
                         </span>
                         <i class="fas fa-arrow-right opacity-0 group-hover:opacity-100 transition-opacity"></i>
                     </a>
                     
-                    <a href="my-rides.php?tab=bookings" class="flex items-center justify-between p-3 rounded-xl bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-750 border border-gray-700 transition-all">
+                    <a href="<?= url('/my-rides') ?>?tab=bookings" class="flex items-center justify-between p-3 rounded-xl bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-750 border border-gray-700 transition-all">
                         <span class="flex items-center gap-3">
                             <i class="fas fa-network-wired text-gray-500"></i> Mis reservas
                         </span>
                     </a>
-                     <a href="profile.php" class="flex items-center justify-between p-3 rounded-xl bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-750 border border-gray-700 transition-all">
+                     <a href="<?= url('/profile') ?>" class="flex items-center justify-between p-3 rounded-xl bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-750 border border-gray-700 transition-all">
                         <span class="flex items-center gap-3">
                             <i class="fas fa-user-edit text-gray-500"></i> Editar perfil
                         </span>
@@ -269,14 +269,14 @@
                 <p class="text-xs text-gray-300 mb-4 relative z-10 leading-relaxed">
                     Recuerda verificar siempre las valoraciones de tus compañeros antes de reservar.
                 </p>
-                <a href="safety.php" class="text-xs text-primary font-bold hover:underline relative z-10">Ver consejos de seguridad &rarr;</a>
+                <a href="<?= url('/safety') ?>" class="text-xs text-primary font-bold hover:underline relative z-10">Ver consejos de seguridad &rarr;</a>
             </div>
             
             <!-- Mini footer con links  -->
             <div class="flex flex-wrap gap-x-4 gap-y-2 text-xs text-gray-600 px-2">
-                <a href="support.php" class="hover:text-gray-400">Ayuda</a>
-                <a href="terms.php" class="hover:text-gray-400">Términos</a>
-                <a href="privacy.php" class="hover:text-gray-400">Privacidad</a>
+                <a href="<?= url('/support') ?>" class="hover:text-gray-400">Ayuda</a>
+                <a href="<?= url('/terms') ?>" class="hover:text-gray-400">Términos</a>
+                <a href="<?= url('/privacy') ?>" class="hover:text-gray-400">Privacidad</a>
                 <span>© 2026 Ride4Study</span>
             </div>
         </div>
@@ -522,8 +522,8 @@
         }
 
         // — Links —
-        document.getElementById('modal-profile-link').href = 'profile.php?id=' + ride.idUsuario;
-        document.getElementById('btn-contact').href        = 'chat.php?anuncio_id=' + ride.idAnuncio + '&other_user_id=' + ride.idUsuario;
+        document.getElementById('modal-profile-link').href = '<?= url("/profile") ?>?id=' + ride.idUsuario;
+        document.getElementById('btn-contact').href        = '<?= url("/chat") ?>?anuncio_id=' + ride.idAnuncio + '&other_user_id=' + ride.idUsuario;
 
         // — Botón de acción —
         btnReserve.onclick   = null;
@@ -558,7 +558,7 @@
         } else if (ride.tipo.toLowerCase() === 'ofrezco') {
             btnReserve.className  = btnStyles.active;
             btnReserve.innerHTML  = '<i class="fas fa-ticket-alt text-xs"></i> Solicitar Plaza';
-            btnReserve.onclick    = () => { window.location.href = 'reserve.php?ride_id=' + ride.idAnuncio; };
+            btnReserve.onclick    = () => { window.location.href = '<?= url("/reserve") ?>?ride_id=' + ride.idAnuncio; };
 
         } else {
             // Tipo "busco" — solo contactar

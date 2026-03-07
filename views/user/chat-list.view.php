@@ -19,7 +19,7 @@
             <ul class="divide-y divide-gray-700">
                 <?php foreach ($chats as $chat): ?>
                     <li>
-                        <a href="chat.php?user_id=<?= $chat['idUsuario'] ?>" class="block hover:bg-white/5 transition-colors p-4">
+                        <a href="<?= url('/chat') ?>?user_id=<?= $chat['idUsuario'] ?>" class="block hover:bg-white/5 transition-colors p-4">
                             <div class="flex items-center gap-4">
                                 <div class="relative">
                                     <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-lg font-bold text-white">
@@ -50,7 +50,7 @@
     </div>
 </div>
 
-<form id="delete-chat-form" action="messages.php?action=delete_conversation" method="POST" class="hidden">
+<form id="delete-chat-form" action="<?= url('/messages') ?>?action=delete_conversation" method="POST" class="hidden">
     <input type="hidden" name="user_id" id="delete-user-id">
 </form>
 

@@ -13,7 +13,7 @@
   <div class="w-full max-w-md mx-4">
     <div class="bg-surface rounded-xl shadow-lg p-8 space-y-6">
       <div class="text-center">
-        <a href="index.php" class="inline-flex items-center gap-2 mb-4">
+        <a href="<?= url('/') ?>" class="inline-flex items-center gap-2 mb-4">
           <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-secondary font-bold text-xl">R</div>
           <span class="text-xl font-bold text-white">Ride4Study</span>
         </a>
@@ -31,7 +31,7 @@
 
       <!-- Formulario -->
       <?php if (empty($success)): ?>
-      <form method="POST" action="forgot-password.php" class="space-y-4">
+      <form method="POST" action="<?= url('/forgot-password') ?>" class="space-y-4">
         <div>
           <label for="correo" class="block text-sm font-medium text-gray-300">Correo Electrónico</label>
           <input id="correo" name="correo" type="email" autocomplete="email" required
@@ -46,7 +46,7 @@
       <?php endif; ?>
 
       <div class="text-center text-sm text-text-muted">
-        <a href="login.php" class="underline">Volver a iniciar sesión</a> · <a href="register.php" class="underline">Crear cuenta</a>
+        <a href="<?= url('/login') ?>" class="underline">Volver a iniciar sesión</a> · <a href="<?= url('/register') ?>" class="underline">Crear cuenta</a>
       </div>
     </div>
   </div>

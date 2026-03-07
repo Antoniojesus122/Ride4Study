@@ -30,7 +30,7 @@ class MessageController {
     // Listado de conversaciones del usuario
     public function index() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: login.php');
+            header('Location: ' . url('/login'));
             exit;
         }
 
@@ -50,7 +50,7 @@ class MessageController {
     // Punto de entrada al chat
     public function chat() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: login.php');
+            header('Location: ' . url('/login'));
             exit;
         }
 
@@ -63,12 +63,12 @@ class MessageController {
 
             // Validaciones básicas
             if ($idAnuncio <= 0 || $otherUserId <= 0 || $otherUserId === $userId) {
-                header('Location: messages.php');
+                header('Location: ' . url('/messages'));
                 exit;
             }
 
             $conversationId = $this->getOrCreateConversation($idAnuncio, $userId, $otherUserId);
-            header('Location: chat.php?conversation_id=' . $conversationId);
+            header('Location: ' . url('/chat') . '?conversation_id=' . $conversationId);
             exit;
         }
 
@@ -83,7 +83,7 @@ class MessageController {
         // Verificar que el usuario pertenece a esta conversación
         $contextRide = $this->conversation->getByIdForUser($conversationId, $userId);
         if (!$contextRide) {
-            header('Location: messages.php');
+            header('Location: ' . url('/messages'));
             exit;
         }
 
@@ -126,7 +126,7 @@ class MessageController {
     // Enviar mensaje
     public function send() {
         if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: login.php');
+            header('Location: ' . url('/login'));
             exit;
         }
 
@@ -137,13 +137,13 @@ class MessageController {
 
         // Validaciones
         if ($conversationId <= 0 || $receiverId <= 0 || trim($mensaje) === '') {
-            header('Location: messages.php');
+            header('Location: ' . url('/messages'));
             exit;
         }
 
         // Verificar que el usuario pertenece a la conversación
         if (!$this->conversation->belongsToUser($conversationId, $userId)) {
-            header('Location: messages.php');
+            header('Location: ' . url('/messages'));
             exit;
         }
 
@@ -156,7 +156,7 @@ class MessageController {
 
         $this->message->createMessage($data);
 
-        header('Location: chat.php?conversation_id=' . $conversationId);
+        header('Location: ' . url('/chat') . '?conversation_id=' . $conversationId);
         exit;
     }
 
@@ -219,13 +219,13 @@ class MessageController {
         $conversationId = isset($_POST['conversation_id']) ? (int) $_POST['conversation_id'] : 0;
 
         if ($conversationId <= 0) {
-            header('Location: messages.php');
+            header('Location: ' . url('/messages'));
             exit;
         }
 
         // Verificar pertenencia antes de eliminar
         if (!$this->conversation->belongsToUser($conversationId, $userId)) {
-            header('Location: messages.php');
+            header('Location: ' . url('/messages'));
             exit;
         }
 
@@ -237,7 +237,7 @@ class MessageController {
         $stmt->bindParam(':id', $conversationId, PDO::PARAM_INT);
         $stmt->execute();
 
-        header('Location: messages.php');
+        header('Location: ' . url('/messages'));
         exit;
     }
 

@@ -18,17 +18,17 @@ class UserController {
 
     public function index() {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: login.php');
+            header('Location: ' . url('/login'));
             exit;
         }
-        
+
         $viewUserId = isset($_GET['id']) ? (int)$_GET['id'] : $_SESSION['user_id'];
         $isOwnProfile = ($viewUserId === $_SESSION['user_id']);
         
         $profileUser = $this->user->getUserById($viewUserId);
         
         if (!$profileUser) {
-            header('Location: dashboard.php');
+            header('Location: ' . url('/dashboard'));
             exit;
         }
 
@@ -61,7 +61,7 @@ class UserController {
     public function update()
     {
         if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: login.php');
+            header('Location: ' . url('/login'));
             exit;
         }
 
@@ -78,7 +78,7 @@ class UserController {
         ];
 
         if (!filter_var($data['correo'], FILTER_VALIDATE_EMAIL)) {
-            header('Location: profile.php?error=invalid_email');
+            header('Location: ' . url('/profile') . '?error=invalid_email');
             exit;
         }
 
@@ -105,11 +105,11 @@ class UserController {
             if (isset($data['foto_perfil'])) {
                 $_SESSION['user_photo'] = $data['foto_perfil'];
             }
-            header('Location: profile.php?success=updated');
+            header('Location: ' . url('/profile') . '?success=updated');
             exit;
         }
 
-        header('Location: profile.php?error=update_failed');
+        header('Location: ' . url('/profile') . '?error=update_failed');
         exit;
     }
 
@@ -117,7 +117,7 @@ class UserController {
     public function changePassword()
     {
         if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: profile.php');
+            header('Location: ' . url('/profile'));
             exit;
         }
 
@@ -127,47 +127,47 @@ class UserController {
 
         // Campos vacíos
         if (empty($current) || empty($new) || empty($confirm)) {
-            header('Location: profile.php?error=empty_fields&tab=security');
+            header('Location: ' . url('/profile') . '?error=empty_fields&tab=security');
             exit;
         }
 
         // Las nuevas contraseñas no coinciden
         if ($new !== $confirm) {
-            header('Location: profile.php?error=password_mismatch&tab=security');
+            header('Location: ' . url('/profile') . '?error=password_mismatch&tab=security');
             exit;
         }
 
         // Longitud mínima
         if (strlen($new) < 8) {
-            header('Location: profile.php?error=password_too_short&tab=security');
+            header('Location: ' . url('/profile') . '?error=password_too_short&tab=security');
             exit;
         }
 
         // La nueva contraseña debe contener al menos una letra mayúscula y un número
         if (!preg_match('/[A-Z]/', $new) || !preg_match('/[0-9]/', $new)) {
-            header('Location: profile.php?error=password_weak&tab=security');
+            header('Location: ' . url('/profile') . '?error=password_weak&tab=security');
             exit;
         }
 
         // Verificar que la contraseña actual es correcta
         if (!$this->user->verifyPassword($_SESSION['user_id'], $current)) {
-            header('Location: profile.php?error=wrong_password&tab=security');
+            header('Location: ' . url('/profile') . '?error=wrong_password&tab=security');
             exit;
         }
 
         // La nueva contraseña no puede ser igual a la actual
         if (password_verify($new, $this->user->getPasswordHash($_SESSION['user_id']))) {
-            header('Location: profile.php?error=same_password&tab=security');
+            header('Location: ' . url('/profile') . '?error=same_password&tab=security');
             exit;
         }
 
         // Actualizar contraseña
         if (!$this->user->updatePassword($_SESSION['user_id'], $new)) {
-            header('Location: profile.php?error=update_failed&tab=security');
+            header('Location: ' . url('/profile') . '?error=update_failed&tab=security');
             exit;
         }
 
-        header('Location: profile.php?success=password_updated&tab=security');
+        header('Location: ' . url('/profile') . '?success=password_updated&tab=security');
         exit;
     }
 
@@ -183,12 +183,12 @@ class UserController {
               $fileName = uniqid() . '-' . basename($_FILES['document']['name']);
               if (move_uploaded_file($_FILES['document']['tmp_name'], $uploadDir . $fileName)) {
                    $this->user->submitVerification($_SESSION['user_id'], $fileName);
-                   header('Location: profile.php?success=verification_sent&tab=verification');
+                   header('Location: ' . url('/profile') . '?success=verification_sent&tab=verification');
               } else {
-                   header('Location: profile.php?error=upload_failed&tab=verification');
+                   header('Location: ' . url('/profile') . '?error=upload_failed&tab=verification');
               }
         } else {
-             header('Location: profile.php?error=no_file&tab=verification');
+             header('Location: ' . url('/profile') . '?error=no_file&tab=verification');
         }
     }
 
@@ -205,10 +205,10 @@ class UserController {
         ];
 
         if ($this->user->updateUser($id, $data)) {
-            header('Location: profile.php?success=privacy_updated&tab=privacy');
+            header('Location: ' . url('/profile') . '?success=privacy_updated&tab=privacy');
             exit;
         } else {
-            header('Location: profile.php?error=update_failed&tab=privacy');
+            header('Location: ' . url('/profile') . '?error=update_failed&tab=privacy');
             exit;
         }
     }

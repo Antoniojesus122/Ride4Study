@@ -37,10 +37,10 @@
                 </div>
 
                 <div class="flex items-center gap-2 sm:gap-4">
-                    <a href="login.php" class="text-xs sm:text-sm md:text-base text-white hover:text-primary font-medium px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 transition-colors whitespace-nowrap">
+                    <a href="<?= url('/login') ?>" class="text-xs sm:text-sm md:text-base text-white hover:text-primary font-medium px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 transition-colors whitespace-nowrap">
                         Entrar
                     </a>
-                    <a href="register.php" class="bg-white text-secondary hover:bg-gray-200 text-xs sm:text-sm md:text-base font-bold px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-full transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
+                    <a href="<?= url('/register') ?>" class="bg-white text-secondary hover:bg-gray-200 text-xs sm:text-sm md:text-base font-bold px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-full transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
                         Registrarse
                     </a>
                 </div>
@@ -69,10 +69,10 @@
                             </p>
             
                             <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                                <a href="register.php" class="px-8 py-4 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all shadow-[0_0_20px_rgba(110,231,183,0.4)] text-center text-lg">
+                                <a href="<?= url('/register') ?>" class="px-8 py-4 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all shadow-[0_0_20px_rgba(110,231,183,0.4)] text-center text-lg">
                                     Empezar ahora
                                 </a>
-                                <a href="login.php" class="px-8 py-4 bg-surface border border-white/10 text-white font-medium rounded-xl hover:bg-surface/80 transition-all flex items-center justify-center gap-2 group">
+                                <a href="<?= url('/login') ?>" class="px-8 py-4 bg-surface border border-white/10 text-white font-medium rounded-xl hover:bg-surface/80 transition-all flex items-center justify-center gap-2 group">
                                     <i class="fas fa-search text-primary group-hover:scale-110 transition-transform"></i> Buscar viaje
                                 </a>
                             </div>
@@ -236,7 +236,7 @@
                                 </ul>
             
                                 <div class="mt-10">
-                                    <a href="register.php" class="inline-block px-8 py-4 bg-white text-gray-900 font-bold rounded-xl hover:bg-gray-200 transition-all shadow-lg transform hover:-translate-y-1">
+                                    <a href="<?= url('/register') ?>" class="inline-block px-8 py-4 bg-white text-gray-900 font-bold rounded-xl hover:bg-gray-200 transition-all shadow-lg transform hover:-translate-y-1">
                                         Únete gratis hoy
                                     </a>
                                 </div>

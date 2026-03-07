@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/services/MailService.php';
+require_once __DIR__ . '/../services/MailService.php';
 
 // Enviar correo de prueba con la nueva plantilla
 

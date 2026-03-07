@@ -24,7 +24,7 @@
         <div class="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24 bg-secondary">
           <div class="mx-auto w-full max-w-sm lg:w-96">
             <div class="text-center lg:text-left">
-              <a href="index.php" class="inline-flex items-center gap-2 group">
+              <a href="<?= url('/') ?>" class="inline-flex items-center gap-2 group">
                   <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-secondary font-bold text-xl transition-transform group-hover:rotate-12 shadow-lg shadow-primary/20">
                       R
                   </div>
@@ -33,7 +33,7 @@
               <h2 class="mt-8 text-3xl font-bold leading-9 tracking-tight text-white">Comienza tu viaje</h2>
               <p class="mt-2 text-sm leading-6 text-text-muted">
                 ¿Ya eres miembro?
-                <a href="login.php" class="font-semibold text-primary hover:text-primary-dark transition-colors">Inicia sesión aquí</a>
+                <a href="<?= url('/login') ?>" class="font-semibold text-primary hover:text-primary-dark transition-colors">Inicia sesión aquí</a>
               </p>
             </div>
 
@@ -111,12 +111,12 @@
                     <div class="text-sm leading-6">
                       <label for="acepta_politicas" class="text-gray-300">
                         Acepto la 
-                        <a href="privacy.php" target="_blank"
+                        <a href="<?= url('/privacy') ?>" target="_blank"
                           class="text-primary hover:text-primary-dark font-medium transition-colors">
                           Política de Privacidad
                         </a>
-                        y las 
-                        <a href="terms.php" target="_blank"
+                        y las
+                        <a href="<?= url('/terms') ?>" target="_blank"
                           class="text-primary hover:text-primary-dark font-medium transition-colors">
                           Condiciones de Uso
                         </a>
