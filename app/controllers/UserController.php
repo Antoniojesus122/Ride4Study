@@ -2,10 +2,12 @@
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Rating.php';
+require_once __DIR__ . '/../../services/MailService.php';
 
 class UserController {
     private $db;
     private $user;
+    private ?MailService $mailService = null;
 
     public function __construct() {
         if (session_status() === PHP_SESSION_NONE) {
@@ -14,6 +16,7 @@ class UserController {
         $database = new Database();
         $this->db = $database->connect();
         $this->user = new User($this->db);
+        try { $this->mailService = new MailService(); } catch (Exception $e) { error_log('MailService: ' . $e->getMessage()); }
     }
 
     public function index() {
@@ -167,6 +170,21 @@ class UserController {
             exit;
         }
 
+        // Email de confirmación de cambio de contraseña
+        $userData = $this->user->getUserById($_SESSION['user_id']);
+        if ($this->mailService && $userData && !empty($userData['notificaciones_email'])) {
+            $html = $this->mailService->generarPlantilla(
+                $userData['nombre'],
+                'Contraseña actualizada',
+                'Hola <strong>' . htmlspecialchars($userData['nombre']) . '</strong>,<br><br>
+                Tu contraseña ha sido cambiada correctamente.<br><br>
+                Si no fuiste tú quien realizó este cambio, restablece tu contraseña de inmediato y contáctanos.',
+                null,
+                null
+            );
+            $this->mailService->send($userData['correo'], $userData['nombre'], 'Contraseña actualizada · Ride4Study', $html);
+        }
+
         header('Location: ' . url('/profile') . '?success=password_updated&tab=security');
         exit;
     }
@@ -183,6 +201,22 @@ class UserController {
               $fileName = uniqid() . '-' . basename($_FILES['document']['name']);
               if (move_uploaded_file($_FILES['document']['tmp_name'], $uploadDir . $fileName)) {
                    $this->user->submitVerification($_SESSION['user_id'], $fileName);
+
+                   // Email de confirmación de recepción de documentación
+                   $userData = $this->user->getUserById($_SESSION['user_id']);
+                   if ($this->mailService && $userData && !empty($userData['notificaciones_email'])) {
+                       $html = $this->mailService->generarPlantilla(
+                           $userData['nombre'],
+                           'Documentación recibida',
+                           'Hola <strong>' . htmlspecialchars($userData['nombre']) . '</strong>,<br><br>
+                           Hemos recibido tu solicitud de verificación de estudiante y la documentación adjunta.<br><br>
+                           Nuestro equipo revisará la información en breve y te notificaremos por correo cuando hayamos tomado una decisión.',
+                           'En revisión',
+                           null
+                       );
+                       $this->mailService->send($userData['correo'], $userData['nombre'], 'Verificación recibida · Ride4Study', $html);
+                   }
+
                    header('Location: ' . url('/profile') . '?success=verification_sent&tab=verification');
               } else {
                    header('Location: ' . url('/profile') . '?error=upload_failed&tab=verification');

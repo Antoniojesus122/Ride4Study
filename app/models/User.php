@@ -132,6 +132,22 @@ class User {
         return $stmt->execute([':doc' => $documentPath, ':id' => $id]);
     }
 
+    public function setVerificationStatus(int $userId, int $status): bool {
+        $sql = "UPDATE {$this->table} SET estado_verificacion = :status WHERE idUsuario = :id";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([':status' => $status, ':id' => $userId]);
+    }
+
+    public function getPendingVerifications(): array {
+        $sql = "SELECT idUsuario, nombre, correo, documento_verificacion, creado_en, notificaciones_email
+                FROM {$this->table}
+                WHERE estado_verificacion = 1
+                ORDER BY creado_en ASC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function countAll(): int
     {
         $stmt = $this->conn->query("SELECT COUNT(*) as total FROM usuarios");

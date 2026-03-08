@@ -127,6 +127,22 @@ $router->any('/admin/dashboard', function () { // Panel de administración
     $controller->index();
 });
 
+$router->any('/admin/users', function () { // Gestión de verificaciones de estudiantes
+    session_start();
+    if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
+        header('Location: ' . url('/login'));
+        exit;
+    }
+    require_once __DIR__ . '/app/controllers/admin/AdminUserController.php';
+    $controller = new AdminUserController();
+    $action = $_POST['action'] ?? $_GET['action'] ?? null;
+    match ($action) {
+        'approve' => $controller->approveVerification(),
+        'reject'  => $controller->rejectVerification(),
+        default   => $controller->verifications(),
+    };
+});
+
 $router->any('/admin/reports', function () { // Gestión de reportes
     session_start();
     if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] ?? 0) != 1) {

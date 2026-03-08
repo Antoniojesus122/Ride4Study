@@ -121,84 +121,141 @@
                     </div>
                     
                     <!-- Botones según tipo de anuncio -->
-                    <?php if (isset($contextRide['anuncioTipo']) && strtolower($contextRide['anuncioTipo']) === 'ofrezco'): ?>
-                        <!-- ANUNCIO TIPO OFREZCO: Botón de solicitar plaza -->
-                        <a href="<?= url('/reserve') ?>?ride_id=<?= $contextRide['idAnuncio'] ?>" 
-                           class="px-4 py-2 text-xs border border-primary/30 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors whitespace-nowrap shrink-0 font-medium shadow-sm">
-                            <i class="fas fa-user-plus mr-1"></i> Solicitar plaza
-                        </a>
+                    <?php
+                    // Determinar rol del usuario actual en este anuncio
+                    $anuncioId = $contextRide['idAnuncio'];
+
+                    $stmtPub = $this->db->prepare("SELECT idUsuario FROM anuncios WHERE idAnuncio = :anuncioId");
+                    $stmtPub->execute([':anuncioId' => $anuncioId]);
+                    $pubResult = $stmtPub->fetch(PDO::FETCH_ASSOC);
+                    $publisherId = $pubResult ? (int)$pubResult['idUsuario'] : null;
+                    $isPublisher = ($publisherId === (int)$_SESSION['user_id']);
+
+                    // Buscar si el usuario actual tiene una oferta/reserva en este anuncio
+                    $stmtMyOffer = $this->db->prepare(
+                        "SELECT estado FROM viajes
+                         WHERE idAnuncio = :anuncioId
+                         AND (idConductor = :uid1 OR idPasajero = :uid2)"
+                    );
+                    $stmtMyOffer->execute([
+                        ':anuncioId' => $anuncioId,
+                        ':uid1' => $_SESSION['user_id'],
+                        ':uid2' => $_SESSION['user_id']
+                    ]);
+                    $myOffer = $stmtMyOffer->fetch(PDO::FETCH_ASSOC);
+                    ?>
+
+                    <?php if (strtolower($contextRide['anuncioTipo']) === 'ofrezco'): ?>
+                        <!-- ANUNCIO TIPO OFREZCO -->
+                        <?php if ($isPublisher): ?>
+                            <!-- Soy el conductor/publicador: ver solicitudes pendientes -->
+                            <?php
+                            $stmtPendingPass = $this->db->prepare(
+                                "SELECT v.idPasajero, u.nombre as pasajeroNombre
+                                 FROM viajes v
+                                 JOIN usuarios u ON v.idPasajero = u.idUsuario
+                                 WHERE v.idAnuncio = :anuncioId AND v.estado = 'pendiente'
+                                 LIMIT 1"
+                            );
+                            $stmtPendingPass->execute([':anuncioId' => $anuncioId]);
+                            $pendingPassenger = $stmtPendingPass->fetch(PDO::FETCH_ASSOC);
+                            ?>
+                            <?php if ($pendingPassenger): ?>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-gray-400 mr-1">
+                                        <i class="fas fa-user-circle"></i> <?= htmlspecialchars($pendingPassenger['pasajeroNombre']) ?>
+                                    </span>
+                                    <button onclick="handleOfferResponse(<?= $anuncioId ?>, <?= $pendingPassenger['idPasajero'] ?>, 'accept')"
+                                            class="px-3 py-1.5 text-xs bg-green-500/10 border border-green-500/30 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors font-medium shadow-sm"
+                                            title="Aceptar solicitud">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button onclick="handleOfferResponse(<?= $anuncioId ?>, <?= $pendingPassenger['idPasajero'] ?>, 'reject')"
+                                            class="px-3 py-1.5 text-xs bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors font-medium shadow-sm"
+                                            title="Rechazar solicitud">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            <?php else: ?>
+                                <span class="px-4 py-2 text-xs bg-blue-500/10 text-blue-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-blue-500/30 shadow-sm">
+                                    <i class="fas fa-hourglass-half mr-1"></i> Sin solicitudes
+                                </span>
+                            <?php endif; ?>
+                        <?php elseif (!$myOffer): ?>
+                            <!-- No soy el publicador y no he reservado aún -->
+                            <a href="<?= url('/reserve') ?>?ride_id=<?= $anuncioId ?>"
+                               class="px-4 py-2 text-xs border border-primary/30 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors whitespace-nowrap shrink-0 font-medium shadow-sm">
+                                <i class="fas fa-user-plus mr-1"></i> Solicitar plaza
+                            </a>
+                        <?php elseif ($myOffer['estado'] === 'pendiente'): ?>
+                            <span class="px-4 py-2 text-xs bg-yellow-500/10 text-yellow-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-yellow-500/30 shadow-sm">
+                                <i class="fas fa-clock mr-1"></i> Solicitud enviada
+                            </span>
+                        <?php elseif ($myOffer['estado'] === 'aceptado'): ?>
+                            <span class="px-4 py-2 text-xs bg-green-500/10 text-green-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-green-500/30 shadow-sm">
+                                <i class="fas fa-check-circle mr-1"></i> Plaza confirmada
+                            </span>
+                        <?php elseif ($myOffer['estado'] === 'rechazado'): ?>
+                            <span class="px-4 py-2 text-xs bg-red-500/10 text-red-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-red-500/30 shadow-sm">
+                                <i class="fas fa-times-circle mr-1"></i> Solicitud rechazada
+                            </span>
+                        <?php endif; ?>
+
                     <?php else: ?>
-                        <!-- ANUNCIO TIPO BUSCO: Botones dinámicos según estado y usuario -->
-                        <?php
-                        // Obtener información del anuncio y determinar roles
-                        $anuncioId = $contextRide['idAnuncio'];
-                        $publisherId = null;
-                        
-                        // Obtener quien publicó el anuncio
-                        $publisherQuery = "SELECT idUsuario FROM anuncios WHERE idAnuncio = :anuncioId";
-                        $stmtPub = $this->db->prepare($publisherQuery);
-                        $stmtPub->execute([':anuncioId' => $anuncioId]);
-                        $pubResult = $stmtPub->fetch(PDO::FETCH_ASSOC);
-                        if ($pubResult) {
-                            $publisherId = $pubResult['idUsuario'];
-                        }
-                        
-                        $isPublisher = ($publisherId == $_SESSION['user_id']);
-                        
-                        // Verificar si ya existe una oferta/viaje para este anuncio con este usuario
-                        $offerQuery = "SELECT estado FROM viajes 
-                                      WHERE idAnuncio = :anuncioId 
-                                      AND (idConductor = :userId OR idPasajero = :userId)";
-                        $stmtOffer = $this->db->prepare($offerQuery);
-                        $stmtOffer->execute([
-                            ':anuncioId' => $anuncioId,
-                            ':userId' => $_SESSION['user_id']
-                        ]);
-                        $existingOffer = $stmtOffer->fetch(PDO::FETCH_ASSOC);
-                        ?>
-                        
-                        <?php if (!$isPublisher && !$existingOffer): ?>
-                            <!-- Usuario NO es el publicador y NO ha ofrecido: Mostrar botón "Ofrecer llevarlo" -->
-                            <button onclick="offerRide(<?= $anuncioId ?>, <?= $_SESSION['user_id'] ?>)" 
+                        <!-- ANUNCIO TIPO BUSCO -->
+                        <?php if (!$isPublisher && !$myOffer): ?>
+                            <!-- No soy el publicador y no he ofrecido -->
+                            <button onclick="offerRide(<?= $anuncioId ?>, <?= $_SESSION['user_id'] ?>)"
                                     class="px-4 py-2 text-xs border border-green-500/30 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors whitespace-nowrap shrink-0 font-medium shadow-sm hover:shadow-md">
                                 <i class="fas fa-hand-holding-heart mr-1"></i> Ofrecer llevarlo
                             </button>
-                        <?php elseif (!$isPublisher && $existingOffer && $existingOffer['estado'] === 'pendiente'): ?>
-                            <!-- Usuario ofreció y está pendiente de aceptación -->
+                        <?php elseif (!$isPublisher && $myOffer['estado'] === 'pendiente'): ?>
                             <span class="px-4 py-2 text-xs bg-yellow-500/10 text-yellow-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-yellow-500/30 shadow-sm">
                                 <i class="fas fa-clock mr-1"></i> Oferta enviada
                             </span>
-                        <?php elseif (!$isPublisher && $existingOffer && $existingOffer['estado'] === 'aceptado'): ?>
-                            <!-- Usuario ofreció y fue aceptado -->
+                        <?php elseif (!$isPublisher && $myOffer['estado'] === 'aceptado'): ?>
                             <span class="px-4 py-2 text-xs bg-green-500/10 text-green-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-green-500/30 shadow-sm">
                                 <i class="fas fa-check-circle mr-1"></i> Oferta aceptada
                             </span>
-                        <?php elseif (!$isPublisher && $existingOffer && $existingOffer['estado'] === 'rechazado'): ?>
-                            <!-- Usuario ofreció pero fue rechazado -->
+                        <?php elseif (!$isPublisher && $myOffer['estado'] === 'rechazado'): ?>
                             <span class="px-4 py-2 text-xs bg-red-500/10 text-red-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-red-500/30 shadow-sm">
                                 <i class="fas fa-times-circle mr-1"></i> Oferta rechazada
                             </span>
                         <?php elseif ($isPublisher): ?>
-                            <!-- Usuario ES el publicador: Mostrar botones si hay ofertas pendientes -->
+                            <!-- Soy el publicador (pasajero que busca viaje): gestionar ofertas -->
                             <?php
-                            // Verificar si hay ofertas pendientes para este anuncio
-                            $pendingOffersQuery = "SELECT v.idViaje, v.idConductor, u.nombre as conductorNombre
-                                                  FROM viajes v
-                                                  JOIN usuarios u ON v.idConductor = u.idUsuario
-                                                  WHERE v.idAnuncio = :anuncioId 
-                                                  AND v.idPasajero = :userId
-                                                  AND v.estado = 'pendiente'
-                                                  LIMIT 1";
-                            $stmtPending = $this->db->prepare($pendingOffersQuery);
-                            $stmtPending->execute([
-                                ':anuncioId' => $anuncioId,
-                                ':userId' => $_SESSION['user_id']
-                            ]);
+                            // Buscar oferta pendiente primero
+                            $stmtPending = $this->db->prepare(
+                                "SELECT v.idConductor, u.nombre as conductorNombre
+                                 FROM viajes v
+                                 JOIN usuarios u ON v.idConductor = u.idUsuario
+                                 WHERE v.idAnuncio = :anuncioId
+                                 AND v.idPasajero = :userId
+                                 AND v.estado = 'pendiente'
+                                 LIMIT 1"
+                            );
+                            $stmtPending->execute([':anuncioId' => $anuncioId, ':userId' => $_SESSION['user_id']]);
                             $pendingOffer = $stmtPending->fetch(PDO::FETCH_ASSOC);
+
+                            // Si no hay pendiente, buscar oferta aceptada
+                            $acceptedOffer = null;
+                            if (!$pendingOffer) {
+                                $stmtAccepted = $this->db->prepare(
+                                    "SELECT v.idConductor, u.nombre as conductorNombre
+                                     FROM viajes v
+                                     JOIN usuarios u ON v.idConductor = u.idUsuario
+                                     WHERE v.idAnuncio = :anuncioId
+                                     AND v.idPasajero = :userId
+                                     AND v.estado = 'aceptado'
+                                     LIMIT 1"
+                                );
+                                $stmtAccepted->execute([':anuncioId' => $anuncioId, ':userId' => $_SESSION['user_id']]);
+                                $acceptedOffer = $stmtAccepted->fetch(PDO::FETCH_ASSOC);
+                            }
                             ?>
-                            
+
                             <?php if ($pendingOffer): ?>
-                                <!-- Hay oferta pendiente: Mostrar botones Aceptar/Rechazar -->
+                                <!-- Oferta pendiente: botones Aceptar/Rechazar -->
                                 <div class="flex items-center gap-2">
                                     <span class="text-xs text-gray-400 mr-1">
                                         <i class="fas fa-user-circle"></i> <?= htmlspecialchars($pendingOffer['conductorNombre']) ?>
@@ -214,8 +271,13 @@
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
+                            <?php elseif ($acceptedOffer): ?>
+                                <!-- Oferta aceptada -->
+                                <span class="px-4 py-2 text-xs bg-green-500/10 text-green-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-green-500/30 shadow-sm">
+                                    <i class="fas fa-check-circle mr-1"></i> Oferta aceptada
+                                </span>
                             <?php else: ?>
-                                <!-- No hay ofertas pendientes: Mostrar "Esperando ofertas" -->
+                                <!-- Sin ofertas aún -->
                                 <span class="px-4 py-2 text-xs bg-blue-500/10 text-blue-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-blue-500/30 shadow-sm animate-pulse">
                                     <i class="fas fa-hourglass-half mr-1"></i> Esperando ofertas
                                 </span>
@@ -280,6 +342,46 @@
     </div>
 </div>
 
+<!-- Modal de confirmación del chat -->
+<div id="chat-confirm-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4" onclick="if(event.target===this)closeChatConfirm()">
+    <div class="bg-surface rounded-2xl border border-gray-700 shadow-2xl max-w-md w-full">
+        <div class="p-6 border-b border-gray-700">
+            <div class="flex items-center gap-4">
+                <div id="ccm-icon-wrap" class="w-12 h-12 rounded-full flex items-center justify-center">
+                    <i id="ccm-icon"></i>
+                </div>
+                <div>
+                    <h3 id="ccm-title" class="text-xl font-bold text-white"></h3>
+                    <p id="ccm-subtitle" class="text-sm text-gray-400"></p>
+                </div>
+            </div>
+        </div>
+        <div class="p-6">
+            <p id="ccm-message" class="text-gray-300 leading-relaxed"></p>
+            <div id="ccm-warning-wrap" class="hidden mt-4 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
+                <p class="text-sm text-yellow-400 flex items-start gap-2">
+                    <i class="fas fa-info-circle mt-0.5 shrink-0"></i>
+                    <span id="ccm-warning"></span>
+                </p>
+            </div>
+        </div>
+        <div class="p-6 bg-gray-800/50 border-t border-gray-700 flex gap-3">
+            <button onclick="closeChatConfirm()" class="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-medium transition-all">
+                <i class="fas fa-times mr-2"></i>Cancelar
+            </button>
+            <button id="ccm-btn" onclick="executeChatConfirm()" class="flex-1 px-4 py-3 text-white rounded-xl font-bold transition-all shadow-lg">
+                Confirmar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast de notificación del chat -->
+<div id="chat-toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[80] flex items-center gap-3 px-5 py-3 rounded-xl border shadow-2xl backdrop-blur-sm">
+    <i id="chat-toast-icon"></i>
+    <p id="chat-toast-text" class="text-sm font-medium text-white"></p>
+</div>
+
 <script>
     const container = document.getElementById('messages-container');
     const textarea  = document.querySelector('textarea[name="message"]');
@@ -332,15 +434,98 @@
         refreshInterval = setInterval(fetchMessages, 3000);
     }
     
-    function confirmDeleteConversation(conversationId) {
-        if (confirm('¿Eliminar toda la conversación? Esta acción no se puede deshacer.')) {
-            document.getElementById('delete-conversation-id').value = conversationId;
-            document.getElementById('delete-conversation-form').submit();
+    // Modal de confirmación personalizada para el chat
+    let _chatConfirmCb = null;
+
+    function showChatConfirm({ iconClass, iconColor, bgColor, title, subtitle, message, warning, confirmText, confirmBg }, onConfirm) {
+        document.getElementById('ccm-icon-wrap').className = `w-12 h-12 rounded-full flex items-center justify-center ${bgColor}`;
+        document.getElementById('ccm-icon').className      = `${iconClass} ${iconColor} text-xl`;
+        document.getElementById('ccm-title').textContent   = title;
+        document.getElementById('ccm-subtitle').textContent = subtitle || '';
+        document.getElementById('ccm-message').textContent  = message;
+
+        const warnWrap = document.getElementById('ccm-warning-wrap');
+        if (warning) {
+            document.getElementById('ccm-warning').textContent = warning;
+            warnWrap.classList.remove('hidden');
+        } else {
+            warnWrap.classList.add('hidden');
         }
+
+        const btn = document.getElementById('ccm-btn');
+        btn.textContent = confirmText || 'Confirmar';
+        btn.className   = `flex-1 px-4 py-3 ${confirmBg} text-white rounded-xl font-bold transition-all shadow-lg`;
+
+        _chatConfirmCb = onConfirm;
+        document.getElementById('chat-confirm-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
     }
 
+    function closeChatConfirm() {
+        document.getElementById('chat-confirm-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        _chatConfirmCb = null;
+    }
+
+    function executeChatConfirm() {
+        const cb = _chatConfirmCb;
+        closeChatConfirm();
+        if (cb) cb();
+    }
+
+    // Toast de notificación
+    let _toastTimer = null;
+
+    function showChatToast(message, type = 'success') {
+        const toast = document.getElementById('chat-toast');
+        const icon  = document.getElementById('chat-toast-icon');
+        const text  = document.getElementById('chat-toast-text');
+
+        const styles = {
+            success: { bg: 'bg-green-500/20 border-green-500/40', icon: 'fas fa-check-circle text-green-400' },
+            error:   { bg: 'bg-red-500/20 border-red-500/40',     icon: 'fas fa-times-circle text-red-400'   },
+            info:    { bg: 'bg-blue-500/20 border-blue-500/40',    icon: 'fas fa-info-circle text-blue-400'   },
+        };
+        const s = styles[type] || styles.info;
+
+        toast.className  = `fixed bottom-6 left-1/2 -translate-x-1/2 z-[80] flex items-center gap-3 px-5 py-3 rounded-xl border shadow-2xl backdrop-blur-sm ${s.bg}`;
+        icon.className   = `text-lg ${s.icon}`;
+        text.textContent = message;
+
+        toast.classList.remove('hidden');
+        if (_toastTimer) clearTimeout(_toastTimer);
+        _toastTimer = setTimeout(() => toast.classList.add('hidden'), 4000);
+    }
+
+    // Eliminar conversación completa
+    function confirmDeleteConversation(conversationId) {
+        showChatConfirm({
+            iconClass:  'fas fa-trash-alt',
+            iconColor:  'text-red-500',
+            bgColor:    'bg-red-500/10',
+            title:      'Eliminar conversación',
+            subtitle:   'Esta acción no se puede deshacer',
+            message:    '¿Estás seguro de que quieres eliminar toda la conversación? Se perderán todos los mensajes.',
+            confirmText: 'Eliminar',
+            confirmBg:  'bg-red-500 hover:bg-red-600',
+        }, () => {
+            document.getElementById('delete-conversation-id').value = conversationId;
+            document.getElementById('delete-conversation-form').submit();
+        });
+    }
+
+    // Eliminar mensaje
     function deleteMessage(id) {
-        if (confirm('¿Eliminar este mensaje?')) {
+        showChatConfirm({
+            iconClass:  'fas fa-trash-alt',
+            iconColor:  'text-red-500',
+            bgColor:    'bg-red-500/10',
+            title:      'Eliminar mensaje',
+            subtitle:   'Esta acción no se puede deshacer',
+            message:    '¿Estás seguro de que quieres eliminar este mensaje?',
+            confirmText: 'Eliminar',
+            confirmBg:  'bg-red-500 hover:bg-red-600',
+        }, () => {
             const formData = new FormData();
             formData.append('message_id', id);
             fetch('<?= url("/chat") ?>?action=delete', { method: 'POST', body: formData, headers: {'X-Requested-With': 'XMLHttpRequest'} })
@@ -351,9 +536,10 @@
                     if (el) el.remove();
                 }
             });
-        }
+        });
     }
 
+    // Editar mensaje
     function editMessage(id) {
         const text = document.querySelector(`#msg-${id} .message-content`).textContent;
         document.getElementById('edit-msg-id').value   = id;
@@ -365,8 +551,8 @@
 
     function submitEdit(e) {
         e.preventDefault();
-        const id      = document.getElementById('edit-msg-id').value;
-        const text    = document.getElementById('edit-msg-text').value;
+        const id       = document.getElementById('edit-msg-id').value;
+        const text     = document.getElementById('edit-msg-text').value;
         const formData = new FormData();
         formData.append('message_id', id);
         formData.append('message', text);
@@ -374,74 +560,90 @@
         fetch('<?= url("/chat") ?>?action=edit', { method: 'POST', body: formData, headers: {'X-Requested-With': 'XMLHttpRequest'} })
         .then(res => res.json())
         .then(data => {
-              if (data.success) {
-                  const el = document.querySelector(`#msg-${id} .message-content`);
-                  if (el) el.textContent = text;
-                  closeEditModal();
-              } else { alert(data.error || 'Error'); }
-        });
-    }
-
-    // Función para ofrecer llevarlo en anuncio tipo "busco"
-    function offerRide(anuncioId, userId) {
-        if (!confirm('¿Confirmas que quieres ofrecer llevarlo en este viaje?')) {
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('anuncio_id', anuncioId);
-        formData.append('user_id', userId);
-
-        fetch('<?= url("/chat") ?>?action=offer_ride', {
-            method: 'POST',
-            body: formData,
-            headers: {'X-Requested-With': 'XMLHttpRequest'}
-        })
-        .then(res => res.json())
-        .then(data => {
             if (data.success) {
-                alert(data.message || '¡Oferta enviada con éxito!'); // Alert temporal, ya cambiar después
-                location.reload();
+                const el = document.querySelector(`#msg-${id} .message-content`);
+                if (el) el.textContent = text;
+                closeEditModal();
             } else {
-                alert(data.message || 'Error al enviar la oferta'); // Lo mismo que el otro
+                showChatToast(data.error || 'No se pudo guardar el mensaje.', 'error');
             }
-        })
-        .catch(err => {
-            console.error('Error:', err);
-            alert('Error de conexión. Inténtalo de nuevo.');
         });
     }
 
-    // Función para aceptar/rechazar oferta en anuncio tipo "busco"
+    // Ofrecer llevar a usuario que busca transporte
+    function offerRide(anuncioId, userId) {
+        showChatConfirm({
+            iconClass:  'fas fa-hand-holding-heart',
+            iconColor:  'text-green-400',
+            bgColor:    'bg-green-500/10',
+            title:      'Ofrecer llevarlo',
+            subtitle:   'Confirma tu oferta de transporte',
+            message:    '¿Confirmas que quieres ofrecer llevar a este usuario en su viaje?',
+            warning:    'El usuario recibirá una notificación y podrá aceptar o rechazar tu oferta.',
+            confirmText: 'Ofrecer',
+            confirmBg:  'bg-green-500 hover:bg-green-600',
+        }, () => {
+            const formData = new FormData();
+            formData.append('anuncio_id', anuncioId);
+            formData.append('user_id', userId);
+
+            fetch('<?= url("/chat") ?>?action=offer_ride', {
+                method: 'POST',
+                body: formData,
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showChatToast(data.message || '¡Oferta enviada con éxito!', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showChatToast(data.message || 'Error al enviar la oferta.', 'error');
+                }
+            })
+            .catch(() => showChatToast('Error de conexión. Inténtalo de nuevo.', 'error'));
+        });
+    }
+
+    // Aceptar o rechazar oferta/solicitud de transporte
     function handleOfferResponse(anuncioId, conductorId, action) {
-        const actionText = action === 'accept' ? 'aceptar' : 'rechazar';
-        if (!confirm(`¿Confirmas que quieres ${actionText} esta oferta?`)) {
-            return;
-        }
+        const isAccept = action === 'accept';
+        showChatConfirm({
+            iconClass:  isAccept ? 'fas fa-check-circle' : 'fas fa-times-circle',
+            iconColor:  isAccept ? 'text-green-400'      : 'text-red-400',
+            bgColor:    isAccept ? 'bg-green-500/10'     : 'bg-red-500/10',
+            title:      isAccept ? 'Aceptar oferta'      : 'Rechazar oferta',
+            subtitle:   'Confirma tu decisión',
+            message:    isAccept
+                ? '¿Confirmas que quieres aceptar esta oferta de transporte?'
+                : '¿Confirmas que quieres rechazar esta oferta de transporte?',
+            warning:    isAccept
+                ? 'El conductor será notificado de que has aceptado su oferta.'
+                : 'El conductor será notificado de que has rechazado su oferta.',
+            confirmText: isAccept ? 'Aceptar' : 'Rechazar',
+            confirmBg:  isAccept ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600',
+        }, () => {
+            const formData = new FormData();
+            formData.append('ride_id', anuncioId);
+            formData.append('passenger_id', conductorId);
+            formData.append('action', action);
 
-        const formData = new FormData();
-        formData.append('ride_id', anuncioId);
-        formData.append('passenger_id', conductorId); // En realidad es el conductor, pero el endpoint espera este nombre
-        formData.append('action', action);
-
-        fetch('<?= url("/manage-reservation") ?>', {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => {
-            if (res.ok) {
-                const msg = action === 'accept' 
-                    ? 'Oferta aceptada con éxito' 
-                    : 'Oferta rechazada';
-                alert(msg);
-                location.reload();
-            } else {
-                alert('Error al procesar la respuesta');
-            }
-        })
-        .catch(err => {
-            console.error('Error:', err);
-            alert('Error de conexión. Inténtalo de nuevo.');
+            fetch('<?= url("/manage-reservation") ?>', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => {
+                if (res.ok) {
+                    showChatToast(
+                        isAccept ? '¡Oferta aceptada con éxito!' : 'Oferta rechazada.',
+                        isAccept ? 'success' : 'info'
+                    );
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showChatToast('Error al procesar la respuesta.', 'error');
+                }
+            })
+            .catch(() => showChatToast('Error de conexión. Inténtalo de nuevo.', 'error'));
         });
     }
 </script>

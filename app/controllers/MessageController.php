@@ -3,12 +3,14 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../models/Message.php';
 require_once __DIR__ . '/../models/Conversation.php';
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../../services/MailService.php';
 
 class MessageController {
     private $db;
     private $message;
     private $conversation;
     private $user;
+    private ?MailService $mailService = null;
 
     public function __construct() {
         if (session_status() === PHP_SESSION_NONE) {
@@ -20,6 +22,7 @@ class MessageController {
         $this->message      = new Message($this->db);
         $this->conversation = new Conversation($this->db);
         $this->user         = new User($this->db);
+        try { $this->mailService = new MailService(); } catch (Exception $e) { error_log('MailService: ' . $e->getMessage()); }
     }
 
     // Buscar o crear conversación
@@ -155,6 +158,25 @@ class MessageController {
         ];
 
         $this->message->createMessage($data);
+
+        // Notificación instantánea por email al receptor
+        if ($this->mailService) {
+            $receiver = $this->user->getUserById($receiverId);
+            if ($receiver && !empty($receiver['notificaciones_email'])) {
+                $senderName = $_SESSION['user_name'] ?? 'Un usuario';
+                $html = $this->mailService->generarPlantilla(
+                    $receiver['nombre'],
+                    'Nuevo mensaje de ' . htmlspecialchars($senderName),
+                    'Hola <strong>' . htmlspecialchars($receiver['nombre']) . '</strong>,<br><br>
+                    <strong>' . htmlspecialchars($senderName) . '</strong> te ha enviado un nuevo mensaje en Ride4Study.<br><br>
+                    Accede a tu bandeja de entrada para leerlo y responder.',
+                    null,
+                    url('/chat') . '?conversation_id=' . $conversationId,
+                    'Ver mensaje'
+                );
+                $this->mailService->send($receiver['correo'], $receiver['nombre'], 'Nuevo mensaje · Ride4Study', $html);
+            }
+        }
 
         header('Location: ' . url('/chat') . '?conversation_id=' . $conversationId);
         exit;
