@@ -55,7 +55,8 @@ class Ride {
         $query .= " AND (a.fechaSalida > CURDATE() OR (a.fechaSalida = CURDATE() AND a.horaSalida >= CURTIME()))";
 
         $query .= " GROUP BY a.idAnuncio";
-        $query .= " ORDER BY a.fechaSalida ASC, a.horaSalida ASC, a.fechaPublicacion DESC";
+        // Los anuncios destacados aparecen primero
+        $query .= " ORDER BY a.destacado DESC, a.fechaSalida ASC, a.horaSalida ASC, a.fechaPublicacion DESC";
         $query .= " LIMIT :limit OFFSET :offset";
 
         $stmt = $this->conn->prepare($query);
@@ -530,6 +531,38 @@ class Ride {
         $stmt = $this->conn->prepare($query);
         $stmt->execute([':rideId' => $rideId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Contar anuncios futuros activos del usuario (para el límite de plan gratuito)
+    public function getActiveCount(int $userId): int {
+        $sql = "SELECT COUNT(*) as c FROM {$this->table}
+                WHERE idUsuario = :id
+                  AND (fechaSalida > CURDATE() OR (fechaSalida = CURDATE() AND horaSalida >= CURTIME()))";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':id' => $userId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)($row['c'] ?? 0);
+    }
+
+    // Destacar un anuncio (desactiva el destacado de los demás del mismo usuario primero)
+    public function toggleFeatured(int $rideId, int $userId): bool {
+        // Comprobar si ya está destacado
+        $check = $this->conn->prepare("SELECT destacado FROM {$this->table} WHERE idAnuncio = :id AND idUsuario = :uid");
+        $check->execute([':id' => $rideId, ':uid' => $userId]);
+        $current = $check->fetch(PDO::FETCH_ASSOC);
+
+        if (!$current) return false;
+
+        if ($current['destacado']) {
+            // Si ya está destacado, quitarlo
+            $stmt = $this->conn->prepare("UPDATE {$this->table} SET destacado = 0 WHERE idAnuncio = :id AND idUsuario = :uid");
+            return $stmt->execute([':id' => $rideId, ':uid' => $userId]);
+        }
+
+        // Si no está destacado, quitar el destacado de todos y activar este
+        $this->conn->prepare("UPDATE {$this->table} SET destacado = 0 WHERE idUsuario = :uid")->execute([':uid' => $userId]);
+        $stmt = $this->conn->prepare("UPDATE {$this->table} SET destacado = 1 WHERE idAnuncio = :id AND idUsuario = :uid");
+        return $stmt->execute([':id' => $rideId, ':uid' => $userId]);
     }
 
     // Eliminar viaje

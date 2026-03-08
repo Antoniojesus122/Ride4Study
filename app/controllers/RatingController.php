@@ -130,6 +130,35 @@ class RatingController {
         require_once __DIR__ . '/../../views/user/rating-form.view.php';
     }
 
+    // Responder a una valoración recibida (solo el usuario valorado)
+    public function submitReply() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_SESSION['user_id'])) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'No autorizado']);
+            exit;
+        }
+
+        $idValoracion = (int)($_POST['idValoracion'] ?? 0);
+        $respuesta    = trim($_POST['respuesta'] ?? '');
+
+        if ($idValoracion <= 0 || empty($respuesta)) {
+            echo json_encode(['success' => false, 'message' => 'Datos inválidos']);
+            exit;
+        }
+
+        if (strlen($respuesta) > 300) {
+            echo json_encode(['success' => false, 'message' => 'La respuesta no puede superar los 300 caracteres']);
+            exit;
+        }
+
+        if ($this->rating->addReply($idValoracion, (int)$_SESSION['user_id'], $respuesta)) {
+            echo json_encode(['success' => true, 'message' => '¡Respuesta publicada!']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'No se pudo publicar. Puede que ya hayas respondido.']);
+        }
+        exit;
+    }
+
     // Obtener valoraciones pendientes para el usuario actual
     public function getPendingRatings() {
         if (!isset($_SESSION['user_id'])) {

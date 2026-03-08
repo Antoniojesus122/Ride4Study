@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 27-02-2026 a las 14:09:18
+-- Tiempo de generación: 08-03-2026 a las 17:16:05
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -39,33 +39,41 @@ CREATE TABLE `anuncios` (
   `plazasDisponibles` int(11) DEFAULT NULL,
   `precio` decimal(6,2) DEFAULT NULL,
   `descripcion` text DEFAULT NULL,
-  `fechaPublicacion` datetime DEFAULT current_timestamp()
+  `fechaPublicacion` datetime DEFAULT current_timestamp(),
+  `destacado` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = anuncio destacado, aparece primero en el dashboard'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `anuncios`
 --
 
-INSERT INTO `anuncios` (`idAnuncio`, `idUsuario`, `tipo`, `origen`, `destino`, `fechaSalida`, `horaSalida`, `horaRegreso`, `plazasDisponibles`, `precio`, `descripcion`, `fechaPublicacion`) VALUES
-(1, 1, 'ofrezco', 3, 1, '2025-11-02', '07:30:00', '15:00:00', 3, 8.00, 'Salida desde el centro de Lepe, regreso por la tarde.', '2025-10-29 23:32:38'),
-(2, 1, 'ofrezco', 18, 17, '2025-10-31', '08:00:00', NULL, 2, 1.00, NULL, '2025-10-29 23:36:09'),
-(3, 1, 'busco', 1, 9, '2025-10-31', '02:00:00', NULL, 5, 4.00, NULL, '2025-10-29 23:36:34'),
-(4, 1, 'busco', 11, 12, '2025-10-31', '08:00:00', '10:03:00', NULL, 2.00, NULL, '2025-10-29 23:44:02'),
-(5, 1, 'ofrezco', 10, 17, '2025-11-02', '02:00:00', '10:00:00', 2, NULL, NULL, '2025-10-29 23:46:16'),
-(6, 1, 'busco', 5, 10, '2025-10-31', '02:00:00', '06:00:00', 4, NULL, NULL, '2025-10-29 23:50:24'),
-(7, 8, 'ofrezco', 6, 4, '2025-11-12', '03:04:00', NULL, 3, NULL, NULL, '2025-11-12 22:04:35'),
-(8, 8, 'ofrezco', 12, 20, '2025-11-28', '03:03:00', '06:06:00', 4, NULL, NULL, '2025-11-12 22:05:08'),
-(9, 8, 'ofrezco', 3, 17, '2025-11-29', '04:04:00', NULL, 4, NULL, NULL, '2025-11-12 22:06:08'),
-(10, 1, 'ofrezco', 18, 3, '2026-01-23', '03:02:00', '11:01:00', 2, NULL, 'Esto es una prueba', '2026-01-11 23:26:23'),
-(13, 9, 'ofrezco', 2, 12, '2026-02-12', '20:20:00', NULL, 1, NULL, '', '2026-02-09 23:20:13'),
-(14, 9, 'ofrezco', 4, 16, '2026-02-13', '17:45:00', NULL, 0, NULL, '', '2026-02-10 17:45:38'),
-(15, 9, 'ofrezco', 20, 13, '2026-02-25', '21:37:00', NULL, 1, NULL, '', '2026-02-18 16:32:57'),
-(17, 5, 'ofrezco', 2, 11, '2026-02-18', '01:56:00', NULL, 1, NULL, '', '2026-02-18 22:55:18'),
-(19, 9, 'ofrezco', 18, 8, '2026-02-25', '20:49:00', NULL, 1, NULL, '', '2026-02-22 18:48:05'),
-(20, 9, 'ofrezco', 14, 15, '2026-02-24', '23:54:00', NULL, 2, NULL, '', '2026-02-22 18:50:13'),
-(21, 5, 'ofrezco', 9, 20, '2026-02-28', '20:51:00', NULL, 0, NULL, '', '2026-02-26 17:48:26'),
-(24, 5, 'busco', 11, 12, '2026-03-07', '21:30:00', NULL, 0, NULL, '', '2026-02-26 18:27:43'),
-(25, 9, 'busco', 6, 17, '2026-02-28', '03:56:00', NULL, 0, NULL, '', '2026-02-26 23:52:49');
+INSERT INTO `anuncios` (`idAnuncio`, `idUsuario`, `tipo`, `origen`, `destino`, `fechaSalida`, `horaSalida`, `horaRegreso`, `plazasDisponibles`, `precio`, `descripcion`, `fechaPublicacion`, `destacado`) VALUES
+(1, 1, 'ofrezco', 3, 1, '2025-11-02', '07:30:00', '15:00:00', 3, 8.00, 'Salida desde el centro de Lepe, regreso por la tarde.', '2025-10-29 23:32:38', 0),
+(2, 1, 'ofrezco', 18, 17, '2025-10-31', '08:00:00', NULL, 2, 1.00, NULL, '2025-10-29 23:36:09', 0),
+(3, 1, 'busco', 1, 9, '2025-10-31', '02:00:00', NULL, 5, 4.00, NULL, '2025-10-29 23:36:34', 0),
+(4, 1, 'busco', 11, 12, '2025-10-31', '08:00:00', '10:03:00', NULL, 2.00, NULL, '2025-10-29 23:44:02', 0),
+(5, 1, 'ofrezco', 10, 17, '2025-11-02', '02:00:00', '10:00:00', 2, NULL, NULL, '2025-10-29 23:46:16', 0),
+(6, 1, 'busco', 5, 10, '2025-10-31', '02:00:00', '06:00:00', 4, NULL, NULL, '2025-10-29 23:50:24', 0),
+(7, 8, 'ofrezco', 6, 4, '2025-11-12', '03:04:00', NULL, 3, NULL, NULL, '2025-11-12 22:04:35', 0),
+(8, 8, 'ofrezco', 12, 20, '2025-11-28', '03:03:00', '06:06:00', 4, NULL, NULL, '2025-11-12 22:05:08', 0),
+(9, 8, 'ofrezco', 3, 17, '2025-11-29', '04:04:00', NULL, 4, NULL, NULL, '2025-11-12 22:06:08', 0),
+(10, 1, 'ofrezco', 18, 3, '2026-01-23', '03:02:00', '11:01:00', 2, NULL, 'Esto es una prueba', '2026-01-11 23:26:23', 0),
+(13, 9, 'ofrezco', 2, 12, '2026-02-12', '20:20:00', NULL, 1, NULL, '', '2026-02-09 23:20:13', 0),
+(14, 9, 'ofrezco', 4, 16, '2026-02-13', '17:45:00', NULL, 0, NULL, '', '2026-02-10 17:45:38', 0),
+(15, 9, 'ofrezco', 20, 13, '2026-02-25', '21:37:00', NULL, 1, NULL, '', '2026-02-18 16:32:57', 0),
+(17, 5, 'ofrezco', 2, 11, '2026-02-18', '01:56:00', NULL, 1, NULL, '', '2026-02-18 22:55:18', 0),
+(19, 9, 'ofrezco', 18, 8, '2026-02-25', '20:49:00', NULL, 1, NULL, '', '2026-02-22 18:48:05', 0),
+(20, 9, 'ofrezco', 14, 15, '2026-02-24', '23:54:00', NULL, 2, NULL, '', '2026-02-22 18:50:13', 0),
+(21, 5, 'ofrezco', 9, 20, '2026-02-28', '20:51:00', NULL, 0, NULL, '', '2026-02-26 17:48:26', 0),
+(25, 9, 'busco', 6, 17, '2026-02-28', '03:56:00', NULL, 0, NULL, '', '2026-02-26 23:52:49', 0),
+(26, 5, 'ofrezco', 9, 13, '2026-02-28', '14:22:00', NULL, 0, NULL, '', '2026-02-28 14:21:31', 0),
+(30, 9, 'busco', 1, 9, '2026-03-23', '17:25:00', NULL, 0, NULL, '', '2026-03-08 15:23:17', 0),
+(31, 9, 'ofrezco', 10, 9, '2026-03-17', '18:27:00', NULL, 0, NULL, '', '2026-03-08 15:24:57', 0),
+(32, 9, 'ofrezco', 6, 10, '2026-03-18', '20:54:00', NULL, 0, NULL, '', '2026-03-08 15:50:20', 0),
+(33, 5, 'ofrezco', 11, 17, '2026-03-24', '20:08:00', NULL, 1, NULL, '', '2026-03-08 17:05:21', 0),
+(34, 5, 'ofrezco', 14, 15, '2026-03-17', '20:07:00', NULL, 3, NULL, '', '2026-03-08 17:05:35', 0),
+(35, 5, 'busco', 11, 17, '2026-03-10', '21:09:00', NULL, 1, NULL, '', '2026-03-08 17:05:43', 0),
+(36, 5, 'ofrezco', 2, 7, '2026-03-18', '18:05:00', NULL, 4, NULL, '', '2026-03-08 17:05:56', 0);
 
 -- --------------------------------------------------------
 
@@ -86,10 +94,8 @@ CREATE TABLE `conversations` (
 --
 
 INSERT INTO `conversations` (`idConversation`, `idAnuncio`, `user1_id`, `user2_id`, `created_at`) VALUES
-(1, 15, 5, 9, '2026-02-18 16:01:52'),
-(4, 24, 5, 9, '2026-02-26 17:36:19'),
 (5, 21, 5, 9, '2026-02-26 17:40:00'),
-(6, 25, 5, 9, '2026-02-26 22:53:01');
+(12, 30, 5, 9, '2026-03-08 14:23:21');
 
 -- --------------------------------------------------------
 
@@ -170,11 +176,16 @@ CREATE TABLE `mensajes` (
 INSERT INTO `mensajes` (`idMensaje`, `idConversation`, `idEmisor`, `idReceptor`, `mensaje`, `tipo`, `fechaCreacion`, `leido`) VALUES
 (30, 0, 9, 5, 'Hola!', 'normal', '2026-02-16 16:32:41', 1),
 (31, 0, 5, 9, 'Hey!', 'normal', '2026-02-16 16:33:19', 0),
-(32, 1, 5, 9, 'Hola', 'normal', '2026-02-18 16:02:08', 1),
 (33, 2, 5, 9, 'y', 'normal', '2026-02-18 16:03:08', 1),
-(34, 4, 9, 5, 'fgr', 'normal', '2026-02-26 22:52:11', 1),
-(35, 6, 5, 9, 'gre', 'normal', '2026-02-26 22:53:04', 1),
-(36, 6, 5, 9, 'gw', 'normal', '2026-02-26 22:53:07', 1);
+(37, 9, 29, 5, 'Buenas tio ', 'normal', '2026-03-05 22:25:26', 1),
+(38, 10, 29, 5, 'Buenas', 'normal', '2026-03-07 15:07:49', 1),
+(39, 10, 29, 5, 'Te puedo llevar', 'normal', '2026-03-07 15:07:53', 1),
+(40, 11, 29, 5, 'Hola!', 'normal', '2026-03-07 15:09:00', 1),
+(41, 11, 29, 5, 'Te puedo llevar', 'normal', '2026-03-07 15:09:03', 1),
+(42, 12, 5, 9, 'Buenas', 'normal', '2026-03-08 14:23:23', 1),
+(43, 12, 5, 9, 'Te puedo llevar', 'normal', '2026-03-08 14:23:26', 1),
+(48, 12, 9, 5, 'fds', 'normal', '2026-03-08 15:20:23', 0),
+(49, 12, 9, 5, 'gfrefg', 'normal', '2026-03-08 15:24:10', 0);
 
 -- --------------------------------------------------------
 
@@ -187,7 +198,10 @@ CREATE TABLE `notificaciones` (
   `idUsuario` int(11) NOT NULL,
   `tipoNotificacion` enum('email','sistema') NOT NULL,
   `mensaje` text NOT NULL,
-  `fechaEnvio` datetime DEFAULT current_timestamp()
+  `fechaEnvio` datetime DEFAULT current_timestamp(),
+  `leida` tinyint(1) NOT NULL DEFAULT 0,
+  `icono` varchar(60) NOT NULL DEFAULT 'fas fa-bell',
+  `url` varchar(255) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -210,7 +224,8 @@ CREATE TABLE `password_resets` (
 
 INSERT INTO `password_resets` (`id`, `user_id`, `code`, `expires_at`, `created_at`) VALUES
 (12, 1, '309466', '2026-02-15 16:36:18', '2026-02-15 15:21:18'),
-(13, 5, '110389', '2026-02-18 22:59:34', '2026-02-18 21:44:34');
+(13, 5, '110389', '2026-02-18 22:59:34', '2026-02-18 21:44:34'),
+(19, 9, '993372', '2026-03-07 16:19:22', '2026-03-07 15:04:22');
 
 -- --------------------------------------------------------
 
@@ -288,31 +303,36 @@ CREATE TABLE `usuarios` (
   `nota_admin` text DEFAULT NULL,
   `visibilidad_perfil` enum('public','registered','private') DEFAULT 'public',
   `visibilidad_telefono` enum('public','rides_only') DEFAULT 'rides_only',
-  `notificaciones_email` tinyint(1) DEFAULT 1
+  `notificaciones_email` tinyint(1) DEFAULT 1,
+  `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
+  `premium` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = usuario con plan premium activo',
+  `premium_hasta` datetime DEFAULT NULL COMMENT 'Fecha de expiración del plan premium',
+  `stripe_customer_id` varchar(255) DEFAULT NULL COMMENT 'ID de cliente en Stripe para pagos recurrentes'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `usuarios`
 --
 
-INSERT INTO `usuarios` (`idUsuario`, `nombre`, `correo`, `telefono`, `ciudad`, `vehiculo`, `institucion`, `foto_perfil`, `biografia`, `contrasena`, `idRol`, `estado_verificacion`, `documento_verificacion`, `nota_admin`, `visibilidad_perfil`, `visibilidad_telefono`, `notificaciones_email`) VALUES
-(1, 'Antonio Jesús', 'antoniojesusgonzalezdomingo4@gmail.com', '624897163', 'Lepe', 'Citroen xsara', 'IES La Arboleda', NULL, 'Hola! Soy nuevo por aquí', '$2y$10$.JGyk1dI3aN.ZjW3Op2YKeJ0kCE4FxS/hzNKdL4U1qDA6lTU5ga2W', 1, 1, '6965129c1d554-Captura de pantalla 2026-01-11 235340.png', NULL, 'public', 'rides_only', 1),
-(2, 'Admin', 'admin@ride4study.local', '600000000', NULL, NULL, NULL, NULL, NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 0, NULL, NULL, 'public', 'rides_only', 1),
-(3, 'Antonio Jesús', 'ibt_ag2@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$k7Sx5fs0kCDgHuiEBGtLeuYvpXW7vJIJyEzGSmDn/ri8.3hXpukZO', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
-(4, 'Antonio Jesús', 'ibt_ag9@yopmail.com', '', NULL, NULL, NULL, NULL, NULL, '$2y$10$0VRX1y4fQg5ETpV.gZKK/.Qmx4tfUNVOSaQ0Pf6JVwtNSxli8bDYu', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
-(5, 'Antonio Jesús', 'ibt_ag10@yopmail.com', '624897163', 'Lepe', '', '', 'profile_698e529350944.jpg', '', '$2y$10$wPDjeIYeyWeF0epZA9fk2ODCg5eSz5q7vomz7zGXR/nskGk8RvAPO', 2, 1, '6915085dcb57d-reza-madani-UI6feF4NbQs-unsplash.jpg', NULL, 'private', 'rides_only', 1),
-(6, 'Administrador', 'admin@ride4study.com', '600000000', NULL, NULL, NULL, NULL, NULL, '$2y$10$YcPnD9StN5jL1BqOq7wHkeHTdY9aHw.5Fh0A1r7SV3gIfhTzKkSm2', 1, 0, NULL, NULL, 'public', 'rides_only', 1),
-(7, 'Manuel Hernandez', 'antoniodomingo.gd@gmail.com', '', NULL, NULL, NULL, NULL, NULL, '$2y$10$aA2cOTEE6OXyk4FMutL6CezP2OPP7QSRLFaLDCkzvd06gSfQwxlvq', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
-(8, 'González Domingo', 'ibt_11@yopmail.com', '', NULL, NULL, NULL, NULL, NULL, '$2y$10$N06dxbYdBrxjGpiDJX.Bx.I6cdRrUoWK4Xn4Mp.C8RbzyftvRO.my', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
-(9, 'Fernando Domingo', 'ibt_ag120@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, '$2y$10$wRC7JgGK23TfxJrieun27egyBWccpJ0NLUade0uChwCIGtAZGyqvm', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
-(10, '', 'ibt_ag12@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, 'Antonio122', 1, 0, NULL, NULL, 'public', 'rides_only', 1),
-(12, 'admin', 'ibt_ag14@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, 'Antonio122', 1, 0, NULL, NULL, 'public', 'rides_only', 1),
-(13, 'Paco', 'ibt_02@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, '$2y$10$kwSkiKcAWTCEb06/DlZQKu5SM6eGRf2qOkLfvHrV/wwqqecxt72Bq', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
-(24, 'Pedro', 'ag@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$7gJYR2mJHdvRaRBOmrX/SO9bu3/hArQwm1HiIgHy4BOg3yfXDnXm2', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
-(25, 'Prueba', 'ag12@yopmail.com', '0', NULL, NULL, NULL, NULL, NULL, '$2y$10$aMjZ1kFAVDasUx3tjHkC/OUicpalRK85rfgqYo1PAlZ4Dk4yh4iPS', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
-(26, 'fewrf', 'ibt_ag1320@yopmail.com', '0', NULL, NULL, NULL, NULL, NULL, '$2y$10$xVeedDxKL1eAjtBDjwqI0.o5LjBkzzBu8Q2V72P6105DtjfFT.gF2', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
-(27, 'González Domingo', 'ibt_ag4320@yopmail.com', '423432432', NULL, NULL, NULL, NULL, NULL, '$2y$10$KSlMQQzRQogMrWK2qEBLNePHIWt4SJWnsJiA76VDWIe4yB0hUN8we', 2, 0, NULL, NULL, 'public', 'rides_only', 1),
-(28, 'Antonio', 'ag01@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$2nU1crqEcs0V4N6XHHj.JOzEa7UqzNiUi4kF1osr0TxUn7GJRV/Qq', 2, 0, NULL, NULL, 'public', 'rides_only', 1);
+INSERT INTO `usuarios` (`idUsuario`, `nombre`, `correo`, `telefono`, `ciudad`, `vehiculo`, `institucion`, `foto_perfil`, `biografia`, `contrasena`, `idRol`, `estado_verificacion`, `documento_verificacion`, `nota_admin`, `visibilidad_perfil`, `visibilidad_telefono`, `notificaciones_email`, `creado_en`, `premium`, `premium_hasta`, `stripe_customer_id`) VALUES
+(1, 'Antonio Jesús', 'antoniojesusgonzalezdomingo4@gmail.com', '624897163', 'Lepe', 'Citroen xsara', 'IES La Arboleda', NULL, 'Hola! Soy nuevo por aquí', '$2y$10$.JGyk1dI3aN.ZjW3Op2YKeJ0kCE4FxS/hzNKdL4U1qDA6lTU5ga2W', 1, 1, '6965129c1d554-Captura de pantalla 2026-01-11 235340.png', NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL),
+(2, 'Admin', 'admin@ride4study.local', '600000000', NULL, NULL, NULL, NULL, NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL),
+(3, 'Antonio Jesús', 'ibt_ag2@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$k7Sx5fs0kCDgHuiEBGtLeuYvpXW7vJIJyEzGSmDn/ri8.3hXpukZO', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL),
+(4, 'Antonio Jesús', 'ibt_ag9@yopmail.com', '', NULL, NULL, NULL, NULL, NULL, '$2y$10$0VRX1y4fQg5ETpV.gZKK/.Qmx4tfUNVOSaQ0Pf6JVwtNSxli8bDYu', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL),
+(5, 'Antonio Jesús', 'ibt_ag10@yopmail.com', '624897163', 'Lepe', '', '', 'profile_698e529350944.jpg', '', '$2y$10$JZjf8jpr1JKEg5S2GKcyGO03cElQRVGExQnaViX4FxusvmcgcOv76', 2, 1, '6915085dcb57d-reza-madani-UI6feF4NbQs-unsplash.jpg', NULL, 'public', 'public', 1, '2026-03-08 15:19:45', 0, NULL, NULL),
+(6, 'Administrador', 'admin@ride4study.com', '600000000', NULL, NULL, NULL, NULL, NULL, '$2y$10$YcPnD9StN5jL1BqOq7wHkeHTdY9aHw.5Fh0A1r7SV3gIfhTzKkSm2', 1, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL),
+(7, 'Manuel Hernandez', 'antoniodomingo.gd@gmail.com', '', NULL, NULL, NULL, NULL, NULL, '$2y$10$aA2cOTEE6OXyk4FMutL6CezP2OPP7QSRLFaLDCkzvd06gSfQwxlvq', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL),
+(8, 'González Domingo', 'ibt_11@yopmail.com', '', NULL, NULL, NULL, NULL, NULL, '$2y$10$N06dxbYdBrxjGpiDJX.Bx.I6cdRrUoWK4Xn4Mp.C8RbzyftvRO.my', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL),
+(9, 'Fernando Domingo', 'ibt_ag120@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, '$2y$10$wRC7JgGK23TfxJrieun27egyBWccpJ0NLUade0uChwCIGtAZGyqvm', 2, 1, '69ad940034d4a-Captura de pantalla 2026-03-08 162129.png', NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL),
+(10, '', 'ibt_ag12@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, 'Antonio122', 1, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL),
+(12, 'admin', 'ibt_ag14@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, 'Antonio122', 1, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL),
+(13, 'Paco', 'ibt_02@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, '$2y$10$kwSkiKcAWTCEb06/DlZQKu5SM6eGRf2qOkLfvHrV/wwqqecxt72Bq', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL),
+(24, 'Pedro', 'ag@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$7gJYR2mJHdvRaRBOmrX/SO9bu3/hArQwm1HiIgHy4BOg3yfXDnXm2', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL),
+(25, 'Prueba', 'ag12@yopmail.com', '0', NULL, NULL, NULL, NULL, NULL, '$2y$10$aMjZ1kFAVDasUx3tjHkC/OUicpalRK85rfgqYo1PAlZ4Dk4yh4iPS', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL),
+(26, 'fewrf', 'ibt_ag1320@yopmail.com', '0', NULL, NULL, NULL, NULL, NULL, '$2y$10$xVeedDxKL1eAjtBDjwqI0.o5LjBkzzBu8Q2V72P6105DtjfFT.gF2', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL),
+(27, 'González Domingo', 'ibt_ag4320@yopmail.com', '423432432', NULL, NULL, NULL, NULL, NULL, '$2y$10$KSlMQQzRQogMrWK2qEBLNePHIWt4SJWnsJiA76VDWIe4yB0hUN8we', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL),
+(28, 'Antonio', 'ag01@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$2nU1crqEcs0V4N6XHHj.JOzEa7UqzNiUi4kF1osr0TxUn7GJRV/Qq', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL),
+(29, 'Paco', 'paco@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$ZlEV1PIn3YA7NGXc3KbJdujWumVnSSoYNkIX69jSVVxSkI2cK2nHK', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -371,9 +391,12 @@ INSERT INTO `viajes` (`idViaje`, `idAnuncio`, `idConductor`, `idPasajero`, `esta
 (4, 14, 9, 5, '', NULL, NULL, NULL),
 (5, 15, 9, 5, '', NULL, NULL, NULL),
 (6, 15, 9, 28, '', NULL, NULL, NULL),
-(7, 21, 5, 9, 'aceptado', NULL, NULL, NULL),
-(9, 24, 9, 5, 'aceptado', NULL, NULL, NULL),
-(10, 25, 5, 9, 'pendiente', NULL, NULL, NULL);
+(7, 21, 5, 9, 'aceptado', NULL, NULL, '2026-03-01 15:28:40'),
+(10, 25, 5, 9, 'pendiente', NULL, NULL, NULL),
+(11, 26, 5, 9, 'aceptado', NULL, NULL, '2026-02-28 14:24:14'),
+(18, 31, 9, 5, 'aceptado', NULL, NULL, NULL),
+(19, 30, 5, 9, 'aceptado', NULL, NULL, NULL),
+(20, 32, 9, 5, 'aceptado', NULL, NULL, NULL);
 
 --
 -- Índices para tablas volcadas
@@ -423,7 +446,8 @@ ALTER TABLE `mensajes`
 --
 ALTER TABLE `notificaciones`
   ADD PRIMARY KEY (`idNotificacion`),
-  ADD KEY `idUsuario` (`idUsuario`);
+  ADD KEY `idUsuario` (`idUsuario`),
+  ADD KEY `idx_notif_usuario_leida` (`idUsuario`,`leida`);
 
 --
 -- Indices de la tabla `password_resets`
@@ -490,13 +514,13 @@ ALTER TABLE `viajes`
 -- AUTO_INCREMENT de la tabla `anuncios`
 --
 ALTER TABLE `anuncios`
-  MODIFY `idAnuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `idAnuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT de la tabla `conversations`
 --
 ALTER TABLE `conversations`
-  MODIFY `idConversation` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `idConversation` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `instituciones`
@@ -514,7 +538,7 @@ ALTER TABLE `localidades`
 -- AUTO_INCREMENT de la tabla `mensajes`
 --
 ALTER TABLE `mensajes`
-  MODIFY `idMensaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `idMensaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
@@ -526,7 +550,7 @@ ALTER TABLE `notificaciones`
 -- AUTO_INCREMENT de la tabla `password_resets`
 --
 ALTER TABLE `password_resets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT de la tabla `reportes`
@@ -550,13 +574,13 @@ ALTER TABLE `sesiones`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT de la tabla `viajes`
 --
 ALTER TABLE `viajes`
-  MODIFY `idViaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `idViaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- Restricciones para tablas volcadas

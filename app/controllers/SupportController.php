@@ -22,13 +22,13 @@ class SupportController {
                 <p>Has recibido un nuevo mensaje de soporte desde la plataforma Ride4Study.</p>
                 
                 <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
-                    <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">👤 Nombre:</strong> {$name}</p>
-                    <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📧 Email:</strong> {$email}</p>
-                    <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">📋 Asunto:</strong> {$subject}</p>
+                    <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Nombre:</strong> {$name}</p>
+                    <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Email:</strong> {$email}</p>
+                    <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Asunto:</strong> {$subject}</p>
                 </div>
                 
                 <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
-                    <p style=\"margin:0 0 10px 0; color:#34d399; font-weight:bold;\">💬 Mensaje:</p>
+                    <p style=\"margin:0 0 10px 0; color:#34d399; font-weight:bold;\">Mensaje:</p>
                     <p style=\"margin:0; color:#cbd5e1; white-space:pre-wrap;\">" . nl2br($message) . "</p>
                 </div>
                 

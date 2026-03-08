@@ -231,6 +231,19 @@ class Rating {
 		return $stmt->fetchAll(PDO::FETCH_ASSOC);
 	}
 
+	// Responder a una valoración recibida (solo el usuario valorado puede responder una vez)
+	public function addReply(int $idValoracion, int $idValorado, string $respuesta): bool {
+		$sql = "UPDATE {$this->table}
+				SET respuesta = :respuesta, fecha_respuesta = NOW()
+				WHERE idValoracion = :id AND idValorado = :idValorado AND respuesta IS NULL";
+		$stmt = $this->conn->prepare($sql);
+		return $stmt->execute([
+			':respuesta'  => htmlspecialchars(strip_tags(trim($respuesta))),
+			':id'         => $idValoracion,
+			':idValorado' => $idValorado,
+		]);
+	}
+
 	// Obtener detalles de un viaje específico para mostrar en la valoración
 	public function getTripDetailsForRating(int $idViaje, int $userId): array|false {
 		$sql = "SELECT 

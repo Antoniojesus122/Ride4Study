@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 26-02-2026 a las 18:41:05
+-- Tiempo de generación: 27-02-2026 a las 14:09:18
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -64,7 +64,8 @@ INSERT INTO `anuncios` (`idAnuncio`, `idUsuario`, `tipo`, `origen`, `destino`, `
 (19, 9, 'ofrezco', 18, 8, '2026-02-25', '20:49:00', NULL, 1, NULL, '', '2026-02-22 18:48:05'),
 (20, 9, 'ofrezco', 14, 15, '2026-02-24', '23:54:00', NULL, 2, NULL, '', '2026-02-22 18:50:13'),
 (21, 5, 'ofrezco', 9, 20, '2026-02-28', '20:51:00', NULL, 0, NULL, '', '2026-02-26 17:48:26'),
-(24, 5, 'busco', 11, 12, '2026-03-07', '21:30:00', NULL, 1, NULL, '', '2026-02-26 18:27:43');
+(24, 5, 'busco', 11, 12, '2026-03-07', '21:30:00', NULL, 0, NULL, '', '2026-02-26 18:27:43'),
+(25, 9, 'busco', 6, 17, '2026-02-28', '03:56:00', NULL, 0, NULL, '', '2026-02-26 23:52:49');
 
 -- --------------------------------------------------------
 
@@ -87,7 +88,8 @@ CREATE TABLE `conversations` (
 INSERT INTO `conversations` (`idConversation`, `idAnuncio`, `user1_id`, `user2_id`, `created_at`) VALUES
 (1, 15, 5, 9, '2026-02-18 16:01:52'),
 (4, 24, 5, 9, '2026-02-26 17:36:19'),
-(5, 21, 5, 9, '2026-02-26 17:40:00');
+(5, 21, 5, 9, '2026-02-26 17:40:00'),
+(6, 25, 5, 9, '2026-02-26 22:53:01');
 
 -- --------------------------------------------------------
 
@@ -169,7 +171,10 @@ INSERT INTO `mensajes` (`idMensaje`, `idConversation`, `idEmisor`, `idReceptor`,
 (30, 0, 9, 5, 'Hola!', 'normal', '2026-02-16 16:32:41', 1),
 (31, 0, 5, 9, 'Hey!', 'normal', '2026-02-16 16:33:19', 0),
 (32, 1, 5, 9, 'Hola', 'normal', '2026-02-18 16:02:08', 1),
-(33, 2, 5, 9, 'y', 'normal', '2026-02-18 16:03:08', 1);
+(33, 2, 5, 9, 'y', 'normal', '2026-02-18 16:03:08', 1),
+(34, 4, 9, 5, 'fgr', 'normal', '2026-02-26 22:52:11', 1),
+(35, 6, 5, 9, 'gre', 'normal', '2026-02-26 22:53:04', 1),
+(36, 6, 5, 9, 'gw', 'normal', '2026-02-26 22:53:07', 1);
 
 -- --------------------------------------------------------
 
@@ -317,17 +322,27 @@ INSERT INTO `usuarios` (`idUsuario`, `nombre`, `correo`, `telefono`, `ciudad`, `
 
 CREATE TABLE `valoraciones` (
   `idValoracion` int(11) NOT NULL,
+  `idViaje` int(11) DEFAULT NULL,
   `idValorador` int(11) NOT NULL,
   `idValorado` int(11) NOT NULL,
-  `puntuacion` tinyint(4) NOT NULL
+  `puntuacion` tinyint(4) NOT NULL,
+  `puntualidad` tinyint(4) DEFAULT NULL COMMENT 'Valoración de puntualidad (1-5)',
+  `comunicacion` tinyint(4) DEFAULT NULL COMMENT 'Valoración de comunicación (1-5)',
+  `vehiculo` tinyint(4) DEFAULT NULL COMMENT 'Valoración del vehículo (1-5, solo conductores)',
+  `conduccion` tinyint(4) DEFAULT NULL COMMENT 'Valoración de la conducción (1-5, solo conductores)',
+  `comportamiento` tinyint(4) DEFAULT NULL COMMENT 'Valoración del comportamiento (1-5)',
+  `comentario` text DEFAULT NULL COMMENT 'Comentario escrito opcional',
+  `respuesta` text DEFAULT NULL COMMENT 'Respuesta del usuario valorado',
+  `fecha_respuesta` datetime DEFAULT NULL,
+  `fecha_valoracion` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `valoraciones`
 --
 
-INSERT INTO `valoraciones` (`idValoracion`, `idValorador`, `idValorado`, `puntuacion`) VALUES
-(0, 5, 9, 5);
+INSERT INTO `valoraciones` (`idValoracion`, `idViaje`, `idValorador`, `idValorado`, `puntuacion`, `puntualidad`, `comunicacion`, `vehiculo`, `conduccion`, `comportamiento`, `comentario`, `respuesta`, `fecha_respuesta`, `fecha_valoracion`) VALUES
+(0, NULL, 5, 9, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-27 14:05:31');
 
 -- --------------------------------------------------------
 
@@ -342,20 +357,23 @@ CREATE TABLE `viajes` (
   `idPasajero` int(11) NOT NULL,
   `estado` enum('pendiente','aceptado','rechazado') NOT NULL DEFAULT 'pendiente',
   `fechaSalida` datetime DEFAULT NULL,
-  `fechaRegreso` datetime DEFAULT NULL
+  `fechaRegreso` datetime DEFAULT NULL,
+  `notificacion_valoracion_enviada` datetime DEFAULT NULL COMMENT 'Fecha en que se envió email de valoración'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `viajes`
 --
 
-INSERT INTO `viajes` (`idViaje`, `idAnuncio`, `idConductor`, `idPasajero`, `estado`, `fechaSalida`, `fechaRegreso`) VALUES
-(1, 10, 1, 9, '', '2026-01-23 03:02:00', NULL),
-(2, 6, 1, 7, 'pendiente', '2025-10-29 23:50:24', '2025-10-29 23:50:24'),
-(4, 14, 9, 5, '', NULL, NULL),
-(5, 15, 9, 5, '', NULL, NULL),
-(6, 15, 9, 28, '', NULL, NULL),
-(7, 21, 5, 9, 'aceptado', NULL, NULL);
+INSERT INTO `viajes` (`idViaje`, `idAnuncio`, `idConductor`, `idPasajero`, `estado`, `fechaSalida`, `fechaRegreso`, `notificacion_valoracion_enviada`) VALUES
+(1, 10, 1, 9, '', '2026-01-23 03:02:00', NULL, NULL),
+(2, 6, 1, 7, 'pendiente', '2025-10-29 23:50:24', '2025-10-29 23:50:24', NULL),
+(4, 14, 9, 5, '', NULL, NULL, NULL),
+(5, 15, 9, 5, '', NULL, NULL, NULL),
+(6, 15, 9, 28, '', NULL, NULL, NULL),
+(7, 21, 5, 9, 'aceptado', NULL, NULL, NULL),
+(9, 24, 9, 5, 'aceptado', NULL, NULL, NULL),
+(10, 25, 5, 9, 'pendiente', NULL, NULL, NULL);
 
 --
 -- Índices para tablas volcadas
@@ -446,6 +464,15 @@ ALTER TABLE `usuarios`
   ADD KEY `idRol` (`idRol`);
 
 --
+-- Indices de la tabla `valoraciones`
+--
+ALTER TABLE `valoraciones`
+  ADD UNIQUE KEY `unique_valoracion_viaje` (`idViaje`,`idValorador`),
+  ADD KEY `idx_valoracion_viaje` (`idViaje`),
+  ADD KEY `idx_valoracion_fecha` (`fecha_valoracion`),
+  ADD KEY `idx_valoracion_valorador_valorado` (`idValorador`,`idValorado`);
+
+--
 -- Indices de la tabla `viajes`
 --
 ALTER TABLE `viajes`
@@ -463,13 +490,13 @@ ALTER TABLE `viajes`
 -- AUTO_INCREMENT de la tabla `anuncios`
 --
 ALTER TABLE `anuncios`
-  MODIFY `idAnuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `idAnuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT de la tabla `conversations`
 --
 ALTER TABLE `conversations`
-  MODIFY `idConversation` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `idConversation` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `instituciones`
@@ -487,7 +514,7 @@ ALTER TABLE `localidades`
 -- AUTO_INCREMENT de la tabla `mensajes`
 --
 ALTER TABLE `mensajes`
-  MODIFY `idMensaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `idMensaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
@@ -529,7 +556,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `viajes`
 --
 ALTER TABLE `viajes`
-  MODIFY `idViaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `idViaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Restricciones para tablas volcadas
@@ -563,6 +590,12 @@ ALTER TABLE `reportes`
   ADD CONSTRAINT `fk_report_anuncio` FOREIGN KEY (`idAnuncio`) REFERENCES `anuncios` (`idAnuncio`) ON DELETE SET NULL,
   ADD CONSTRAINT `fk_report_user_que_reporta` FOREIGN KEY (`idUsuarioQueReporta`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_report_user_reportado` FOREIGN KEY (`idUsuarioReportado`) REFERENCES `usuarios` (`idUsuario`) ON DELETE SET NULL;
+
+--
+-- Filtros para la tabla `valoraciones`
+--
+ALTER TABLE `valoraciones`
+  ADD CONSTRAINT `fk_valoracion_viaje` FOREIGN KEY (`idViaje`) REFERENCES `viajes` (`idViaje`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `viajes`

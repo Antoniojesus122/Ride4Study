@@ -1,12 +1,14 @@
 <?php
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../models/Ride.php';
+require_once __DIR__ . '/../models/Notification.php';
 require_once __DIR__ . '/../../services/MailService.php';
 
 class RideController {
     private $db;
     private $ride;
     private $mailService;
+    private Notification $notification;
 
     public function __construct() {
         // Asegurar que la sesión esté iniciada para manejar autenticación
@@ -15,9 +17,10 @@ class RideController {
         }
 
         $database = new Database();
-        $this->db = $database->connect();
-        $this->ride = new Ride($this->db);
-        $this->mailService = new MailService();
+        $this->db           = $database->connect();
+        $this->ride         = new Ride($this->db);
+        $this->notification = new Notification($this->db);
+        $this->mailService  = new MailService();
     }
 
     public function index() {
@@ -166,6 +169,20 @@ class RideController {
             return;
         }
 
+        // Comprobar límite de anuncios para usuarios gratuitos (máximo 4 activos)
+        $userData = $this->db->prepare("SELECT premium, premium_hasta FROM usuarios WHERE idUsuario = :id");
+        $userData->execute([':id' => $_SESSION['user_id']]);
+        $user = $userData->fetch(PDO::FETCH_ASSOC);
+        $isPremium = $user && $user['premium'] && (!$user['premium_hasta'] || $user['premium_hasta'] > date('Y-m-d H:i:s'));
+
+        if (!$isPremium && $this->ride->getActiveCount((int)$_SESSION['user_id']) >= 4) {
+            $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
+            $locations   = $this->ride->getAllLocations();
+            $errors[]    = 'Has alcanzado el límite de 4 anuncios activos del plan gratuito. ¡Hazte Premium para publicar ilimitados!';
+            require_once __DIR__ . '/../../views/user/publish.view.php';
+            return;
+        }
+
         // Creación de viaje
         if ($this->ride->createRide($data)) {
             header('Location: ' . url('/my-rides') . '?success=created');
@@ -264,8 +281,27 @@ class RideController {
         $status = ($action === 'accept') ? 'aceptado' : 'rechazado';
 
         if ($this->ride->updateReservationStatus($rideId, $passengerId, $status)) {
-             // Enviar notificación al pasajero
+             // Enviar email de notificación al pasajero
              $this->sendReservationNotification($ride, $passengerId, $status);
+
+             // Notificación dentro de la aplicación web al pasajero/conductor implicado
+             $origen  = $ride['nombreOrigen']  ?? 'origen';
+             $destino = $ride['nombreDestino'] ?? 'destino';
+             if ($status === 'aceptado') {
+                 $this->notification->create(
+                     (int)$passengerId,
+                     'Tu solicitud de plaza en el viaje ' . $origen . ' → ' . $destino . ' ha sido aceptada.',
+                     'fas fa-check-circle',
+                     url('/my-rides') . '?tab=bookings'
+                 );
+             } else {
+                 $this->notification->create(
+                     (int)$passengerId,
+                     'Tu solicitud de plaza en el viaje ' . $origen . ' → ' . $destino . ' ha sido rechazada.',
+                     'fas fa-times-circle',
+                     url('/my-rides') . '?tab=bookings'
+                 );
+             }
 
              header('Location: ' . url('/my-rides') . '?success=status_updated&action=' . $action);
         } else {
@@ -500,7 +536,34 @@ class RideController {
 
     }
 
+    // Destacar / quitar destacado de un anuncio (solo usuarios premium)
+    public function toggleFeatured() {
+        if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'No autorizado']);
+            exit;
+        }
 
+        $rideId = (int)($_POST['ride_id'] ?? 0);
+        if ($rideId <= 0) {
+            echo json_encode(['success' => false, 'message' => 'ID de anuncio inválido']);
+            exit;
+        }
+
+        // Verificar que el usuario es premium
+        $stmt = $this->db->prepare("SELECT premium, premium_hasta FROM usuarios WHERE idUsuario = :id");
+        $stmt->execute([':id' => $_SESSION['user_id']]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $isPremium = $user && $user['premium'] && (!$user['premium_hasta'] || $user['premium_hasta'] > date('Y-m-d H:i:s'));
+
+        if (!$isPremium) {
+            echo json_encode(['success' => false, 'message' => 'Esta función es exclusiva de usuarios Premium']);
+            exit;
+        }
+
+        $result = $this->ride->toggleFeatured($rideId, (int)$_SESSION['user_id']);
+        echo json_encode(['success' => $result]);
+        exit;
+    }
 
     public function edit() {
         if (!isset($_SESSION['user_id'])) {
