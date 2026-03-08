@@ -52,6 +52,7 @@ $router->get('/my-rides', [RideController::class, 'myRides']); // Ver viajes pro
 $router->any('/reserve', [RideController::class, 'reserve']); // Reservar
 $router->post('/manage-reservation', [RideController::class, 'manageRequest']); // Aceptar/rechazar reservas
 $router->any('/cancel-reservation', [RideController::class, 'cancelReservation']); // Cancelar reserva
+$router->post('/toggle-featured', [RideController::class, 'toggleFeatured']); // Destacar anuncio (premium)
 
 // Perfil de usuario
 $router->any('/profile', function () {
@@ -92,7 +93,10 @@ $router->any('/chat', function () {
 // Valoraciones
 $router->any('/rating', function () {
     $controller = new RatingController();
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_GET['action'] ?? null;
+    if ($action === 'reply' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller->submitReply();
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $controller->submit();
     } elseif (isset($_GET['viaje'])) {
         $controller->showRatingForm();
@@ -100,6 +104,78 @@ $router->any('/rating', function () {
         header('Location: ' . url('/dashboard'));
         exit;
     }
+});
+
+// Reportes (usuario, anuncio, chat)
+$router->post('/report', function () {
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    header('Content-Type: application/json');
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => 'No autenticado.']);
+        exit;
+    }
+    require_once __DIR__ . '/config/database.php';
+    $database = new Database();
+    $db = $database->connect();
+    $report = new Report($db);
+    $tipo    = $_POST['tipo']    ?? '';
+    $mensaje = trim($_POST['mensaje'] ?? '');
+    $idUsuarioReportado = !empty($_POST['idUsuarioReportado']) ? (int)$_POST['idUsuarioReportado'] : null;
+    $idAnuncio          = !empty($_POST['idAnuncio'])          ? (int)$_POST['idAnuncio']          : null;
+    $idChat             = !empty($_POST['idChat'])             ? (int)$_POST['idChat']             : null;
+    if (!in_array($tipo, ['usuario', 'anuncio', 'chat']) || empty($mensaje)) {
+        echo json_encode(['success' => false, 'message' => 'Datos inválidos.']);
+        exit;
+    }
+    $ok = $report->createReport($tipo, $idUsuarioReportado, $idAnuncio, $idChat, (int)$_SESSION['user_id'], $mensaje);
+    echo json_encode(['success' => $ok, 'message' => $ok ? 'Reporte enviado. Gracias.' : 'No se pudo enviar el reporte.']);
+    exit;
+});
+
+// Notificaciones dentro de la aplicación web
+$router->any('/notifications', function () {
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    header('Content-Type: application/json');
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false]);
+        exit;
+    }
+    require_once __DIR__ . '/config/database.php';
+    $database = new Database();
+    $db = $database->connect();
+    $notif = new Notification($db);
+    $userId = (int)$_SESSION['user_id'];
+    $action = $_GET['action'] ?? $_POST['action'] ?? 'list';
+    if ($action === 'mark_read' && isset($_POST['id'])) {
+        $ok = $notif->markRead((int)$_POST['id'], $userId);
+        echo json_encode(['success' => $ok]);
+    } elseif ($action === 'mark_all_read') {
+        $ok = $notif->markAllRead($userId);
+        echo json_encode(['success' => $ok]);
+    } else {
+        $items = $notif->getUnread($userId, 15);
+        echo json_encode(['success' => true, 'notifications' => $items]);
+    }
+    exit;
+});
+
+// Premium y pagos con Stripe
+$router->any('/premium', function () {
+    require_once __DIR__ . '/services/StripeService.php';
+    $controller = new PremiumController();
+    $action = $_GET['action'] ?? null;
+    match ($action) {
+        'checkout' => $controller->checkout(),
+        'success'  => $controller->success(),
+        'cancel'   => $controller->cancel(),
+        default    => $controller->index(),
+    };
+});
+
+$router->post('/webhook/stripe', function () {
+    require_once __DIR__ . '/services/StripeService.php';
+    $controller = new PremiumController();
+    $controller->webhook();
 });
 
 // Administración

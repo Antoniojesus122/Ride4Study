@@ -88,7 +88,7 @@
         <!-- Resultados -->
         <div class="space-y-4">
              <div class="flex justify-between items-center mb-4">
-                <p class="text-sm text-gray-400">Mostrando <strong><?= count($rides) ?></strong> resultados disponibles</p>
+                <p class="text-sm text-gray-400">Mostrando <strong><?= $totalItems ?></strong> resultados disponibles</p>
              </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -103,7 +103,15 @@
                     </div>
                 <?php else: ?>
                     <?php foreach ($rides as $ride): ?>
-                        <div class="group relative bg-surface rounded-2xl p-5 border border-gray-700 hover:border-primary/50 transition-all duration-300 shadow-md hover:shadow-xl hover:shadow-primary/5">
+                        <div class="group relative bg-surface rounded-2xl p-5 border <?= !empty($ride['destacado']) ? 'border-yellow-500/40' : 'border-gray-700' ?> hover:border-primary/50 transition-all duration-300 shadow-md hover:shadow-xl hover:shadow-primary/5 overflow-hidden">
+                            <?php if (!empty($ride['destacado'])): ?>
+                                <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500"></div>
+                                <div class="absolute top-2 left-3 z-20">
+                                    <span class="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold rounded-full border border-yellow-500/30 flex items-center gap-1">
+                                        <i class="fas fa-star text-[8px]"></i> Dest.
+                                    </span>
+                                </div>
+                            <?php endif; ?>
                             <!-- Precio -->
                             <div class="absolute top-0 right-0 bg-gray-800 rounded-bl-2xl rounded-tr-xl px-4 py-2 border-b border-l border-gray-700 flex flex-col items-end">
                                 <span class="text-xs font-bold uppercase tracking-wider mb-0.5 <?= $ride['tipo'] == 'ofrezco' ? 'text-primary' : 'text-purple-400' ?>">
@@ -189,21 +197,30 @@
              <!-- Paginación -->
             <?php if ($totalPages > 1): ?>
             <div class="flex items-center justify-center space-x-2 mt-12">
+                <?php
+                    $paginationParams = http_build_query(array_filter([
+                        'origen'  => $_GET['origen'] ?? '',
+                        'destino' => $_GET['destino'] ?? '',
+                        'fecha'   => $_GET['fecha'] ?? '',
+                        'tipo'    => $_GET['tipo'] ?? '',
+                    ]));
+                    $paginationBase = $paginationParams ? '&' . $paginationParams : '';
+                ?>
                 <?php if ($currentPage > 1): ?>
-                    <a href="?page=<?= $currentPage - 1 ?>&origen=<?= urlencode($_GET['origen'] ?? '') ?>&destino=<?= urlencode($_GET['destino'] ?? '') ?>&fecha=<?= urlencode($_GET['fecha'] ?? '') ?>" class="p-2 w-10 h-10 flex items-center justify-center rounded-lg border border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
+                    <a href="?page=<?= $currentPage - 1 ?><?= $paginationBase ?>" class="p-2 w-10 h-10 flex items-center justify-center rounded-lg border border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
                         <i class="fas fa-chevron-left"></i>
                     </a>
                 <?php endif; ?>
 
                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="?page=<?= $i ?>&origen=<?= urlencode($_GET['origen'] ?? '') ?>&destino=<?= urlencode($_GET['destino'] ?? '') ?>&fecha=<?= urlencode($_GET['fecha'] ?? '') ?>" 
+                    <a href="?page=<?= $i ?><?= $paginationBase ?>"
                     class="w-10 h-10 flex items-center justify-center rounded-lg border <?= $i === $currentPage ? 'bg-primary border-primary text-secondary font-bold' : 'border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white' ?> transition-colors">
                         <?= $i ?>
                     </a>
                 <?php endfor; ?>
 
                 <?php if ($currentPage < $totalPages): ?>
-                    <a href="?page=<?= $currentPage + 1 ?>&origen=<?= urlencode($_GET['origen'] ?? '') ?>&destino=<?= urlencode($_GET['destino'] ?? '') ?>&fecha=<?= urlencode($_GET['fecha'] ?? '') ?>" class="p-2 w-10 h-10 flex items-center justify-center rounded-lg border border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
+                    <a href="?page=<?= $currentPage + 1 ?><?= $paginationBase ?>" class="p-2 w-10 h-10 flex items-center justify-center rounded-lg border border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 <?php endif; ?>
@@ -409,6 +426,11 @@
                             onclick="closeRideModal()">
                         Cerrar
                     </button>
+                    <button type="button" id="btn-report"
+                            class="hidden w-full sm:w-auto px-4 py-2.5 rounded-xl border border-red-500/20 bg-red-500/10 text-sm font-medium text-red-400 hover:bg-red-500/20 transition-all flex items-center justify-center gap-2"
+                            onclick="reportCurrentRide()">
+                        <i class="fas fa-flag text-xs"></i> Reportar
+                    </button>
                     <a href="#" id="btn-contact"
                        class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-gray-600 bg-gray-800 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-all flex items-center justify-center gap-2">
                         <i class="fas fa-comment-alt text-xs"></i> Contactar
@@ -429,6 +451,15 @@
     const backdrop    = document.getElementById('modal-backdrop');
     const panel       = document.getElementById('modal-panel');
     const currentUserId = <?= $_SESSION['user_id'] ?>;
+    let currentModalRide = null;
+
+    function reportCurrentRide() {
+        if (!currentModalRide) return;
+        openReportModal('anuncio', {
+            idAnuncio: currentModalRide.idAnuncio,
+            idUsuario: currentModalRide.idUsuario
+        });
+    }
 
     // Clases reutilizables para el botón de acción
     const btnStyles = {
@@ -440,7 +471,12 @@
     };
 
     function openRideModal(ride) {
+        currentModalRide = ride;
         const btnReserve = document.getElementById('btn-reserve');
+        const btnReport  = document.getElementById('btn-report');
+
+        // Mostrar botón de reporte solo para anuncios de otros usuarios
+        if (btnReport) btnReport.classList.toggle('hidden', ride.idUsuario == currentUserId);
 
         // — Tipo badge —
         const badge = document.getElementById('modal-tipo-badge');

@@ -5,6 +5,21 @@
   $isLoggedIn = isset($_SESSION['user_id']);
   $userName = $_SESSION['user_name'] ?? '';
   $userInitial = !empty($userName) ? strtoupper(substr($userName, 0, 1)) : 'U';
+
+  // Notificaciones y estado premium (solo si está logueado)
+  $unreadNotifCount = 0;
+  $userIsPremium = false;
+  if ($isLoggedIn) {
+      require_once __DIR__ . '/../../config/database.php';
+      require_once __DIR__ . '/../../app/models/Notification.php';
+      $headerDb = (new Database())->connect();
+      $notifModel = new Notification($headerDb);
+      $unreadNotifCount = $notifModel->countUnread((int)$_SESSION['user_id']);
+      $premStmt = $headerDb->prepare("SELECT premium, premium_hasta FROM usuarios WHERE idUsuario = :id LIMIT 1");
+      $premStmt->execute([':id' => $_SESSION['user_id']]);
+      $premRow = $premStmt->fetch(PDO::FETCH_ASSOC);
+      $userIsPremium = $premRow && $premRow['premium'] && (!$premRow['premium_hasta'] || $premRow['premium_hasta'] > date('Y-m-d H:i:s'));
+  }
 ?>
 
 <!DOCTYPE html>
@@ -39,7 +54,7 @@
       </div>
 
       <div class="block">
-        <div class="flex items-center gap-6">
+        <div class="flex items-center gap-4">
           <?php if ($isLoggedIn): ?>
               <div class="hidden md:flex items-center gap-1 bg-white/5 rounded-full p-1 border border-white/5">
                   <a href="<?= url('/dashboard') ?>" class="px-4 py-1.5 rounded-full text-sm font-medium transition-all <?= isActive('/dashboard') ? 'bg-primary text-secondary shadow-lg shadow-primary/25' : 'text-gray-300 hover:text-white hover:bg-white/5' ?>">
@@ -55,6 +70,30 @@
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                       </span>
                   </a>
+              </div>
+
+              <div class="h-6 w-px bg-white/10 hidden md:block"></div>
+
+              <!-- Campana de notificaciones -->
+              <div class="relative" id="notif-wrapper">
+                  <button onclick="toggleNotifPanel()" class="relative p-2 rounded-full hover:bg-white/10 transition-all text-gray-300 hover:text-white">
+                      <i class="fas fa-bell text-base"></i>
+                      <?php if ($unreadNotifCount > 0): ?>
+                          <span class="absolute top-0.5 right-0.5 min-w-[16px] h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-0.5" id="notif-badge"><?= $unreadNotifCount ?></span>
+                      <?php else: ?>
+                          <span class="absolute top-0.5 right-0.5 min-w-[16px] h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-0.5 hidden" id="notif-badge">0</span>
+                      <?php endif; ?>
+                  </button>
+                  <!-- Panel de notificaciones -->
+                  <div id="notif-panel" class="hidden absolute right-0 top-full mt-3 w-80 origin-top-right rounded-2xl bg-[#1a1b26]/95 backdrop-blur-xl border border-white/10 shadow-2xl z-50">
+                      <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                          <span class="text-sm font-semibold text-white">Notificaciones</span>
+                          <button onclick="markAllRead()" class="text-xs text-primary hover:underline">Marcar todas leídas</button>
+                      </div>
+                      <div id="notif-list" class="max-h-72 overflow-y-auto divide-y divide-white/5">
+                          <p class="text-sm text-gray-400 p-4 text-center">Cargando...</p>
+                      </div>
+                  </div>
               </div>
 
               <div class="h-6 w-px bg-white/10 hidden md:block"></div>
@@ -80,7 +119,14 @@
                 <div id="user-menu" class="hidden absolute right-0 top-full mt-3 w-60 origin-top-right rounded-2xl bg-[#1a1b26]/95 backdrop-blur-xl border border-white/10 py-2 shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none transform transition-all z-50">
                     <div class="px-5 py-4 border-b border-white/5 bg-white/5 mx-2 rounded-xl mb-2">
                         <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Conectado como</p>
-                        <p class="text-base font-bold text-white truncate mt-1"><?= htmlspecialchars($userName) ?></p>
+                        <div class="flex items-center gap-2 mt-1">
+                            <p class="text-base font-bold text-white truncate"><?= htmlspecialchars($userName) ?></p>
+                            <?php if ($userIsPremium): ?>
+                                <span class="px-1.5 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold rounded-full border border-yellow-500/30 flex-shrink-0">
+                                    <i class="fas fa-crown mr-0.5"></i> PRO
+                                </span>
+                            <?php endif; ?>
+                        </div>
                     </div>
 
                     <div class="px-2 space-y-1">
@@ -93,6 +139,15 @@
                         <a href="<?= url('/my-rides') ?>?tab=bookings" class="group flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 rounded-lg hover:bg-primary hover:text-secondary transition-all">
                             <i class="fas fa-ticket-alt w-6 text-center text-gray-400 group-hover:text-secondary/70"></i> Mis Reservas
                         </a>
+                        <?php if ($userIsPremium): ?>
+                            <a href="<?= url('/premium') ?>" class="group flex items-center px-3 py-2.5 text-sm font-medium text-yellow-400 rounded-lg hover:bg-yellow-500/10 transition-all">
+                                <i class="fas fa-crown w-6 text-center opacity-70"></i> Mi suscripción
+                            </a>
+                        <?php else: ?>
+                            <a href="<?= url('/premium') ?>" class="group flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 rounded-lg hover:bg-primary hover:text-secondary transition-all">
+                                <i class="fas fa-star w-6 text-center text-gray-400 group-hover:text-secondary/70"></i> Hazte Premium
+                            </a>
+                        <?php endif; ?>
                     </div>
 
                     <div class="mt-2 pt-2 border-t border-white/5 px-2">
@@ -104,7 +159,7 @@
               </div>
 
               <script>
-                // Efectos para el menú
+                // Efectos para el menú de usuario
                 const btn = document.getElementById('user-menu-button');
                 const menu = document.getElementById('user-menu');
                 const arrow = document.getElementById('menu-arrow');
@@ -119,8 +174,176 @@
                         menu.classList.add('hidden');
                         arrow.style.transform = 'rotate(0deg)';
                     }
+                    // Cerrar panel notificaciones si se hace clic fuera
+                    const notifWrapper = document.getElementById('notif-wrapper');
+                    const notifPanel = document.getElementById('notif-panel');
+                    if (notifWrapper && !notifWrapper.contains(event.target)) {
+                        notifPanel.classList.add('hidden');
+                    }
                 });
+
+                // === Notificaciones ===
+                function toggleNotifPanel() {
+                    const panel = document.getElementById('notif-panel');
+                    const wasHidden = panel.classList.contains('hidden');
+                    panel.classList.toggle('hidden');
+                    if (wasHidden) loadNotifications();
+                }
+
+                function loadNotifications() {
+                    fetch('<?= url("/notifications") ?>?action=list')
+                        .then(r => r.json())
+                        .then(data => {
+                            const list = document.getElementById('notif-list');
+                            if (!data.success || !data.notifications.length) {
+                                list.innerHTML = '<p class="text-sm text-gray-400 p-4 text-center">Sin notificaciones nuevas.</p>';
+                                return;
+                            }
+                            list.innerHTML = data.notifications.map(n => `
+                                <div class="flex items-start gap-3 px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors" onclick="markRead(${n.idNotificacion}, '${n.url}')">
+                                    <i class="${n.icono} text-primary mt-0.5 flex-shrink-0"></i>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm text-gray-200 leading-snug">${n.mensaje}</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">${n.fecha_creacion}</p>
+                                    </div>
+                                </div>
+                            `).join('');
+                        })
+                        .catch(() => {
+                            document.getElementById('notif-list').innerHTML = '<p class="text-sm text-red-400 p-4 text-center">Error al cargar.</p>';
+                        });
+                }
+
+                function markRead(id, url) {
+                    const body = new FormData();
+                    body.append('action', 'mark_read');
+                    body.append('id', id);
+                    fetch('<?= url("/notifications") ?>', { method: 'POST', body })
+                        .finally(() => {
+                            updateBadge(-1);
+                            if (url) window.location.href = url;
+                            else loadNotifications();
+                        });
+                }
+
+                function markAllRead() {
+                    const body = new FormData();
+                    body.append('action', 'mark_all_read');
+                    fetch('<?= url("/notifications") ?>', { method: 'POST', body })
+                        .then(() => {
+                            updateBadge(0, true);
+                            loadNotifications();
+                        });
+                }
+
+                function updateBadge(delta, reset = false) {
+                    const badge = document.getElementById('notif-badge');
+                    if (!badge) return;
+                    let count = reset ? 0 : Math.max(0, parseInt(badge.textContent || '0') + delta);
+                    badge.textContent = count;
+                    badge.classList.toggle('hidden', count === 0);
+                }
+
+                // === Reporte global ===
+                let reportData = {};
+
+                function openReportModal(tipo, opts = {}) {
+                    reportData = { tipo, ...opts };
+                    document.getElementById('report-tipo').value = tipo;
+                    document.getElementById('report-idUsuario').value = opts.idUsuario ?? '';
+                    document.getElementById('report-idAnuncio').value = opts.idAnuncio ?? '';
+                    document.getElementById('report-idChat').value = opts.idChat ?? '';
+                    document.getElementById('report-mensaje').value = '';
+                    const labels = { usuario: 'usuario', anuncio: 'anuncio', chat: 'mensaje de chat' };
+                    document.getElementById('report-label').textContent = labels[tipo] || tipo;
+                    document.getElementById('reportModal').classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+
+                function closeReportModal() {
+                    document.getElementById('reportModal').classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+
+                function submitReport() {
+                    const mensaje = document.getElementById('report-mensaje').value.trim();
+                    if (!mensaje) { showToast('Escribe un motivo para el reporte.', false); return; }
+                    const body = new FormData();
+                    body.append('tipo', document.getElementById('report-tipo').value);
+                    body.append('mensaje', mensaje);
+                    if (reportData.idUsuario)  body.append('idUsuarioReportado', reportData.idUsuario);
+                    if (reportData.idAnuncio)  body.append('idAnuncio', reportData.idAnuncio);
+                    if (reportData.idChat)     body.append('idChat', reportData.idChat);
+                    fetch('<?= url("/report") ?>', { method: 'POST', body })
+                        .then(r => r.json())
+                        .then(data => {
+                            closeReportModal();
+                            showToast(data.message, data.success);
+                        })
+                        .catch(() => showToast('Error al enviar el reporte.', false));
+                }
+
+                // === Toast global ===
+                function showToast(msg, success = true) {
+                    const toast = document.getElementById('global-toast');
+                    const toastMsg = document.getElementById('global-toast-msg');
+                    const toastIcon = document.getElementById('global-toast-icon');
+                    toastMsg.textContent = msg;
+                    toast.className = toast.className.replace(/bg-\S+/, '');
+                    if (success) {
+                        toast.classList.add('bg-green-600');
+                        toastIcon.className = 'fas fa-check-circle';
+                    } else {
+                        toast.classList.add('bg-red-600');
+                        toastIcon.className = 'fas fa-times-circle';
+                    }
+                    toast.classList.remove('hidden', 'opacity-0');
+                    toast.classList.add('opacity-100');
+                    setTimeout(() => {
+                        toast.classList.remove('opacity-100');
+                        toast.classList.add('opacity-0');
+                        setTimeout(() => toast.classList.add('hidden'), 300);
+                    }, 3500);
+                }
               </script>
+
+              <?php if ($isLoggedIn): ?>
+              <!-- Modal global de reporte -->
+              <div id="reportModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+                  <div class="bg-[#1a1b26] border border-gray-700 rounded-2xl shadow-2xl max-w-md w-full">
+                      <div class="p-6 border-b border-gray-700 flex items-center gap-3">
+                          <div class="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0">
+                              <i class="fas fa-flag text-red-400"></i>
+                          </div>
+                          <div>
+                              <h3 class="text-lg font-bold text-white">Reportar <span id="report-label">contenido</span></h3>
+                              <p class="text-xs text-gray-400">Tu reporte será revisado por el equipo.</p>
+                          </div>
+                      </div>
+                      <div class="p-6 space-y-4">
+                          <input type="hidden" id="report-tipo">
+                          <input type="hidden" id="report-idUsuario">
+                          <input type="hidden" id="report-idAnuncio">
+                          <input type="hidden" id="report-idChat">
+                          <div>
+                              <label class="block text-sm font-medium text-gray-300 mb-2">Motivo del reporte</label>
+                              <textarea id="report-mensaje" rows="4" maxlength="500" placeholder="Describe brevemente el motivo..." class="w-full bg-gray-800 border border-gray-600 text-gray-100 text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-primary resize-none placeholder-gray-500"></textarea>
+                          </div>
+                      </div>
+                      <div class="px-6 pb-6 flex gap-3">
+                          <button onclick="closeReportModal()" class="flex-1 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-sm font-medium transition-colors">Cancelar</button>
+                          <button onclick="submitReport()" class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-sm font-bold transition-colors">Enviar reporte</button>
+                      </div>
+                  </div>
+              </div>
+
+              <!-- Toast global -->
+              <div id="global-toast" class="hidden fixed bottom-6 right-6 z-[9999] flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl text-white text-sm font-medium transition-opacity duration-300 bg-green-600">
+                  <i id="global-toast-icon" class="fas fa-check-circle"></i>
+                  <span id="global-toast-msg"></span>
+              </div>
+              <?php endif; ?>
+
           <?php endif; ?>
         </div>
       </div>

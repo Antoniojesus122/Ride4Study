@@ -55,8 +55,8 @@ class Ride {
         $query .= " AND (a.fechaSalida > CURDATE() OR (a.fechaSalida = CURDATE() AND a.horaSalida >= CURTIME()))";
 
         $query .= " GROUP BY a.idAnuncio";
-        // Los anuncios destacados aparecen primero
-        $query .= " ORDER BY a.destacado DESC, a.fechaSalida ASC, a.horaSalida ASC, a.fechaPublicacion DESC";
+        // Destacados primero, luego los más recientes, luego por fecha de salida
+        $query .= " ORDER BY a.destacado DESC, a.fechaPublicacion DESC, a.fechaSalida ASC, a.horaSalida ASC";
         $query .= " LIMIT :limit OFFSET :offset";
 
         $stmt = $this->conn->prepare($query);

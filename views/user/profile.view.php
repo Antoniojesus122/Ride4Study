@@ -55,7 +55,14 @@
              <div class="flex-1 pt-6">
                  <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
                      <div>
-                         <h1 class="text-3xl font-bold text-white mb-2"><?= htmlspecialchars($profileUser['nombre']) ?></h1>
+                         <div class="flex items-center gap-3 mb-2">
+                             <h1 class="text-3xl font-bold text-white"><?= htmlspecialchars($profileUser['nombre']) ?></h1>
+                             <?php if (!empty($profileUser['premium']) && (!empty($profileUser['premium_hasta']) ? $profileUser['premium_hasta'] > date('Y-m-d H:i:s') : true)): ?>
+                                 <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full border border-yellow-500/30 flex items-center gap-1 flex-shrink-0">
+                                     <i class="fas fa-crown"></i> Premium
+                                 </span>
+                             <?php endif; ?>
+                         </div>
                          <div class="flex flex-wrap items-center gap-4 text-sm text-gray-400">
                              <span class="flex items-center gap-2">
                                  <i class="fas fa-map-marker-alt text-primary"></i> 
@@ -75,8 +82,13 @@
                              <?php endif; ?>
                          </div>
                      </div>
+                     <?php if (!$isOwnProfile): ?>
+                         <button onclick="openReportModal('usuario', {idUsuario: <?= (int)$profileUser['idUsuario'] ?>})" class="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-sm font-medium border border-red-500/20 transition-colors flex-shrink-0">
+                             <i class="fas fa-flag text-xs"></i> Reportar usuario
+                         </button>
+                     <?php endif; ?>
                  </div>
-                 
+
                  <!-- Estadísticas en cards -->
                  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                      <div class="bg-gray-800/50 rounded-xl p-3 border border-gray-700/50">
@@ -152,23 +164,54 @@
                     </div>
 
 
-                    <div class="space-y-3">
+                    <div class="space-y-4">
                         <?php if (empty($ratings)): ?>
                             <p class="text-sm text-gray-400">Aún no hay valoraciones para este usuario.</p>
                         <?php else: ?>
                             <?php foreach ($ratings as $rv): ?>
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-md overflow-hidden bg-gray-800 flex-shrink-0">
-                                        <?php if (!empty($rv['valoradorFoto']) && file_exists(__DIR__ . '/../../public/uploads/profiles/' . $rv['valoradorFoto'])): ?>
-                                            <?php $vpf = htmlspecialchars($rv['valoradorFoto']); $vver = filemtime(__DIR__ . '/../../public/uploads/profiles/' . $rv['valoradorFoto']); ?>
-                                            <img src="public/uploads/profiles/<?= $vpf ?>?v=<?= $vver ?>" class="w-full h-full object-cover" alt="">
-                                        <?php else: ?>
-                                            <div class="w-full h-full flex items-center justify-center text-xs text-white font-bold bg-gradient-to-tr from-gray-700 to-gray-600"><?= strtoupper(substr($rv['valoradorNombre'], 0, 2)) ?></div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-bold text-white"><?= htmlspecialchars($rv['valoradorNombre']) ?></div>
-                                        <div class="text-xs text-gray-400">Puntuación: <span class="text-yellow-400 font-semibold"><?= (int)$rv['puntuacion'] ?></span></div>
+                                <div class="bg-gray-800/50 rounded-xl border border-gray-700/50 p-4">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-10 h-10 rounded-md overflow-hidden bg-gray-800 flex-shrink-0">
+                                            <?php if (!empty($rv['valoradorFoto']) && file_exists(__DIR__ . '/../../public/uploads/profiles/' . $rv['valoradorFoto'])): ?>
+                                                <?php $vpf = htmlspecialchars($rv['valoradorFoto']); $vver = filemtime(__DIR__ . '/../../public/uploads/profiles/' . $rv['valoradorFoto']); ?>
+                                                <img src="public/uploads/profiles/<?= $vpf ?>?v=<?= $vver ?>" class="w-full h-full object-cover" alt="">
+                                            <?php else: ?>
+                                                <div class="w-full h-full flex items-center justify-center text-xs text-white font-bold bg-gradient-to-tr from-gray-700 to-gray-600"><?= strtoupper(substr($rv['valoradorNombre'], 0, 2)) ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                                <span class="text-sm font-bold text-white"><?= htmlspecialchars($rv['valoradorNombre']) ?></span>
+                                                <div class="flex items-center gap-0.5">
+                                                    <?php for ($s = 1; $s <= 5; $s++): ?>
+                                                        <i class="fas fa-star text-xs <?= $s <= (int)$rv['puntuacion'] ? 'text-yellow-400' : 'text-gray-600' ?>"></i>
+                                                    <?php endfor; ?>
+                                                </div>
+                                            </div>
+                                            <?php if (!empty($rv['comentario'])): ?>
+                                                <p class="text-sm text-gray-300 mt-1 italic">"<?= htmlspecialchars($rv['comentario']) ?>"</p>
+                                            <?php endif; ?>
+                                            <!-- Respuesta del valorado -->
+                                            <?php if (!empty($rv['respuesta'])): ?>
+                                                <div class="mt-2 pl-3 border-l-2 border-primary/40">
+                                                    <p class="text-xs text-gray-400 mb-0.5"><i class="fas fa-reply text-primary/60 mr-1"></i>Respuesta:</p>
+                                                    <p class="text-sm text-gray-300"><?= htmlspecialchars($rv['respuesta']) ?></p>
+                                                </div>
+                                            <?php elseif ($isOwnProfile): ?>
+                                                <div class="mt-2">
+                                                    <button onclick="toggleReplyForm(<?= (int)$rv['idValoracion'] ?>)" class="text-xs text-primary hover:underline">
+                                                        <i class="fas fa-reply mr-1"></i>Responder
+                                                    </button>
+                                                    <div id="reply-form-<?= (int)$rv['idValoracion'] ?>" class="hidden mt-2">
+                                                        <textarea id="reply-text-<?= (int)$rv['idValoracion'] ?>" rows="2" maxlength="300" placeholder="Escribe tu respuesta..." class="w-full bg-gray-900 border border-gray-600 text-gray-100 text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-primary resize-none placeholder-gray-500"></textarea>
+                                                        <div class="flex gap-2 mt-1.5">
+                                                            <button onclick="submitRatingReply(<?= (int)$rv['idValoracion'] ?>)" class="px-3 py-1.5 bg-primary text-secondary text-xs font-bold rounded-lg hover:bg-primary-dark transition-colors">Publicar</button>
+                                                            <button onclick="toggleReplyForm(<?= (int)$rv['idValoracion'] ?>)" class="px-3 py-1.5 bg-gray-700 text-gray-300 text-xs rounded-lg hover:bg-gray-600 transition-colors">Cancelar</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -590,6 +633,27 @@
     const tab = urlParams.get('tab');
     if (tab) {
         switchTab(tab);
+    }
+
+    function toggleReplyForm(id) {
+        const form = document.getElementById('reply-form-' + id);
+        if (form) form.classList.toggle('hidden');
+    }
+
+    function submitRatingReply(idValoracion) {
+        const textarea = document.getElementById('reply-text-' + idValoracion);
+        const respuesta = textarea ? textarea.value.trim() : '';
+        if (!respuesta) { if (typeof showToast === 'function') showToast('Escribe una respuesta.', false); return; }
+        const body = new FormData();
+        body.append('idValoracion', idValoracion);
+        body.append('respuesta', respuesta);
+        fetch('<?= url("/rating") ?>?action=reply', { method: 'POST', body })
+            .then(r => r.json())
+            .then(data => {
+                if (typeof showToast === 'function') showToast(data.message, data.success);
+                if (data.success) setTimeout(() => window.location.reload(), 1200);
+            })
+            .catch(() => { if (typeof showToast === 'function') showToast('Error al enviar.', false); });
     }
 </script>
 

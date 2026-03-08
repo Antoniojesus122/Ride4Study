@@ -18,6 +18,10 @@
                             <button onclick="editMessage(<?= $msg['idMensaje'] ?>)" class="hover:text-white" title="Editar mensaje"><i class="fas fa-pen"></i></button>
                             <button onclick="deleteMessage(<?= $msg['idMensaje'] ?>)" class="hover:text-red-900" title="Eliminar mensaje"><i class="fas fa-trash"></i></button>
                         </div>
+                    <?php elseif (!$isMe): ?>
+                        <div class="hidden group-hover:flex gap-2 ml-2 border-l border-white/10 pl-2">
+                            <button onclick="openReportModal('chat', {idChat: <?= (int)$msg['idMensaje'] ?>, idUsuario: <?= (int)$msg['idEmisor'] ?>})" class="hover:text-red-400 transition-colors" title="Reportar mensaje"><i class="fas fa-flag text-[9px]"></i></button>
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>

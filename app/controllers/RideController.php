@@ -75,12 +75,12 @@ class RideController {
 
         // Obtener reservas donde el usuario es pasajero
         $passengerBookings = $this->ride->getPassengerBookings($userId);
-        
+
         // Separar en activo y pasado los viajes según la fecha
         $currentDate = date('Y-m-d H:i:s');
         $activeBookings = [];
         $pastBookings = [];
-        
+
         foreach ($passengerBookings as $booking) {
             $rideDateTime = $booking['fechaSalida'] . ' ' . $booking['horaSalida'];
             if ($rideDateTime >= $currentDate) {
@@ -89,6 +89,12 @@ class RideController {
                 $pastBookings[] = $booking;
             }
         }
+
+        // Comprobar si el usuario es premium (para mostrar botón de destacar)
+        $premiumStmt = $this->db->prepare("SELECT premium, premium_hasta FROM usuarios WHERE idUsuario = :id");
+        $premiumStmt->execute([':id' => $userId]);
+        $premiumRow = $premiumStmt->fetch(PDO::FETCH_ASSOC);
+        $isPremium = $premiumRow && $premiumRow['premium'] && (!$premiumRow['premium_hasta'] || $premiumRow['premium_hasta'] > date('Y-m-d H:i:s'));
 
         require_once __DIR__ . '/../../views/user/my-rides.view.php';
     }

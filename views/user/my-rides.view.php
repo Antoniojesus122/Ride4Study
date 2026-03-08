@@ -86,7 +86,7 @@
         <?php else: ?>
             <div class="grid gap-6">
                 <?php foreach ($activeRides as $ride): ?>
-                    <?= renderRideCard($ride, true) ?>
+                    <?= renderRideCard($ride, true, $isPremium) ?>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
@@ -105,7 +105,7 @@
         <?php else: ?>
             <div class="grid gap-6">
                  <?php foreach ($pastRides as $ride): ?>
-                    <?= renderRideCard($ride, false) ?>
+                    <?= renderRideCard($ride, false, false) ?>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
@@ -135,10 +135,14 @@
 
 <!-- Función auxiliar para las tarjetas de viaje -->
 <?php
-function renderRideCard($ride, $isActive) {
+function renderRideCard($ride, $isActive, $isPremium = false) {
     ob_start();
+    $isFeatured = !empty($ride['destacado']);
     ?>
-    <div class="bg-surface rounded-2xl border border-gray-700 overflow-hidden hover:border-gray-600 transition-colors shadow-lg">
+    <div class="bg-surface rounded-2xl border <?= $isFeatured ? 'border-yellow-500/40' : 'border-gray-700' ?> overflow-hidden hover:border-gray-600 transition-colors shadow-lg relative">
+        <?php if ($isFeatured): ?>
+            <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500"></div>
+        <?php endif; ?>
         <div class="p-4 sm:p-6">
             <div class="flex flex-col md:flex-row gap-6">
                 <!-- Información principal -->
@@ -148,6 +152,11 @@ function renderRideCard($ride, $isActive) {
                              <div class="px-3 py-1 bg-<?= $ride['tipo'] === 'ofrezco' ? 'blue' : 'purple' ?>-500/10 text-<?= $ride['tipo'] === 'ofrezco' ? 'blue' : 'purple' ?>-400 rounded-full text-xs font-bold border border-<?= $ride['tipo'] === 'ofrezco' ? 'blue' : 'purple' ?>-500/20 uppercase tracking-wide">
                                 <?= $ride['tipo'] === 'ofrezco' ? 'Conductor' : 'Pasajero' ?>
                             </div>
+                            <?php if ($isFeatured): ?>
+                                <span class="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold rounded-full border border-yellow-500/30 flex items-center gap-1">
+                                    <i class="fas fa-star text-[8px]"></i> Destacado
+                                </span>
+                            <?php endif; ?>
                             <span class="text-sm text-gray-400 flex items-center gap-2">
                                 <i class="far fa-calendar"></i>
                                 <?= date('d M, Y', strtotime($ride['fechaSalida'])) ?>
@@ -273,6 +282,15 @@ function renderRideCard($ride, $isActive) {
 
                     <?php if ($isActive): ?>
                         <div class="grid grid-cols-2 gap-3 mt-auto">
+                            <?php if ($isPremium): ?>
+                                <button onclick="toggleFeatured(<?= $ride['idAnuncio'] ?>, this)" class="col-span-2 flex items-center justify-center gap-2 px-4 py-2 <?= $isFeatured ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/40' : 'bg-gray-800/50 text-gray-400 border-gray-700' ?> rounded-lg text-sm font-medium transition-colors border" data-featured="<?= $isFeatured ? '1' : '0' ?>">
+                                    <i class="fas fa-star text-xs"></i> <?= $isFeatured ? 'Quitar destacado' : 'Destacar anuncio' ?>
+                                </button>
+                            <?php else: ?>
+                                <a href="<?= url('/premium') ?>" class="col-span-2 flex items-center justify-center gap-2 px-4 py-2 bg-gray-800/50 text-gray-500 rounded-lg text-xs font-medium border border-gray-700 hover:text-gray-300 transition-colors" title="Solo usuarios Premium">
+                                    <i class="fas fa-lock text-xs"></i> Destacar (Premium)
+                                </a>
+                            <?php endif; ?>
                             <a href="<?= url('/edit-ride') ?>?id=<?= $ride['idAnuncio'] ?>" class="flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors border border-gray-600">
                                 <i class="fas fa-edit"></i> Editar
                             </a>
@@ -503,6 +521,24 @@ function executeDelete() {
     if (rideToDelete) {
         window.location.href = `<?= url("/delete-ride") ?>?id=${rideToDelete}`;
     }
+}
+
+function toggleFeatured(rideId, btn) {
+    const body = new FormData();
+    body.append('ride_id', rideId);
+    fetch('<?= url("/toggle-featured") ?>', { method: 'POST', body })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                // Recargar la página para reflejar el cambio
+                window.location.reload();
+            } else if (typeof showToast === 'function') {
+                showToast(data.message || 'Error al cambiar el estado del destaque.', false);
+            }
+        })
+        .catch(() => {
+            if (typeof showToast === 'function') showToast('Error de conexión.', false);
+        });
 }
 
 // Detectar parámetro 'tab' en la URL al cargar la página
