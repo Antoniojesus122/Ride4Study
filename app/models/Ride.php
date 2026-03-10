@@ -243,6 +243,44 @@ class Ride {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Buscar localidad por nombre o crearla si no existe
+    // Devuelve el idLocalidad (da igual si ya existe o se ha creado)
+    public function findOrCreateLocation(string $nombre, float $lat, float $lng): int {
+        // Buscar primero por nombre ( lo cual es case-insensitive)
+        $stmt = $this->conn->prepare(
+            "SELECT idLocalidad FROM localidades WHERE LOWER(nombreLocalidad) = LOWER(:nombre) LIMIT 1"
+        );
+        $stmt->execute([':nombre' => $nombre]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            // Si existe pero no tiene coordenadas, actualizarlas
+            if ($lat && $lng) {
+                $update = $this->conn->prepare(
+                    "UPDATE localidades SET lat = :lat, lng = :lng WHERE idLocalidad = :id AND lat IS NULL"
+                );
+                $update->execute([':lat' => $lat, ':lng' => $lng, ':id' => $row['idLocalidad']]);
+            }
+            return (int)$row['idLocalidad'];
+        }
+
+        // No existe, crear nueva localidad
+        $insert = $this->conn->prepare(
+            "INSERT INTO localidades (nombreLocalidad, lat, lng) VALUES (:nombre, :lat, :lng)"
+        );
+        $insert->execute([':nombre' => $nombre, ':lat' => $lat, ':lng' => $lng]);
+
+        return (int)$this->conn->lastInsertId();
+    }
+
+    // Obtener datos de una localidad por su ID (para autocompletar el formulario de edición)
+    public function getLocationById(int $id): ?array {
+        $stmt = $this->conn->prepare("SELECT * FROM localidades WHERE idLocalidad = :id");
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
     public function createRide($data) {
         $query = "INSERT INTO " . $this->table . " 
                   (idUsuario, tipo, origen, destino, fechaSalida, horaSalida, horaRegreso, plazasDisponibles, precio, descripcion)

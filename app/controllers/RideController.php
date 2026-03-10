@@ -106,7 +106,6 @@ class RideController {
         }
 
         $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
-        $locations = $this->ride->getAllLocations();
 
         require_once __DIR__ . '/../../views/user/publish.view.php';
     }
@@ -120,12 +119,20 @@ class RideController {
         // Validación de inputs
         $errors = [];
         $tipo = $_POST['tipo'] ?? '';
-        
+
+        // Recoger datos de localización del autocompletado (nombre + coordenadas)
+        $origenNombre = trim($_POST['origen_nombre'] ?? '');
+        $origenLat    = (float)($_POST['origen_lat'] ?? 0);
+        $origenLng    = (float)($_POST['origen_lng'] ?? 0);
+        $destinoNombre = trim($_POST['destino_nombre'] ?? '');
+        $destinoLat    = (float)($_POST['destino_lat'] ?? 0);
+        $destinoLng    = (float)($_POST['destino_lng'] ?? 0);
+
         $data = [
             'idUsuario' => $_SESSION['user_id'],
             'tipo' => $tipo,
-            'origen' => $_POST['origen'] ?? '',
-            'destino' => $_POST['destino'] ?? '',
+            'origen' => '',
+            'destino' => '',
             'fechaSalida' => $_POST['fechaSalida'] ?? '',
             'horaSalida' => $_POST['horaSalida'] ?? '',
             'horaRegreso' => !empty($_POST['horaRegreso']) ? $_POST['horaRegreso'] : null,
@@ -135,25 +142,33 @@ class RideController {
         ];
 
         // Validaciones básicas
-        if (empty($data['tipo']) || empty($data['origen']) || empty($data['destino']) || 
+        if (empty($tipo) || empty($origenNombre) || empty($destinoNombre) ||
             empty($data['fechaSalida']) || empty($data['horaSalida'])) {
             $errors[] = 'Todos los campos obligatorios deben ser completados.';
         }
-        
+
+        // Validar que se hayan seleccionado ciudades del autocompletado (con coordenadas)
+        if (!empty($origenNombre) && ($origenLat == 0 && $origenLng == 0)) {
+            $errors[] = 'Selecciona una ciudad de origen de la lista de sugerencias.';
+        }
+        if (!empty($destinoNombre) && ($destinoLat == 0 && $destinoLng == 0)) {
+            $errors[] = 'Selecciona una ciudad de destino de la lista de sugerencias.';
+        }
+
         // Validar plazas solo si NO es tipo "busco"
         if ($data['tipo'] !== 'busco' && empty($data['plazasDisponibles'])) {
             $errors[] = 'Debes especificar las plazas disponibles.';
         }
 
         // Validaciones lógicas
-        if ($data['origen'] == $data['destino']) {
+        if ($origenNombre && $destinoNombre && strtolower($origenNombre) === strtolower($destinoNombre)) {
              $errors[] = 'El origen y el destino no pueden ser el mismo.';
         }
 
         if ($data['fechaSalida'] < date('Y-m-d')) {
              $errors[] = 'La fecha de salida no puede ser en el pasado.';
         }
-        
+
         // Validar hora de salida si el viaje es para el mismo día
         if ($data['fechaSalida'] === date('Y-m-d')) {
             $horaActual = date('H:i');
@@ -170,10 +185,13 @@ class RideController {
 
         if (!empty($errors)) {
             $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
-            $locations = $this->ride->getAllLocations();
             require_once __DIR__ . '/../../views/user/publish.view.php';
             return;
         }
+
+        // Resolver nombres de ciudad a idLocalidad (buscar o crear en la tabla localidades)
+        $data['origen']  = $this->ride->findOrCreateLocation($origenNombre, $origenLat, $origenLng);
+        $data['destino'] = $this->ride->findOrCreateLocation($destinoNombre, $destinoLat, $destinoLng);
 
         // Comprobar límite de anuncios para usuarios gratuitos (máximo 4 activos)
         $userData = $this->db->prepare("SELECT premium, premium_hasta FROM usuarios WHERE idUsuario = :id");
@@ -183,7 +201,6 @@ class RideController {
 
         if (!$isPremium && $this->ride->getActiveCount((int)$_SESSION['user_id']) >= 4) {
             $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
-            $locations   = $this->ride->getAllLocations();
             $errors[]    = 'Has alcanzado el límite de 4 anuncios activos del plan gratuito. ¡Hazte Premium para publicar ilimitados!';
             require_once __DIR__ . '/../../views/user/publish.view.php';
             return;
@@ -195,7 +212,6 @@ class RideController {
         } else {
              $errors[] = 'Error al publicar el viaje. Inténtalo de nuevo.';
              $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
-             $locations = $this->ride->getAllLocations();
              require_once __DIR__ . '/../../views/user/publish.view.php';
         }
     }
@@ -599,9 +615,12 @@ class RideController {
             $hasAcceptedPassengers = $result['count'] > 0;
         }
 
-        $locations = $this->ride->getAllLocations();
+        // Cargar datos de las localidades (origen/destino) para el autocompletado
+        $origenLoc  = $this->ride->getLocationById((int)$ride['origen']);
+        $destinoLoc = $this->ride->getLocationById((int)$ride['destino']);
+
         $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
-        
+
         require_once __DIR__ . '/../../views/user/publish.view.php';
     }
 
@@ -633,14 +652,22 @@ class RideController {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             $hasAcceptedPassengers = $result['count'] > 0;
         }
-        
+
         // Si hay pasajeros aceptados, mantener el tipo actual; si no, permitir cambio
         $tipo = ($hasAcceptedPassengers) ? $ride['tipo'] : ($_POST['tipo'] ?? $ride['tipo']);
-        
+
+        // Recoger datos de localización del autocompletado
+        $origenNombre  = trim($_POST['origen_nombre'] ?? '');
+        $origenLat     = (float)($_POST['origen_lat'] ?? 0);
+        $origenLng     = (float)($_POST['origen_lng'] ?? 0);
+        $destinoNombre = trim($_POST['destino_nombre'] ?? '');
+        $destinoLat    = (float)($_POST['destino_lat'] ?? 0);
+        $destinoLng    = (float)($_POST['destino_lng'] ?? 0);
+
         $data = [
             'tipo' => $tipo,
-            'origen' => $_POST['origen'] ?? '',
-            'destino' => $_POST['destino'] ?? '',
+            'origen' => '',
+            'destino' => '',
             'fechaSalida' => $_POST['fechaSalida'] ?? '',
             'horaSalida' => $_POST['horaSalida'] ?? '',
             'horaRegreso' => !empty($_POST['horaRegreso']) ? $_POST['horaRegreso'] : null,
@@ -649,24 +676,33 @@ class RideController {
             'descripcion' => $_POST['descripcion'] ?? ''
         ];
 
-        if (empty($data['origen']) || empty($data['destino']) || 
+        // Validaciones básicas
+        if (empty($origenNombre) || empty($destinoNombre) ||
             empty($data['fechaSalida']) || empty($data['horaSalida'])) {
             $errors[] = 'Todos los campos obligatorios deben ser completados.';
         }
-        
+
+        // Validar que se hayan seleccionado ciudades del autocompletado
+        if (!empty($origenNombre) && ($origenLat == 0 && $origenLng == 0)) {
+            $errors[] = 'Selecciona una ciudad de origen de la lista de sugerencias.';
+        }
+        if (!empty($destinoNombre) && ($destinoLat == 0 && $destinoLng == 0)) {
+            $errors[] = 'Selecciona una ciudad de destino de la lista de sugerencias.';
+        }
+
         // Validar plazas solo si NO es tipo "busco"
         if ($tipo !== 'busco' && empty($data['plazasDisponibles'])) {
             $errors[] = 'Debes especificar las plazas disponibles.';
         }
 
-        if ($data['origen'] == $data['destino']) {
+        if ($origenNombre && $destinoNombre && strtolower($origenNombre) === strtolower($destinoNombre)) {
              $errors[] = 'El origen y el destino no pueden ser el mismo.';
         }
 
         if ($data['fechaSalida'] < date('Y-m-d')) {
              $errors[] = 'La fecha de salida no puede ser en el pasado.';
         }
-        
+
         // Validar hora de salida si el viaje es para el mismo día
         if ($data['fechaSalida'] === date('Y-m-d')) {
             $horaActual = date('H:i');
@@ -683,10 +719,16 @@ class RideController {
 
         if (!empty($errors)) {
             $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
-            $locations = $this->ride->getAllLocations();
+            // Recargar datos de localidades para el formulario de edición
+            $origenLoc  = $this->ride->getLocationById((int)$ride['origen']);
+            $destinoLoc = $this->ride->getLocationById((int)$ride['destino']);
             require_once __DIR__ . '/../../views/user/publish.view.php';
             return;
         }
+
+        // Resolver nombres de ciudad a idLocalidad
+        $data['origen']  = $this->ride->findOrCreateLocation($origenNombre, $origenLat, $origenLng);
+        $data['destino'] = $this->ride->findOrCreateLocation($destinoNombre, $destinoLat, $destinoLng);
 
         // Actualizar viaje
         if ($this->ride->updateRide($rideId, $data)) {
@@ -694,7 +736,8 @@ class RideController {
         } else {
              $errors[] = 'Error al actualizar el viaje. Inténtalo de nuevo.';
              $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
-             $locations = $this->ride->getAllLocations();
+             $origenLoc  = $this->ride->getLocationById((int)$ride['origen']);
+             $destinoLoc = $this->ride->getLocationById((int)$ride['destino']);
              require_once __DIR__ . '/../../views/user/publish.view.php';
         }
     }

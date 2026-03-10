@@ -28,30 +28,34 @@
                      </div>
                 </div>
 
-                <!-- Origen -->
-                <div class="md:col-span-3">
+                <!-- Origen (con autocompletado) -->
+                <div class="md:col-span-3 relative">
                     <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-1">Origen</label>
                     <div class="relative group">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-map-marker-alt text-gray-500 group-focus-within:text-primary transition-colors"></i>
                         </div>
-                        <input type="text" name="origen" value="<?= htmlspecialchars($_GET['origen'] ?? '') ?>" 
-                            class="block w-full rounded-xl border border-gray-600 bg-gray-800 py-3 pl-10 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm outline-none" 
+                        <input type="text" name="origen" id="filter-origen" autocomplete="off"
+                            value="<?= htmlspecialchars($_GET['origen'] ?? '') ?>"
+                            class="block w-full rounded-xl border border-gray-600 bg-gray-800 py-3 pl-10 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm outline-none"
                             placeholder="Ciudad de salida">
                     </div>
+                    <div id="filter-origen-dropdown" class="hidden absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl overflow-hidden"></div>
                 </div>
 
-                <!-- Destino -->
-                <div class="md:col-span-3">
+                <!-- Destino (con autocompletado) -->
+                <div class="md:col-span-3 relative">
                     <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-1">Destino</label>
                     <div class="relative group">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-flag-checkered text-gray-500 group-focus-within:text-primary transition-colors"></i>
                         </div>
-                        <input type="text" name="destino" value="<?= htmlspecialchars($_GET['destino'] ?? '') ?>" 
-                            class="block w-full rounded-xl border border-gray-600 bg-gray-800 py-3 pl-10 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm outline-none" 
+                        <input type="text" name="destino" id="filter-destino" autocomplete="off"
+                            value="<?= htmlspecialchars($_GET['destino'] ?? '') ?>"
+                            class="block w-full rounded-xl border border-gray-600 bg-gray-800 py-3 pl-10 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm outline-none"
                             placeholder="Ciudad de destino">
                     </div>
+                    <div id="filter-destino-dropdown" class="hidden absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl overflow-hidden"></div>
                 </div>
 
                 <!-- Fecha -->
@@ -630,6 +634,74 @@
             openRideModal(JSON.parse(btn.getAttribute('data-ride')));
         });
     });
+
+    // Autocompletado básico usando Nominatim de OpenStreetMap
+    class FilterAutocomplete {
+        constructor(inputId) {
+            this.input    = document.getElementById(inputId);
+            this.dropdown = document.getElementById(inputId + '-dropdown');
+            this.timer    = null;
+            if (!this.input || !this.dropdown) return;
+            this._bind();
+        }
+
+        _bind() {
+            this.input.addEventListener('input', () => {
+                clearTimeout(this.timer);
+                const q = this.input.value.trim();
+                if (q.length < 2) { this._hide(); return; }
+                this.timer = setTimeout(() => this._search(q), 300);
+            });
+            this.input.addEventListener('blur', () => setTimeout(() => this._hide(), 200));
+            this.input.addEventListener('keydown', (e) => {
+                if (this.dropdown.classList.contains('hidden')) return;
+                const items = this.dropdown.querySelectorAll('[data-name]');
+                const active = this.dropdown.querySelector('.bg-gray-700');
+                let idx = Array.from(items).indexOf(active);
+                if (e.key === 'ArrowDown') { e.preventDefault(); if (active) active.classList.remove('bg-gray-700'); idx = (idx + 1) % items.length; items[idx].classList.add('bg-gray-700'); }
+                else if (e.key === 'ArrowUp') { e.preventDefault(); if (active) active.classList.remove('bg-gray-700'); idx = idx <= 0 ? items.length - 1 : idx - 1; items[idx].classList.add('bg-gray-700'); }
+                else if (e.key === 'Enter' && active) { e.preventDefault(); active.click(); }
+                else if (e.key === 'Escape') { this._hide(); }
+            });
+        }
+
+        async _search(query) {
+            const url = 'https://nominatim.openstreetmap.org/search?' + new URLSearchParams({
+                format: 'json', q: query, countrycodes: 'es', limit: '5', addressdetails: '1', 'accept-language': 'es'
+            });
+            try {
+                const res = await fetch(url, { headers: { 'User-Agent': 'Ride4Study/1.0' } });
+                const data = await res.json();
+                this._render(data);
+            } catch (err) { this._hide(); }
+        }
+
+        _render(results) {
+            this.dropdown.innerHTML = '';
+            if (!results.length) {
+                this.dropdown.innerHTML = '<div class="px-4 py-2 text-xs text-gray-500">Sin resultados</div>';
+                this.dropdown.classList.remove('hidden');
+                return;
+            }
+            results.forEach(place => {
+                const addr = place.address || {};
+                const name = addr.city || addr.town || addr.village || addr.municipality || addr.hamlet || place.name || place.display_name.split(',')[0];
+                const sub = [addr.province, addr.state].filter((v, i, a) => v && a.indexOf(v) === i).join(', ');
+                const item = document.createElement('div');
+                item.dataset.name = name;
+                item.className = 'px-4 py-2.5 cursor-pointer hover:bg-gray-700 transition-colors border-b border-gray-700/50 last:border-0';
+                item.innerHTML = `<span class="text-sm text-white">${name}</span>${sub ? ` <span class="text-xs text-gray-500">- ${sub}</span>` : ''}`;
+                item.addEventListener('mousedown', (e) => { e.preventDefault(); this.input.value = name; this._hide(); });
+                this.dropdown.appendChild(item);
+            });
+            this.dropdown.classList.remove('hidden');
+        }
+
+        _hide() { this.dropdown.classList.add('hidden'); this.dropdown.innerHTML = ''; }
+    }
+
+    new FilterAutocomplete('filter-origen');
+    new FilterAutocomplete('filter-destino');
 </script>
 </body>
 </html>

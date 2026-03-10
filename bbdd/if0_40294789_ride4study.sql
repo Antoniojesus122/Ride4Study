@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 08-03-2026 a las 17:16:05
+-- Tiempo de generación: 10-03-2026 a las 21:59:44
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -73,7 +73,9 @@ INSERT INTO `anuncios` (`idAnuncio`, `idUsuario`, `tipo`, `origen`, `destino`, `
 (33, 5, 'ofrezco', 11, 17, '2026-03-24', '20:08:00', NULL, 1, NULL, '', '2026-03-08 17:05:21', 0),
 (34, 5, 'ofrezco', 14, 15, '2026-03-17', '20:07:00', NULL, 3, NULL, '', '2026-03-08 17:05:35', 0),
 (35, 5, 'busco', 11, 17, '2026-03-10', '21:09:00', NULL, 1, NULL, '', '2026-03-08 17:05:43', 0),
-(36, 5, 'ofrezco', 2, 7, '2026-03-18', '18:05:00', NULL, 4, NULL, '', '2026-03-08 17:05:56', 0);
+(36, 5, 'ofrezco', 2, 7, '2026-03-18', '18:05:00', NULL, 4, NULL, '', '2026-03-08 17:05:56', 0),
+(37, 9, 'ofrezco', 17, 14, '2026-03-08', '22:46:00', NULL, 1, NULL, '', '2026-03-08 22:45:47', 0),
+(38, 29, 'ofrezco', 3, 1, '2026-03-18', '01:02:00', NULL, 5, NULL, '', '2026-03-10 21:58:44', 0);
 
 -- --------------------------------------------------------
 
@@ -95,7 +97,9 @@ CREATE TABLE `conversations` (
 
 INSERT INTO `conversations` (`idConversation`, `idAnuncio`, `user1_id`, `user2_id`, `created_at`) VALUES
 (5, 21, 5, 9, '2026-02-26 17:40:00'),
-(12, 30, 5, 9, '2026-03-08 14:23:21');
+(12, 30, 5, 9, '2026-03-08 14:23:21'),
+(14, 31, 9, 29, '2026-03-08 21:47:20'),
+(15, 35, 5, 29, '2026-03-08 22:01:45');
 
 -- --------------------------------------------------------
 
@@ -123,34 +127,36 @@ CREATE TABLE `instituciones` (
 CREATE TABLE `localidades` (
   `idLocalidad` int(11) NOT NULL,
   `nombreLocalidad` varchar(100) NOT NULL,
-  `provincia` varchar(100) DEFAULT NULL
+  `provincia` varchar(100) DEFAULT NULL,
+  `lat` decimal(10,7) DEFAULT NULL,
+  `lng` decimal(10,7) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `localidades`
 --
 
-INSERT INTO `localidades` (`idLocalidad`, `nombreLocalidad`, `provincia`) VALUES
-(1, 'Huelva', 'Huelva'),
-(2, 'Aljaraque', 'Huelva'),
-(3, 'Lepe', 'Huelva'),
-(4, 'Isla Cristina', 'Huelva'),
-(5, 'Ayamonte', 'Huelva'),
-(6, 'Cartaya', 'Huelva'),
-(7, 'Punta Umbría', 'Huelva'),
-(8, 'Moguer', 'Huelva'),
-(9, 'Palos de la Frontera', 'Huelva'),
-(10, 'Gibraleón', 'Huelva'),
-(11, 'Bollullos Par del Condado', 'Huelva'),
-(12, 'La Palma del Condado', 'Huelva'),
-(13, 'Valverde del Camino', 'Huelva'),
-(14, 'Trigueros', 'Huelva'),
-(15, 'Almonte', 'Huelva'),
-(16, 'Rociana del Condado', 'Huelva'),
-(17, 'Lucena del Puerto', 'Huelva'),
-(18, 'Beas', 'Huelva'),
-(19, 'Villarrasa', 'Huelva'),
-(20, 'San Juan del Puerto', 'Huelva');
+INSERT INTO `localidades` (`idLocalidad`, `nombreLocalidad`, `provincia`, `lat`, `lng`) VALUES
+(1, 'Huelva', 'Huelva', 37.2614200, -6.9447200),
+(2, 'Aljaraque', 'Huelva', 37.2690000, -7.0200000),
+(3, 'Lepe', 'Huelva', 37.2547000, -7.2044000),
+(4, 'Isla Cristina', 'Huelva', 37.2000000, -7.3200000),
+(5, 'Ayamonte', 'Huelva', 37.2108000, -7.4069000),
+(6, 'Cartaya', 'Huelva', 37.2800000, -7.1500000),
+(7, 'Punta Umbría', 'Huelva', 37.1800000, -6.9600000),
+(8, 'Moguer', 'Huelva', 37.2756000, -6.8389000),
+(9, 'Palos de la Frontera', 'Huelva', 37.2300000, -6.8900000),
+(10, 'Gibraleón', 'Huelva', 37.3800000, -6.9500000),
+(11, 'Bollullos Par del Condado', 'Huelva', 37.3400000, -6.5400000),
+(12, 'La Palma del Condado', 'Huelva', 37.3900000, -6.6100000),
+(13, 'Valverde del Camino', 'Huelva', 37.5300000, -6.7600000),
+(14, 'Trigueros', 'Huelva', 37.3300000, -6.8300000),
+(15, 'Almonte', 'Huelva', 37.2600000, -6.5200000),
+(16, 'Rociana del Condado', 'Huelva', 37.3000000, -6.6000000),
+(17, 'Lucena del Puerto', 'Huelva', 37.3000000, -6.7400000),
+(18, 'Beas', 'Huelva', 37.4100000, -6.7900000),
+(19, 'Villarrasa', 'Huelva', 37.4200000, -6.6600000),
+(20, 'San Juan del Puerto', 'Huelva', 37.3500000, -6.8300000);
 
 -- --------------------------------------------------------
 
@@ -185,7 +191,8 @@ INSERT INTO `mensajes` (`idMensaje`, `idConversation`, `idEmisor`, `idReceptor`,
 (42, 12, 5, 9, 'Buenas', 'normal', '2026-03-08 14:23:23', 1),
 (43, 12, 5, 9, 'Te puedo llevar', 'normal', '2026-03-08 14:23:26', 1),
 (48, 12, 9, 5, 'fds', 'normal', '2026-03-08 15:20:23', 0),
-(49, 12, 9, 5, 'gfrefg', 'normal', '2026-03-08 15:24:10', 0);
+(49, 12, 9, 5, 'gfrefg', 'normal', '2026-03-08 15:24:10', 0),
+(50, 14, 29, 9, 'Hola', 'normal', '2026-03-08 21:47:23', 1);
 
 -- --------------------------------------------------------
 
@@ -203,6 +210,13 @@ CREATE TABLE `notificaciones` (
   `icono` varchar(60) NOT NULL DEFAULT 'fas fa-bell',
   `url` varchar(255) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `notificaciones`
+--
+
+INSERT INTO `notificaciones` (`idNotificacion`, `idUsuario`, `tipoNotificacion`, `mensaje`, `fechaEnvio`, `leida`, `icono`, `url`) VALUES
+(1, 5, 'sistema', 'Tu solicitud de plaza en el viaje Cartaya → Lucena del Puerto ha sido rechazada.', '2026-03-08 22:24:25', 0, 'fas fa-times-circle', '/Ride4Study/my-rides?tab=bookings');
 
 -- --------------------------------------------------------
 
@@ -244,6 +258,14 @@ CREATE TABLE `reportes` (
   `estado` enum('pendiente','resuelto') DEFAULT 'pendiente',
   `creado_en` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `reportes`
+--
+
+INSERT INTO `reportes` (`idReporte`, `tipo`, `idUsuarioReportado`, `idAnuncio`, `idChat`, `idUsuarioQueReporta`, `mensaje`, `estado`, `creado_en`) VALUES
+(1, 'usuario', 29, NULL, NULL, 9, 'jhg', 'pendiente', '2026-03-08 22:48:50'),
+(2, 'usuario', 29, NULL, NULL, 9, 'hgfd', 'pendiente', '2026-03-08 22:49:07');
 
 -- --------------------------------------------------------
 
@@ -392,7 +414,7 @@ INSERT INTO `viajes` (`idViaje`, `idAnuncio`, `idConductor`, `idPasajero`, `esta
 (5, 15, 9, 5, '', NULL, NULL, NULL),
 (6, 15, 9, 28, '', NULL, NULL, NULL),
 (7, 21, 5, 9, 'aceptado', NULL, NULL, '2026-03-01 15:28:40'),
-(10, 25, 5, 9, 'pendiente', NULL, NULL, NULL),
+(10, 25, 5, 9, 'rechazado', NULL, NULL, NULL),
 (11, 26, 5, 9, 'aceptado', NULL, NULL, '2026-02-28 14:24:14'),
 (18, 31, 9, 5, 'aceptado', NULL, NULL, NULL),
 (19, 30, 5, 9, 'aceptado', NULL, NULL, NULL),
@@ -431,7 +453,9 @@ ALTER TABLE `instituciones`
 -- Indices de la tabla `localidades`
 --
 ALTER TABLE `localidades`
-  ADD PRIMARY KEY (`idLocalidad`);
+  ADD PRIMARY KEY (`idLocalidad`),
+  ADD UNIQUE KEY `unique_localidad_nombre` (`nombreLocalidad`),
+  ADD KEY `idx_localidades_nombre` (`nombreLocalidad`);
 
 --
 -- Indices de la tabla `mensajes`
@@ -514,13 +538,13 @@ ALTER TABLE `viajes`
 -- AUTO_INCREMENT de la tabla `anuncios`
 --
 ALTER TABLE `anuncios`
-  MODIFY `idAnuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `idAnuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT de la tabla `conversations`
 --
 ALTER TABLE `conversations`
-  MODIFY `idConversation` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `idConversation` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `instituciones`
@@ -538,13 +562,13 @@ ALTER TABLE `localidades`
 -- AUTO_INCREMENT de la tabla `mensajes`
 --
 ALTER TABLE `mensajes`
-  MODIFY `idMensaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `idMensaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
 --
 ALTER TABLE `notificaciones`
-  MODIFY `idNotificacion` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idNotificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `password_resets`
@@ -556,7 +580,7 @@ ALTER TABLE `password_resets`
 -- AUTO_INCREMENT de la tabla `reportes`
 --
 ALTER TABLE `reportes`
-  MODIFY `idReporte` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idReporte` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `roles`
