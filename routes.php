@@ -18,6 +18,23 @@ $router->get('/', function () {
     require_once __DIR__ . '/views/public/landing.view.php';
 });
 
+// Cambio de idioma
+$router->get('/set-lang', function () {
+    $lang = $_GET['lang'] ?? 'es';
+    if (!in_array($lang, ['es', 'en'], true)) {
+        $lang = 'es';
+    }
+    setcookie('lang', $lang, [
+        'expires'  => time() + (365 * 24 * 60 * 60),
+        'path'     => '/',
+        'httponly'  => true,
+        'samesite' => 'Lax',
+    ]);
+    $referer = $_SERVER['HTTP_REFERER'] ?? url('/');
+    header('Location: ' . $referer);
+    exit;
+});
+
 // Páginas de autenticación
 $router->any('/login', [AuthController::class, 'login']);
 $router->any('/register', [AuthController::class, 'register']);

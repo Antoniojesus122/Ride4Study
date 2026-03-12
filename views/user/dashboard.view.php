@@ -168,7 +168,13 @@
                                     <div class="w-4 h-4 rounded-full border-2 border-gray-500 bg-gray-900 z-10 shrink-0 mt-1"></div>
                                     <div class="ml-4">
                                         <p class="text-sm font-semibold text-white"><?= htmlspecialchars($ride['nombreDestino']) ?></p>
-                                        <p class="text-xs text-gray-500 mt-0.5">Llegada aprox.</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">
+                                            <?php if (!empty($ride['horaLlegada'])): ?>
+                                                Llegada aprox: <?= substr($ride['horaLlegada'], 0, 5) ?>
+                                            <?php else: ?>
+                                                Llegada aprox.
+                                            <?php endif; ?>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -482,7 +488,7 @@
         // Mostrar botón de reporte solo para anuncios de otros usuarios
         if (btnReport) btnReport.classList.toggle('hidden', ride.idUsuario == currentUserId);
 
-        // — Tipo badge —
+        // Tipo badge
         const badge = document.getElementById('modal-tipo-badge');
         if (ride.tipo.toLowerCase() === 'ofrezco') {
             badge.textContent = 'Conductor';
@@ -492,20 +498,24 @@
             badge.className = 'px-3 py-1 rounded-full text-xs font-semibold border bg-purple-500/10 text-purple-400 border-purple-500/30';
         }
 
-        // — Fecha —
+        // Fecha
         document.getElementById('modal-fecha').textContent = ride.fechaSalida
             ? new Date(ride.fechaSalida).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
             : '—';
 
-        // — Ruta —
-        document.getElementById('modal-origin').textContent    = ride.nombreOrigen;
-        document.getElementById('modal-dest').textContent      = ride.nombreDestino;
+        // Ruta
+        document.getElementById('modal-origin').textContent = ride.nombreOrigen;
+        document.getElementById('modal-dest').textContent = ride.nombreDestino;
         document.getElementById('modal-time-start').textContent = ride.horaSalida.substring(0, 5);
-        document.getElementById('modal-time-end').textContent  = ride.horaRegreso
-            ? 'Regreso: ' + ride.horaRegreso.substring(0, 5)
-            : 'Llegada aprox.';
-
-        // — Precio y plazas —
+        
+        if (ride.horaLlegada) {
+            document.getElementById('modal-time-end').textContent = 'Llegada aprox: ' + ride.horaLlegada.substring(0, 5);
+        } else if (ride.horaRegreso) {
+            document.getElementById('modal-time-end').textContent = 'Regreso: ' + ride.horaRegreso.substring(0, 5);
+        } else {
+            document.getElementById('modal-time-end').textContent = 'Llegada aprox.';
+        }
+        // Precio y plazas
         const priceEl     = document.getElementById('modal-price');
         const priceContainer = document.getElementById('modal-price-container');
         if (ride.tipo.toLowerCase() === 'ofrezco' && ride.precio != null) {
@@ -516,12 +526,12 @@
         }
         document.getElementById('modal-seats').textContent = ride.plazasDisponibles ?? '—';
 
-        // — Descripción —
+        // Descripción
         document.getElementById('modal-desc').textContent = ride.descripcion?.trim()
             ? ride.descripcion
             : 'Este usuario no ha añadido comentarios sobre el viaje.';
 
-        // — Avatar —
+        // Avatar
         const avatarEl = document.getElementById('modal-avatar');
         if (ride.foto_perfil) {
             avatarEl.innerHTML = `<img src="public/uploads/profiles/${encodeURIComponent(ride.foto_perfil)}" alt="avatar" class="w-full h-full object-cover">`;
@@ -530,11 +540,11 @@
             avatarEl.className = 'w-20 h-20 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg bg-gradient-to-br from-primary to-primary-dark';
         }
 
-        // — Nombre y rating —
+        // Nombre y rating
         document.getElementById('modal-driver-name').textContent = ride.nombreUsuario;
         document.getElementById('modal-rating').textContent = parseFloat(ride.rating || 0).toFixed(1);
 
-        // — Verificación —
+        // Verificación
         const verifiedEl   = document.getElementById('modal-verified');
         const verifiedIcon = document.getElementById('modal-verified-icon');
         if (ride.estado_verificacion == 2) {
@@ -551,7 +561,7 @@
             verifiedIcon.className  = 'fas fa-shield-alt w-4 text-center text-gray-500';
         }
 
-        // — Miembro desde (si existe el campo) —
+        // Miembro desde (si existe el campo)
         const memberEl = document.getElementById('modal-member-since');
         const memberInfo = document.getElementById('modal-member-info');
         if (ride.fechaRegistro) {
@@ -561,11 +571,11 @@
             memberInfo.style.display = 'none';
         }
 
-        // — Links —
+        // Links
         document.getElementById('modal-profile-link').href = '<?= url("/profile") ?>?id=' + ride.idUsuario;
         document.getElementById('btn-contact').href        = '<?= url("/chat") ?>?anuncio_id=' + ride.idAnuncio + '&other_user_id=' + ride.idUsuario;
 
-        // — Botón de acción —
+        // Botón de acción
         btnReserve.onclick   = null;
         btnReserve.disabled  = false;
         btnReserve.style.display = 'flex';
@@ -605,7 +615,7 @@
             btnReserve.style.display = 'none';
         }
 
-        // — Mostrar modal con animación —
+        // Mostrar modal con animación
         modal.classList.remove('hidden');
         requestAnimationFrame(() => {
             backdrop.classList.remove('opacity-0');

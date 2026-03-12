@@ -5,6 +5,14 @@
 // Cargar helpers para definir rutas y generar URLs
 require_once __DIR__ . '/app/helpers.php';
 
+// Inicializar idioma desde cookie
+$lang = $_COOKIE['lang'] ?? 'es';
+if (!in_array($lang, ['es', 'en'], true)) {
+    $lang = 'es';
+}
+$GLOBALS['translations'] = require __DIR__ . '/config/lang/' . $lang . '.php';
+$GLOBALS['lang'] = $lang;
+
 // Autoload para cargar controladores y modelos automáticamente
 spl_autoload_register(function ($class) {
     $paths = [

@@ -62,12 +62,12 @@ class Ride {
         $stmt = $this->conn->prepare($query);
         
         // Filtros fijados
-        foreach ($params as $key => &$val) {
-            $stmt->bindParam($key, $val);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
         }
-        
-        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         
         $stmt->execute();
         $rides = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -112,8 +112,8 @@ class Ride {
         $countStmt = $this->conn->prepare($countQuery);
         
         // Vincular parámetros
-        foreach ($countParams as $key => &$val) {
-            $countStmt->bindParam($key, $val);
+        foreach ($countParams as $key => $val) {
+            $countStmt->bindValue($key, $val);
         }
         
         $countStmt->execute();
@@ -163,7 +163,8 @@ class Ride {
 
     public function getRidesByUserId($userId) {
         $currentDate = date('Y-m-d H:i:s');
-        
+
+        // Obtener todos los anuncios del usuario
         $query = "SELECT a.*, lo.nombreLocalidad as nombreOrigen, ld.nombreLocalidad as nombreDestino,
                   (SELECT COUNT(*) FROM viajes v WHERE v.idAnuncio = a.idAnuncio) as pasajerosCount
                   FROM " . $this->table . " a
@@ -173,33 +174,56 @@ class Ride {
                   ORDER BY a.fechaSalida DESC";
 
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':idUsuario', $userId);
+        $stmt->bindValue(':idUsuario', $userId);
         $stmt->execute();
-        
+
         $allRides = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+
+        // Obtener TODOS los usuarios asociados a todos los anuncios en una sola query
+        $rideIds = array_column($allRides, 'idAnuncio');
+        $passengersByRide = [];
+
+        if (!empty($rideIds)) {
+            $placeholders = implode(',', array_fill(0, count($rideIds), '?'));
+
+            // Para "busco": el otro usuario es conductor (idConductor)
+            // Para "ofrezco": el otro usuario es pasajero (idPasajero)
+            // Unimos ambos casos con UNION para una sola query
+            $batchQuery = "SELECT v.idAnuncio, u.idUsuario, u.nombre, u.foto_perfil, v.fechaSalida as fechaUnido, v.estado, 'pasajero' as rol
+                           FROM viajes v
+                           JOIN usuarios u ON v.idPasajero = u.idUsuario
+                           JOIN {$this->table} a ON v.idAnuncio = a.idAnuncio
+                           WHERE v.idAnuncio IN ($placeholders) AND LOWER(a.tipo) = 'ofrezco'
+                           UNION ALL
+                           SELECT v.idAnuncio, u.idUsuario, u.nombre, u.foto_perfil, v.fechaSalida as fechaUnido, v.estado, 'conductor' as rol
+                           FROM viajes v
+                           JOIN usuarios u ON v.idConductor = u.idUsuario
+                           JOIN {$this->table} a ON v.idAnuncio = a.idAnuncio
+                           WHERE v.idAnuncio IN ($placeholders) AND LOWER(a.tipo) = 'busco'";
+
+            $pStmt = $this->conn->prepare($batchQuery);
+            // Bind rideIds dos veces (una para cada parte del UNION)
+            $paramIndex = 1;
+            foreach ($rideIds as $id) {
+                $pStmt->bindValue($paramIndex++, $id, PDO::PARAM_INT);
+            }
+            foreach ($rideIds as $id) {
+                $pStmt->bindValue($paramIndex++, $id, PDO::PARAM_INT);
+            }
+            $pStmt->execute();
+            $allPassengers = $pStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Agrupar por idAnuncio
+            foreach ($allPassengers as $p) {
+                $passengersByRide[$p['idAnuncio']][] = $p;
+            }
+        }
+
         $activeRides = [];
         $pastRides = [];
-        
-        foreach ($allRides as &$ride) {
-            // Obtener los usuarios asociados al viaje según el tipo de anuncio
-            // Para "busco": mostrar conductores que ofrecieron llevar
-            // Para "ofrezco": mostrar pasajeros que reservaron plaza
-            if (strtolower($ride['tipo']) === 'busco') {
-                $passengerQuery = "SELECT u.idUsuario, u.nombre, u.foto_perfil, v.fechaSalida as fechaUnido, v.estado
-                                   FROM viajes v
-                                   JOIN usuarios u ON v.idConductor = u.idUsuario
-                                   WHERE v.idAnuncio = :idAnuncio";
-            } else {
-                $passengerQuery = "SELECT u.idUsuario, u.nombre, u.foto_perfil, v.fechaSalida as fechaUnido, v.estado
-                                   FROM viajes v
-                                   JOIN usuarios u ON v.idPasajero = u.idUsuario
-                                   WHERE v.idAnuncio = :idAnuncio";
-            }
-            $pStmt = $this->conn->prepare($passengerQuery);
-            $pStmt->bindParam(':idAnuncio', $ride['idAnuncio']);
-            $pStmt->execute();
-            $ride['passengers'] = $pStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($allRides as $ride) {
+            $ride['passengers'] = $passengersByRide[$ride['idAnuncio']] ?? [];
 
             // Separar viajes activos de pasados
             $rideDateTime = $ride['fechaSalida'] . ' ' . $ride['horaSalida'];
@@ -283,11 +307,11 @@ class Ride {
 
     public function createRide($data) {
         $query = "INSERT INTO " . $this->table . " 
-                  (idUsuario, tipo, origen, destino, fechaSalida, horaSalida, horaRegreso, plazasDisponibles, precio, descripcion)
+                  (idUsuario, tipo, origen, destino, fechaSalida, horaSalida, horaLlegada, horaRegreso, plazasDisponibles, precio, descripcion)
                   VALUES
-                  (:idUsuario, :tipo, :origen, :destino, :fechaSalida, :horaSalida, :horaRegreso, :plazasDisponibles, :precio, :descripcion)";
-
-        $stmt = $this->conn->prepare($query);
+                  (:idUsuario, :tipo, :origen, :destino, :fechaSalida, :horaSalida, :horaLlegada, :horaRegreso, :plazasDisponibles, :precio, :descripcion)";
+        
+                  $stmt = $this->conn->prepare($query);
 
         // Sanitización de datos
         $data['descripcion'] = htmlspecialchars(strip_tags($data['descripcion']));
@@ -298,6 +322,7 @@ class Ride {
         $stmt->bindParam(':destino', $data['destino']);
         $stmt->bindParam(':fechaSalida', $data['fechaSalida']);
         $stmt->bindParam(':horaSalida', $data['horaSalida']);
+        $stmt->bindParam(':horaLlegada', $data['horaLlegada']);
         $stmt->bindParam(':horaRegreso', $data['horaRegreso']);
         $stmt->bindParam(':plazasDisponibles', $data['plazasDisponibles']);
         $stmt->bindParam(':precio', $data['precio']);
@@ -422,6 +447,7 @@ class Ride {
                       destino = :destino, 
                       fechaSalida = :fechaSalida, 
                       horaSalida = :horaSalida, 
+                      horaLlegada = :horaLlegada,
                       horaRegreso = :horaRegreso, 
                       plazasDisponibles = :plazasDisponibles, 
                       precio = :precio, 
@@ -437,6 +463,7 @@ class Ride {
         $stmt->bindParam(':destino', $data['destino']);
         $stmt->bindParam(':fechaSalida', $data['fechaSalida']);
         $stmt->bindParam(':horaSalida', $data['horaSalida']);
+        $stmt->bindParam(':horaLlegada', $data['horaLlegada']);
         $stmt->bindParam(':horaRegreso', $data['horaRegreso']);
         $stmt->bindParam(':plazasDisponibles', $data['plazasDisponibles']);
         $stmt->bindParam(':precio', $data['precio']);

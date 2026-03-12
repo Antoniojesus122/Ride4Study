@@ -78,7 +78,7 @@ class Rating {
 		$stmt = $this->conn->prepare($sql);
 		
 		try {
-			return $stmt->execute([
+			$success = $stmt->execute([
 				':idViaje' => $idViaje,
 				':from' => $fromUserId,
 				':to' => $toUserId,
@@ -90,6 +90,7 @@ class Rating {
 				':comportamiento' => $comportamiento,
 				':comentario' => $comentario
 			]);
+			return $success ? true : 'Error al guardar la valoración';
 		} catch (PDOException $e) {
 			error_log("Error al insertar valoración: " . $e->getMessage());
 			return 'Error al guardar la valoración';

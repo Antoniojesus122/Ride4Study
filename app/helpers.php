@@ -17,3 +17,15 @@ function isActive(string $route): bool
     $check   = rtrim(BASE_PATH . $route, '/');
     return $current === $check;
 }
+
+// Obtener una traducción por clave. Devuelve la clave si no existe.
+function t(string $key): string
+{
+    return $GLOBALS['translations'][$key] ?? $key;
+}
+
+// Obtener el código de idioma actual
+function currentLang(): string
+{
+    return $GLOBALS['lang'] ?? 'es';
+}

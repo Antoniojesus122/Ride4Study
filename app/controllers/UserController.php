@@ -85,6 +85,11 @@ class UserController {
             exit;
         }
 
+        if (!empty($data['biografia']) && mb_strlen($data['biografia']) > 300) {
+            header('Location: ' . url('/profile') . '?error=biografia_too_long');
+            exit;
+        }
+
         // Foto de perfil
         if (isset($_FILES['foto_perfil']) && $_FILES['foto_perfil']['error'] === UPLOAD_ERR_OK) {
             $allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
@@ -97,9 +102,9 @@ class UserController {
                 if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
                 $fileName = uniqid('profile_') . '.jpg';
-                move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $uploadDir . $fileName);
-
-                $data['foto_perfil'] = $fileName;
+                if (move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $uploadDir . $fileName)) {
+                    $data['foto_perfil'] = $fileName;
+                }
             }
         }
 
@@ -195,10 +200,38 @@ class UserController {
         }
 
         if (isset($_FILES['document']) && $_FILES['document']['error'] === UPLOAD_ERR_OK) {
+              // Validar tipo de archivo: solo PDF e imágenes
+              $allowedMimes = [
+                  'application/pdf' => 'pdf',
+                  'image/jpeg'      => 'jpg',
+                  'image/png'       => 'png',
+                  'image/webp'      => 'webp',
+              ];
+              $mime = mime_content_type($_FILES['document']['tmp_name']);
+              if (!isset($allowedMimes[$mime])) {
+                  header('Location: ' . url('/profile') . '?error=invalid_file_type&tab=verification');
+                  exit;
+              }
+
+              // Validar extensión del archivo original
+              $ext = strtolower(pathinfo($_FILES['document']['name'], PATHINFO_EXTENSION));
+              if (!in_array($ext, ['pdf', 'jpg', 'jpeg', 'png', 'webp'], true)) {
+                  header('Location: ' . url('/profile') . '?error=invalid_file_type&tab=verification');
+                  exit;
+              }
+
+              // Límite de 5MB
+              if ($_FILES['document']['size'] > 5 * 1024 * 1024) {
+                  header('Location: ' . url('/profile') . '?error=file_too_large&tab=verification');
+                  exit;
+              }
+
               $uploadDir = __DIR__ . '/../../public/uploads/verification/';
-              if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
-              
-              $fileName = uniqid() . '-' . basename($_FILES['document']['name']);
+              if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+              // Extensión segura basada en MIME type
+              $safeExt = $allowedMimes[$mime];
+              $fileName = uniqid() . '-verification.' . $safeExt;
               if (move_uploaded_file($_FILES['document']['tmp_name'], $uploadDir . $fileName)) {
                    $this->user->submitVerification($_SESSION['user_id'], $fileName);
 

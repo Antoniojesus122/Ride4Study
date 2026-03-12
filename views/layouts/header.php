@@ -23,7 +23,7 @@
 ?>
 
 <!DOCTYPE html>
-  <html lang="es" class="h-full bg-gray-900">
+  <html lang="<?= currentLang() ?>" class="h-full bg-gray-900">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -58,18 +58,24 @@
           <?php if ($isLoggedIn): ?>
               <div class="hidden md:flex items-center gap-1 bg-white/5 rounded-full p-1 border border-white/5">
                   <a href="<?= url('/dashboard') ?>" class="px-4 py-1.5 rounded-full text-sm font-medium transition-all <?= isActive('/dashboard') ? 'bg-primary text-secondary shadow-lg shadow-primary/25' : 'text-gray-300 hover:text-white hover:bg-white/5' ?>">
-                      <i class="fas fa-search mr-1.5"></i> Buscar
+                      <i class="fas fa-search mr-1.5"></i> <?= t('nav.search') ?>
                   </a>
                   <a href="<?= url('/my-rides') ?>" class="px-4 py-1.5 rounded-full text-sm font-medium transition-all <?= isActive('/my-rides') ? 'bg-primary text-secondary shadow-lg shadow-primary/25' : 'text-gray-300 hover:text-white hover:bg-white/5' ?>">
-                      <i class="fas fa-car mr-1.5"></i> Mis viajes
+                      <i class="fas fa-car mr-1.5"></i> <?= t('nav.my_rides') ?>
                   </a>
                   <a href="<?= url('/messages') ?>" class="px-4 py-1.5 rounded-full text-sm font-medium transition-all relative <?= isActive('/messages') ? 'bg-primary text-secondary shadow-lg shadow-primary/25' : 'text-gray-300 hover:text-white hover:bg-white/5' ?>">
-                      <i class="fas fa-comment-alt mr-1.5"></i> Mensajes
+                      <i class="fas fa-comment-alt mr-1.5"></i> <?= t('nav.messages') ?>
                       <span class="absolute top-1 right-2 flex h-2 w-2">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                       </span>
                   </a>
+              </div>
+
+              <!-- Seleccionador de lenguaje -->
+              <div class="flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/5">
+                  <a href="<?= url('/set-lang') ?>?lang=es" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'es' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">ES</a>
+                  <a href="<?= url('/set-lang') ?>?lang=en" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'en' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">EN</a>
               </div>
 
               <div class="h-6 w-px bg-white/10 hidden md:block"></div>
@@ -87,11 +93,11 @@
                   <!-- Panel de notificaciones -->
                   <div id="notif-panel" class="hidden absolute right-0 top-full mt-3 w-80 origin-top-right rounded-2xl bg-[#1a1b26]/95 backdrop-blur-xl border border-white/10 shadow-2xl z-50">
                       <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
-                          <span class="text-sm font-semibold text-white">Notificaciones</span>
-                          <button onclick="markAllRead()" class="text-xs text-primary hover:underline">Marcar todas leídas</button>
+                          <span class="text-sm font-semibold text-white"><?= t('nav.notifications') ?></span>
+                          <button onclick="markAllRead()" class="text-xs text-primary hover:underline"><?= t('nav.mark_all_read') ?></button>
                       </div>
                       <div id="notif-list" class="max-h-72 overflow-y-auto divide-y divide-white/5">
-                          <p class="text-sm text-gray-400 p-4 text-center">Cargando...</p>
+                          <p class="text-sm text-gray-400 p-4 text-center"><?= t('nav.loading') ?></p>
                       </div>
                   </div>
               </div>
@@ -118,7 +124,7 @@
 
                 <div id="user-menu" class="hidden absolute right-0 top-full mt-3 w-60 origin-top-right rounded-2xl bg-[#1a1b26]/95 backdrop-blur-xl border border-white/10 py-2 shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none transform transition-all z-50">
                     <div class="px-5 py-4 border-b border-white/5 bg-white/5 mx-2 rounded-xl mb-2">
-                        <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Conectado como</p>
+                        <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold"><?= t('nav.connected_as') ?></p>
                         <div class="flex items-center gap-2 mt-1">
                             <p class="text-base font-bold text-white truncate"><?= htmlspecialchars($userName) ?></p>
                             <?php if ($userIsPremium): ?>
@@ -131,28 +137,28 @@
 
                     <div class="px-2 space-y-1">
                         <a href="<?= url('/profile') ?>" class="group flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 rounded-lg hover:bg-primary hover:text-secondary transition-all">
-                            <i class="fas fa-user-circle w-6 text-center text-gray-400 group-hover:text-secondary/70"></i> Mi Perfil
+                            <i class="fas fa-user-circle w-6 text-center text-gray-400 group-hover:text-secondary/70"></i> <?= t('nav.my_profile') ?>
                         </a>
                         <a href="<?= url('/my-rides') ?>" class="group flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 rounded-lg hover:bg-primary hover:text-secondary transition-all">
-                            <i class="fas fa-car w-6 text-center text-gray-400 group-hover:text-secondary/70"></i> Mis Viajes
+                            <i class="fas fa-car w-6 text-center text-gray-400 group-hover:text-secondary/70"></i> <?= t('nav.my_rides') ?>
                         </a>
                         <a href="<?= url('/my-rides') ?>?tab=bookings" class="group flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 rounded-lg hover:bg-primary hover:text-secondary transition-all">
-                            <i class="fas fa-ticket-alt w-6 text-center text-gray-400 group-hover:text-secondary/70"></i> Mis Reservas
+                            <i class="fas fa-ticket-alt w-6 text-center text-gray-400 group-hover:text-secondary/70"></i> <?= t('nav.my_bookings') ?>
                         </a>
                         <?php if ($userIsPremium): ?>
                             <a href="<?= url('/premium') ?>" class="group flex items-center px-3 py-2.5 text-sm font-medium text-yellow-400 rounded-lg hover:bg-yellow-500/10 transition-all">
-                                <i class="fas fa-crown w-6 text-center opacity-70"></i> Mi suscripción
+                                <i class="fas fa-crown w-6 text-center opacity-70"></i> <?= t('nav.my_subscription') ?>
                             </a>
                         <?php else: ?>
                             <a href="<?= url('/premium') ?>" class="group flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 rounded-lg hover:bg-primary hover:text-secondary transition-all">
-                                <i class="fas fa-star w-6 text-center text-gray-400 group-hover:text-secondary/70"></i> Hazte Premium
+                                <i class="fas fa-star w-6 text-center text-gray-400 group-hover:text-secondary/70"></i> <?= t('nav.go_premium') ?>
                             </a>
                         <?php endif; ?>
                     </div>
 
                     <div class="mt-2 pt-2 border-t border-white/5 px-2">
                          <a href="<?= url('/logout') ?>" class="group flex items-center px-3 py-2.5 text-sm font-medium text-red-400 rounded-lg hover:bg-red-500/10 hover:text-red-300 transition-all">
-                            <i class="fas fa-sign-out-alt w-6 text-center opacity-70"></i> Cerrar sesión
+                            <i class="fas fa-sign-out-alt w-6 text-center opacity-70"></i> <?= t('nav.logout') ?>
                         </a>
                     </div>
                 </div>
@@ -196,7 +202,7 @@
                         .then(data => {
                             const list = document.getElementById('notif-list');
                             if (!data.success || !data.notifications.length) {
-                                list.innerHTML = '<p class="text-sm text-gray-400 p-4 text-center">Sin notificaciones nuevas.</p>';
+                                list.innerHTML = '<p class="text-sm text-gray-400 p-4 text-center"><?= t('nav.no_notifications') ?></p>';
                                 return;
                             }
                             list.innerHTML = data.notifications.map(n => `
@@ -210,7 +216,7 @@
                             `).join('');
                         })
                         .catch(() => {
-                            document.getElementById('notif-list').innerHTML = '<p class="text-sm text-red-400 p-4 text-center">Error al cargar.</p>';
+                            document.getElementById('notif-list').innerHTML = '<p class="text-sm text-red-400 p-4 text-center"><?= t('nav.error_loading') ?></p>';
                         });
                 }
 
@@ -267,7 +273,7 @@
 
                 function submitReport() {
                     const mensaje = document.getElementById('report-mensaje').value.trim();
-                    if (!mensaje) { showToast('Escribe un motivo para el reporte.', false); return; }
+                    if (!mensaje) { showToast('<?= t('nav.report_empty') ?>', false); return; }
                     const body = new FormData();
                     body.append('tipo', document.getElementById('report-tipo').value);
                     body.append('mensaje', mensaje);
@@ -280,7 +286,7 @@
                             closeReportModal();
                             showToast(data.message, data.success);
                         })
-                        .catch(() => showToast('Error al enviar el reporte.', false));
+                        .catch(() => showToast('<?= t('nav.report_error') ?>', false));
                 }
 
                 // === Toast global ===
@@ -316,8 +322,8 @@
                               <i class="fas fa-flag text-red-400"></i>
                           </div>
                           <div>
-                              <h3 class="text-lg font-bold text-white">Reportar <span id="report-label">contenido</span></h3>
-                              <p class="text-xs text-gray-400">Tu reporte será revisado por el equipo.</p>
+                              <h3 class="text-lg font-bold text-white"><?= t('nav.report') ?> <span id="report-label"><?= t('nav.report_content') ?></span></h3>
+                              <p class="text-xs text-gray-400"><?= t('nav.report_reviewed') ?></p>
                           </div>
                       </div>
                       <div class="p-6 space-y-4">
@@ -326,13 +332,13 @@
                           <input type="hidden" id="report-idAnuncio">
                           <input type="hidden" id="report-idChat">
                           <div>
-                              <label class="block text-sm font-medium text-gray-300 mb-2">Motivo del reporte</label>
-                              <textarea id="report-mensaje" rows="4" maxlength="500" placeholder="Describe brevemente el motivo..." class="w-full bg-gray-800 border border-gray-600 text-gray-100 text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-primary resize-none placeholder-gray-500"></textarea>
+                              <label class="block text-sm font-medium text-gray-300 mb-2"><?= t('nav.report_reason') ?></label>
+                              <textarea id="report-mensaje" rows="4" maxlength="500" placeholder="<?= t('nav.report_placeholder') ?>" class="w-full bg-gray-800 border border-gray-600 text-gray-100 text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-primary resize-none placeholder-gray-500"></textarea>
                           </div>
                       </div>
                       <div class="px-6 pb-6 flex gap-3">
-                          <button onclick="closeReportModal()" class="flex-1 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-sm font-medium transition-colors">Cancelar</button>
-                          <button onclick="submitReport()" class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-sm font-bold transition-colors">Enviar reporte</button>
+                          <button onclick="closeReportModal()" class="flex-1 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-sm font-medium transition-colors"><?= t('nav.report_cancel') ?></button>
+                          <button onclick="submitReport()" class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-sm font-bold transition-colors"><?= t('nav.report_send') ?></button>
                       </div>
                   </div>
               </div>

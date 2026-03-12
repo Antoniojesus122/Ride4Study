@@ -135,6 +135,7 @@ class RideController {
             'destino' => '',
             'fechaSalida' => $_POST['fechaSalida'] ?? '',
             'horaSalida' => $_POST['horaSalida'] ?? '',
+            'horaLlegada' => null,
             'horaRegreso' => !empty($_POST['horaRegreso']) ? $_POST['horaRegreso'] : null,
             'plazasDisponibles' => ($tipo === 'busco') ? 1 : ($_POST['plazasDisponibles'] ?? ''),
             'precio' => !empty($_POST['precio']) ? $_POST['precio'] : null,
@@ -158,6 +159,11 @@ class RideController {
         // Validar plazas solo si NO es tipo "busco"
         if ($data['tipo'] !== 'busco' && empty($data['plazasDisponibles'])) {
             $errors[] = 'Debes especificar las plazas disponibles.';
+        }
+
+        // Validar longitud de descripción
+        if (!empty($data['descripcion']) && mb_strlen($data['descripcion']) > 500) {
+            $errors[] = 'La descripción no puede superar los 500 caracteres.';
         }
 
         // Validaciones lógicas
@@ -192,6 +198,29 @@ class RideController {
         // Resolver nombres de ciudad a idLocalidad (buscar o crear en la tabla localidades)
         $data['origen']  = $this->ride->findOrCreateLocation($origenNombre, $origenLat, $origenLng);
         $data['destino'] = $this->ride->findOrCreateLocation($destinoNombre, $destinoLat, $destinoLng);
+
+        if ($origenLat != 0 && $origenLng != 0 && $destinoLat != 0 && $destinoLng != 0) {
+            $apiKey = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjkyMTRlZDJiZjMxYTQ4Nzc4NGVkYmVkNGMxNGY4YTdiIiwiaCI6Im11cm11cjY0In0=';
+            
+            // ORS usa el formato [longitud, latitud]
+            $url = "https://api.openrouteservice.org/v2/directions/driving-car?api_key={$apiKey}&start={$origenLng},{$origenLat}&end={$destinoLng},{$destinoLat}";
+
+            $opts = ["http" => ["header" => "Accept: application/json\r\n"]];
+            $context = stream_context_create($opts);
+            $response = @file_get_contents($url, false, $context);
+
+            if ($response) {
+                $routeData = json_decode($response, true);
+                if (isset($routeData['features'][0]['properties']['summary']['duration'])) {
+                    $segundos = $routeData['features'][0]['properties']['summary']['duration'];
+
+                    // Calculamos la hora de llegada sumando la duración a la hora de salida
+                    $llegada = new DateTime($data['fechaSalida'] . ' ' . $data['horaSalida']);
+                    $llegada->modify("+" . round($segundos) . " seconds");
+                    $data['horaLlegada'] = $llegada->format('H:i:s');
+                }
+            }
+        }
 
         // Comprobar límite de anuncios para usuarios gratuitos (máximo 4 activos)
         $userData = $this->db->prepare("SELECT premium, premium_hasta FROM usuarios WHERE idUsuario = :id");
@@ -695,6 +724,11 @@ class RideController {
             $errors[] = 'Debes especificar las plazas disponibles.';
         }
 
+        // Validar longitud de descripción
+        if (!empty($data['descripcion']) && mb_strlen($data['descripcion']) > 500) {
+            $errors[] = 'La descripción no puede superar los 500 caracteres.';
+        }
+
         if ($origenNombre && $destinoNombre && strtolower($origenNombre) === strtolower($destinoNombre)) {
              $errors[] = 'El origen y el destino no pueden ser el mismo.';
         }
@@ -729,6 +763,26 @@ class RideController {
         // Resolver nombres de ciudad a idLocalidad
         $data['origen']  = $this->ride->findOrCreateLocation($origenNombre, $origenLat, $origenLng);
         $data['destino'] = $this->ride->findOrCreateLocation($destinoNombre, $destinoLat, $destinoLng);
+
+        // Calcular hora de llegada con OpenRouteService
+        $data['horaLlegada'] = null;
+        if ($origenLat != 0 && $origenLng != 0 && $destinoLat != 0 && $destinoLng != 0) {
+            $apiKey = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjkyMTRlZDJiZjMxYTQ4Nzc4NGVkYmVkNGMxNGY4YTdiIiwiaCI6Im11cm11cjY0In0=';
+            $url = "https://api.openrouteservice.org/v2/directions/driving-car?api_key={$apiKey}&start={$origenLng},{$origenLat}&end={$destinoLng},{$destinoLat}";
+            $opts = ["http" => ["header" => "Accept: application/json\r\n"]];
+            $context = stream_context_create($opts);
+            $response = @file_get_contents($url, false, $context);
+
+            if ($response) {
+                $routeData = json_decode($response, true);
+                if (isset($routeData['features'][0]['properties']['summary']['duration'])) {
+                    $segundos = $routeData['features'][0]['properties']['summary']['duration'];
+                    $llegada = new DateTime($data['fechaSalida'] . ' ' . $data['horaSalida']);
+                    $llegada->modify("+" . round($segundos) . " seconds");
+                    $data['horaLlegada'] = $llegada->format('H:i:s');
+                }
+            }
+        }
 
         // Actualizar viaje
         if ($this->ride->updateRide($rideId, $data)) {

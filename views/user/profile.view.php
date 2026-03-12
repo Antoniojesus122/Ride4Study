@@ -318,6 +318,27 @@
                      <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
                          <i class="fas fa-user-edit text-primary"></i> Editar Perfil
                      </h3>
+
+                     <?php if ($error && (!$tab || $tab === 'profile')): ?>
+                        <div class="mb-6 rounded-xl border border-red-500 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                            <?php
+                                switch ($error) {
+                                    case 'invalid_email':
+                                        echo 'El correo electrónico no es válido.';
+                                        break;
+                                    case 'biografia_too_long':
+                                        echo 'La biografía no puede superar los 300 caracteres.';
+                                        break;
+                                    case 'update_failed':
+                                        echo 'Error al actualizar el perfil. Inténtalo de nuevo.';
+                                        break;
+                                    default:
+                                        echo 'Ha ocurrido un error. Inténtalo de nuevo.';
+                                }
+                            ?>
+                        </div>
+                     <?php endif; ?>
+
                      <form action="<?= url('/profile') ?>?action=update" method="POST" enctype="multipart/form-data">
                          <input type="file" name="foto_perfil" id="photo-input" class="hidden" accept="image/*">
                          
@@ -427,7 +448,30 @@
                      <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
                          <i class="fas fa-shield-check text-primary"></i> Verificación de Estudiante
                      </h3>
-                     
+
+                     <?php if ($error && $tab === 'verification'): ?>
+                        <div class="mb-6 rounded-xl border border-red-500 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                            <?php
+                                switch ($error) {
+                                    case 'invalid_file_type':
+                                        echo 'Tipo de archivo no permitido. Solo se aceptan PDF, JPG, PNG o WebP.';
+                                        break;
+                                    case 'file_too_large':
+                                        echo 'El archivo es demasiado grande. El tamaño máximo es 5 MB.';
+                                        break;
+                                    case 'upload_failed':
+                                        echo 'Error al subir el archivo. Inténtalo de nuevo.';
+                                        break;
+                                    case 'no_file':
+                                        echo 'No se ha seleccionado ningún archivo.';
+                                        break;
+                                    default:
+                                        echo 'Ha ocurrido un error. Inténtalo de nuevo.';
+                                }
+                            ?>
+                        </div>
+                     <?php endif; ?>
+
                      <?php if ($profileUser['estado_verificacion'] == 2): ?>
                         <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-6 text-center">
                             <i class="fas fa-check-circle text-5xl text-green-500 mb-3"></i>

@@ -433,7 +433,25 @@
     if (window.location.search.includes('conversation_id')) {
         refreshInterval = setInterval(fetchMessages, 3000);
     }
-    
+
+    // Limpiar interval al salir de la página
+    window.addEventListener('beforeunload', function() {
+        if (refreshInterval) clearInterval(refreshInterval);
+    });
+
+    // Pausar polling cuando el tab está oculto, reanudar al volver
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+                refreshInterval = null;
+            }
+        } else if (window.location.search.includes('conversation_id') && !refreshInterval) {
+            fetchMessages();
+            refreshInterval = setInterval(fetchMessages, 3000);
+        }
+    });
+
     // Modal de confirmación personalizada para el chat
     let _chatConfirmCb = null;
 

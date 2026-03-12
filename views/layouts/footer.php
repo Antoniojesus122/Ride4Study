@@ -14,35 +14,34 @@
                     </div>
 
                     <p class="mt-4 text-sm text-gray-400 max-w-xs leading-relaxed">
-                        Conectamos estudiantes que comparten trayectos.
-                        Más ahorro, menos emisiones, más comunidad.
+                        <?= t('footer.description') ?>
                     </p>
                 </div>
 
                 <!-- Links a paginas legales -->
                 <div class="flex flex-col gap-3 text-sm">
-                    <h4 class="text-white font-medium mb-1">Legal</h4>
-                    <a href="<?= url('/privacy') ?>" class="text-gray-400 hover:text-primary transition-colors duration-200">Privacidad</a>
-                    <a href="<?= url('/terms') ?>" class="text-gray-400 hover:text-primary transition-colors duration-200">Condiciones</a>
-                    <a href="<?= url('/support') ?>" class="text-gray-400 hover:text-primary transition-colors duration-200">Soporte</a>
+                    <h4 class="text-white font-medium mb-1"><?= t('footer.legal') ?></h4>
+                    <a href="<?= url('/privacy') ?>" class="text-gray-400 hover:text-primary transition-colors duration-200"><?= t('footer.privacy') ?></a>
+                    <a href="<?= url('/terms') ?>" class="text-gray-400 hover:text-primary transition-colors duration-200"><?= t('footer.terms') ?></a>
+                    <a href="<?= url('/support') ?>" class="text-gray-400 hover:text-primary transition-colors duration-200"><?= t('footer.support') ?></a>
                 </div>
 
                 <!-- Info de la web -->
                 <div class="flex flex-col gap-3 text-sm">
-                    <h4 class="text-white font-medium mb-1">Plataforma</h4>
-                    <span class="text-gray-400">Hecho para estudiantes</span>
-                    <span class="text-gray-400">España</span>
-                    <span class="text-gray-400">Versión 1.0</span>
+                    <h4 class="text-white font-medium mb-1"><?= t('footer.platform') ?></h4>
+                    <span class="text-gray-400"><?= t('footer.for_students') ?></span>
+                    <span class="text-gray-400"><?= t('footer.spain') ?></span>
+                    <span class="text-gray-400"><?= t('footer.version') ?></span>
                 </div>
             </div>
 
             <!-- Separador inferior con copyright -->
             <div class="mt-12 border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p class="text-xs text-gray-500">
-                    © <span id="year"></span> Ride4Study. Todos los derechos reservados.
+                    © <span id="year"></span> Ride4Study. <?= t('footer.rights') ?>
                 </p>
                 <p class="text-xs text-gray-500">
-                    Hecho por <a href="https://www.linkedin.com/in/antonio-jes%C3%BAs" class="text-primary hover:underline">Antonio Jesús González Domingo</a>
+                    <?= t('footer.made_by') ?> <a href="https://www.linkedin.com/in/antonio-jes%C3%BAs" class="text-primary hover:underline">Antonio Jesús González Domingo</a>
                 </p>
             </div>
         </div>
