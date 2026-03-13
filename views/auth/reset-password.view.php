@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-secondary">
+<html lang="<?= currentLang() ?>" class="h-full bg-secondary">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Restablecer Contraseña - Ride4Study</title>
+  <title><?= t('reset.title') ?></title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="public/js/tailwind-config.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -17,8 +17,8 @@
           <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-secondary font-bold text-xl">R</div>
           <span class="text-xl font-bold text-white">Ride4Study</span>
         </a>
-        <h2 class="text-2xl font-semibold text-white">Restablecer Contraseña</h2>
-        <p class="text-sm text-text-muted mt-2">Introduce el código de 6 dígitos que recibiste y crea una nueva contraseña.</p>
+        <h2 class="text-2xl font-semibold text-white"><?= t('reset.heading') ?></h2>
+        <p class="text-sm text-text-muted mt-2"><?= t('reset.desc') ?></p>
       </div>
 
       <!-- Mensajes -->
@@ -29,14 +29,14 @@
         <div class="p-3 bg-green-900/20 rounded border border-green-500/20 text-green-200 text-sm"><?= htmlspecialchars($success) ?></div>
       <?php endif; ?>
       <?php if (!empty($_GET['sent'])): ?>
-        <div class="p-3 bg-green-900/20 rounded border border-green-500/20 text-green-200 text-sm">Código enviado. Revisa tu correo (válido 15 minutos).</div>
+        <div class="p-3 bg-green-900/20 rounded border border-green-500/20 text-green-200 text-sm"><?= t('reset.code_sent') ?></div>
       <?php endif; ?>
 
       <!-- Formulario -->
       <?php if (empty($success)): ?>
       <form method="POST" action="<?= url('/reset-password') ?>" class="space-y-4">
         <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">Código</label>
+            <label class="block text-sm font-medium text-gray-300 mb-2"><?= t('reset.code') ?></label>
             <div id="otp" class="flex justify-center gap-2">
                 <?php for ($i = 0; $i < 6; $i++): ?>
                 <input type="text" maxlength="1" inputmode="numeric" pattern="\d*"
@@ -44,12 +44,12 @@
                 <?php endfor; ?>
             </div>
             <input type="hidden" name="code" id="code-hidden">
-            <p class="text-xs text-text-muted mt-2 text-center">Introduce el código de 6 dígitos recibido en tu correo.</p>
+            <p class="text-xs text-text-muted mt-2 text-center"><?= t('reset.code_hint') ?></p>
         </div>
 
         <!-- Contraseña -->
         <div>
-            <label for="contrasena" class="block text-sm font-medium text-gray-300 mt-4">Nueva contraseña</label>
+            <label for="contrasena" class="block text-sm font-medium text-gray-300 mt-4"><?= t('reset.new_password') ?></label>
             <div class="relative mt-1">
                 <input id="contrasena" name="contrasena" type="password" required minlength="6"
                 class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white pr-10">
@@ -57,12 +57,12 @@
                 <i id="icon-pass" class="fas fa-eye"></i>
                 </button>
             </div>
-            <p id="passwordStrengthText" class="text-xs text-text-muted mt-2">Fortaleza: —</p>
+            <p id="passwordStrengthText" class="text-xs text-text-muted mt-2"><?= t('reset.strength') ?> —</p>
         </div>
 
         <!-- Confirmar contraseña -->
         <div>
-            <label for="confirmar_contrasena" class="block text-sm font-medium text-gray-300 mt-4">Confirmar contraseña</label>
+            <label for="confirmar_contrasena" class="block text-sm font-medium text-gray-300 mt-4"><?= t('reset.confirm_password') ?></label>
             <div class="relative mt-1">
                 <input id="confirmar_contrasena" name="confirmar_contrasena" type="password" required minlength="6"
                 class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white pr-10">
@@ -74,13 +74,13 @@
         </div>
 
         <button type="submit" class="w-full flex items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold text-secondary hover:bg-primary/90 transition">
-                <i class="fas fa-check"></i> Restablecer contraseña
+                <i class="fas fa-check"></i> <?= t('reset.submit') ?>
                 </button>
             </form>
             <?php endif; ?>
 
             <div class="text-center text-sm text-text-muted">
-                <a href="<?= url('/forgot-password') ?>" class="underline">Volver a solicitar código</a> · <a href="<?= url('/login') ?>" class="underline">Iniciar sesión</a>
+                <a href="<?= url('/forgot-password') ?>" class="underline"><?= t('reset.request_again') ?></a> · <a href="<?= url('/login') ?>" class="underline"><?= t('reset.login') ?></a>
             </div>
             </div>
         </div>
@@ -122,8 +122,8 @@
             if (/[A-Z]/.test(v) && /[a-z]/.test(v)) score++;
             if (/\d/.test(v)) score++;
             if (/[^A-Za-z0-9]/.test(v)) score++;
-            const texts = ['Muy débil','Débil','Regular','Buena','Excelente','Muy fuerte'];
-            document.getElementById('passwordStrengthText').textContent = 'Fortaleza: ' + texts[score];
+            const texts = ['<?= t('reset.str_very_weak') ?>','<?= t('reset.str_weak') ?>','<?= t('reset.str_fair') ?>','<?= t('reset.str_good') ?>','<?= t('reset.str_excellent') ?>','<?= t('reset.str_very_strong') ?>'];
+            document.getElementById('passwordStrengthText').textContent = '<?= t('reset.strength') ?> ' + texts[score];
         });
 
         // Coincidencia de contraseñas
@@ -132,8 +132,8 @@
             const b = this.value;
             const m = document.getElementById('matchText');
             if (b === '') { m.textContent=''; return; }
-            if (a===b) { m.textContent='✓ Las contraseñas coinciden'; m.className='text-xs text-green-500 mt-2'; }
-            else { m.textContent='✗ No coinciden'; m.className='text-xs text-red-500 mt-2'; }
+            if (a===b) { m.textContent='<?= t('reset.passwords_match') ?>'; m.className='text-xs text-green-500 mt-2'; }
+            else { m.textContent='<?= t('reset.passwords_no_match') ?>'; m.className='text-xs text-red-500 mt-2'; }
         });
     </script>
 

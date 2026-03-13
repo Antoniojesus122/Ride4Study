@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-  <html lang="es" class="h-full bg-secondary">
+  <html lang="<?= currentLang() ?>" class="h-full bg-secondary">
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-      <title>Crear Cuenta - Ride4Study</title>
+      <title><?= t('register.title') ?></title>
       <script src="https://cdn.tailwindcss.com"></script>
       <script src="public/js/tailwind-config.js"></script>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -30,10 +30,10 @@
                   </div>
                   <span class="text-2xl font-bold tracking-tighter text-white group-hover:text-primary transition-colors">Ride4Study</span>
               </a>
-              <h2 class="mt-8 text-3xl font-bold leading-9 tracking-tight text-white">Comienza tu viaje</h2>
+              <h2 class="mt-8 text-3xl font-bold leading-9 tracking-tight text-white"><?= t('register.hero') ?></h2>
               <p class="mt-2 text-sm leading-6 text-text-muted">
-                ¿Ya eres miembro?
-                <a href="<?= url('/login') ?>" class="font-semibold text-primary hover:text-primary-dark transition-colors">Inicia sesión aquí</a>
+                <?= t('register.has_account') ?>
+                <a href="<?= url('/login') ?>" class="font-semibold text-primary hover:text-primary-dark transition-colors"><?= t('register.login_here') ?></a>
               </p>
             </div>
 
@@ -55,7 +55,7 @@
 
                 <form method="POST" class="space-y-5">
                   <div>
-                    <label for="nombre" class="block text-sm font-medium leading-6 text-gray-300">Nombre completo</label>
+                    <label for="nombre" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.name') ?></label>
                     <div class="mt-2">
                       <input id="nombre" name="nombre" type="text" autocomplete="name" required
                         value="<?= htmlspecialchars($_POST['nombre'] ?? '') ?>"
@@ -64,7 +64,7 @@
                   </div>
 
                   <div>
-                    <label for="correo" class="block text-sm font-medium leading-6 text-gray-300">Correo electrónico</label>
+                    <label for="correo" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.email') ?></label>
                     <div class="mt-2">
                       <input id="correo" name="correo" type="email" autocomplete="email" required
                         value="<?= htmlspecialchars($_POST['correo'] ?? '') ?>"
@@ -73,7 +73,7 @@
                   </div>
                   
                   <div>
-                    <label for="telefono" class="block text-sm font-medium leading-6 text-gray-300">Teléfono <span class="text-gray-500 text-xs ml-1">(Opcional)</span></label>
+                    <label for="telefono" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.phone') ?> <span class="text-gray-500 text-xs ml-1"><?= t('register.optional') ?></span></label>
                     <div class="mt-2">
                       <input id="telefono" name="telefono" type="tel" autocomplete="tel"
                         value="<?= htmlspecialchars($_POST['telefono'] ?? '') ?>"
@@ -82,7 +82,7 @@
                   </div>
 
                   <div>
-                    <label for="contrasena" class="block text-sm font-medium leading-6 text-gray-300">Contraseña</label>
+                    <label for="contrasena" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.password') ?></label>
                     <div class="mt-2 relative">
                       <input id="contrasena" name="contrasena" type="password" required
                         class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 pr-10 transition-all">
@@ -93,7 +93,7 @@
                   </div>
                   
                   <div>
-                    <label for="confirmar_contrasena" class="block text-sm font-medium leading-6 text-gray-300">Confirmar contraseña</label>
+                    <label for="confirmar_contrasena" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.confirm_password') ?></label>
                     <div class="mt-2 relative">
                       <input id="confirmar_contrasena" name="confirmar_contrasena" type="password" required
                         class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 pr-10 transition-all">
@@ -110,15 +110,15 @@
 
                     <div class="text-sm leading-6">
                       <label for="acepta_politicas" class="text-gray-300">
-                        Acepto la 
+                        <?= t('register.accept_policy') ?>
                         <a href="<?= url('/privacy') ?>" target="_blank"
                           class="text-primary hover:text-primary-dark font-medium transition-colors">
-                          Política de Privacidad
+                          <?= t('register.privacy_policy') ?>
                         </a>
-                        y las
+                        <?= t('register.and_the') ?>
                         <a href="<?= url('/terms') ?>" target="_blank"
                           class="text-primary hover:text-primary-dark font-medium transition-colors">
-                          Condiciones de Uso
+                          <?= t('register.terms') ?>
                         </a>
                       </label>
                     </div>
@@ -127,7 +127,7 @@
                   <div class="pt-2">
                     <button type="submit" name="register"
                       class="flex w-full justify-center rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold leading-6 text-secondary shadow-lg shadow-primary/20 hover:bg-primary-dark hover:shadow-primary/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-all transform hover:-translate-y-0.5">
-                      Crear mi cuenta
+                      <?= t('register.submit') ?>
                     </button>
                   </div>
                 </form>
@@ -141,8 +141,8 @@
           <div class="absolute inset-0 flex flex-col justify-between p-12 text-white split-bg" style="background-image: url('public/img/imgRegister.jpg');">
             <div class="absolute inset-0 bg-gradient-to-r from-secondary/80 to-transparent"></div>
             <div class="z-10 relative">
-              <h1 class="text-5xl font-bold leading-tight tracking-tight drop-shadow-lg">Explora nuevos<br>horizontes.</h1>
-              <p class="mt-6 text-xl max-w-md text-gray-200 drop-shadow-md">Registro en segundos. Sin comisiones ocultas. Solo comunidad.</p>
+              <h1 class="text-5xl font-bold leading-tight tracking-tight drop-shadow-lg"><?= t('register.hero_title') ?></h1>
+              <p class="mt-6 text-xl max-w-md text-gray-200 drop-shadow-md"><?= t('register.hero_desc') ?></p>
             </div>
             <div class="z-10 relative text-sm text-gray-400">
               <div class="flex items-center gap-4">
@@ -152,10 +152,10 @@
                     <div class="h-8 w-8 rounded-full ring-2 ring-secondary bg-gray-600"></div>
                     <div class="h-8 w-8 rounded-full ring-2 ring-secondary bg-gray-700"></div>
                   </div>
-                  <span>+100 estudiantes registrados</span>
+                  <span><?= t('register.students_count') ?></span>
               </div>
               <div class="mt-4">
-                &copy; <?= date('Y') ?> Ride4Study. Todos los derechos reservados.
+                &copy; <?= date('Y') ?> Ride4Study. <?= t('register.rights') ?>
               </div>
             </div>
           </div>

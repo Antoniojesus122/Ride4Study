@@ -8,7 +8,7 @@
         
         <!-- Header de chats -->
         <div class="p-4 border-b border-gray-700">
-            <h2 class="text-xl font-bold text-white">Mensajes</h2>
+            <h2 class="text-xl font-bold text-white"><?= t('chat.title') ?></h2>
         </div>
 
         <!-- Listado de conversaciones -->
@@ -16,7 +16,7 @@
             <?php if (empty($chats)): ?>
                 <div class="p-8 text-center text-gray-400">
                     <i class="far fa-comments text-4xl mb-3 opacity-50"></i>
-                    <p class="text-sm">No tienes conversaciones activas.</p>
+                    <p class="text-sm"><?= t('chat.no_conversations') ?></p>
                 </div>
             <?php else: ?>
                 <ul class="divide-y divide-gray-800">
@@ -76,12 +76,12 @@
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-white leading-tight"><?= htmlspecialchars($otherUser['nombre']) ?></h3>
-                        <a href="<?= url('/profile') ?>?id=<?= $otherUser['idUsuario'] ?>" class="text-xs text-primary hover:underline">Ver perfil</a>
+                        <a href="<?= url('/profile') ?>?id=<?= $otherUser['idUsuario'] ?>" class="text-xs text-primary hover:underline"><?= t('chat.view_profile') ?></a>
                     </div>
                 </div>
 
                 <!-- Opciones de conversación -->
-                <button onclick="confirmDeleteConversation(<?= $selectedConversationId ?>)" class="p-2 text-gray-400 hover:text-red-400 transition-colors" title="Eliminar conversación">
+                <button onclick="confirmDeleteConversation(<?= $selectedConversationId ?>)" class="p-2 text-gray-400 hover:text-red-400 transition-colors" title="<?= t('chat.delete_conversation') ?>">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
@@ -95,7 +95,7 @@
                              <i class="fas fa-car text-xl"></i>
                         </div>
                         <div class="min-w-0 flex-1">
-                            <p class="text-xs text-gray-400 mb-1">💬 Conversación sobre este viaje:</p>
+                            <p class="text-xs text-gray-400 mb-1">💬 <?= t('chat.about_ride') ?></p>
                             <div class="flex items-center gap-2 text-white font-semibold text-sm mb-1">
                                 <span class="truncate"><?= htmlspecialchars($contextRide['nombreOrigen']) ?></span>
                                 <i class="fas fa-arrow-right text-[10px] text-primary shrink-0"></i>
@@ -167,37 +167,37 @@
                                     </span>
                                     <button onclick="handleOfferResponse(<?= $anuncioId ?>, <?= $pendingPassenger['idPasajero'] ?>, 'accept')"
                                             class="px-3 py-1.5 text-xs bg-green-500/10 border border-green-500/30 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors font-medium shadow-sm"
-                                            title="Aceptar solicitud">
+                                            title="<?= t('chat.accept_offer') ?>">
                                         <i class="fas fa-check"></i>
                                     </button>
                                     <button onclick="handleOfferResponse(<?= $anuncioId ?>, <?= $pendingPassenger['idPasajero'] ?>, 'reject')"
                                             class="px-3 py-1.5 text-xs bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors font-medium shadow-sm"
-                                            title="Rechazar solicitud">
+                                            title="<?= t('chat.reject_offer') ?>">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
                             <?php else: ?>
                                 <span class="px-4 py-2 text-xs bg-blue-500/10 text-blue-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-blue-500/30 shadow-sm">
-                                    <i class="fas fa-hourglass-half mr-1"></i> Sin solicitudes
+                                    <i class="fas fa-hourglass-half mr-1"></i> <?= t('chat.no_requests') ?>
                                 </span>
                             <?php endif; ?>
                         <?php elseif (!$myOffer): ?>
                             <!-- No soy el publicador y no he reservado aún -->
                             <a href="<?= url('/reserve') ?>?ride_id=<?= $anuncioId ?>"
                                class="px-4 py-2 text-xs border border-primary/30 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors whitespace-nowrap shrink-0 font-medium shadow-sm">
-                                <i class="fas fa-user-plus mr-1"></i> Solicitar plaza
+                                <i class="fas fa-user-plus mr-1"></i> <?= t('chat.request_seat') ?>
                             </a>
                         <?php elseif ($myOffer['estado'] === 'pendiente'): ?>
                             <span class="px-4 py-2 text-xs bg-yellow-500/10 text-yellow-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-yellow-500/30 shadow-sm">
-                                <i class="fas fa-clock mr-1"></i> Solicitud enviada
+                                <i class="fas fa-clock mr-1"></i> <?= t('chat.request_sent') ?>
                             </span>
                         <?php elseif ($myOffer['estado'] === 'aceptado'): ?>
                             <span class="px-4 py-2 text-xs bg-green-500/10 text-green-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-green-500/30 shadow-sm">
-                                <i class="fas fa-check-circle mr-1"></i> Plaza confirmada
+                                <i class="fas fa-check-circle mr-1"></i> <?= t('chat.seat_confirmed') ?>
                             </span>
                         <?php elseif ($myOffer['estado'] === 'rechazado'): ?>
                             <span class="px-4 py-2 text-xs bg-red-500/10 text-red-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-red-500/30 shadow-sm">
-                                <i class="fas fa-times-circle mr-1"></i> Solicitud rechazada
+                                <i class="fas fa-times-circle mr-1"></i> <?= t('chat.request_rejected') ?>
                             </span>
                         <?php endif; ?>
 
@@ -207,19 +207,19 @@
                             <!-- No soy el publicador y no he ofrecido -->
                             <button onclick="offerRide(<?= $anuncioId ?>, <?= $_SESSION['user_id'] ?>)"
                                     class="px-4 py-2 text-xs border border-green-500/30 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors whitespace-nowrap shrink-0 font-medium shadow-sm hover:shadow-md">
-                                <i class="fas fa-hand-holding-heart mr-1"></i> Ofrecer llevarlo
+                                <i class="fas fa-hand-holding-heart mr-1"></i> <?= t('chat.offer_ride') ?>
                             </button>
                         <?php elseif (!$isPublisher && $myOffer['estado'] === 'pendiente'): ?>
                             <span class="px-4 py-2 text-xs bg-yellow-500/10 text-yellow-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-yellow-500/30 shadow-sm">
-                                <i class="fas fa-clock mr-1"></i> Oferta enviada
+                                <i class="fas fa-clock mr-1"></i> <?= t('chat.offer_sent') ?>
                             </span>
                         <?php elseif (!$isPublisher && $myOffer['estado'] === 'aceptado'): ?>
                             <span class="px-4 py-2 text-xs bg-green-500/10 text-green-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-green-500/30 shadow-sm">
-                                <i class="fas fa-check-circle mr-1"></i> Oferta aceptada
+                                <i class="fas fa-check-circle mr-1"></i> <?= t('chat.offer_accepted') ?>
                             </span>
                         <?php elseif (!$isPublisher && $myOffer['estado'] === 'rechazado'): ?>
                             <span class="px-4 py-2 text-xs bg-red-500/10 text-red-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-red-500/30 shadow-sm">
-                                <i class="fas fa-times-circle mr-1"></i> Oferta rechazada
+                                <i class="fas fa-times-circle mr-1"></i> <?= t('chat.offer_rejected') ?>
                             </span>
                         <?php elseif ($isPublisher): ?>
                             <!-- Soy el publicador (pasajero que busca viaje): gestionar ofertas -->
@@ -262,24 +262,24 @@
                                     </span>
                                     <button onclick="handleOfferResponse(<?= $anuncioId ?>, <?= $pendingOffer['idConductor'] ?>, 'accept')"
                                             class="px-3 py-1.5 text-xs bg-green-500/10 border border-green-500/30 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors font-medium shadow-sm hover:shadow-md"
-                                            title="Aceptar oferta">
+                                            title="<?= t('chat.accept_offer') ?>">
                                         <i class="fas fa-check"></i>
                                     </button>
                                     <button onclick="handleOfferResponse(<?= $anuncioId ?>, <?= $pendingOffer['idConductor'] ?>, 'reject')"
                                             class="px-3 py-1.5 text-xs bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors font-medium shadow-sm hover:shadow-md"
-                                            title="Rechazar oferta">
+                                            title="<?= t('chat.reject_offer') ?>">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
                             <?php elseif ($acceptedOffer): ?>
                                 <!-- Oferta aceptada -->
                                 <span class="px-4 py-2 text-xs bg-green-500/10 text-green-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-green-500/30 shadow-sm">
-                                    <i class="fas fa-check-circle mr-1"></i> Oferta aceptada
+                                    <i class="fas fa-check-circle mr-1"></i> <?= t('chat.offer_accepted') ?>
                                 </span>
                             <?php else: ?>
                                 <!-- Sin ofertas aún -->
                                 <span class="px-4 py-2 text-xs bg-blue-500/10 text-blue-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-blue-500/30 shadow-sm animate-pulse">
-                                    <i class="fas fa-hourglass-half mr-1"></i> Esperando ofertas
+                                    <i class="fas fa-hourglass-half mr-1"></i> <?= t('chat.waiting_offers') ?>
                                 </span>
                             <?php endif; ?>
                         <?php endif; ?>
@@ -300,7 +300,7 @@
                     <input type="hidden" name="receiver_id"     value="<?= $otherUser['idUsuario'] ?>">
                     
                     <div class="flex-1 bg-gray-800 rounded-xl border border-gray-600 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
-                        <textarea name="message" rows="1" class="block w-full bg-transparent p-3 text-white placeholder-gray-500 outline-none text-sm resize-none max-h-32" placeholder="Escribe un mensaje..." required oninput="this.style.height='auto'; this.style.height=this.scrollHeight + 'px'"></textarea>
+                        <textarea name="message" rows="1" class="block w-full bg-transparent p-3 text-white placeholder-gray-500 outline-none text-sm resize-none max-h-32" placeholder="<?= t('chat.write_message') ?>" required oninput="this.style.height='auto'; this.style.height=this.scrollHeight + 'px'"></textarea>
                     </div>
                     <button type="submit" class="p-3 bg-primary text-secondary rounded-xl hover:bg-primary-dark transition-colors shadow-lg shadow-primary/20">
                         <i class="fas fa-paper-plane"></i>
@@ -313,8 +313,8 @@
                 <div class="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mb-6 animate-pulse">
                     <i class="far fa-paper-plane text-4xl text-gray-600"></i>
                 </div>
-                <h3 class="text-xl font-bold text-white mb-2">Tus Mensajes</h3>
-                <p class="text-center max-w-sm">Selecciona una conversación de la lista para ver el historial de chat o comenzar a escribir.</p>
+                <h3 class="text-xl font-bold text-white mb-2"><?= t('chat.your_messages') ?></h3>
+                <p class="text-center max-w-sm"><?= t('chat.select_conversation') ?></p>
             </div>
         <?php endif; ?>
     </div>
@@ -329,13 +329,13 @@
     <div class="fixed inset-0 bg-black/70 backdrop-blur-sm" onclick="closeEditModal()"></div>
     <div class="fixed inset-0 flex items-center justify-center p-4">
         <div class="bg-gray-800 rounded-2xl p-6 w-full max-w-md border border-gray-700 shadow-2xl">
-             <h3 class="text-white font-bold mb-4">Editar mensaje</h3>
+             <h3 class="text-white font-bold mb-4"><?= t('chat.edit_message') ?></h3>
              <form id="edit-form" onsubmit="submitEdit(event)">
                  <input type="hidden" name="message_id" id="edit-msg-id">
                  <textarea name="message" id="edit-msg-text" rows="3" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white mb-4 focus:border-primary outline-none"></textarea>
                  <div class="flex justify-end gap-2">
-                     <button type="button" onclick="closeEditModal()" class="px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700">Cancelar</button>
-                     <button type="submit" class="px-4 py-2 rounded-lg bg-primary text-secondary font-bold">Guardar</button>
+                     <button type="button" onclick="closeEditModal()" class="px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700"><?= t('chat.cancel') ?></button>
+                     <button type="submit" class="px-4 py-2 rounded-lg bg-primary text-secondary font-bold"><?= t('chat.save') ?></button>
                  </div>
              </form>
         </div>
@@ -367,10 +367,10 @@
         </div>
         <div class="p-6 bg-gray-800/50 border-t border-gray-700 flex gap-3">
             <button onclick="closeChatConfirm()" class="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-medium transition-all">
-                <i class="fas fa-times mr-2"></i>Cancelar
+                <i class="fas fa-times mr-2"></i><?= t('chat.cancel') ?>
             </button>
             <button id="ccm-btn" onclick="executeChatConfirm()" class="flex-1 px-4 py-3 text-white rounded-xl font-bold transition-all shadow-lg">
-                Confirmar
+                <?= t('chat.confirm') ?>
             </button>
         </div>
     </div>
@@ -471,7 +471,7 @@
         }
 
         const btn = document.getElementById('ccm-btn');
-        btn.textContent = confirmText || 'Confirmar';
+        btn.textContent = confirmText || '<?= t('chat.confirm') ?>';
         btn.className   = `flex-1 px-4 py-3 ${confirmBg} text-white rounded-xl font-bold transition-all shadow-lg`;
 
         _chatConfirmCb = onConfirm;
@@ -521,10 +521,10 @@
             iconClass:  'fas fa-trash-alt',
             iconColor:  'text-red-500',
             bgColor:    'bg-red-500/10',
-            title:      'Eliminar conversación',
-            subtitle:   'Esta acción no se puede deshacer',
-            message:    '¿Estás seguro de que quieres eliminar toda la conversación? Se perderán todos los mensajes.',
-            confirmText: 'Eliminar',
+            title:      '<?= t('chat.delete_conv_title') ?>',
+            subtitle:   '<?= t('chat.delete_conv_warning') ?>',
+            message:    '<?= t('chat.delete_conv_confirm') ?>',
+            confirmText: '<?= t('chat.delete_btn') ?>',
             confirmBg:  'bg-red-500 hover:bg-red-600',
         }, () => {
             document.getElementById('delete-conversation-id').value = conversationId;

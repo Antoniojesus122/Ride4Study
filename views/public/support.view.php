@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-    <html lang="es" class="h-full bg-gray-900">
+    <html lang="<?= currentLang() ?>" class="h-full bg-gray-900">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,10 +29,10 @@
 
                 <div class="flex items-center gap-2 sm:gap-4">
                     <a href="<?= url('/login') ?>" class="text-xs sm:text-sm md:text-base text-white hover:text-primary font-medium px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 transition-colors whitespace-nowrap">
-                        Entrar
+                        <?= t('landing.login') ?>
                     </a>
                     <a href="<?= url('/register') ?>" class="bg-white text-secondary hover:bg-gray-200 text-xs sm:text-sm md:text-base font-bold px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-full transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
-                        Registrarse
+                        <?= t('landing.register') ?>
                     </a>
                 </div>
             </nav>
@@ -40,8 +40,8 @@
             <!-- Encabezado -->
             <header class="pt-32 pb-16 bg-gradient-to-b from-gray-900 via-gray-900 to-surface">
                 <div class="mx-auto max-w-4xl px-6 text-center">
-                    <h1 class="text-4xl md:text-5xl font-bold mb-6">Centro de Soporte</h1>
-                    <p class="text-xl text-gray-400">Estamos aquí para ayudarte. Cuéntanos qué sucede.</p>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-6"><?= t('support.title') ?></h1>
+                    <p class="text-xl text-gray-400"><?= t('support.subtitle') ?></p>
                 </div>
             </header>
 
@@ -55,7 +55,7 @@
                             <i class="fas fa-check text-2xl"></i>
                         </div>
                         <div>
-                            <h3 class="font-bold text-lg">¡Mensaje enviado correctamente!</h3>
+                            <h3 class="font-bold text-lg"><?= t('support.success') ?></h3>
                             <p class="text-green-400/80"><?php echo htmlspecialchars($_GET['msg']); ?></p>
                         </div>
                     </div>
@@ -67,28 +67,28 @@
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div class="space-y-2">
-                                    <label for="name" class="text-sm font-medium text-gray-300">Nombre completo</label>
-                                    <input type="text" id="name" name="name" required 
+                                    <label for="name" class="text-sm font-medium text-gray-300"><?= t('support.name') ?></label>
+                                    <input type="text" id="name" name="name" required
                                         class="w-full bg-surface border border-white/10 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                                        placeholder="Tu nombre">
+                                        placeholder="<?= t('support.name_placeholder') ?>">
                                 </div>
                                 <div class="space-y-2">
-                                    <label for="email" class="text-sm font-medium text-gray-300">Correo electrónico</label>
-                                    <input type="email" id="email" name="email" required 
+                                    <label for="email" class="text-sm font-medium text-gray-300"><?= t('support.email') ?></label>
+                                    <input type="email" id="email" name="email" required
                                         class="w-full bg-surface border border-white/10 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                                        placeholder="tu@email.com">
+                                        placeholder="<?= t('support.email_placeholder') ?>">
                                 </div>
                             </div>
 
                             <div class="space-y-2">
-                                <label for="subject" class="text-sm font-medium text-gray-300">Asunto</label>
+                                <label for="subject" class="text-sm font-medium text-gray-300"><?= t('support.subject') ?></label>
                                 <div class="relative">
                                     <select id="subject" name="subject" class="w-full bg-surface border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none cursor-pointer">
-                                        <option value="Consulta General">Consulta General</option>
-                                        <option value="Problema Técnico">Problema Técnico</option>
-                                        <option value="Reportar Usuario">Reportar Usuario</option>
-                                        <option value="Sugerencia">Sugerencia</option>
-                                        <option value="Otro">Otro</option>
+                                        <option value="Consulta General"><?= t('support.subject_general') ?></option>
+                                        <option value="Problema Técnico"><?= t('support.subject_technical') ?></option>
+                                        <option value="Reportar Usuario"><?= t('support.subject_report') ?></option>
+                                        <option value="Sugerencia"><?= t('support.subject_suggestion') ?></option>
+                                        <option value="Otro"><?= t('support.subject_other') ?></option>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-400">
                                         <i class="fas fa-chevron-down text-sm"></i>
@@ -97,15 +97,15 @@
                             </div>
 
                             <div class="space-y-2">
-                                <label for="message" class="text-sm font-medium text-gray-300">Mensaje</label>
-                                <textarea id="message" name="message" rows="6" required 
+                                <label for="message" class="text-sm font-medium text-gray-300"><?= t('support.message') ?></label>
+                                <textarea id="message" name="message" rows="6" required
                                     class="w-full bg-surface border border-white/10 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
-                                    placeholder="Describe tu consulta con detalle..."></textarea>
+                                    placeholder="<?= t('support.message_placeholder') ?>"></textarea>
                             </div>
 
                             <div class="pt-4">
                                 <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-secondary font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-primary/20 transform hover:-translate-y-0.5 text-lg">
-                                    Enviar mensaje
+                                    <?= t('support.submit') ?>
                                 </button>
                             </div>
                         </form>
@@ -118,11 +118,11 @@
                         </div>
                         <div class="p-6 rounded-2xl bg-gray-900/50 border border-white/5">
                             <i class="fas fa-clock text-2xl text-blue-400 mb-3"></i>
-                            <p class="text-sm text-gray-400">Lunes a Viernes, 9h - 18h</p>
+                            <p class="text-sm text-gray-400"><?= t('support.schedule') ?></p>
                         </div>
                         <div class="p-6 rounded-2xl bg-gray-900/50 border border-white/5">
                             <i class="fas fa-map-marker-alt text-2xl text-purple-400 mb-3"></i>
-                            <p class="text-sm text-gray-400">Lepe, Huelva</p>
+                            <p class="text-sm text-gray-400"><?= t('support.location') ?></p>
                         </div>
                     </div>
 

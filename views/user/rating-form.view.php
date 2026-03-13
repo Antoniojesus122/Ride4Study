@@ -13,11 +13,11 @@ if (!isset($tripDetails) || !isset($userToRate)) {
 ?>
 
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-gray-900">
+<html lang="<?= currentLang() ?>" class="h-full bg-gray-900">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Valorar Viaje - Ride4Study</title>
+        <title><?= t('rating.page_title') ?></title>
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="public/js/tailwind-config.js"></script>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -56,15 +56,15 @@ if (!isset($tripDetails) || !isset($userToRate)) {
 
             <!-- Título -->
             <div class="mb-8">
-                <h2 class="text-3xl font-bold text-white">Valorar experiencia</h2>
-                <p class="mt-1 text-gray-400">Tu opinión ayuda a construir una comunidad de confianza.</p>
+                <h2 class="text-3xl font-bold text-white"><?= t('rating.title') ?></h2>
+                <p class="mt-1 text-gray-400"><?= t('rating.subtitle') ?></p>
             </div>
 
             <!-- Detalles del viaje -->
             <div class="bg-surface rounded-2xl border border-gray-700 p-5 mb-5 shadow-lg">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-sm font-semibold text-gray-300 flex items-center gap-2">
-                        <i class="fas fa-route text-primary"></i> Detalles del viaje
+                        <i class="fas fa-route text-primary"></i> <?= t('rating.ride_details') ?>
                     </h3>
                     <span class="px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full text-xs font-semibold">
                         <?php echo ucfirst($tripDetails['tipo']); ?>
@@ -113,9 +113,9 @@ if (!isset($tripDetails) || !isset($userToRate)) {
                 <!-- Puntuación general -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-300 mb-1">
-                        Valoración General <span class="text-red-400">*</span>
+                        <?= t('rating.general') ?> <span class="text-red-400">*</span>
                     </label>
-                    <p class="text-xs text-gray-500 mb-4">Selecciona las estrellas para puntuar</p>
+                    <p class="text-xs text-gray-500 mb-4"><?= t('rating.select_stars') ?></p>
                     <div class="star-rating" id="generalRating">
                         <input type="radio" name="puntuacion" id="star5" value="5" required>
                         <label for="star5"><i class="fas fa-star"></i></label>
@@ -136,8 +136,8 @@ if (!isset($tripDetails) || !isset($userToRate)) {
                 <!-- Valoración detallada -->
                 <div>
                     <h3 class="text-sm font-semibold text-gray-300 mb-1 flex items-center gap-2">
-                        <i class="fas fa-sliders-h text-primary"></i> Valoración Detallada
-                        <span class="text-gray-500 font-normal text-xs">(Opcional)</span>
+                        <i class="fas fa-sliders-h text-primary"></i> <?= t('rating.detailed') ?>
+                        <span class="text-gray-500 font-normal text-xs"><?= t('rating.optional') ?></span>
                     </h3>
 
                     <div class="grid md:grid-cols-2 gap-4 mt-4">
@@ -145,16 +145,16 @@ if (!isset($tripDetails) || !isset($userToRate)) {
                         <!-- Puntualidad -->
                         <div class="space-y-2">
                             <label class="block text-xs font-medium text-gray-400 flex items-center gap-1.5">
-                                <i class="fas fa-clock text-primary"></i> Puntualidad
+                                <i class="fas fa-clock text-primary"></i> <?= t('rating.punctuality') ?>
                             </label>
                             <div class="relative">
                                 <select name="puntualidad" class="appearance-none w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm cursor-pointer">
-                                    <option value="">No valorar</option>
-                                    <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
-                                    <option value="4">⭐⭐⭐⭐ Muy bueno</option>
-                                    <option value="3">⭐⭐⭐ Bueno</option>
-                                    <option value="2">⭐⭐ Regular</option>
-                                    <option value="1">⭐ Malo</option>
+                                    <option value=""><?= t('rating.no_rate') ?></option>
+                                    <option value="5">⭐⭐⭐⭐⭐ <?= t('rating.excellent') ?></option>
+                                    <option value="4">⭐⭐⭐⭐ <?= t('rating.very_good') ?></option>
+                                    <option value="3">⭐⭐⭐ <?= t('rating.good') ?></option>
+                                    <option value="2">⭐⭐ <?= t('rating.fair') ?></option>
+                                    <option value="1">⭐ <?= t('rating.bad') ?></option>
                                 </select>
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                     <i class="fas fa-chevron-down text-xs"></i>
@@ -165,16 +165,16 @@ if (!isset($tripDetails) || !isset($userToRate)) {
                         <!-- Comunicación -->
                         <div class="space-y-2">
                             <label class="block text-xs font-medium text-gray-400 flex items-center gap-1.5">
-                                <i class="fas fa-comments text-cyan-400"></i> Comunicación
+                                <i class="fas fa-comments text-cyan-400"></i> <?= t('rating.communication') ?>
                             </label>
                             <div class="relative">
                                 <select name="comunicacion" class="appearance-none w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm cursor-pointer">
-                                    <option value="">No valorar</option>
-                                    <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
-                                    <option value="4">⭐⭐⭐⭐ Muy bueno</option>
-                                    <option value="3">⭐⭐⭐ Bueno</option>
-                                    <option value="2">⭐⭐ Regular</option>
-                                    <option value="1">⭐ Malo</option>
+                                    <option value=""><?= t('rating.no_rate') ?></option>
+                                    <option value="5">⭐⭐⭐⭐⭐ <?= t('rating.excellent') ?></option>
+                                    <option value="4">⭐⭐⭐⭐ <?= t('rating.very_good') ?></option>
+                                    <option value="3">⭐⭐⭐ <?= t('rating.good') ?></option>
+                                    <option value="2">⭐⭐ <?= t('rating.fair') ?></option>
+                                    <option value="1">⭐ <?= t('rating.bad') ?></option>
                                 </select>
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                     <i class="fas fa-chevron-down text-xs"></i>
@@ -186,16 +186,16 @@ if (!isset($tripDetails) || !isset($userToRate)) {
                         <!-- Vehículo -->
                         <div class="space-y-2">
                             <label class="block text-xs font-medium text-gray-400 flex items-center gap-1.5">
-                                <i class="fas fa-car text-green-400"></i> Vehículo
+                                <i class="fas fa-car text-green-400"></i> <?= t('rating.vehicle') ?>
                             </label>
                             <div class="relative">
                                 <select name="vehiculo" class="appearance-none w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm cursor-pointer">
-                                    <option value="">No valorar</option>
-                                    <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
-                                    <option value="4">⭐⭐⭐⭐ Muy bueno</option>
-                                    <option value="3">⭐⭐⭐ Bueno</option>
-                                    <option value="2">⭐⭐ Regular</option>
-                                    <option value="1">⭐ Malo</option>
+                                    <option value=""><?= t('rating.no_rate') ?></option>
+                                    <option value="5">⭐⭐⭐⭐⭐ <?= t('rating.excellent') ?></option>
+                                    <option value="4">⭐⭐⭐⭐ <?= t('rating.very_good') ?></option>
+                                    <option value="3">⭐⭐⭐ <?= t('rating.good') ?></option>
+                                    <option value="2">⭐⭐ <?= t('rating.fair') ?></option>
+                                    <option value="1">⭐ <?= t('rating.bad') ?></option>
                                 </select>
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                     <i class="fas fa-chevron-down text-xs"></i>
@@ -206,16 +206,16 @@ if (!isset($tripDetails) || !isset($userToRate)) {
                         <!-- Conducción -->
                         <div class="space-y-2">
                             <label class="block text-xs font-medium text-gray-400 flex items-center gap-1.5">
-                                <i class="fas fa-steering-wheel text-yellow-400"></i> Conducción
+                                <i class="fas fa-steering-wheel text-yellow-400"></i> <?= t('rating.driving') ?>
                             </label>
                             <div class="relative">
                                 <select name="conduccion" class="appearance-none w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm cursor-pointer">
-                                    <option value="">No valorar</option>
-                                    <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
-                                    <option value="4">⭐⭐⭐⭐ Muy bueno</option>
-                                    <option value="3">⭐⭐⭐ Bueno</option>
-                                    <option value="2">⭐⭐ Regular</option>
-                                    <option value="1">⭐ Malo</option>
+                                    <option value=""><?= t('rating.no_rate') ?></option>
+                                    <option value="5">⭐⭐⭐⭐⭐ <?= t('rating.excellent') ?></option>
+                                    <option value="4">⭐⭐⭐⭐ <?= t('rating.very_good') ?></option>
+                                    <option value="3">⭐⭐⭐ <?= t('rating.good') ?></option>
+                                    <option value="2">⭐⭐ <?= t('rating.fair') ?></option>
+                                    <option value="1">⭐ <?= t('rating.bad') ?></option>
                                 </select>
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                     <i class="fas fa-chevron-down text-xs"></i>
@@ -227,16 +227,16 @@ if (!isset($tripDetails) || !isset($userToRate)) {
                         <!-- Comportamiento -->
                         <div class="space-y-2">
                             <label class="block text-xs font-medium text-gray-400 flex items-center gap-1.5">
-                                <i class="fas fa-smile text-pink-400"></i> Comportamiento
+                                <i class="fas fa-smile text-pink-400"></i> <?= t('rating.behavior') ?>
                             </label>
                             <div class="relative">
                                 <select name="comportamiento" class="appearance-none w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm cursor-pointer">
-                                    <option value="">No valorar</option>
-                                    <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
-                                    <option value="4">⭐⭐⭐⭐ Muy bueno</option>
-                                    <option value="3">⭐⭐⭐ Bueno</option>
-                                    <option value="2">⭐⭐ Regular</option>
-                                    <option value="1">⭐ Malo</option>
+                                    <option value=""><?= t('rating.no_rate') ?></option>
+                                    <option value="5">⭐⭐⭐⭐⭐ <?= t('rating.excellent') ?></option>
+                                    <option value="4">⭐⭐⭐⭐ <?= t('rating.very_good') ?></option>
+                                    <option value="3">⭐⭐⭐ <?= t('rating.good') ?></option>
+                                    <option value="2">⭐⭐ <?= t('rating.fair') ?></option>
+                                    <option value="1">⭐ <?= t('rating.bad') ?></option>
                                 </select>
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                     <i class="fas fa-chevron-down text-xs"></i>
@@ -253,17 +253,17 @@ if (!isset($tripDetails) || !isset($userToRate)) {
                 <div class="space-y-2">
                     <label class="block text-xs font-medium text-gray-400 flex items-center gap-1.5">
                         <i class="fas fa-comment-dots text-primary"></i>
-                        Comparte tu experiencia
-                        <span class="text-gray-600 font-normal">(Opcional, máx. 500 caracteres)</span>
+                        <?= t('rating.share_experience') ?>
+                        <span class="text-gray-600 font-normal"><?= t('rating.max_chars') ?></span>
                     </label>
                     <textarea name="comentario"
                               id="comentario"
                               rows="4"
                               maxlength="500"
-                              placeholder="Cuéntanos cómo fue tu experiencia con este viaje..."
+                              placeholder="<?= t('rating.comment_placeholder') ?>"
                               class="w-full bg-gray-800 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none transition-all text-sm"></textarea>
                     <div class="flex justify-between items-center">
-                        <p class="text-xs text-gray-600">Tu comentario será visible públicamente</p>
+                        <p class="text-xs text-gray-600"><?= t('rating.comment_public') ?></p>
                         <p class="text-xs text-gray-400"><span id="charCount" class="text-primary font-semibold">0</span>/500</p>
                     </div>
                 </div>
@@ -273,12 +273,12 @@ if (!isset($tripDetails) || !isset($userToRate)) {
                     <button type="button"
                             onclick="window.location.href='<?= url("/dashboard") ?>'"
                             class="flex-1 px-5 py-3 bg-gray-800 border border-gray-700 text-gray-300 rounded-xl text-sm font-semibold hover:bg-gray-700 hover:border-gray-600 transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-times"></i> Cancelar
+                        <i class="fas fa-times"></i> <?= t('rating.cancel') ?>
                     </button>
                     <button type="submit"
                             id="submitBtn"
                             class="flex-1 px-5 py-3 bg-primary text-secondary rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:bg-primary-dark transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
-                        <i class="fas fa-paper-plane"></i> Enviar Valoración
+                        <i class="fas fa-paper-plane"></i> <?= t('rating.submit') ?>
                     </button>
                 </div>
             </form>
@@ -292,11 +292,11 @@ if (!isset($tripDetails) || !isset($userToRate)) {
 
         <script>
             const ratingTexts = {
-                1: '😞 Muy mala experiencia',
-                2: '😕 Experiencia regular',
-                3: '😊 Experiencia buena',
-                4: '😃 Muy buena experiencia',
-                5: '🌟 ¡Experiencia excelente!'
+                1: '😞 <?= t('rating.mood_1') ?>',
+                2: '😕 <?= t('rating.mood_2') ?>',
+                3: '😊 <?= t('rating.mood_3') ?>',
+                4: '😃 <?= t('rating.mood_4') ?>',
+                5: '🌟 <?= t('rating.mood_5') ?>'
             };
 
             document.querySelectorAll('input[name="puntuacion"]').forEach(radio => {
@@ -319,7 +319,7 @@ if (!isset($tripDetails) || !isset($userToRate)) {
                 e.preventDefault();
 
                 if (!document.querySelector('input[name="puntuacion"]:checked')) {
-                    showMessage('Por favor, selecciona una valoración general.', 'error');
+                    showMessage('<?= t('rating.err_select') ?>', 'error');
                     return;
                 }
 
@@ -331,17 +331,17 @@ if (!isset($tripDetails) || !isset($userToRate)) {
                     const result = await res.json();
 
                     if (result.success) {
-                        showMessage(result.message || '¡Valoración enviada con éxito!', 'success');
+                        showMessage(result.message || '<?= t('rating.success') ?>', 'success');
                         setTimeout(() => { window.location.href = '<?= url("/dashboard") ?>'; }, 2000);
                     } else {
-                        showMessage(result.message || 'Error al enviar la valoración.', 'error');
+                        showMessage(result.message || '<?= t('rating.err_submit') ?>', 'error');
                         submitBtn.disabled = false;
-                        submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Enviar Valoración';
+                        submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i><?= t('rating.submit') ?>';
                     }
                 } catch (err) {
-                    showMessage('Error de conexión. Por favor, inténtalo de nuevo.', 'error');
+                    showMessage('<?= t('rating.err_connection') ?>', 'error');
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Enviar Valoración';
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i><?= t('rating.submit') ?>';
                 }
             });
 

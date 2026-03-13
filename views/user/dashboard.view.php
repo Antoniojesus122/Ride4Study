@@ -2,25 +2,25 @@
 
     <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="mb-6 sm:mb-8">
-            <h2 class="text-2xl sm:text-3xl font-bold leading-tight text-white">Explorar Viajes</h2>
-            <p class="mt-2 text-gray-400">Encuentra compañeros para tu próximo trayecto.</p>
+            <h2 class="text-2xl sm:text-3xl font-bold leading-tight text-white"><?= t('dashboard.title') ?></h2>
+            <p class="mt-2 text-gray-400"><?= t('dashboard.subtitle') ?></p>
         </div>  
 
         <div class="flex flex-col md:flex-row items-start gap-8">
             <div class="flex-1 w-full">
                 <div class="bg-surface rounded-2xl p-6 mb-8 border border-gray-700 shadow-lg">
                 <h3 class="text-sm font-semibold text-gray-300 mb-4 flex items-center gap-2">
-                    <i class="fas fa-filter text-primary"></i> Filtros de búsqueda
+                    <i class="fas fa-filter text-primary"></i> <?= t('dashboard.filters') ?>
                 </h3>
                 <form action="" method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                 <!-- Tipo -->
                 <div class="md:col-span-2">
-                     <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-1">Tipo</label>
+                     <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-1"><?= t('dashboard.type') ?></label>
                      <div class="relative group">
                         <select name="tipo" class="appearance-none block w-full rounded-xl border border-gray-600 bg-gray-800 py-3 pl-3 pr-8 text-white focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm outline-none cursor-pointer">
-                            <option value="">Todos</option>
-                            <option value="Ofrezco" <?= (isset($_GET['tipo']) && $_GET['tipo'] == 'Ofrezco') ? 'selected' : '' ?>>Conductor</option>
-                            <option value="Busco" <?= (isset($_GET['tipo']) && $_GET['tipo'] == 'Busco') ? 'selected' : '' ?>>Pasajero</option>
+                            <option value=""><?= t('dashboard.all') ?></option>
+                            <option value="Ofrezco" <?= (isset($_GET['tipo']) && $_GET['tipo'] == 'Ofrezco') ? 'selected' : '' ?>><?= t('dashboard.driver') ?></option>
+                            <option value="Busco" <?= (isset($_GET['tipo']) && $_GET['tipo'] == 'Busco') ? 'selected' : '' ?>><?= t('dashboard.passenger') ?></option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
                              <i class="fas fa-chevron-down text-xs"></i>
@@ -30,7 +30,7 @@
 
                 <!-- Origen (con autocompletado) -->
                 <div class="md:col-span-3 relative">
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-1">Origen</label>
+                    <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-1"><?= t('dashboard.origin') ?></label>
                     <div class="relative group">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-map-marker-alt text-gray-500 group-focus-within:text-primary transition-colors"></i>
@@ -38,14 +38,14 @@
                         <input type="text" name="origen" id="filter-origen" autocomplete="off"
                             value="<?= htmlspecialchars($_GET['origen'] ?? '') ?>"
                             class="block w-full rounded-xl border border-gray-600 bg-gray-800 py-3 pl-10 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm outline-none"
-                            placeholder="Ciudad de salida">
+                            placeholder="<?= t('dashboard.origin_placeholder') ?>">
                     </div>
                     <div id="filter-origen-dropdown" class="hidden absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl overflow-hidden"></div>
                 </div>
 
                 <!-- Destino (con autocompletado) -->
                 <div class="md:col-span-3 relative">
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-1">Destino</label>
+                    <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-1"><?= t('dashboard.destination') ?></label>
                     <div class="relative group">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-flag-checkered text-gray-500 group-focus-within:text-primary transition-colors"></i>
@@ -53,14 +53,14 @@
                         <input type="text" name="destino" id="filter-destino" autocomplete="off"
                             value="<?= htmlspecialchars($_GET['destino'] ?? '') ?>"
                             class="block w-full rounded-xl border border-gray-600 bg-gray-800 py-3 pl-10 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm outline-none"
-                            placeholder="Ciudad de destino">
+                            placeholder="<?= t('dashboard.destination_placeholder') ?>">
                     </div>
                     <div id="filter-destino-dropdown" class="hidden absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl overflow-hidden"></div>
                 </div>
 
                 <!-- Fecha -->
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-1">Fecha</label>
+                    <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-1"><?= t('dashboard.date') ?></label>
                     <div class="relative group">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="far fa-calendar-alt text-gray-500 group-focus-within:text-primary transition-colors"></i>
@@ -73,9 +73,9 @@
                 <!-- Botones de acción -->
                 <div class="md:col-span-2 flex gap-2">
                     <button type="submit" class="flex-1 bg-primary hover:bg-primary-dark text-secondary font-bold py-3 px-4 rounded-xl transition-all shadow-lg shadow-primary/20 transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
-                        <i class="fas fa-search"></i> Buscar
+                        <i class="fas fa-search"></i> <?= t('dashboard.search') ?>
                     </button>
-                    <a href="<?= url('/dashboard') ?>" class="flex items-center justify-center px-3 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl transition-all border border-gray-600 group" title="Limpiar filtros">
+                    <a href="<?= url('/dashboard') ?>" class="flex items-center justify-center px-3 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl transition-all border border-gray-600 group" title="<?= t('dashboard.clear_filters') ?>">
                         <i class="fas fa-times group-hover:rotate-90 transition-transform duration-300"></i>
                     </a>
                 </div>
@@ -83,16 +83,16 @@
             
             <!-- Tags de filtros rápidos-->
             <div class="mt-4 flex flex-wrap gap-2">
-                <span class="text-xs text-gray-500 mr-2 self-center">Filtros rápidos:</span>
-                <a href="?fecha=<?= date('Y-m-d') ?>" class="px-3 py-1 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-full text-xs text-gray-300 transition-colors">Hoy</a>
-                <a href="?fecha=<?= date('Y-m-d', strtotime('+1 day')) ?>" class="px-3 py-1 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-full text-xs text-gray-300 transition-colors">Mañana</a>
+                <span class="text-xs text-gray-500 mr-2 self-center"><?= t('dashboard.quick_filters') ?></span>
+                <a href="?fecha=<?= date('Y-m-d') ?>" class="px-3 py-1 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-full text-xs text-gray-300 transition-colors"><?= t('dashboard.today') ?></a>
+                <a href="?fecha=<?= date('Y-m-d', strtotime('+1 day')) ?>" class="px-3 py-1 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-full text-xs text-gray-300 transition-colors"><?= t('dashboard.tomorrow') ?></a>
             </div>
         </div>
 
         <!-- Resultados -->
         <div class="space-y-4">
              <div class="flex justify-between items-center mb-4">
-                <p class="text-sm text-gray-400">Mostrando <strong><?= $totalItems ?></strong> resultados disponibles</p>
+                <p class="text-sm text-gray-400"><?= t('dashboard.showing_results') ?> <strong><?= $totalItems ?></strong> <?= t('dashboard.results_available') ?></p>
              </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -101,9 +101,9 @@
                         <div class="w-20 h-20 bg-surface rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
                             <i class="fas fa-search-location text-3xl text-gray-500"></i>
                         </div>
-                        <h3 class="text-lg font-medium text-white">No hemos encontrado viajes</h3>
-                        <p class="text-gray-400 mt-2 max-w-sm mx-auto">Parece que no hay viajes que coincidan con tus filtros. ¡Prueba a cambiar la fecha!</p>
-                        <a href="<?= url('/dashboard') ?>" class="inline-block mt-4 text-primary font-semibold hover:underline">Limpiar filtros</a>
+                        <h3 class="text-lg font-medium text-white"><?= t('dashboard.no_rides') ?></h3>
+                        <p class="text-gray-400 mt-2 max-w-sm mx-auto"><?= t('dashboard.no_rides_desc') ?></p>
+                        <a href="<?= url('/dashboard') ?>" class="inline-block mt-4 text-primary font-semibold hover:underline"><?= t('dashboard.clear_filters') ?></a>
                     </div>
                 <?php else: ?>
                     <?php foreach ($rides as $ride): ?>
@@ -119,7 +119,7 @@
                             <!-- Precio -->
                             <div class="absolute top-0 right-0 bg-gray-800 rounded-bl-2xl rounded-tr-xl px-4 py-2 border-b border-l border-gray-700 flex flex-col items-end">
                                 <span class="text-xs font-bold uppercase tracking-wider mb-0.5 <?= $ride['tipo'] == 'ofrezco' ? 'text-primary' : 'text-purple-400' ?>">
-                                    <?= $ride['tipo'] == 'ofrezco' ? 'Conductor' : 'Pasajero' ?>
+                                    <?= $ride['tipo'] == 'ofrezco' ? t('dashboard.driver') : t('dashboard.passenger') ?>
                                 </span>
                                 <?php if($ride['tipo'] == 'ofrezco'): ?>
                                     <span class="text-lg font-bold text-white"><?= number_format($ride['precio'], 0) ?>€</span>
@@ -142,11 +142,11 @@
                                         <span class="text-gray-400"><i class="fas fa-star text-yellow-500 mr-1"></i> <?= number_format((float)($ride['rating'] ?? 0), 1) ?></span>
                                         <span class="text-gray-600">•</span>
                                         <?php if ($ride['estado_verificacion'] == 2): ?>
-                                            <span class="text-green-400">Verificado</span>
+                                            <span class="text-green-400"><?= t('dashboard.verified') ?></span>
                                         <?php elseif ($ride['estado_verificacion'] == 1): ?>
-                                            <span class="text-yellow-400">Pendiente</span>
+                                            <span class="text-yellow-400"><?= t('dashboard.pending') ?></span>
                                         <?php else: ?>
-                                            <span class="text-gray-400">No verificado</span>
+                                            <span class="text-gray-400"><?= t('dashboard.not_verified') ?></span>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -170,9 +170,9 @@
                                         <p class="text-sm font-semibold text-white"><?= htmlspecialchars($ride['nombreDestino']) ?></p>
                                         <p class="text-xs text-gray-500 mt-0.5">
                                             <?php if (!empty($ride['horaLlegada'])): ?>
-                                                Llegada aprox: <?= substr($ride['horaLlegada'], 0, 5) ?>
+                                                <?= t('dashboard.arrival_approx') ?> <?= substr($ride['horaLlegada'], 0, 5) ?>
                                             <?php else: ?>
-                                                Llegada aprox.
+                                                <?= t('dashboard.arrival_approx') ?>
                                             <?php endif; ?>
                                         </p>
                                     </div>
@@ -193,7 +193,7 @@
                                 </div>
                                 <button type="button" class="view-ride-btn text-sm font-medium text-white hover:text-primary transition-colors relative z-20"
                                         data-ride='<?= htmlspecialchars(json_encode($ride), ENT_QUOTES, 'UTF-8') ?>'>
-                                    Ver detalle <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                                    <?= t('dashboard.view_detail') ?> <i class="fas fa-arrow-right ml-1 text-xs"></i>
                                 </button>
                             </div>
                             
@@ -249,12 +249,12 @@
                     <i class="fas fa-exclamation-circle mr-2"></i>
                     <?php 
                     switch($_GET['error']) {
-                        case 'own_ride': echo 'No puedes reservar tu propio viaje.'; break;
-                        case 'already_booked': echo 'Ya has solicitado plaza en este viaje.'; break;
-                        case 'no_seats': echo 'No quedan plazas disponibles.'; break;
-                        case 'reservation_failed': echo 'Error al realizar la reserva.'; break;
-                        case 'invalid_type': echo 'Este tipo de anuncio no admite reservas directas. Contacta con el usuario.'; break;
-                        default: echo 'Ha ocurrido un error.';
+                        case 'own_ride': echo t('dashboard.err_own_ride'); break;
+                        case 'already_booked': echo t('dashboard.err_already_booked'); break;
+                        case 'no_seats': echo t('dashboard.err_no_seats'); break;
+                        case 'reservation_failed': echo t('dashboard.err_reserve_failed'); break;
+                        case 'invalid_type': echo t('dashboard.err_type'); break;
+                        default: echo t('dashboard.err_generic');
                     }
                     ?>
                 </div>
@@ -265,25 +265,25 @@
                     <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
                         <i class="fas fa-bolt"></i>
                     </div>
-                    <h3 class="font-bold text-white">Acciones Rápidas</h3>
+                    <h3 class="font-bold text-white"><?= t('dashboard.quick_actions') ?></h3>
                 </div>
                 
                 <nav class="space-y-3">
                     <a href="<?= url('/publish') ?>" class="flex items-center justify-between p-3 rounded-xl bg-primary text-secondary font-bold hover:bg-primary-dark transition-all group">
                         <span class="flex items-center gap-3">
-                            <i class="fas fa-plus-circle"></i> Publicar viaje
+                            <i class="fas fa-plus-circle"></i> <?= t('dashboard.publish_ride') ?>
                         </span>
                         <i class="fas fa-arrow-right opacity-0 group-hover:opacity-100 transition-opacity"></i>
                     </a>
                     
                     <a href="<?= url('/my-rides') ?>?tab=bookings" class="flex items-center justify-between p-3 rounded-xl bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-750 border border-gray-700 transition-all">
                         <span class="flex items-center gap-3">
-                            <i class="fas fa-network-wired text-gray-500"></i> Mis reservas
+                            <i class="fas fa-network-wired text-gray-500"></i> <?= t('dashboard.my_bookings') ?>
                         </span>
                     </a>
                      <a href="<?= url('/profile') ?>" class="flex items-center justify-between p-3 rounded-xl bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-750 border border-gray-700 transition-all">
                         <span class="flex items-center gap-3">
-                            <i class="fas fa-user-edit text-gray-500"></i> Editar perfil
+                            <i class="fas fa-user-edit text-gray-500"></i> <?= t('dashboard.edit_profile') ?>
                         </span>
                     </a>
                 </nav>
@@ -292,18 +292,18 @@
             <div class="bg-gradient-to-br from-blue-900/50 to-purple-900/50 rounded-2xl p-6 border border-white/10 relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
                 
-                <h4 class="font-bold text-white mb-2 relative z-10">Viaja seguro</h4>
+                <h4 class="font-bold text-white mb-2 relative z-10"><?= t('dashboard.travel_safe') ?></h4>
                 <p class="text-xs text-gray-300 mb-4 relative z-10 leading-relaxed">
-                    Recuerda verificar siempre las valoraciones de tus compañeros antes de reservar.
+                    <?= t('dashboard.travel_safe_desc') ?>
                 </p>
-                <a href="<?= url('/safety') ?>" class="text-xs text-primary font-bold hover:underline relative z-10">Ver consejos de seguridad &rarr;</a>
+                <a href="<?= url('/safety') ?>" class="text-xs text-primary font-bold hover:underline relative z-10"><?= t('dashboard.safety_tips') ?></a>
             </div>
             
             <!-- Mini footer con links  -->
             <div class="flex flex-wrap gap-x-4 gap-y-2 text-xs text-gray-600 px-2">
-                <a href="<?= url('/support') ?>" class="hover:text-gray-400">Ayuda</a>
-                <a href="<?= url('/terms') ?>" class="hover:text-gray-400">Términos</a>
-                <a href="<?= url('/privacy') ?>" class="hover:text-gray-400">Privacidad</a>
+                <a href="<?= url('/support') ?>" class="hover:text-gray-400"><?= t('dashboard.help') ?></a>
+                <a href="<?= url('/terms') ?>" class="hover:text-gray-400"><?= t('dashboard.terms') ?></a>
+                <a href="<?= url('/privacy') ?>" class="hover:text-gray-400"><?= t('dashboard.privacy') ?></a>
                 <span>© 2026 Ride4Study</span>
             </div>
         </div>
@@ -327,7 +327,7 @@
                         <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                             <i class="fas fa-route text-primary text-sm"></i>
                         </div>
-                        <h3 class="text-base font-semibold text-white" id="modal-title">Detalles del Viaje</h3>
+                        <h3 class="text-base font-semibold text-white" id="modal-title"><?= t('dashboard.ride_details') ?></h3>
                     </div>
                     <button type="button" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-all" onclick="closeRideModal()">
                         <i class="fas fa-times"></i>
@@ -374,11 +374,11 @@
                             <!-- Precio y plazas -->
                             <div class="grid grid-cols-2 gap-3" id="modal-specs">
                                 <div class="bg-gray-800 rounded-xl p-3.5 border border-gray-700" id="modal-price-container">
-                                    <p class="text-xs text-gray-400 mb-1">Precio por plaza</p>
+                                    <p class="text-xs text-gray-400 mb-1"><?= t('dashboard.price_per_seat') ?></p>
                                     <p class="text-xl font-bold text-primary" id="modal-price"></p>
                                 </div>
                                 <div class="bg-gray-800 rounded-xl p-3.5 border border-gray-700">
-                                    <p class="text-xs text-gray-400 mb-1">Plazas disponibles</p>
+                                    <p class="text-xs text-gray-400 mb-1"><?= t('dashboard.seats_available') ?></p>
                                     <p class="text-xl font-bold text-white flex items-center gap-2">
                                         <span id="modal-seats"></span>
                                         <i class="fas fa-chair text-sm text-gray-500"></i>
@@ -388,7 +388,7 @@
 
                             <!-- Descripción -->
                             <div>
-                                <h5 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Comentarios del viaje</h5>
+                                <h5 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"><?= t('dashboard.ride_comments') ?></h5>
                                 <p class="text-sm text-gray-400 leading-relaxed bg-gray-800/50 p-4 rounded-xl border border-gray-700/50 italic" id="modal-desc"></p>
                             </div>
                         </div>
@@ -420,7 +420,7 @@
 
                                 <div class="mt-4 pt-4 border-t border-gray-700">
                                     <a href="#" id="modal-profile-link" class="w-full flex justify-center items-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg py-2 text-sm font-medium transition-all">
-                                        <i class="fas fa-user text-xs"></i> Ver perfil
+                                        <i class="fas fa-user text-xs"></i> <?= t('dashboard.view_profile') ?>
                                     </a>
                                 </div>
                             </div>
@@ -434,7 +434,7 @@
                     <button type="button"
                             class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-gray-600 bg-transparent text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-white transition-all"
                             onclick="closeRideModal()">
-                        Cerrar
+                        <?= t('dashboard.close') ?>
                     </button>
                     <button type="button" id="btn-report"
                             class="hidden w-full sm:w-auto px-4 py-2.5 rounded-xl border border-red-500/20 bg-red-500/10 text-sm font-medium text-red-400 hover:bg-red-500/20 transition-all flex items-center justify-center gap-2"
@@ -443,11 +443,11 @@
                     </button>
                     <a href="#" id="btn-contact"
                        class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-gray-600 bg-gray-800 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-comment-alt text-xs"></i> Contactar
+                        <i class="fas fa-comment-alt text-xs"></i> <?= t('dashboard.contact') ?>
                     </a>
                     <button type="button" id="btn-reserve"
                             class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-secondary text-sm font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
-                        <i class="fas fa-ticket-alt text-xs"></i> Solicitar Plaza
+                        <i class="fas fa-ticket-alt text-xs"></i> <?= t('dashboard.request_seat') ?>
                     </button>
                 </div>
 
@@ -491,10 +491,10 @@
         // Tipo badge
         const badge = document.getElementById('modal-tipo-badge');
         if (ride.tipo.toLowerCase() === 'ofrezco') {
-            badge.textContent = 'Conductor';
+            badge.textContent = '<?= t('dashboard.driver') ?>';
             badge.className = 'px-3 py-1 rounded-full text-xs font-semibold border bg-primary/10 text-primary border-primary/30';
         } else {
-            badge.textContent = 'Pasajero';
+            badge.textContent = '<?= t('dashboard.passenger') ?>';
             badge.className = 'px-3 py-1 rounded-full text-xs font-semibold border bg-purple-500/10 text-purple-400 border-purple-500/30';
         }
 
@@ -509,11 +509,11 @@
         document.getElementById('modal-time-start').textContent = ride.horaSalida.substring(0, 5);
         
         if (ride.horaLlegada) {
-            document.getElementById('modal-time-end').textContent = 'Llegada aprox: ' + ride.horaLlegada.substring(0, 5);
+            document.getElementById('modal-time-end').textContent = '<?= t('dashboard.arrival_approx') ?> ' + ride.horaLlegada.substring(0, 5);
         } else if (ride.horaRegreso) {
-            document.getElementById('modal-time-end').textContent = 'Regreso: ' + ride.horaRegreso.substring(0, 5);
+            document.getElementById('modal-time-end').textContent = '<?= t('dashboard.return_time') ?> ' + ride.horaRegreso.substring(0, 5);
         } else {
-            document.getElementById('modal-time-end').textContent = 'Llegada aprox.';
+            document.getElementById('modal-time-end').textContent = '<?= t('dashboard.arrival_approx') ?>';
         }
         // Precio y plazas
         const priceEl     = document.getElementById('modal-price');
@@ -529,7 +529,7 @@
         // Descripción
         document.getElementById('modal-desc').textContent = ride.descripcion?.trim()
             ? ride.descripcion
-            : 'Este usuario no ha añadido comentarios sobre el viaje.';
+            : '<?= t('dashboard.no_comments') ?>';
 
         // Avatar
         const avatarEl = document.getElementById('modal-avatar');
@@ -548,15 +548,15 @@
         const verifiedEl   = document.getElementById('modal-verified');
         const verifiedIcon = document.getElementById('modal-verified-icon');
         if (ride.estado_verificacion == 2) {
-            verifiedEl.textContent  = 'Verificado';
+            verifiedEl.textContent  = '<?= t('dashboard.verified') ?>';
             verifiedEl.className    = 'text-sm text-green-400';
             verifiedIcon.className  = 'fas fa-shield-alt w-4 text-center text-green-400';
         } else if (ride.estado_verificacion == 1) {
-            verifiedEl.textContent  = 'Verificación pendiente';
+            verifiedEl.textContent  = '<?= t('dashboard.verification_pending') ?>';
             verifiedEl.className    = 'text-sm text-yellow-400';
             verifiedIcon.className  = 'fas fa-shield-alt w-4 text-center text-yellow-400';
         } else {
-            verifiedEl.textContent  = 'No verificado';
+            verifiedEl.textContent  = '<?= t('dashboard.not_verified') ?>';
             verifiedEl.className    = 'text-sm text-gray-500';
             verifiedIcon.className  = 'fas fa-shield-alt w-4 text-center text-gray-500';
         }
@@ -565,7 +565,7 @@
         const memberEl = document.getElementById('modal-member-since');
         const memberInfo = document.getElementById('modal-member-info');
         if (ride.fechaRegistro) {
-            memberEl.textContent = 'Miembro desde ' + new Date(ride.fechaRegistro).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
+            memberEl.textContent = '<?= t('dashboard.member_since') ?> ' + new Date(ride.fechaRegistro).toLocaleDateString('<?= currentLang() === 'es' ? 'es-ES' : 'en-GB' ?>', { month: 'short', year: 'numeric' });
             memberInfo.style.display = '';
         } else {
             memberInfo.style.display = 'none';
@@ -583,31 +583,31 @@
         if (ride.idUsuario == currentUserId) {
             btnReserve.disabled   = true;
             btnReserve.className  = btnStyles.disabled;
-            btnReserve.innerHTML  = '<i class="fas fa-user text-xs"></i> Tu anuncio';
+            btnReserve.innerHTML  = '<i class="fas fa-user text-xs"></i> <?= t('dashboard.your_ride') ?>';
 
         } else if (ride.booking_status === 'pendiente') {
             btnReserve.disabled   = true;
             btnReserve.className  = btnStyles.pending;
-            btnReserve.innerHTML  = '<i class="fas fa-clock text-xs"></i> Solicitud pendiente';
+            btnReserve.innerHTML  = '<i class="fas fa-clock text-xs"></i> <?= t('dashboard.pending_request') ?>';
 
         } else if (ride.booking_status === 'aceptado') {
             btnReserve.disabled   = true;
             btnReserve.className  = btnStyles.confirmed;
-            btnReserve.innerHTML  = '<i class="fas fa-check text-xs"></i> Plaza confirmada';
+            btnReserve.innerHTML  = '<i class="fas fa-check text-xs"></i> <?= t('dashboard.seat_confirmed') ?>';
 
         } else if (ride.booking_status === 'rechazado') {
             btnReserve.disabled   = true;
             btnReserve.className  = btnStyles.rejected;
-            btnReserve.innerHTML  = '<i class="fas fa-times text-xs"></i> Solicitud rechazada';
+            btnReserve.innerHTML  = '<i class="fas fa-times text-xs"></i> <?= t('dashboard.request_rejected') ?>';
 
         } else if (ride.plazasDisponibles <= 0) {
             btnReserve.disabled   = true;
             btnReserve.className  = btnStyles.disabled;
-            btnReserve.innerHTML  = '<i class="fas fa-ban text-xs"></i> Viaje completo';
+            btnReserve.innerHTML  = '<i class="fas fa-ban text-xs"></i> <?= t('dashboard.ride_full') ?>';
 
         } else if (ride.tipo.toLowerCase() === 'ofrezco') {
             btnReserve.className  = btnStyles.active;
-            btnReserve.innerHTML  = '<i class="fas fa-ticket-alt text-xs"></i> Solicitar Plaza';
+            btnReserve.innerHTML  = '<i class="fas fa-ticket-alt text-xs"></i> <?= t('dashboard.request_seat') ?>';
             btnReserve.onclick    = () => { window.location.href = '<?= url("/reserve") ?>?ride_id=' + ride.idAnuncio; };
 
         } else {

@@ -2,8 +2,8 @@
 
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="mb-8">
-        <h2 class="text-3xl font-bold text-white">Mensajes</h2>
-        <p class="text-gray-400 mt-2">Tus conversaciones con otros usuarios.</p>
+        <h2 class="text-3xl font-bold text-white"><?= t('chatlist.title') ?></h2>
+        <p class="text-gray-400 mt-2"><?= t('chatlist.subtitle') ?></p>
     </div>
 
     <div class="bg-surface rounded-2xl border border-gray-700 overflow-hidden shadow-lg">
@@ -12,8 +12,8 @@
                 <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="far fa-comments text-3xl text-gray-500"></i>
                 </div>
-                <h3 class="text-lg font-medium text-white">No hay mensajes aún</h3>
-                <p class="text-gray-400 mt-2">Contacta con conductores o pasajeros para empezar.</p>
+                <h3 class="text-lg font-medium text-white"><?= t('chatlist.no_messages') ?></h3>
+                <p class="text-gray-400 mt-2"><?= t('chatlist.no_messages_desc') ?></p>
             </div>
         <?php else: ?>
             <ul class="divide-y divide-gray-700">
@@ -56,7 +56,7 @@
 
 <script>
 function confirmDeleteChat(userId) {
-    if(confirm('¿Estás seguro de que deseas eliminar esta conversación completa?')) {
+    if(confirm('<?= t('chatlist.delete_confirm') ?>')) {
         document.getElementById('delete-user-id').value = userId;
         document.getElementById('delete-chat-form').submit();
     }

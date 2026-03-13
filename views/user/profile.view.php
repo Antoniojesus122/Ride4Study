@@ -45,7 +45,7 @@
                 <?php endif; ?>
                 
                 <?php if ($isOwnProfile): ?>
-                <button onclick="document.getElementById('photo-input').click()" class="absolute bottom-0 right-0 bg-primary text-secondary p-2.5 rounded-full border-2 border-surface hover:bg-primary-dark transition-colors cursor-pointer shadow-lg opacity-0 group-hover:opacity-100" title="Cambiar foto">
+                <button onclick="document.getElementById('photo-input').click()" class="absolute bottom-0 right-0 bg-primary text-secondary p-2.5 rounded-full border-2 border-surface hover:bg-primary-dark transition-colors cursor-pointer shadow-lg opacity-0 group-hover:opacity-100" title="<?= t('profile.change_photo') ?>">
                     <i class="fas fa-camera text-sm"></i>
                 </button>
                 <?php endif; ?>
@@ -59,14 +59,14 @@
                              <h1 class="text-3xl font-bold text-white"><?= htmlspecialchars($profileUser['nombre']) ?></h1>
                              <?php if (!empty($profileUser['premium']) && (!empty($profileUser['premium_hasta']) ? $profileUser['premium_hasta'] > date('Y-m-d H:i:s') : true)): ?>
                                  <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full border border-yellow-500/30 flex items-center gap-1 flex-shrink-0">
-                                     <i class="fas fa-crown"></i> Premium
+                                     <i class="fas fa-crown"></i> <?= t('profile.premium') ?>
                                  </span>
                              <?php endif; ?>
                          </div>
                          <div class="flex flex-wrap items-center gap-4 text-sm text-gray-400">
                              <span class="flex items-center gap-2">
                                  <i class="fas fa-map-marker-alt text-primary"></i> 
-                                 <?= htmlspecialchars($profileUser['ciudad'] ?? 'Sin localidad') ?>
+                                 <?= htmlspecialchars($profileUser['ciudad'] ?? t('profile.no_location')) ?>
                              </span>
                              <?php if (!empty($profileUser['institucion'])): ?>
                              <span class="flex items-center gap-2">
@@ -84,7 +84,7 @@
                      </div>
                      <?php if (!$isOwnProfile): ?>
                          <button onclick="openReportModal('usuario', {idUsuario: <?= (int)$profileUser['idUsuario'] ?>})" class="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-sm font-medium border border-red-500/20 transition-colors flex-shrink-0">
-                             <i class="fas fa-flag text-xs"></i> Reportar usuario
+                             <i class="fas fa-flag text-xs"></i> <?= t('profile.report_user') ?>
                          </button>
                      <?php endif; ?>
                  </div>
@@ -94,7 +94,7 @@
                      <div class="bg-gray-800/50 rounded-xl p-3 border border-gray-700/50">
                          <div class="flex items-center gap-2 mb-1">
                              <i class="fas fa-star text-yellow-500 text-sm"></i>
-                             <span class="text-xs text-gray-400">Valoración</span>
+                             <span class="text-xs text-gray-400"><?= t('profile.rating') ?></span>
                          </div>
                          <p class="text-xl font-bold text-white">
                              <?= number_format($userStats['valoracion_promedio'] ?? 0, 1) ?>
@@ -104,7 +104,7 @@
                      <div class="bg-gray-800/50 rounded-xl p-3 border border-gray-700/50">
                          <div class="flex items-center gap-2 mb-1">
                              <i class="fas fa-route text-blue-400 text-sm"></i>
-                             <span class="text-xs text-gray-400">Viajes</span>
+                             <span class="text-xs text-gray-400"><?= t('profile.rides') ?></span>
                          </div>
                          <p class="text-xl font-bold text-white"><?= $userStats['total_viajes'] ?></p>
                      </div>
@@ -112,7 +112,7 @@
                      <div class="bg-gray-800/50 rounded-xl p-3 border border-gray-700/50">
                          <div class="flex items-center gap-2 mb-1">
                              <i class="fas fa-steering-wheel text-primary text-sm"></i>
-                             <span class="text-xs text-gray-400">Conductor</span>
+                             <span class="text-xs text-gray-400"><?= t('profile.driver') ?></span>
                          </div>
                          <p class="text-xl font-bold text-white"><?= $userStats['viajes_como_conductor'] ?></p>
                      </div>
@@ -120,7 +120,7 @@
                      <div class="bg-gray-800/50 rounded-xl p-3 border border-gray-700/50">
                          <div class="flex items-center gap-2 mb-1">
                              <i class="fas fa-users text-purple-400 text-sm"></i>
-                             <span class="text-xs text-gray-400">Pasajero</span>
+                             <span class="text-xs text-gray-400"><?= t('profile.passenger') ?></span>
                          </div>
                          <p class="text-xl font-bold text-white"><?= $userStats['viajes_como_pasajero'] ?></p>
                      </div>
@@ -133,16 +133,16 @@
         <div class="px-8 pb-6">
             <div class="flex gap-2 overflow-x-auto border-t border-gray-700 pt-4">
                 <button onclick="switchTab('profile')" id="tab-profile" class="px-4 py-2 rounded-lg bg-primary/10 text-primary font-medium border border-primary/20 whitespace-nowrap transition-colors">
-                    <i class="fas fa-user mr-2"></i>Perfil
+                    <i class="fas fa-user mr-2"></i><?= t('profile.tab_profile') ?>
                 </button>
                 <button onclick="switchTab('security')" id="tab-security" class="px-4 py-2 rounded-lg bg-transparent text-gray-400 font-medium hover:text-white hover:bg-gray-800 transition-colors whitespace-nowrap border border-transparent">
-                    <i class="fas fa-lock mr-2"></i>Seguridad
+                    <i class="fas fa-lock mr-2"></i><?= t('profile.tab_security') ?>
                 </button>
                 <button onclick="switchTab('privacy')" id="tab-privacy" class="px-4 py-2 rounded-lg bg-transparent text-gray-400 font-medium hover:text-white hover:bg-gray-800 transition-colors whitespace-nowrap border border-transparent">
-                    <i class="fas fa-shield-alt mr-2"></i>Privacidad
+                    <i class="fas fa-shield-alt mr-2"></i><?= t('profile.tab_privacy') ?>
                 </button>
                 <button onclick="switchTab('verification')" id="tab-verification" class="px-4 py-2 rounded-lg bg-transparent text-gray-400 font-medium hover:text-white hover:bg-gray-800 transition-colors whitespace-nowrap border border-transparent">
-                    <i class="fas fa-check-circle mr-2"></i>Verificación
+                    <i class="fas fa-check-circle mr-2"></i><?= t('profile.tab_verification') ?>
                 </button>
             </div>
         </div>
@@ -154,19 +154,19 @@
             <div class="mt-6">
                 <div class="bg-surface rounded-2xl border border-gray-700 p-6 mb-6">
                     <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">
-                        <i class="fas fa-star text-yellow-400"></i> Valoraciones
+                        <i class="fas fa-star text-yellow-400"></i> <?= t('profile.ratings') ?>
                     </h3>
                     <div class="mb-4">
                         <div class="flex items-center gap-4">
                             <div class="text-3xl font-bold text-white"><?= number_format($userStats['valoracion_promedio'] ?? 0, 1) ?></div>
-                            <div class="text-sm text-gray-400">(Media basada en <?= count($ratings ?? []) ?> valoraciones)</div>
+                            <div class="text-sm text-gray-400">(<?= t('profile.ratings_avg') ?> <?= count($ratings ?? []) ?> <?= t('profile.ratings_suffix') ?>)</div>
                         </div>
                     </div>
 
 
                     <div class="space-y-4">
                         <?php if (empty($ratings)): ?>
-                            <p class="text-sm text-gray-400">Aún no hay valoraciones para este usuario.</p>
+                            <p class="text-sm text-gray-400"><?= t('profile.no_ratings') ?></p>
                         <?php else: ?>
                             <?php foreach ($ratings as $rv): ?>
                                 <div class="bg-gray-800/50 rounded-xl border border-gray-700/50 p-4">
@@ -194,7 +194,7 @@
                                             <!-- Respuesta del valorado -->
                                             <?php if (!empty($rv['respuesta'])): ?>
                                                 <div class="mt-2 pl-3 border-l-2 border-primary/40">
-                                                    <p class="text-xs text-gray-400 mb-0.5"><i class="fas fa-reply text-primary/60 mr-1"></i>Respuesta:</p>
+                                                    <p class="text-xs text-gray-400 mb-0.5"><i class="fas fa-reply text-primary/60 mr-1"></i><?= t('profile.reply') ?></p>
                                                     <p class="text-sm text-gray-300"><?= htmlspecialchars($rv['respuesta']) ?></p>
                                                 </div>
                                             <?php elseif ($isOwnProfile): ?>

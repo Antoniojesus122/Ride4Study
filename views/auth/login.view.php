@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-  <html lang="es" class="h-full bg-secondary">
+  <html lang="<?= currentLang() ?>" class="h-full bg-secondary">
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-      <title>Iniciar Sesión - Ride4Study</title>
+      <title><?= t('login.title') ?></title>
       <script src="https://cdn.tailwindcss.com"></script>
       <script src="public/js/tailwind-config.js"></script>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -30,10 +30,10 @@
                   </div>
                   <span class="text-2xl font-bold tracking-tighter text-white group-hover:text-primary transition-colors">Ride4Study</span>
               </a>
-              <h2 class="mt-8 text-3xl font-bold leading-9 tracking-tight text-white">¡Hola de nuevo!</h2>
+              <h2 class="mt-8 text-3xl font-bold leading-9 tracking-tight text-white"><?= t('login.hello') ?></h2>
               <p class="mt-2 text-sm leading-6 text-text-muted">
-                ¿Aún no tienes cuenta?
-                <a href="<?= url('/register') ?>" class="font-semibold text-primary hover:text-primary-dark transition-colors">Regístrate gratis</a>
+                <?= t('login.no_account') ?>
+                <a href="<?= url('/register') ?>" class="font-semibold text-primary hover:text-primary-dark transition-colors"><?= t('login.register_free') ?></a>
               </p>
             </div>
 
@@ -68,7 +68,7 @@
 
                 <form method="POST" action="<?= url('/login') ?>" class="space-y-6">
                   <div>
-                    <label for="correo" class="block text-sm font-medium leading-6 text-gray-300">Correo Electrónico</label>
+                    <label for="correo" class="block text-sm font-medium leading-6 text-gray-300"><?= t('login.email') ?></label>
                     <div class="mt-2">
                       <input id="correo" name="correo" type="email" autocomplete="email" required
                         value="<?= htmlspecialchars($_POST['correo'] ?? '') ?>"
@@ -77,7 +77,7 @@
                   </div>
 
                   <div>
-                    <label for="contrasena" class="block text-sm font-medium leading-6 text-gray-300">Contraseña</label>
+                    <label for="contrasena" class="block text-sm font-medium leading-6 text-gray-300"><?= t('login.password') ?></label>
                     <div class="mt-2 relative">
                       <input id="contrasena" name="contrasena" type="password" autocomplete="current-password" required
                         class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 pr-10 transition-all">
@@ -89,14 +89,14 @@
 
                   <div class="flex items-center justify-between">
                     <div class="text-sm leading-6">
-                      <a href="<?= url('/forgot-password') ?>" class="font-semibold text-primary hover:text-primary-dark transition-colors">¿Olvidaste tu contraseña?</a>
+                      <a href="<?= url('/forgot-password') ?>" class="font-semibold text-primary hover:text-primary-dark transition-colors"><?= t('login.forgot') ?></a>
                     </div>
                   </div>
 
                   <div>
                     <button type="submit" name="login"
                       class="flex w-full justify-center rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold leading-6 text-secondary shadow-lg shadow-primary/20 hover:bg-primary-dark hover:shadow-primary/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-all transform hover:-translate-y-0.5">
-                      Iniciar Sesión
+                      <?= t('login.submit') ?>
                     </button>
                   </div>
                 </form>
@@ -110,11 +110,11 @@
           <div class="absolute inset-0 flex flex-col justify-between p-12 text-white split-bg" style="background-image: url('public/img/imgLogin.jpg');">
             <div class="absolute inset-0 bg-gradient-to-r from-secondary/80 to-transparent"></div>
             <div class="z-10 relative">
-              <h1 class="text-5xl font-bold leading-tight tracking-tight drop-shadow-lg">Tu viaje,<br>tu comunidad.</h1>
-              <p class="mt-6 text-xl max-w-md text-gray-200 drop-shadow-md">Únete a la plataforma de carpooling estudiantil más segura y eficiente.</p>
+              <h1 class="text-5xl font-bold leading-tight tracking-tight drop-shadow-lg"><?= t('login.hero_1') ?><br><?= t('login.hero_2') ?></h1>
+              <p class="mt-6 text-xl max-w-md text-gray-200 drop-shadow-md"><?= t('login.hero_desc') ?></p>
             </div>
             <div class="z-10 relative text-sm text-gray-400">
-              &copy; <?= date('Y') ?> Ride4Study. Todos los derechos reservados.
+              &copy; <?= date('Y') ?> Ride4Study. <?= t('login.rights') ?>
             </div>
           </div>
         </div>

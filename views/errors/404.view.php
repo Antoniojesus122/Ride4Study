@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-    <html lang="es" class="h-full bg-gray-900">
+    <html lang="<?= currentLang() ?>" class="h-full bg-gray-900">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,21 +36,21 @@
 
                     <h1 class="text-8xl font-bold text-primary mb-2 tracking-tight">404</h1>
 
-                    <h2 class="text-2xl font-semibold text-white mb-3">Ruta no encontrada</h2>
+                    <h2 class="text-2xl font-semibold text-white mb-3"><?= t('404.title') ?></h2>
 
                     <p class="text-gray-400 mb-10 leading-relaxed">
-                        Parece que este camino no lleva a ninguna parte.<br>
-                        Vuelve al inicio y encuentra tu viaje.
+                        <?= t('404.desc') ?><br>
+                        <?= t('404.desc2') ?>
                     </p>
 
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
                         <a href="<?= url('/') ?>"
                         class="px-8 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 transform hover:-translate-y-0.5">
-                            <i class="fas fa-home mr-2"></i> Ir al inicio
+                            <i class="fas fa-home mr-2"></i> <?= t('404.home') ?>
                         </a>
                         <a href="<?= url('/dashboard') ?>"
                         class="px-8 py-3 bg-white/5 border border-white/10 text-white font-medium rounded-xl hover:bg-white/10 transition-all">
-                            <i class="fas fa-search mr-2"></i> Buscar viajes
+                            <i class="fas fa-search mr-2"></i> <?= t('404.search') ?>
                         </a>
                     </div>
 
