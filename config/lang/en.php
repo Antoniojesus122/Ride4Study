@@ -28,6 +28,8 @@ return [
     'nav.report_send' => 'Send report',
     'nav.report_empty' => 'Please write a reason for the report.',
     'nav.report_error' => 'Error sending the report.',
+    'nav.navigation' => 'Navigation',
+    'nav.account'    => 'Account',
 
     // FOOTER 
     'footer.description' => 'We connect students who share routes. More savings, fewer emissions, more community.',

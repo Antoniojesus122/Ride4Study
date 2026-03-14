@@ -28,6 +28,8 @@ return [
     'nav.report_send' => 'Enviar reporte',
     'nav.report_empty' => 'Escribe un motivo para el reporte.',
     'nav.report_error' => 'Error al enviar el reporte.',
+    'nav.navigation' => 'Navegación',
+    'nav.account'    => 'Cuenta',
 
     // FOOTER
     'footer.description' => 'Conectamos estudiantes que comparten trayectos. Más ahorro, menos emisiones, más comunidad.',
