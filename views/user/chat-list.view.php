@@ -35,7 +35,7 @@
                                         <span class="text-xs text-gray-500"><?= date('d M H:i', strtotime($chat['fechaCreacion'])) ?></span>
                                     </div>
                                     <p class="text-sm text-gray-400 truncate <?php echo (!$chat['leido'] && $chat['idEmisor'] != $_SESSION['user_id']) ? 'font-semibold text-white' : ''; ?>">
-                                        <?= ($chat['idEmisor'] == $_SESSION['user_id'] ? 'Tú: ' : '') . htmlspecialchars($chat['mensaje']) ?>
+                                        <?= ($chat['idEmisor'] == $_SESSION['user_id'] ? t('chatlist.you') . ' ' : '') . htmlspecialchars($chat['mensaje']) ?>
                                     </p>
                                 </div>
                                 <button type="button" class="p-2 text-gray-500 hover:text-red-400 transition-colors z-10 relative" onclick="event.preventDefault(); confirmDeleteChat(<?= $chat['idUsuario'] ?>)">

@@ -687,7 +687,7 @@
     function submitRatingReply(idValoracion) {
         const textarea = document.getElementById('reply-text-' + idValoracion);
         const respuesta = textarea ? textarea.value.trim() : '';
-        if (!respuesta) { if (typeof showToast === 'function') showToast('Escribe una respuesta.', false); return; }
+        if (!respuesta) { if (typeof showToast === 'function') showToast('<?= t('profile.reply_empty') ?>', false); return; }
         const body = new FormData();
         body.append('idValoracion', idValoracion);
         body.append('respuesta', respuesta);
@@ -697,7 +697,7 @@
                 if (typeof showToast === 'function') showToast(data.message, data.success);
                 if (data.success) setTimeout(() => window.location.reload(), 1200);
             })
-            .catch(() => { if (typeof showToast === 'function') showToast('Error al enviar.', false); });
+            .catch(() => { if (typeof showToast === 'function') showToast('<?= t('profile.reply_error') ?>', false); });
     }
 </script>
 
@@ -910,7 +910,7 @@
 
         // Fecha
         document.getElementById('prm-fecha').textContent = ride.fechaSalida
-            ? new Date(ride.fechaSalida).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
+            ? new Date(ride.fechaSalida).toLocaleDateString('<?= currentLang() === 'es' ? 'es-ES' : 'en-GB' ?>', { day: '2-digit', month: 'short', year: 'numeric' })
             : '—';
 
         // Ruta
@@ -918,14 +918,14 @@
         document.getElementById('prm-dest').textContent       = ride.nombreDestino;
         document.getElementById('prm-time-start').textContent = ride.horaSalida.substring(0, 5);
         document.getElementById('prm-time-end').textContent   = ride.horaRegreso
-            ? 'Regreso: ' + ride.horaRegreso.substring(0, 5)
-            : 'Llegada aprox.';
+            ? '<?= t('profile.return_time') ?>' + ride.horaRegreso.substring(0, 5)
+            : '<?= t('profile.arrival_approx') ?>';
 
         // Precio y plazas
         const priceEl        = document.getElementById('prm-price');
         const priceContainer = document.getElementById('prm-price-container');
         if (ride.tipo.toLowerCase() === 'ofrezco' && ride.precio != null) {
-            priceEl.textContent = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(ride.precio);
+            priceEl.textContent = new Intl.NumberFormat('<?= currentLang() === 'es' ? 'es-ES' : 'en-GB' ?>', { style: 'currency', currency: 'EUR' }).format(ride.precio);
             priceContainer.style.display = '';
         } else {
             priceContainer.style.display = 'none';

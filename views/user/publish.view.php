@@ -3,9 +3,9 @@
 <?php
 $isEdit = isset($ride); // Verificar si se está en modo de edición
 $formAction = $isEdit ? url('/edit-ride') : url('/publish');
-$submitText = $isEdit ? 'Guardar Cambios' : 'Publicar Viaje';
-$pageTitle = $isEdit ? 'Editar Viaje' : 'Publicar un viaje';
-$pageDesc = $isEdit ? 'Modifica los detalles de tu viaje.' : 'Rellena los detalles para encontrar compañeros de viaje.';
+$submitText = $isEdit ? t('publish.save') : t('publish.create');
+$pageTitle = $isEdit ? t('publish.edit_title') : t('publish.create_title');
+$pageDesc = $isEdit ? t('publish.edit_desc') : t('publish.create_desc');
 
 function getVal($field, $ride, $post, $default = '') {
     if (isset($post[$field])) return $post[$field];
@@ -29,7 +29,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
             <!-- Alertas de error -->
             <?php if (!empty($errors)): ?>
                 <div class="bg-red-500/10 border-l-4 border-red-500 text-red-400 p-4 mb-0" role="alert">
-                    <p class="font-bold">Por favor corrige los siguientes errores:</p>
+                    <p class="font-bold"><?= t('publish.fix_errors') ?></p>
                     <ul class="list-disc list-inside text-sm">
                         <?php foreach ($errors as $error): ?>
                             <li><?= $error ?></li>
@@ -52,13 +52,13 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                     <!-- Sección 1: Ruta -->
                     <div class="space-y-6">
                         <h3 class="text-lg font-semibold text-primary border-b border-gray-700 pb-2 flex items-center gap-2">
-                            <i class="fas fa-map-marked-alt"></i> Ruta y Horario
+                            <i class="fas fa-map-marked-alt"></i> <?= t('publish.route_schedule') ?>
                         </h3>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Tipo -->
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-400 mb-2">¿Eres conductor o pasajero?</label>
+                                <label class="block text-sm font-medium text-gray-400 mb-2"><?= t('publish.driver_or_passenger') ?></label>
                                 <?php
                                     $currentType = isset($_POST['tipo']) ? $_POST['tipo'] : ($isEdit ? strtolower($ride['tipo']) : 'ofrezco');
                                 ?>
@@ -69,8 +69,8 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                                         <div class="flex items-start gap-3">
                                             <i class="fas fa-lock text-yellow-500 mt-0.5"></i>
                                             <div>
-                                                <p class="text-yellow-400 text-sm font-medium">No puedes cambiar el tipo de viaje</p>
-                                                <p class="text-yellow-300/70 text-xs mt-1">Ya hay pasajeros con reserva confirmada en este viaje.</p>
+                                                <p class="text-yellow-400 text-sm font-medium"><?= t('publish.cant_change_type') ?></p>
+                                                <p class="text-yellow-300/70 text-xs mt-1"><?= t('publish.cant_change_type_desc') ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -83,7 +83,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                                             <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'disabled' : '' ?>>
                                         <div class="p-4 rounded-xl border border-gray-600 <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-800' ?> peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-white text-gray-400 transition-all text-center">
                                             <i class="fas fa-car text-xl mb-2"></i>
-                                            <div class="font-bold">Llevo coche</div>
+                                            <div class="font-bold"><?= t('publish.i_drive') ?></div>
                                         </div>
                                     </label>
                                     <label class="flex-1">
@@ -92,7 +92,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                                             <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'disabled' : '' ?>>
                                         <div class="p-4 rounded-xl border border-gray-600 <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-800' ?> peer-checked:border-purple-500 peer-checked:bg-purple-500/10 peer-checked:text-white text-gray-400 transition-all text-center">
                                             <i class="fas fa-walking text-xl mb-2"></i>
-                                            <div class="font-bold">Busco plaza</div>
+                                            <div class="font-bold"><?= t('publish.i_search') ?></div>
                                         </div>
                                     </label>
                                 </div>
@@ -100,12 +100,12 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
 
                             <!-- Origen (Autocompletado) -->
                             <div class="group relative">
-                                <label class="block text-sm font-medium text-gray-400 mb-1.5">Origen</label>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.origin') ?></label>
                                 <div class="relative">
                                     <i class="fas fa-map-marker-alt absolute left-3 top-3.5 text-gray-500 z-10"></i>
                                     <input type="text" id="origen" autocomplete="off" required
                                         value="<?= htmlspecialchars($preOrigen) ?>"
-                                        placeholder="Escribe una ciudad..."
+                                        placeholder="<?= t('publish.city_placeholder') ?>"
                                         class="block w-full pl-10 pr-10 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary placeholder-gray-500 outline-none">
                                     <!-- Spinner de carga -->
                                     <div id="origen-spinner" class="hidden absolute right-3 top-3.5">
@@ -126,12 +126,12 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
 
                             <!-- Destino (Autocompletado) -->
                             <div class="group relative">
-                                <label class="block text-sm font-medium text-gray-400 mb-1.5">Destino</label>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.destination') ?></label>
                                 <div class="relative">
                                     <i class="fas fa-flag-checkered absolute left-3 top-3.5 text-gray-500 z-10"></i>
                                     <input type="text" id="destino" autocomplete="off" required
                                         value="<?= htmlspecialchars($preDestino) ?>"
-                                        placeholder="Escribe una ciudad..."
+                                        placeholder="<?= t('publish.city_placeholder') ?>"
                                         class="block w-full pl-10 pr-10 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary placeholder-gray-500 outline-none">
                                     <!-- Spinner de carga -->
                                     <div id="destino-spinner" class="hidden absolute right-3 top-3.5">
@@ -152,7 +152,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
 
                             <!-- Fecha -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-400 mb-1.5">Fecha de salida</label>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.departure_date') ?></label>
                                 <div class="relative">
                                     <i class="far fa-calendar-alt absolute left-3 top-3.5 text-gray-500"></i>
                                     <input type="date" name="fechaSalida" id="fechaSalida" required min="<?= date('Y-m-d') ?>"
@@ -163,7 +163,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
 
                             <!-- Hora Salida -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-400 mb-1.5">Hora de salida</label>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.departure_time') ?></label>
                                 <div class="relative">
                                     <i class="far fa-clock absolute left-3 top-3.5 text-gray-500"></i>
                                     <input type="time" name="horaSalida" id="horaSalida" required
@@ -174,14 +174,14 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
 
                             <!-- Hora Regreso (Opcional) -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-400 mb-1.5">Hora de regreso (Opcional)</label>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.return_time') ?></label>
                                 <div class="relative">
                                     <i class="fas fa-history absolute left-3 top-3.5 text-gray-500"></i>
                                     <input type="time" name="horaRegreso" id="horaRegreso"
                                         value="<?= getVal('horaRegreso', $isEdit ? $ride : [], $_POST) ?>"
                                         class="block w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary [color-scheme:dark]">
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">Solo si haces viaje de vuelta el mismo día.</p>
+                                <p class="text-xs text-gray-500 mt-1"><?= t('publish.return_hint') ?></p>
                             </div>
                         </div>
                     </div>
@@ -189,13 +189,13 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                     <!-- Sección 2: Detalles del Viaje -->
                     <div class="space-y-6">
                         <h3 class="text-lg font-semibold text-primary border-b border-gray-700 pb-2 flex items-center gap-2">
-                            <i class="fas fa-info-circle"></i> Detalles del Viaje
+                            <i class="fas fa-info-circle"></i> <?= t('publish.details') ?>
                         </h3>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Plazas -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-400 mb-1.5">Plazas disponibles</label>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.seats') ?></label>
                                 <div class="relative">
                                     <i class="fas fa-chair absolute left-3 top-3.5 text-gray-500"></i>
                                     <input type="number" name="plazasDisponibles" min="1" max="8" required
@@ -206,28 +206,28 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
 
                             <!-- Precio -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-400 mb-1.5">Precio por plaza (€)</label>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.price') ?></label>
                                 <div class="relative text-white">
                                     <i class="fas fa-euro-sign absolute left-3 top-3.5 text-gray-500"></i>
                                     <input type="number" name="precio" min="0" step="0.50"
                                         value="<?= getVal('precio', $isEdit ? $ride : [], $_POST) ?>"
-                                        placeholder="Ej: 5.00 (Opcional)"
+                                        placeholder="<?= t('publish.price_placeholder') ?>"
                                         class="block w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary placeholder-gray-500">
                                 </div>
                             </div>
 
                             <!-- Descripción -->
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-400 mb-1.5">Comentarios adicionales</label>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.comments') ?></label>
                                 <textarea name="descripcion" rows="3"
-                                        placeholder="Punto de encuentro exacto, tamaño de equipaje permitido, si aceptas mascotas..."
+                                        placeholder="<?= t('publish.comments_placeholder') ?>"
                                         class="block w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary resize-none placeholder-gray-500"><?= htmlspecialchars(getVal('descripcion', $isEdit ? $ride : [], $_POST)) ?></textarea>
                             </div>
                         </div>
                     </div>
 
                     <div class="pt-6 border-t border-gray-700 flex items-center justify-end gap-4">
-                        <a href="<?= url('/dashboard') ?>" class="px-6 py-3 rounded-xl border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-800 transition-all font-medium">Cancelar</a>
+                        <a href="<?= url('/dashboard') ?>" class="px-6 py-3 rounded-xl border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-800 transition-all font-medium"><?= t('publish.cancel') ?></a>
                         <button type="submit" class="px-8 py-3 rounded-xl bg-primary text-secondary font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5">
                             <?= $submitText ?> <i class="fas fa-paper-plane ml-2"></i>
                         </button>
@@ -349,7 +349,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                 if (!results.length) {
                     this.dropdown.innerHTML = `
                         <div class="px-4 py-3 text-sm text-gray-500 flex items-center gap-2">
-                            <i class="fas fa-search-minus"></i> No se encontraron resultados
+                            <i class="fas fa-search-minus"></i> <?= t('publish.no_results') ?>
                         </div>`;
                     this.dropdown.classList.remove('hidden');
                     return;
@@ -486,14 +486,14 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
             // Validar que se haya seleccionado ciudad del autocompletado
             if (!origenNombre || !origenLat) {
                 e.preventDefault();
-                alert('Selecciona una ciudad de origen de la lista de sugerencias.');
+                alert('<?= t('publish.err_origin') ?>');
                 document.getElementById('origen').focus();
                 return;
             }
 
             if (!destinoNombre || !destinoLat) {
                 e.preventDefault();
-                alert('Selecciona una ciudad de destino de la lista de sugerencias.');
+                alert('<?= t('publish.err_destination') ?>');
                 document.getElementById('destino').focus();
                 return;
             }
@@ -501,7 +501,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
             // Validación Origen y Destino iguales
             if (origenNombre.toLowerCase() === destinoNombre.toLowerCase()) {
                 e.preventDefault();
-                alert('El origen y el destino no pueden ser el mismo.');
+                alert('<?= t('publish.err_same') ?>');
                 return;
             }
 
@@ -509,7 +509,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
             const today = new Date().toISOString().split('T')[0];
             if (fecha < today) {
                 e.preventDefault();
-                alert('La fecha de salida no puede ser en el pasado.');
+                alert('<?= t('publish.err_past_date') ?>');
                 return;
             }
 
@@ -520,7 +520,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
 
                 if (horaSalida <= horaActual) {
                     e.preventDefault();
-                    alert('Para viajes del mismo día, la hora de salida debe ser posterior a la hora actual.');
+                    alert('<?= t('publish.err_past_time') ?>');
                     return;
                 }
             }
@@ -528,7 +528,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
             // Validación hora de regreso
             if (horaRegreso && horaRegreso <= horaSalida) {
                 e.preventDefault();
-                alert('La hora de regreso debe ser posterior a la hora de salida.');
+                alert('<?= t('publish.err_return_before') ?>');
                 return;
             }
         });

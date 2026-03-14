@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-    <html lang="es" class="h-full bg-gray-900">
+    <html lang="<?= currentLang() ?>" class="h-full bg-gray-900">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Política de Privacidad - Ride4Study</title>
+            <title><?= t('privacy.title') ?> - Ride4Study</title>
 
             <script src="https://cdn.tailwindcss.com"></script>
             <script src="public/js/tailwind-config.js"></script>
@@ -29,10 +29,10 @@
 
                 <div class="flex items-center gap-2 sm:gap-4">
                     <a href="<?= url('/login') ?>" class="text-xs sm:text-sm md:text-base text-white hover:text-primary font-medium px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 transition-colors whitespace-nowrap">
-                        Entrar
+                        <?= t('landing.login') ?>
                     </a>
                     <a href="<?= url('/register') ?>" class="bg-white text-secondary hover:bg-gray-200 text-xs sm:text-sm md:text-base font-bold px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-full transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
-                        Registrarse
+                        <?= t('landing.register') ?>
                     </a>
                 </div>
             </nav>
@@ -40,8 +40,8 @@
             <!-- Encabezado -->
             <header class="pt-32 pb-16 bg-gradient-to-b from-gray-900 via-gray-900 to-surface">
                 <div class="mx-auto max-w-4xl px-6 text-center">
-                    <h1 class="text-4xl md:text-5xl font-bold mb-6">Política de Privacidad</h1>
-                    <p class="text-xl text-gray-400">Cómo protegemos y gestionamos tus datos.</p>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-6"><?= t('privacy.heading') ?></h1>
+                    <p class="text-xl text-gray-400"><?= t('privacy.subheading') ?></p>
                 </div>
             </header>
 
@@ -50,13 +50,13 @@
                 <div class="mx-auto max-w-4xl px-6 py-12">
                     <section class="bg-gray-900/50 p-8 rounded-3xl border border-white/5">
                         <div class="prose prose-invert prose-indigo max-w-none text-gray-400">
-                            <p>En Ride4Study, nos tomamos muy en serio tu privacidad. Esta política describe cómo recopilamos, usamos y protegemos tu información personal.</p>
-                            <h3 class="text-white font-bold mt-6 mb-2">1. Información que recopilamos</h3>
-                            <p>Recopilamos información que nos proporcionas directamente, como tu nombre, dirección de correo electrónico institucional, y detalles de tus viajes. También recopilamos información automáticamente cuando usas nuestros servicios.</p>
-                            <h3 class="text-white font-bold mt-6 mb-2">2. Uso de la información</h3>
-                            <p>Utilizamos tu información para proporcionar, mantener y mejorar nuestros servicios, procesar transacciones, y comunicarnos contigo. No vendemos tus datos a terceros.</p>
-                            <h3 class="text-white font-bold mt-6 mb-2">3. Seguridad de los datos</h3>
-                            <p>Implementamos medidas de seguridad técnicas y organizativas para proteger tus datos contra el acceso no autorizado, la pérdida o la alteración.</p>
+                            <p><?= t('privacy.intro') ?></p>
+                            <h3 class="text-white font-bold mt-6 mb-2"><?= t('privacy.section1_title') ?></h3>
+                            <p><?= t('privacy.section1_content') ?></p>
+                            <h3 class="text-white font-bold mt-6 mb-2"><?= t('privacy.section2_title') ?></h3>
+                            <p><?= t('privacy.section2_content') ?></p>
+                            <h3 class="text-white font-bold mt-6 mb-2"><?= t('privacy.section3_title') ?></h3>
+                            <p><?= t('privacy.section3_content') ?></p>
                         </div>
                     </section>
                 </div>

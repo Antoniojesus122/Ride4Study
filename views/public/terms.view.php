@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-    <html lang="es" class="h-full bg-gray-900">
+    <html lang="<?= currentLang() ?>" class="h-full bg-gray-900">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Términos y Condiciones - Ride4Study</title>
+            <title><?= t('terms.title') ?> - Ride4Study</title>
 
             <script src="https://cdn.tailwindcss.com"></script>
             <script src="public/js/tailwind-config.js"></script>
@@ -29,10 +29,10 @@
 
                 <div class="flex items-center gap-2 sm:gap-4">
                     <a href="<?= url('/login') ?>" class="text-xs sm:text-sm md:text-base text-white hover:text-primary font-medium px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 transition-colors whitespace-nowrap">
-                        Entrar
+                        <?= t('landing.login') ?>
                     </a>
                     <a href="<?= url('/register') ?>" class="bg-white text-secondary hover:bg-gray-200 text-xs sm:text-sm md:text-base font-bold px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-full transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
-                        Registrarse
+                        <?= t('landing.register') ?>
                     </a>
                 </div>
             </nav>
@@ -40,8 +40,8 @@
             <!-- Encabezado -->
             <header class="pt-32 pb-16 bg-gradient-to-b from-gray-900 via-gray-900 to-surface">
                 <div class="mx-auto max-w-4xl px-6 text-center">
-                    <h1 class="text-4xl md:text-5xl font-bold mb-6">Términos y Condiciones</h1>
-                    <p class="text-xl text-gray-400">Las reglas del juego para una comunidad segura.</p>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-6"><?= t('terms.heading') ?></h1>
+                    <p class="text-xl text-gray-400"><?= t('terms.subheading') ?></p>
                 </div>
             </header>
 
@@ -50,13 +50,13 @@
                 <div class="mx-auto max-w-4xl px-6 py-12">
                     <section class="bg-gray-900/50 p-8 rounded-3xl border border-white/5">
                         <div class="prose prose-invert prose-indigo max-w-none text-gray-400">
-                            <p>Al utilizar Ride4Study, aceptas cumplir con estos términos y condiciones. Por favor, léelos detenidamente.</p>
-                                <h3 class="text-white font-bold mt-6 mb-2">1. Uso Acceptable</h3>
-                            <p>Te comprometes a utilizar nuestra plataforma solo para fines legales y de acuerdo con estos términos. No debes usar el servicio para enviar spam, acosar a otros usuarios o realizar actividades fraudulentas.</p>
-                                <h3 class="text-white font-bold mt-6 mb-2">2. Cuentas de Usuario</h3>
-                            <p>Eres responsable de mantener la confidencialidad de tu cuenta y contraseña. Debes notificarnos inmediatamente cualquier uso no autorizado de tu cuenta.</p>
-                                <h3 class="text-white font-bold mt-6 mb-2">3. Cancelaciones y Reembolsos</h3>
-                            <p>Las políticas de cancelación son establecidas por los conductores. Ride4Study no se hace responsable de las disputas entre conductores y pasajeros, aunque facilitaremos la mediación.</p>
+                            <p><?= t('terms.intro') ?></p>
+                                <h3 class="text-white font-bold mt-6 mb-2"><?= t('terms.section1_title') ?></h3>
+                            <p><?= t('terms.section1_content') ?></p>
+                                <h3 class="text-white font-bold mt-6 mb-2"><?= t('terms.section2_title') ?></h3>
+                            <p><?= t('terms.section2_content') ?></p>
+                                <h3 class="text-white font-bold mt-6 mb-2"><?= t('terms.section3_title') ?></h3>
+                            <p><?= t('terms.section3_content') ?></p>
                         </div>
                     </section>
                 </div>
