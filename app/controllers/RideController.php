@@ -289,6 +289,10 @@ class RideController {
 
         // Crear reserva/oferta
         if ($this->ride->requestReservation($rideId, $_SESSION['user_id'])) {
+            $origen  = $ride['nombreOrigen']  ?? 'origen';
+            $destino = $ride['nombreDestino'] ?? 'destino';
+            $requesterName = $_SESSION['user_name'] ?? 'Un usuario';
+
             // Enviar notificación por email según el tipo
             try {
                 if ($tipoAnuncio === 'ofrezco') {
@@ -300,9 +304,29 @@ class RideController {
                 }
             } catch (Exception $e) {
                 error_log("Error enviando notificación: " . $e->getMessage());
-                // Continuar aunque falle el email
             }
-            
+
+            // Notificación in-app al dueño del anuncio
+            try {
+                if ($tipoAnuncio === 'ofrezco') {
+                    $this->notification->create(
+                        (int)$ride['idUsuario'],
+                        $requesterName . ' ha solicitado plaza en tu viaje ' . $origen . ' → ' . $destino . '.',
+                        'fas fa-user-plus',
+                        url('/my-rides') . '?tab=requests'
+                    );
+                } else {
+                    $this->notification->create(
+                        (int)$ride['idUsuario'],
+                        $requesterName . ' te ofrece llevarte en el trayecto ' . $origen . ' → ' . $destino . '.',
+                        'fas fa-car',
+                        url('/my-rides') . '?tab=requests'
+                    );
+                }
+            } catch (Exception $e) {
+                error_log("Error enviando notificación in-app: " . $e->getMessage());
+            }
+
             header('Location: ' . url('/my-rides') . '?success=reserved');
         } else {
             header('Location: ' . url('/dashboard') . '?error=reservation_failed');
@@ -398,6 +422,24 @@ class RideController {
             // Notificar al dueño del anuncio por email
             $ride = $this->ride->getRideById($rideId);
             $this->sendReservationNotification($ride, $_SESSION['user_id'], 'cancelada');
+
+            // Notificación in-app al dueño del anuncio
+            try {
+                $stmt = $this->db->prepare("SELECT nombre FROM usuarios WHERE idUsuario = :id");
+                $stmt->execute([':id' => $_SESSION['user_id']]);
+                $canceller = $stmt->fetch(PDO::FETCH_ASSOC);
+                $cancellerName = $canceller['nombre'] ?? 'Un usuario';
+                $origen  = $ride['nombreOrigen']  ?? 'origen';
+                $destino = $ride['nombreDestino'] ?? 'destino';
+                $this->notification->create(
+                    (int)$ride['idUsuario'],
+                    $cancellerName . ' ha cancelado su reserva en el viaje ' . $origen . ' → ' . $destino . '.',
+                    'fas fa-times-circle',
+                    url('/my-rides') . '?tab=requests'
+                );
+            } catch (Exception $e) {
+                error_log("Error enviando notificación in-app: " . $e->getMessage());
+            }
 
             header('Location: ' . url('/my-rides') . '?success=reservation_cancelled&tab=bookings');
         } else {

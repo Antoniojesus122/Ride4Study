@@ -21,14 +21,19 @@ class Notification {
         ]);
     }
 
-    // Obtener notificaciones no leídas de un usuario (máximo 20)
-    public function getUnread(int $idUsuario): array {
-        $sql = "SELECT * FROM {$this->table}
+    // Obtener notificaciones no leídas de un usuario
+    public function getUnread(int $idUsuario, int $limit = 20): array {
+        $sql = "SELECT idNotificacion, idUsuario, tipoNotificacion, mensaje, leida, icono, url,
+                       fechaEnvio,
+                       fechaEnvio AS fecha_creacion
+                FROM {$this->table}
                 WHERE idUsuario = :id AND tipoNotificacion = 'sistema' AND leida = 0
                 ORDER BY fechaEnvio DESC
-                LIMIT 20";
+                LIMIT :limit";
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute([':id' => $idUsuario]);
+        $stmt->bindValue(':id', $idUsuario, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

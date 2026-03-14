@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../models/Message.php';
 require_once __DIR__ . '/../models/Conversation.php';
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/Notification.php';
 require_once __DIR__ . '/../../services/MailService.php';
 
 class MessageController {
@@ -10,6 +11,7 @@ class MessageController {
     private $message;
     private $conversation;
     private $user;
+    private Notification $notification;
     private ?MailService $mailService = null;
 
     public function __construct() {
@@ -22,6 +24,7 @@ class MessageController {
         $this->message      = new Message($this->db);
         $this->conversation = new Conversation($this->db);
         $this->user         = new User($this->db);
+        $this->notification = new Notification($this->db);
         try { $this->mailService = new MailService(); } catch (Exception $e) { error_log('MailService: ' . $e->getMessage()); }
     }
 
@@ -328,9 +331,33 @@ class MessageController {
         ]);
 
         if ($result) {
-            //Enviar notificación por email al publicador
+            // Notificación dentro del proyecto al publicador del anuncio "busco"
+            try {
+                $stmt = $this->db->prepare("SELECT nombre FROM usuarios WHERE idUsuario = :id");
+                $stmt->execute([':id' => $userId]);
+                $driver = $stmt->fetch(PDO::FETCH_ASSOC);
+                $driverName = $driver['nombre'] ?? 'Un conductor';
+
+                $rideStmt = $this->db->prepare(
+                    "SELECT nombreOrigen, nombreDestino FROM anuncios WHERE idAnuncio = :id"
+                );
+                $rideStmt->execute([':id' => $anuncioId]);
+                $rideInfo = $rideStmt->fetch(PDO::FETCH_ASSOC);
+                $origen  = $rideInfo['nombreOrigen']  ?? 'origen';
+                $destino = $rideInfo['nombreDestino'] ?? 'destino';
+
+                $this->notification->create(
+                    (int)$anuncio['idUsuario'],
+                    $driverName . ' te ofrece llevarte en el trayecto ' . $origen . ' → ' . $destino . '.',
+                    'fas fa-car',
+                    url('/my-rides') . '?tab=requests'
+                );
+            } catch (Exception $e) {
+                error_log("Error enviando notificación in-app: " . $e->getMessage());
+            }
+
             echo json_encode([
-                'success' => true, 
+                'success' => true,
                 'message' => 'Oferta enviada con éxito. El usuario recibirá una notificación.'
             ]);
         } else {

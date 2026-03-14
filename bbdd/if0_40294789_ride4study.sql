@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 12-03-2026 a las 22:35:45
+-- Tiempo de generación: 14-03-2026 a las 15:29:22
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -68,9 +68,6 @@ INSERT INTO `anuncios` (`idAnuncio`, `idUsuario`, `tipo`, `origen`, `destino`, `
 (21, 5, 'ofrezco', 9, 20, '2026-02-28', '20:51:00', NULL, NULL, 0, NULL, '', '2026-02-26 17:48:26', 0),
 (25, 9, 'busco', 6, 17, '2026-02-28', '03:56:00', NULL, NULL, 0, NULL, '', '2026-02-26 23:52:49', 0),
 (26, 5, 'ofrezco', 9, 13, '2026-02-28', '14:22:00', NULL, NULL, 0, NULL, '', '2026-02-28 14:21:31', 0),
-(30, 9, 'busco', 1, 9, '2026-03-23', '17:25:00', NULL, NULL, 0, NULL, '', '2026-03-08 15:23:17', 0),
-(31, 9, 'ofrezco', 10, 9, '2026-03-17', '18:27:00', NULL, NULL, 0, NULL, '', '2026-03-08 15:24:57', 0),
-(32, 9, 'ofrezco', 6, 10, '2026-03-18', '20:54:00', NULL, NULL, 0, NULL, '', '2026-03-08 15:50:20', 0),
 (33, 5, 'ofrezco', 11, 17, '2026-03-24', '20:08:00', NULL, NULL, 1, NULL, '', '2026-03-08 17:05:21', 0),
 (34, 5, 'ofrezco', 14, 15, '2026-03-17', '20:07:00', NULL, NULL, 3, NULL, '', '2026-03-08 17:05:35', 0),
 (35, 5, 'busco', 11, 17, '2026-03-10', '21:09:00', NULL, NULL, 1, NULL, '', '2026-03-08 17:05:43', 0),
@@ -78,7 +75,8 @@ INSERT INTO `anuncios` (`idAnuncio`, `idUsuario`, `tipo`, `origen`, `destino`, `
 (37, 9, 'ofrezco', 17, 14, '2026-03-08', '22:46:00', NULL, NULL, 1, NULL, '', '2026-03-08 22:45:47', 0),
 (38, 29, 'ofrezco', 3, 1, '2026-03-18', '01:02:00', NULL, NULL, 5, NULL, '', '2026-03-10 21:58:44', 0),
 (39, 29, 'ofrezco', 21, 22, '2026-03-12', '01:18:00', NULL, NULL, 1, NULL, '', '2026-03-10 22:14:30', 0),
-(40, 29, 'ofrezco', 3, 1, '2026-03-13', '07:40:00', NULL, '15:00:00', 1, NULL, '', '2026-03-12 19:48:48', 0);
+(40, 29, 'ofrezco', 3, 1, '2026-03-13', '07:40:00', NULL, '15:00:00', 1, NULL, '', '2026-03-12 19:48:48', 0),
+(41, 9, 'ofrezco', 3, 1, '2026-03-20', '07:40:00', NULL, '15:00:00', 3, 2.00, '', '2026-03-12 23:01:54', 0);
 
 -- --------------------------------------------------------
 
@@ -100,9 +98,8 @@ CREATE TABLE `conversations` (
 
 INSERT INTO `conversations` (`idConversation`, `idAnuncio`, `user1_id`, `user2_id`, `created_at`) VALUES
 (5, 21, 5, 9, '2026-02-26 17:40:00'),
-(12, 30, 5, 9, '2026-03-08 14:23:21'),
-(14, 31, 9, 29, '2026-03-08 21:47:20'),
-(15, 35, 5, 29, '2026-03-08 22:01:45');
+(15, 35, 5, 29, '2026-03-08 22:01:45'),
+(16, 38, 9, 29, '2026-03-14 14:11:31');
 
 -- --------------------------------------------------------
 
@@ -197,7 +194,8 @@ INSERT INTO `mensajes` (`idMensaje`, `idConversation`, `idEmisor`, `idReceptor`,
 (43, 12, 5, 9, 'Te puedo llevar', 'normal', '2026-03-08 14:23:26', 1),
 (48, 12, 9, 5, 'fds', 'normal', '2026-03-08 15:20:23', 0),
 (49, 12, 9, 5, 'gfrefg', 'normal', '2026-03-08 15:24:10', 0),
-(50, 14, 29, 9, 'Hola', 'normal', '2026-03-08 21:47:23', 1);
+(50, 14, 29, 9, 'Hola', 'normal', '2026-03-08 21:47:23', 1),
+(51, 16, 9, 29, 'Hey', 'normal', '2026-03-14 14:11:34', 1);
 
 -- --------------------------------------------------------
 
@@ -221,7 +219,8 @@ CREATE TABLE `notificaciones` (
 --
 
 INSERT INTO `notificaciones` (`idNotificacion`, `idUsuario`, `tipoNotificacion`, `mensaje`, `fechaEnvio`, `leida`, `icono`, `url`) VALUES
-(1, 5, 'sistema', 'Tu solicitud de plaza en el viaje Cartaya → Lucena del Puerto ha sido rechazada.', '2026-03-08 22:24:25', 0, 'fas fa-times-circle', '/Ride4Study/my-rides?tab=bookings');
+(1, 5, 'sistema', 'Tu solicitud de plaza en el viaje Cartaya → Lucena del Puerto ha sido rechazada.', '2026-03-08 22:24:25', 0, 'fas fa-times-circle', '/Ride4Study/my-rides?tab=bookings'),
+(2, 29, 'sistema', 'Fernando Domingo ha solicitado plaza en tu viaje Lepe → Huelva.', '2026-03-14 15:11:07', 1, 'fas fa-user-plus', '/Ride4Study/my-rides?tab=requests');
 
 -- --------------------------------------------------------
 
@@ -421,9 +420,7 @@ INSERT INTO `viajes` (`idViaje`, `idAnuncio`, `idConductor`, `idPasajero`, `esta
 (7, 21, 5, 9, 'aceptado', NULL, NULL, '2026-03-01 15:28:40'),
 (10, 25, 5, 9, 'rechazado', NULL, NULL, NULL),
 (11, 26, 5, 9, 'aceptado', NULL, NULL, '2026-02-28 14:24:14'),
-(18, 31, 9, 5, 'aceptado', NULL, NULL, NULL),
-(19, 30, 5, 9, 'aceptado', NULL, NULL, NULL),
-(20, 32, 9, 5, 'aceptado', NULL, NULL, NULL);
+(21, 38, 29, 9, 'pendiente', NULL, NULL, NULL);
 
 --
 -- Índices para tablas volcadas
@@ -476,7 +473,7 @@ ALTER TABLE `mensajes`
 ALTER TABLE `notificaciones`
   ADD PRIMARY KEY (`idNotificacion`),
   ADD KEY `idUsuario` (`idUsuario`),
-  ADD KEY `idx_notif_usuario_leida` (`idUsuario`,`leida`);
+  ADD KEY `idx_notif_usuario_tipo_leida` (`idUsuario`,`tipoNotificacion`,`leida`,`fechaEnvio`);
 
 --
 -- Indices de la tabla `password_resets`
@@ -543,13 +540,13 @@ ALTER TABLE `viajes`
 -- AUTO_INCREMENT de la tabla `anuncios`
 --
 ALTER TABLE `anuncios`
-  MODIFY `idAnuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `idAnuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT de la tabla `conversations`
 --
 ALTER TABLE `conversations`
-  MODIFY `idConversation` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `idConversation` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de la tabla `instituciones`
@@ -567,13 +564,13 @@ ALTER TABLE `localidades`
 -- AUTO_INCREMENT de la tabla `mensajes`
 --
 ALTER TABLE `mensajes`
-  MODIFY `idMensaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `idMensaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
 --
 ALTER TABLE `notificaciones`
-  MODIFY `idNotificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `idNotificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `password_resets`
@@ -609,7 +606,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `viajes`
 --
 ALTER TABLE `viajes`
-  MODIFY `idViaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `idViaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- Restricciones para tablas volcadas

@@ -65,10 +65,6 @@
                   </a>
                   <a href="<?= url('/messages') ?>" class="px-4 py-1.5 rounded-full text-sm font-medium transition-all relative <?= isActive('/messages') ? 'bg-primary text-secondary shadow-lg shadow-primary/25' : 'text-gray-300 hover:text-white hover:bg-white/5' ?>">
                       <i class="fas fa-comment-alt mr-1.5"></i> <?= t('nav.messages') ?>
-                      <span class="absolute top-1 right-2 flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                      </span>
                   </a>
               </div>
 
@@ -91,7 +87,7 @@
                       <?php endif; ?>
                   </button>
                   <!-- Panel de notificaciones -->
-                  <div id="notif-panel" class="hidden absolute right-0 top-full mt-3 w-80 origin-top-right rounded-2xl bg-[#1a1b26]/95 backdrop-blur-xl border border-white/10 shadow-2xl z-50">
+                  <div id="notif-panel" class="hidden absolute right-0 top-full mt-3 w-80 max-w-[calc(100vw-1rem)] origin-top-right rounded-2xl bg-[#1a1b26]/95 backdrop-blur-xl border border-white/10 shadow-2xl z-50">
                       <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
                           <span class="text-sm font-semibold text-white"><?= t('nav.notifications') ?></span>
                           <button onclick="markAllRead()" class="text-xs text-primary hover:underline"><?= t('nav.mark_all_read') ?></button>
@@ -188,7 +184,23 @@
                     }
                 });
 
-                // === Notificaciones ===
+                // Notificaciones
+                function formatNotifDate(raw) {
+                    if (!raw) return '';
+                    const d = new Date(raw.replace(' ', 'T'));
+                    if (isNaN(d)) return raw;
+                    const now = new Date();
+                    const diffMs = now - d;
+                    const diffMin = Math.floor(diffMs / 60000);
+                    const diffH = Math.floor(diffMin / 60);
+                    const diffD = Math.floor(diffH / 24);
+                    if (diffMin < 1) return '<?= t('nav.notif_just_now') ?>';
+                    if (diffMin < 60) return diffMin + ' <?= t('nav.notif_min_ago') ?>';
+                    if (diffH < 24) return diffH + ' <?= t('nav.notif_h_ago') ?>';
+                    if (diffD < 7) return diffD + ' <?= t('nav.notif_d_ago') ?>';
+                    return d.toLocaleDateString('<?= currentLang() === 'es' ? 'es-ES' : 'en-GB' ?>', { day: 'numeric', month: 'short' });
+                }
+
                 function toggleNotifPanel() {
                     const panel = document.getElementById('notif-panel');
                     const wasHidden = panel.classList.contains('hidden');
@@ -206,11 +218,11 @@
                                 return;
                             }
                             list.innerHTML = data.notifications.map(n => `
-                                <div class="flex items-start gap-3 px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors" onclick="markRead(${n.idNotificacion}, '${n.url}')">
-                                    <i class="${n.icono} text-primary mt-0.5 flex-shrink-0"></i>
+                                <div class="flex items-start gap-3 px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors" onclick="markRead(${n.idNotificacion}, ${n.url ? JSON.stringify(n.url) : 'null'})">
+                                    <i class="${n.icono || 'fas fa-bell'} text-primary mt-0.5 flex-shrink-0 text-sm"></i>
                                     <div class="flex-1 min-w-0">
                                         <p class="text-sm text-gray-200 leading-snug">${n.mensaje}</p>
-                                        <p class="text-xs text-gray-500 mt-0.5">${n.fecha_creacion}</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">${formatNotifDate(n.fecha_creacion)}</p>
                                     </div>
                                 </div>
                             `).join('');
@@ -250,7 +262,24 @@
                     badge.classList.toggle('hidden', count === 0);
                 }
 
-                // === Reporte global ===
+                function pollNotifBadge() {
+                    fetch('<?= url("/notifications") ?>?action=count')
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success && typeof data.count === 'number') {
+                                const badge = document.getElementById('notif-badge');
+                                if (!badge) return;
+                                badge.textContent = data.count;
+                                badge.classList.toggle('hidden', data.count === 0);
+                                const panel = document.getElementById('notif-panel');
+                                if (panel && !panel.classList.contains('hidden')) loadNotifications();
+                            }
+                        })
+                        .catch(() => {});
+                }
+                setInterval(pollNotifBadge, 30000);
+
+                // Reporte global
                 let reportData = {};
 
                 function openReportModal(tipo, opts = {}) {
@@ -289,7 +318,7 @@
                         .catch(() => showToast('<?= t('nav.report_error') ?>', false));
                 }
 
-                // === Toast global ===
+                // Toast global
                 function showToast(msg, success = true) {
                     const toast = document.getElementById('global-toast');
                     const toastMsg = document.getElementById('global-toast-msg');

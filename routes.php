@@ -169,6 +169,8 @@ $router->any('/notifications', function () {
     } elseif ($action === 'mark_all_read') {
         $ok = $notif->markAllRead($userId);
         echo json_encode(['success' => $ok]);
+    } elseif ($action === 'count') {
+        echo json_encode(['success' => true, 'count' => $notif->countUnread($userId)]);
     } else {
         $items = $notif->getUnread($userId, 15);
         echo json_encode(['success' => true, 'notifications' => $items]);

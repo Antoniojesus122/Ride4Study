@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-03-2026 a las 21:59:44
+-- Tiempo de generación: 12-03-2026 a las 22:35:45
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -35,6 +35,7 @@ CREATE TABLE `anuncios` (
   `destino` int(11) NOT NULL,
   `fechaSalida` date NOT NULL,
   `horaSalida` time NOT NULL,
+  `horaLlegada` time DEFAULT NULL,
   `horaRegreso` time DEFAULT NULL,
   `plazasDisponibles` int(11) DEFAULT NULL,
   `precio` decimal(6,2) DEFAULT NULL,
@@ -47,35 +48,37 @@ CREATE TABLE `anuncios` (
 -- Volcado de datos para la tabla `anuncios`
 --
 
-INSERT INTO `anuncios` (`idAnuncio`, `idUsuario`, `tipo`, `origen`, `destino`, `fechaSalida`, `horaSalida`, `horaRegreso`, `plazasDisponibles`, `precio`, `descripcion`, `fechaPublicacion`, `destacado`) VALUES
-(1, 1, 'ofrezco', 3, 1, '2025-11-02', '07:30:00', '15:00:00', 3, 8.00, 'Salida desde el centro de Lepe, regreso por la tarde.', '2025-10-29 23:32:38', 0),
-(2, 1, 'ofrezco', 18, 17, '2025-10-31', '08:00:00', NULL, 2, 1.00, NULL, '2025-10-29 23:36:09', 0),
-(3, 1, 'busco', 1, 9, '2025-10-31', '02:00:00', NULL, 5, 4.00, NULL, '2025-10-29 23:36:34', 0),
-(4, 1, 'busco', 11, 12, '2025-10-31', '08:00:00', '10:03:00', NULL, 2.00, NULL, '2025-10-29 23:44:02', 0),
-(5, 1, 'ofrezco', 10, 17, '2025-11-02', '02:00:00', '10:00:00', 2, NULL, NULL, '2025-10-29 23:46:16', 0),
-(6, 1, 'busco', 5, 10, '2025-10-31', '02:00:00', '06:00:00', 4, NULL, NULL, '2025-10-29 23:50:24', 0),
-(7, 8, 'ofrezco', 6, 4, '2025-11-12', '03:04:00', NULL, 3, NULL, NULL, '2025-11-12 22:04:35', 0),
-(8, 8, 'ofrezco', 12, 20, '2025-11-28', '03:03:00', '06:06:00', 4, NULL, NULL, '2025-11-12 22:05:08', 0),
-(9, 8, 'ofrezco', 3, 17, '2025-11-29', '04:04:00', NULL, 4, NULL, NULL, '2025-11-12 22:06:08', 0),
-(10, 1, 'ofrezco', 18, 3, '2026-01-23', '03:02:00', '11:01:00', 2, NULL, 'Esto es una prueba', '2026-01-11 23:26:23', 0),
-(13, 9, 'ofrezco', 2, 12, '2026-02-12', '20:20:00', NULL, 1, NULL, '', '2026-02-09 23:20:13', 0),
-(14, 9, 'ofrezco', 4, 16, '2026-02-13', '17:45:00', NULL, 0, NULL, '', '2026-02-10 17:45:38', 0),
-(15, 9, 'ofrezco', 20, 13, '2026-02-25', '21:37:00', NULL, 1, NULL, '', '2026-02-18 16:32:57', 0),
-(17, 5, 'ofrezco', 2, 11, '2026-02-18', '01:56:00', NULL, 1, NULL, '', '2026-02-18 22:55:18', 0),
-(19, 9, 'ofrezco', 18, 8, '2026-02-25', '20:49:00', NULL, 1, NULL, '', '2026-02-22 18:48:05', 0),
-(20, 9, 'ofrezco', 14, 15, '2026-02-24', '23:54:00', NULL, 2, NULL, '', '2026-02-22 18:50:13', 0),
-(21, 5, 'ofrezco', 9, 20, '2026-02-28', '20:51:00', NULL, 0, NULL, '', '2026-02-26 17:48:26', 0),
-(25, 9, 'busco', 6, 17, '2026-02-28', '03:56:00', NULL, 0, NULL, '', '2026-02-26 23:52:49', 0),
-(26, 5, 'ofrezco', 9, 13, '2026-02-28', '14:22:00', NULL, 0, NULL, '', '2026-02-28 14:21:31', 0),
-(30, 9, 'busco', 1, 9, '2026-03-23', '17:25:00', NULL, 0, NULL, '', '2026-03-08 15:23:17', 0),
-(31, 9, 'ofrezco', 10, 9, '2026-03-17', '18:27:00', NULL, 0, NULL, '', '2026-03-08 15:24:57', 0),
-(32, 9, 'ofrezco', 6, 10, '2026-03-18', '20:54:00', NULL, 0, NULL, '', '2026-03-08 15:50:20', 0),
-(33, 5, 'ofrezco', 11, 17, '2026-03-24', '20:08:00', NULL, 1, NULL, '', '2026-03-08 17:05:21', 0),
-(34, 5, 'ofrezco', 14, 15, '2026-03-17', '20:07:00', NULL, 3, NULL, '', '2026-03-08 17:05:35', 0),
-(35, 5, 'busco', 11, 17, '2026-03-10', '21:09:00', NULL, 1, NULL, '', '2026-03-08 17:05:43', 0),
-(36, 5, 'ofrezco', 2, 7, '2026-03-18', '18:05:00', NULL, 4, NULL, '', '2026-03-08 17:05:56', 0),
-(37, 9, 'ofrezco', 17, 14, '2026-03-08', '22:46:00', NULL, 1, NULL, '', '2026-03-08 22:45:47', 0),
-(38, 29, 'ofrezco', 3, 1, '2026-03-18', '01:02:00', NULL, 5, NULL, '', '2026-03-10 21:58:44', 0);
+INSERT INTO `anuncios` (`idAnuncio`, `idUsuario`, `tipo`, `origen`, `destino`, `fechaSalida`, `horaSalida`, `horaLlegada`, `horaRegreso`, `plazasDisponibles`, `precio`, `descripcion`, `fechaPublicacion`, `destacado`) VALUES
+(1, 1, 'ofrezco', 3, 1, '2025-11-02', '07:30:00', NULL, '15:00:00', 3, 8.00, 'Salida desde el centro de Lepe, regreso por la tarde.', '2025-10-29 23:32:38', 0),
+(2, 1, 'ofrezco', 18, 17, '2025-10-31', '08:00:00', NULL, NULL, 2, 1.00, NULL, '2025-10-29 23:36:09', 0),
+(3, 1, 'busco', 1, 9, '2025-10-31', '02:00:00', NULL, NULL, 5, 4.00, NULL, '2025-10-29 23:36:34', 0),
+(4, 1, 'busco', 11, 12, '2025-10-31', '08:00:00', NULL, '10:03:00', NULL, 2.00, NULL, '2025-10-29 23:44:02', 0),
+(5, 1, 'ofrezco', 10, 17, '2025-11-02', '02:00:00', NULL, '10:00:00', 2, NULL, NULL, '2025-10-29 23:46:16', 0),
+(6, 1, 'busco', 5, 10, '2025-10-31', '02:00:00', NULL, '06:00:00', 4, NULL, NULL, '2025-10-29 23:50:24', 0),
+(7, 8, 'ofrezco', 6, 4, '2025-11-12', '03:04:00', NULL, NULL, 3, NULL, NULL, '2025-11-12 22:04:35', 0),
+(8, 8, 'ofrezco', 12, 20, '2025-11-28', '03:03:00', NULL, '06:06:00', 4, NULL, NULL, '2025-11-12 22:05:08', 0),
+(9, 8, 'ofrezco', 3, 17, '2025-11-29', '04:04:00', NULL, NULL, 4, NULL, NULL, '2025-11-12 22:06:08', 0),
+(10, 1, 'ofrezco', 18, 3, '2026-01-23', '03:02:00', NULL, '11:01:00', 2, NULL, 'Esto es una prueba', '2026-01-11 23:26:23', 0),
+(13, 9, 'ofrezco', 2, 12, '2026-02-12', '20:20:00', NULL, NULL, 1, NULL, '', '2026-02-09 23:20:13', 0),
+(14, 9, 'ofrezco', 4, 16, '2026-02-13', '17:45:00', NULL, NULL, 0, NULL, '', '2026-02-10 17:45:38', 0),
+(15, 9, 'ofrezco', 20, 13, '2026-02-25', '21:37:00', NULL, NULL, 1, NULL, '', '2026-02-18 16:32:57', 0),
+(17, 5, 'ofrezco', 2, 11, '2026-02-18', '01:56:00', NULL, NULL, 1, NULL, '', '2026-02-18 22:55:18', 0),
+(19, 9, 'ofrezco', 18, 8, '2026-02-25', '20:49:00', NULL, NULL, 1, NULL, '', '2026-02-22 18:48:05', 0),
+(20, 9, 'ofrezco', 14, 15, '2026-02-24', '23:54:00', NULL, NULL, 2, NULL, '', '2026-02-22 18:50:13', 0),
+(21, 5, 'ofrezco', 9, 20, '2026-02-28', '20:51:00', NULL, NULL, 0, NULL, '', '2026-02-26 17:48:26', 0),
+(25, 9, 'busco', 6, 17, '2026-02-28', '03:56:00', NULL, NULL, 0, NULL, '', '2026-02-26 23:52:49', 0),
+(26, 5, 'ofrezco', 9, 13, '2026-02-28', '14:22:00', NULL, NULL, 0, NULL, '', '2026-02-28 14:21:31', 0),
+(30, 9, 'busco', 1, 9, '2026-03-23', '17:25:00', NULL, NULL, 0, NULL, '', '2026-03-08 15:23:17', 0),
+(31, 9, 'ofrezco', 10, 9, '2026-03-17', '18:27:00', NULL, NULL, 0, NULL, '', '2026-03-08 15:24:57', 0),
+(32, 9, 'ofrezco', 6, 10, '2026-03-18', '20:54:00', NULL, NULL, 0, NULL, '', '2026-03-08 15:50:20', 0),
+(33, 5, 'ofrezco', 11, 17, '2026-03-24', '20:08:00', NULL, NULL, 1, NULL, '', '2026-03-08 17:05:21', 0),
+(34, 5, 'ofrezco', 14, 15, '2026-03-17', '20:07:00', NULL, NULL, 3, NULL, '', '2026-03-08 17:05:35', 0),
+(35, 5, 'busco', 11, 17, '2026-03-10', '21:09:00', NULL, NULL, 1, NULL, '', '2026-03-08 17:05:43', 0),
+(36, 5, 'ofrezco', 2, 7, '2026-03-18', '18:05:00', NULL, NULL, 4, NULL, '', '2026-03-08 17:05:56', 0),
+(37, 9, 'ofrezco', 17, 14, '2026-03-08', '22:46:00', NULL, NULL, 1, NULL, '', '2026-03-08 22:45:47', 0),
+(38, 29, 'ofrezco', 3, 1, '2026-03-18', '01:02:00', NULL, NULL, 5, NULL, '', '2026-03-10 21:58:44', 0),
+(39, 29, 'ofrezco', 21, 22, '2026-03-12', '01:18:00', NULL, NULL, 1, NULL, '', '2026-03-10 22:14:30', 0),
+(40, 29, 'ofrezco', 3, 1, '2026-03-13', '07:40:00', NULL, '15:00:00', 1, NULL, '', '2026-03-12 19:48:48', 0);
 
 -- --------------------------------------------------------
 
@@ -156,7 +159,9 @@ INSERT INTO `localidades` (`idLocalidad`, `nombreLocalidad`, `provincia`, `lat`,
 (17, 'Lucena del Puerto', 'Huelva', 37.3000000, -6.7400000),
 (18, 'Beas', 'Huelva', 37.4100000, -6.7900000),
 (19, 'Villarrasa', 'Huelva', 37.4200000, -6.6600000),
-(20, 'San Juan del Puerto', 'Huelva', 37.3500000, -6.8300000);
+(20, 'San Juan del Puerto', 'Huelva', 37.3500000, -6.8300000),
+(21, 'Bergondo', NULL, 43.2857182, -8.2536637),
+(22, 'Santa Fe', NULL, 37.1895171, -3.7183561);
 
 -- --------------------------------------------------------
 
@@ -538,7 +543,7 @@ ALTER TABLE `viajes`
 -- AUTO_INCREMENT de la tabla `anuncios`
 --
 ALTER TABLE `anuncios`
-  MODIFY `idAnuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `idAnuncio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT de la tabla `conversations`
@@ -556,7 +561,7 @@ ALTER TABLE `instituciones`
 -- AUTO_INCREMENT de la tabla `localidades`
 --
 ALTER TABLE `localidades`
-  MODIFY `idLocalidad` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `idLocalidad` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT de la tabla `mensajes`
