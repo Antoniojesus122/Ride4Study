@@ -162,6 +162,15 @@ class MessageController {
 
         $this->message->createMessage($data);
 
+        // Notificación in-app al receptor
+        $senderName = $_SESSION['user_name'] ?? 'Un usuario';
+        $this->notification->create(
+            $receiverId,
+            htmlspecialchars($senderName) . ' ' . t('chat.notif_new_message'),
+            'fas fa-comment',
+            url('/chat') . '?conversation_id=' . $conversationId
+        );
+
         // Notificación instantánea por email al receptor
         if ($this->mailService) {
             $receiver = $this->user->getUserById($receiverId);
@@ -348,7 +357,7 @@ class MessageController {
 
                 $this->notification->create(
                     (int)$anuncio['idUsuario'],
-                    $driverName . ' te ofrece llevarte en el trayecto ' . $origen . ' → ' . $destino . '.',
+                    htmlspecialchars($driverName) . ' ' . t('notif.ride_offered') . ' ' . $origen . ' → ' . $destino . '.',
                     'fas fa-car',
                     url('/my-rides') . '?tab=requests'
                 );

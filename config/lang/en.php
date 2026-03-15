@@ -597,6 +597,16 @@ return [
     // CHAT MESSAGES PARTIAL
     'chat.delete_message' => 'Delete message',
     'chat.report_message' => 'Report message',
+    'chat.notif_new_message' => 'has sent you a message.',
+
+    // IN-APP NOTIFICATIONS
+    'notif.seat_requested' => 'has requested a seat on your ride',
+    'notif.ride_offered' => 'offers to drive you on the route',
+    'notif.request_accepted' => 'Your seat request for the ride',
+    'notif.request_rejected' => 'Your seat request for the ride',
+    'notif.accepted_suffix' => 'has been accepted.',
+    'notif.rejected_suffix' => 'has been rejected.',
+    'notif.reservation_cancelled' => 'has cancelled their reservation on the ride',
 
     // CHATLIST
     'chatlist.you' => 'You:',

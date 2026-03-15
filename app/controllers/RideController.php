@@ -199,32 +199,7 @@ class RideController {
         $data['origen']  = $this->ride->findOrCreateLocation($origenNombre, $origenLat, $origenLng);
         $data['destino'] = $this->ride->findOrCreateLocation($destinoNombre, $destinoLat, $destinoLng);
 
-        if ($origenLat != 0 && $origenLng != 0 && $destinoLat != 0 && $destinoLng != 0) {
-            $apiKey = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjkyMTRlZDJiZjMxYTQ4Nzc4NGVkYmVkNGMxNGY4YTdiIiwiaCI6Im11cm11cjY0In0=';
-
-            // ORS usa el formato [longitud, latitud]
-            $url = "https://api.openrouteservice.org/v2/directions/driving-car?api_key={$apiKey}&start={$origenLng},{$origenLat}&end={$destinoLng},{$destinoLat}";
-
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json, application/geo+json']);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            if ($response && $httpCode === 200) {
-                $routeData = json_decode($response, true);
-                if (isset($routeData['features'][0]['properties']['summary']['duration'])) {
-                    $segundos = $routeData['features'][0]['properties']['summary']['duration'];
-
-                    // Calculamos la hora de llegada sumando la duración a la hora de salida
-                    $llegada = new DateTime($data['fechaSalida'] . ' ' . $data['horaSalida']);
-                    $llegada->modify("+" . round($segundos) . " seconds");
-                    $data['horaLlegada'] = $llegada->format('H:i:s');
-                }
-            }
-        }
+        $data['horaLlegada'] = $this->calculateArrivalTime($origenLat, $origenLng, $destinoLat, $destinoLng, $data['fechaSalida'], $data['horaSalida']);
 
         // Comprobar límite de anuncios para usuarios gratuitos (máximo 4 activos)
         $userData = $this->db->prepare("SELECT premium, premium_hasta FROM usuarios WHERE idUsuario = :id");
@@ -315,14 +290,14 @@ class RideController {
                 if ($tipoAnuncio === 'ofrezco') {
                     $this->notification->create(
                         (int)$ride['idUsuario'],
-                        $requesterName . ' ha solicitado plaza en tu viaje ' . $origen . ' → ' . $destino . '.',
+                        htmlspecialchars($requesterName) . ' ' . t('notif.seat_requested') . ' ' . $origen . ' → ' . $destino . '.',
                         'fas fa-user-plus',
                         url('/my-rides') . '?tab=requests'
                     );
                 } else {
                     $this->notification->create(
                         (int)$ride['idUsuario'],
-                        $requesterName . ' te ofrece llevarte en el trayecto ' . $origen . ' → ' . $destino . '.',
+                        htmlspecialchars($requesterName) . ' ' . t('notif.ride_offered') . ' ' . $origen . ' → ' . $destino . '.',
                         'fas fa-car',
                         url('/my-rides') . '?tab=requests'
                     );
@@ -369,14 +344,14 @@ class RideController {
              if ($status === 'aceptado') {
                  $this->notification->create(
                      (int)$passengerId,
-                     'Tu solicitud de plaza en el viaje ' . $origen . ' → ' . $destino . ' ha sido aceptada.',
+                     t('notif.request_accepted') . ' ' . $origen . ' → ' . $destino . ' ' . t('notif.accepted_suffix'),
                      'fas fa-check-circle',
                      url('/my-rides') . '?tab=bookings'
                  );
              } else {
                  $this->notification->create(
                      (int)$passengerId,
-                     'Tu solicitud de plaza en el viaje ' . $origen . ' → ' . $destino . ' ha sido rechazada.',
+                     t('notif.request_rejected') . ' ' . $origen . ' → ' . $destino . ' ' . t('notif.rejected_suffix'),
                      'fas fa-times-circle',
                      url('/my-rides') . '?tab=bookings'
                  );
@@ -437,7 +412,7 @@ class RideController {
                 $destino = $ride['nombreDestino'] ?? 'destino';
                 $this->notification->create(
                     (int)$ride['idUsuario'],
-                    $cancellerName . ' ha cancelado su reserva en el viaje ' . $origen . ' → ' . $destino . '.',
+                    htmlspecialchars($cancellerName) . ' ' . t('notif.reservation_cancelled') . ' ' . $origen . ' → ' . $destino . '.',
                     'fas fa-times-circle',
                     url('/my-rides') . '?tab=requests'
                 );
@@ -811,29 +786,7 @@ class RideController {
         $data['destino'] = $this->ride->findOrCreateLocation($destinoNombre, $destinoLat, $destinoLng);
 
         // Calcular hora de llegada con OpenRouteService
-        $data['horaLlegada'] = null;
-        if ($origenLat != 0 && $origenLng != 0 && $destinoLat != 0 && $destinoLng != 0) {
-            $apiKey = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjkyMTRlZDJiZjMxYTQ4Nzc4NGVkYmVkNGMxNGY4YTdiIiwiaCI6Im11cm11cjY0In0=';
-            $url = "https://api.openrouteservice.org/v2/directions/driving-car?api_key={$apiKey}&start={$origenLng},{$origenLat}&end={$destinoLng},{$destinoLat}";
-
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json, application/geo+json']);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            if ($response && $httpCode === 200) {
-                $routeData = json_decode($response, true);
-                if (isset($routeData['features'][0]['properties']['summary']['duration'])) {
-                    $segundos = $routeData['features'][0]['properties']['summary']['duration'];
-                    $llegada = new DateTime($data['fechaSalida'] . ' ' . $data['horaSalida']);
-                    $llegada->modify("+" . round($segundos) . " seconds");
-                    $data['horaLlegada'] = $llegada->format('H:i:s');
-                }
-            }
-        }
+        $data['horaLlegada'] = $this->calculateArrivalTime($origenLat, $origenLng, $destinoLat, $destinoLng, $data['fechaSalida'], $data['horaSalida']);
 
         // Actualizar viaje
         if ($this->ride->updateRide($rideId, $data)) {
@@ -845,6 +798,36 @@ class RideController {
              $destinoLoc = $this->ride->getLocationById((int)$ride['destino']);
              require_once __DIR__ . '/../../views/user/publish.view.php';
         }
+    }
+
+    /* Calcula la hora de llegada estimada usando OpenRouteService */
+    private function calculateArrivalTime(float $origenLat, float $origenLng, float $destinoLat, float $destinoLng, string $fechaSalida, string $horaSalida): ?string {
+        if ($origenLat == 0 || $origenLng == 0 || $destinoLat == 0 || $destinoLng == 0) {
+            return null;
+        }
+
+        $apiKey = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjkyMTRlZDJiZjMxYTQ4Nzc4NGVkYmVkNGMxNGY4YTdiIiwiaCI6Im11cm11cjY0In0=';
+        $url = "https://api.openrouteservice.org/v2/directions/driving-car?api_key={$apiKey}&start={$origenLng},{$origenLat}&end={$destinoLng},{$destinoLat}";
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json, application/geo+json']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($response && $httpCode === 200) {
+            $routeData = json_decode($response, true);
+            if (isset($routeData['features'][0]['properties']['summary']['duration'])) {
+                $segundos = $routeData['features'][0]['properties']['summary']['duration'];
+                $llegada = new DateTime($fechaSalida . ' ' . $horaSalida);
+                $llegada->modify("+" . round($segundos) . " seconds");
+                return $llegada->format('H:i:s');
+            }
+        }
+
+        return null;
     }
 
     public function delete() {
