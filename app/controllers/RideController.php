@@ -201,15 +201,19 @@ class RideController {
 
         if ($origenLat != 0 && $origenLng != 0 && $destinoLat != 0 && $destinoLng != 0) {
             $apiKey = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjkyMTRlZDJiZjMxYTQ4Nzc4NGVkYmVkNGMxNGY4YTdiIiwiaCI6Im11cm11cjY0In0=';
-            
+
             // ORS usa el formato [longitud, latitud]
             $url = "https://api.openrouteservice.org/v2/directions/driving-car?api_key={$apiKey}&start={$origenLng},{$origenLat}&end={$destinoLng},{$destinoLat}";
 
-            $opts = ["http" => ["header" => "Accept: application/json\r\n"]];
-            $context = stream_context_create($opts);
-            $response = @file_get_contents($url, false, $context);
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json, application/geo+json']);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
 
-            if ($response) {
+            if ($response && $httpCode === 200) {
                 $routeData = json_decode($response, true);
                 if (isset($routeData['features'][0]['properties']['summary']['duration'])) {
                     $segundos = $routeData['features'][0]['properties']['summary']['duration'];
@@ -811,11 +815,16 @@ class RideController {
         if ($origenLat != 0 && $origenLng != 0 && $destinoLat != 0 && $destinoLng != 0) {
             $apiKey = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjkyMTRlZDJiZjMxYTQ4Nzc4NGVkYmVkNGMxNGY4YTdiIiwiaCI6Im11cm11cjY0In0=';
             $url = "https://api.openrouteservice.org/v2/directions/driving-car?api_key={$apiKey}&start={$origenLng},{$origenLat}&end={$destinoLng},{$destinoLat}";
-            $opts = ["http" => ["header" => "Accept: application/json\r\n"]];
-            $context = stream_context_create($opts);
-            $response = @file_get_contents($url, false, $context);
 
-            if ($response) {
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json, application/geo+json']);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($response && $httpCode === 200) {
                 $routeData = json_decode($response, true);
                 if (isset($routeData['features'][0]['properties']['summary']['duration'])) {
                     $segundos = $routeData['features'][0]['properties']['summary']['duration'];
