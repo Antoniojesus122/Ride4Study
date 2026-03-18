@@ -57,6 +57,15 @@
                             <p><?= t('privacy.section2_content') ?></p>
                             <h3 class="text-white font-bold mt-6 mb-2"><?= t('privacy.section3_title') ?></h3>
                             <p><?= t('privacy.section3_content') ?></p>
+
+                            <h3 class="text-white font-bold mt-6 mb-2"><?= t('privacy.section4_title') ?></h3>
+                            <p><?= t('privacy.section4_content') ?></p>
+
+                            <h3 class="text-white font-bold mt-6 mb-2"><?= t('privacy.section5_title') ?></h3>
+                            <p><?= t('privacy.section5_content') ?></p>
+
+                            <h3 class="text-white font-bold mt-6 mb-2"><?= t('privacy.section6_title') ?></h3>
+                            <p><?= t('privacy.section6_content') ?></p>
                         </div>
                     </section>
                 </div>

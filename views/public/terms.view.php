@@ -57,6 +57,15 @@
                             <p><?= t('terms.section2_content') ?></p>
                                 <h3 class="text-white font-bold mt-6 mb-2"><?= t('terms.section3_title') ?></h3>
                             <p><?= t('terms.section3_content') ?></p>
+
+                            <h3 class="text-white font-bold mt-6 mb-2"><?= t('terms.section4_title') ?></h3>
+                            <p><?= t('terms.section4_content') ?></p>
+
+                            <h3 class="text-white font-bold mt-6 mb-2"><?= t('terms.section5_title') ?></h3>
+                            <p><?= t('terms.section5_content') ?></p>
+
+                            <h3 class="text-white font-bold mt-6 mb-2"><?= t('terms.section6_title') ?></h3>
+                            <p><?= t('terms.section6_content') ?></p>
                         </div>
                     </section>
                 </div>

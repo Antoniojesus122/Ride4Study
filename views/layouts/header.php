@@ -577,5 +577,6 @@
                 <i id="global-toast-icon" class="fas fa-check-circle flex-shrink-0"></i>
                 <span id="global-toast-msg"></span>
             </div>
+            <?php require_once __DIR__ . '/cookie-banner.php'; ?>
         <?php endif; ?>
         <main class="flex-grow flex flex-col h-full">

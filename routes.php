@@ -281,6 +281,11 @@ $router->get('/terms', function () { // Términos y condiciones
     require_once __DIR__ . '/views/public/terms.view.php';
 });
 
+$router->get('/cookies', function () { // Politica de cookies
+    session_start();
+    require_once __DIR__ . '/views/public/cookies.view.php';
+});
+
 $router->get('/safety', function () { // Consejos de seguridad
     session_start();
     require_once __DIR__ . '/views/public/safety.view.php';
