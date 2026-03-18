@@ -55,8 +55,13 @@ class RideController {
 
         // Variables para la vista
         $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
-        
+
         require_once __DIR__ . '/../../views/user/dashboard.view.php';
+
+        // Pseudo-crons: se ejecutan al cargar el dashboard
+        require_once __DIR__ . '/../../scripts/cron_send_rating_notifications.php';
+        require_once __DIR__ . '/../../scripts/cron_premium_expiration.php';
+        require_once __DIR__ . '/../../scripts/cron_trip_reminders.php';
     }
 
     public function myRides() {
@@ -851,7 +856,57 @@ class RideController {
             exit;
         }
 
-        // Eliminar viaje
+        // Notificar a los usuarios conectados (pasajeros/conductores con reserva) antes de eliminar
+        $connectedUsers = $this->ride->getConnectedUsers($rideId);
+        $ownerName = $_SESSION['user_name'] ?? 'El usuario';
+        $origen  = $ride['nombreOrigen']  ?? 'origen';
+        $destino = $ride['nombreDestino'] ?? 'destino';
+
+        foreach ($connectedUsers as $connUser) {
+            // Notificación in-app
+            try {
+                $this->notification->create(
+                    (int)$connUser['idUsuario'],
+                    htmlspecialchars($ownerName) . ' ' . t('notif.ride_cancelled') . ' ' . $origen . ' -> ' . $destino . '.',
+                    'fas fa-ban',
+                    url('/dashboard')
+                );
+            } catch (Exception $e) {
+                error_log("Error notificación in-app cancelación: " . $e->getMessage());
+            }
+
+            // Email de notificación
+            if ((int)($connUser['notificaciones_email'] ?? 0) === 1) {
+                try {
+                    $contenido = "
+                        <p><strong>" . htmlspecialchars($ownerName) . "</strong> ha cancelado el siguiente viaje en el que tenias una reserva:</p>
+
+                        <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
+                            <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Origen:</strong> {$origen}</p>
+                            <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Destino:</strong> {$destino}</p>
+                            <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Fecha:</strong> " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</p>
+                            <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Hora:</strong> " . substr($ride['horaSalida'], 0, 5) . "</p>
+                        </div>
+
+                        <p style=\"color:#94a3b8;\">Te recomendamos buscar otro viaje disponible en la plataforma.</p>
+                    ";
+
+                    $html = $this->mailService->generarPlantilla(
+                        $connUser['nombre'],
+                        "Viaje cancelado",
+                        $contenido,
+                        null,
+                        'http://localhost/Ride4Study/dashboard',
+                        'Buscar Otros Viajes'
+                    );
+                    $this->mailService->send($connUser['correo'], $connUser['nombre'], 'Viaje cancelado - Ride4Study', $html);
+                } catch (Exception $e) {
+                    error_log("Error email cancelación viaje: " . $e->getMessage());
+                }
+            }
+        }
+
+        // Eliminar viaje (las reservas se eliminan por CASCADE o manualmente)
         if ($this->ride->deleteRide($rideId)) {
             header('Location: ' . url('/my-rides') . '?success=deleted');
         } else {

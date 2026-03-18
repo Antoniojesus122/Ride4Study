@@ -191,12 +191,6 @@ $router->any('/premium', function () {
     };
 });
 
-$router->post('/webhook/stripe', function () {
-    require_once __DIR__ . '/services/StripeService.php';
-    $controller = new PremiumController();
-    $controller->webhook();
-});
-
 // Administración
 $router->get('/admin', function () {
     session_start();

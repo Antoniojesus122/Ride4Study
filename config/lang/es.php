@@ -607,6 +607,12 @@ return [
     'notif.accepted_suffix' => 'ha sido aceptada.',
     'notif.rejected_suffix' => 'ha sido rechazada.',
     'notif.reservation_cancelled' => 'ha cancelado su reserva en el viaje',
+    'notif.ride_cancelled' => 'ha cancelado el viaje',
+    'notif.new_rating' => 'te ha dejado una valoracion en el viaje',
+    'notif.rating_reply' => 'ha respondido a tu valoracion del viaje',
+    'notif.premium_expiring' => 'Tu suscripcion Premium expira en 3 dias. Renuevala para seguir disfrutando de las ventajas.',
+    'notif.trip_reminder' => 'Recuerda que manana tienes un viaje programado:',
+    'notif.report_resolved' => 'Tu reporte ha sido revisado y resuelto por el equipo de Ride4Study.',
 
     // CHATLIST
     'chatlist.you' => 'Tú:',

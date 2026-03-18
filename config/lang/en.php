@@ -607,6 +607,12 @@ return [
     'notif.accepted_suffix' => 'has been accepted.',
     'notif.rejected_suffix' => 'has been rejected.',
     'notif.reservation_cancelled' => 'has cancelled their reservation on the ride',
+    'notif.ride_cancelled' => 'has cancelled the ride',
+    'notif.new_rating' => 'has left you a rating on the ride',
+    'notif.rating_reply' => 'has replied to your rating on the ride',
+    'notif.premium_expiring' => 'Your Premium subscription expires in 3 days. Renew it to keep enjoying the benefits.',
+    'notif.trip_reminder' => 'Remember you have a ride scheduled for tomorrow:',
+    'notif.report_resolved' => 'Your report has been reviewed and resolved by the Ride4Study team.',
 
     // CHATLIST
     'chatlist.you' => 'You:',

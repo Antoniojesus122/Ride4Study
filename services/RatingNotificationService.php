@@ -60,16 +60,32 @@ class RatingNotificationService {
                 $stats['trips_processed']++;
 
                 // Verificar si el pasajero ya valoró al conductor
-                $alreadyRated = $this->hasUserRatedTrip($trip['idViaje'], $trip['idPasajero']);
+                $passengerRated = $this->hasUserRatedTrip($trip['idViaje'], $trip['idPasajero']);
 
-                if (!$alreadyRated && $trip['notificaciones_email'] == 1) {
+                if (!$passengerRated && $trip['notificaciones_email'] == 1) {
                     // Enviar email al pasajero para que valore al conductor
                     $emailSent = $this->sendRatingRequestEmail($trip, 'passenger');
-                    
+
                     if ($emailSent) {
                         $stats['emails_sent']++;
                     } else {
                         $stats['errors'][] = "Error enviando email al pasajero {$trip['idPasajero']} del viaje {$trip['idViaje']}";
+                    }
+                }
+
+                // Verificar si el conductor ya valoró al pasajero
+                $driverRated = $this->hasUserRatedTrip($trip['idViaje'], $trip['idConductor']);
+
+                if (!$driverRated) {
+                    // Obtener preferencias de email del conductor
+                    $conductorNotif = $this->getUserEmailPreference($trip['idConductor']);
+                    if ($conductorNotif) {
+                        $emailSent = $this->sendRatingRequestEmail($trip, 'driver');
+                        if ($emailSent) {
+                            $stats['emails_sent']++;
+                        } else {
+                            $stats['errors'][] = "Error enviando email al conductor {$trip['idConductor']} del viaje {$trip['idViaje']}";
+                        }
                     }
                 }
 
@@ -107,19 +123,25 @@ class RatingNotificationService {
         return $stmt->execute([':idViaje' => $idViaje]);
     }
 
-    // Envía un email solicitando valoración al pasajero después de un viaje completado
+    // Obtiene la preferencia de notificaciones por email de un usuario
+    private function getUserEmailPreference($userId) {
+        $stmt = $this->conn->prepare("SELECT notificaciones_email FROM usuarios WHERE idUsuario = :id");
+        $stmt->execute([':id' => $userId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row && (int)$row['notificaciones_email'] === 1;
+    }
+
+    // Envía un email solicitando valoración después de un viaje completado
     private function sendRatingRequestEmail($trip, $recipientType = 'passenger') {
         try {
-            // Determinar quién valora a quién basado en el tipo de anuncio
-            if ($trip['tipo'] === 'ofrezco') {
-                // Anuncio tipo "ofrezco": Pasajero valora al conductor
-                $recipientName = $trip['pasajeroNombre'];
-                $recipientEmail = $trip['pasajeroCorreo'];
-                $ratedPersonName = $trip['conductorNombre'];
-                $ratedPersonRole = 'conductor';
+            if ($recipientType === 'driver') {
+                // Enviar al conductor para que valore al pasajero
+                $recipientName = $trip['conductorNombre'];
+                $recipientEmail = $trip['conductorCorreo'];
+                $ratedPersonName = $trip['pasajeroNombre'];
+                $ratedPersonRole = 'pasajero';
             } else {
-                // Anuncio tipo "busco": Conductor valora al pasajero
-                // Para este caso, también enviamos al pasajero para que valore al conductor
+                // Enviar al pasajero para que valore al conductor
                 $recipientName = $trip['pasajeroNombre'];
                 $recipientEmail = $trip['pasajeroCorreo'];
                 $ratedPersonName = $trip['conductorNombre'];

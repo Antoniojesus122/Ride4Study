@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../../services/StripeService.php';
+require_once __DIR__ . '/../../services/MailService.php';
+require_once __DIR__ . '/../models/Notification.php';
 
 class PremiumController {
     private PDO $db;
@@ -43,6 +45,7 @@ class PremiumController {
         }
 
         if (!$this->stripe) {
+            error_log('Premium checkout: StripeService no disponible');
             header('Location: ' . url('/premium') . '?error=stripe_unavailable');
             exit;
         }
@@ -53,8 +56,11 @@ class PremiumController {
             exit;
         }
 
-        $successUrl = url('/premium') . '?action=success';
-        $cancelUrl  = url('/premium') . '?action=cancel';
+        // Stripe requiere URLs absolutas
+        $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
+                 . '://' . $_SERVER['HTTP_HOST'];
+        $successUrl = $baseUrl . url('/premium') . '?action=success';
+        $cancelUrl  = $baseUrl . url('/premium') . '?action=cancel';
 
         $session = $this->stripe->createCheckoutSession(
             (int)$_SESSION['user_id'],
@@ -63,12 +69,18 @@ class PremiumController {
             $cancelUrl
         );
 
+        if (isset($session['error'])) {
+            error_log('Stripe checkout error: ' . json_encode($session['error']));
+            header('Location: ' . url('/premium') . '?error=checkout_failed');
+            exit;
+        }
+
         if (isset($session['url'])) {
             header('Location: ' . $session['url']);
             exit;
         }
 
-        error_log('Stripe checkout error: ' . json_encode($session));
+        error_log('Stripe checkout: respuesta inesperada: ' . json_encode($session));
         header('Location: ' . url('/premium') . '?error=checkout_failed');
         exit;
     }
@@ -90,7 +102,17 @@ class PremiumController {
         $session = $this->stripe->getCheckoutSession($sessionId);
 
         if (($session['payment_status'] ?? '') !== 'paid') {
+            error_log('Premium success: payment_status=' . ($session['payment_status'] ?? 'null') . ' session=' . json_encode($session));
             header('Location: ' . url('/premium') . '?error=payment_not_confirmed');
+            exit;
+        }
+
+        // Evitar doble activación si el usuario recarga la página
+        $stmt = $this->db->prepare("SELECT premium, premium_hasta FROM usuarios WHERE idUsuario = :id");
+        $stmt->execute([':id' => $_SESSION['user_id']]);
+        $current = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($current && $current['premium'] && $current['premium_hasta'] && $current['premium_hasta'] > date('Y-m-d H:i:s')) {
+            header('Location: ' . url('/premium') . '?activated=1');
             exit;
         }
 
@@ -106,35 +128,6 @@ class PremiumController {
         exit;
     }
 
-    // Webhook de Stripe para confirmar pagos de forma segura
-    public function webhook() {
-        if (!$this->stripe) {
-            http_response_code(503);
-            exit;
-        }
-
-        $payload   = file_get_contents('php://input');
-        $sigHeader = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';
-
-        if (!$this->stripe->verifyWebhookSignature($payload, $sigHeader)) {
-            http_response_code(400);
-            exit('Firma inválida');
-        }
-
-        $event = json_decode($payload, true);
-
-        if (($event['type'] ?? '') === 'checkout.session.completed') {
-            $userId = (int)($event['data']['object']['metadata']['user_id'] ?? 0);
-            if ($userId > 0) {
-                $this->activatePremium($userId);
-            }
-        }
-
-        http_response_code(200);
-        echo 'OK';
-        exit;
-    }
-
     // Activar premium para el usuario (30 días)
     private function activatePremium(int $userId): void {
         $stmt = $this->db->prepare(
@@ -143,5 +136,54 @@ class PremiumController {
              WHERE idUsuario = :id"
         );
         $stmt->execute([':id' => $userId]);
+
+        // Enviar email de confirmación de activación premium
+        try {
+            $userData = $this->user->getUserById($userId);
+            if ($userData) {
+                $premiumHasta = date('d/m/Y', strtotime('+30 days'));
+
+                // Notificación in-app
+                $notification = new Notification($this->db);
+                $notification->create(
+                    $userId,
+                    'Tu suscripcion Premium ha sido activada. Disfruta de todas las ventajas hasta el ' . $premiumHasta . '.',
+                    'fas fa-crown',
+                    url('/premium')
+                );
+
+                // Email de confirmación
+                if ((int)($userData['notificaciones_email'] ?? 1) === 1) {
+                    $mail = new MailService();
+                    $contenido = "
+                        <p>Tu suscripcion <strong style=\"color:#34d399;\">Premium</strong> ha sido activada correctamente.</p>
+
+                        <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
+                            <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Plan:</strong> Premium 30 dias</p>
+                            <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Valido hasta:</strong> {$premiumHasta}</p>
+                        </div>
+
+                        <p style=\"color:#94a3b8;\">Ahora puedes disfrutar de:</p>
+                        <ul style=\"color:#94a3b8; line-height:2;\">
+                            <li>Anuncios ilimitados (sin limite de 4)</li>
+                            <li>Destacar un anuncio para que aparezca primero</li>
+                            <li>Insignia Premium en tu perfil</li>
+                        </ul>
+                    ";
+
+                    $html = $mail->generarPlantilla(
+                        $userData['nombre'],
+                        "Premium activado",
+                        $contenido,
+                        null,
+                        'http://localhost/Ride4Study/premium',
+                        'Ver Mi Premium'
+                    );
+                    $mail->send($userData['correo'], $userData['nombre'], 'Premium activado - Ride4Study', $html);
+                }
+            }
+        } catch (Exception $e) {
+            error_log("Error email confirmación premium: " . $e->getMessage());
+        }
     }
 }

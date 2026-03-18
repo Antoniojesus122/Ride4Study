@@ -91,7 +91,11 @@ class AuthController {
         }
 
         require __DIR__ . '/../../views/auth/login.view.php';
+
+        // Crons: se ejecutan en cada carga de login
         require_once __DIR__ . '/../../scripts/cron_send_rating_notifications.php';
+        require_once __DIR__ . '/../../scripts/cron_premium_expiration.php';
+        require_once __DIR__ . '/../../scripts/cron_trip_reminders.php';
     }
 
 

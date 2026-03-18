@@ -3,6 +3,14 @@
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
     <?php if ($isPremium): ?>
+
+    <?php if (isset($_GET['activated'])): ?>
+        <div class="mb-6 bg-green-500/10 border border-green-500/50 text-green-400 p-4 rounded-xl flex items-center gap-3">
+            <i class="fas fa-check-circle text-xl"></i>
+            <span class="font-medium"><?= t('premium.success') ?></span>
+        </div>
+    <?php endif; ?>
+
     <!-- Estado: ya es Premium -->
     <div class="text-center mb-10">
         <div class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/20 text-yellow-400 text-sm font-bold rounded-full border border-yellow-500/30 mb-4">
@@ -151,9 +159,11 @@
                     <?= t('premium.badge_visible') ?>
                 </li>
             </ul>
-            <a href="<?= url('/premium') ?>?action=checkout" class="block w-full px-4 py-3 bg-yellow-500 hover:bg-yellow-400 text-gray-900 rounded-xl text-sm font-bold text-center transition-all shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/40 transform hover:-translate-y-0.5">
-                <i class="fas fa-crown mr-2"></i><?= t('premium.buy_now') ?>
-            </a>
+            <form action="<?= url('/premium') ?>?action=checkout" method="POST">
+                <button type="submit" class="block w-full px-4 py-3 bg-yellow-500 hover:bg-yellow-400 text-gray-900 rounded-xl text-sm font-bold text-center transition-all shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/40 transform hover:-translate-y-0.5 cursor-pointer">
+                    <i class="fas fa-crown mr-2"></i><?= t('premium.buy_now') ?>
+                </button>
+            </form>
         </div>
     </div>
 
