@@ -14,17 +14,17 @@ class AdminDashboardController
 
     public function __construct()
     {
-        global $db;
-        $this->db = $db;
-        $this->user = new User($db);
-        $this->report = new Report($db);
-        $this->ride = new Ride($db);
+        $database = new Database();
+        $this->db = $database->connect();
+        $this->user = new User($this->db);
+        $this->report = new Report($this->db);
+        $this->ride = new Ride($this->db);
 
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
-        if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 1) {
+        if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
             header('Location: ' . url('/login'));
             exit;
         }

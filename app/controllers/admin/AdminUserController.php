@@ -25,10 +25,65 @@ class AdminUserController {
         }
     }
 
+    public function index(): void {
+        $this->requireAdmin();
+        $tab = $_GET['tab'] ?? 'todos';
+        $pendingUsers = $this->user->getPendingVerifications();
+        $allUsers = $this->getAllUsers();
+        require_once __DIR__ . '/../../../views/admin/users.view.php';
+    }
+
     public function verifications(): void {
         $this->requireAdmin();
+        $tab = 'verificaciones';
         $pendingUsers = $this->user->getPendingVerifications();
+        $allUsers = $this->getAllUsers();
         require_once __DIR__ . '/../../../views/admin/users.view.php';
+    }
+
+    private function getAllUsers(): array {
+        $search = trim($_GET['search'] ?? '');
+        $roleFilter = $_GET['rol'] ?? '';
+
+        $query = "SELECT u.idUsuario, u.nombre, u.correo, u.telefono, u.ciudad, u.institucion,
+                         u.estado_verificacion, u.premium, u.premium_hasta, u.creado_en,
+                         u.idRol, r.nombreRol
+                  FROM usuarios u
+                  LEFT JOIN roles r ON u.idRol = r.idRol
+                  WHERE u.idRol != 1";
+        $params = [];
+
+        if ($search !== '') {
+            $query .= " AND (u.nombre LIKE :s1 OR u.correo LIKE :s2)";
+            $params[':s1'] = "%$search%";
+            $params[':s2'] = "%$search%";
+        }
+        if ($roleFilter !== '') {
+            $query .= " AND u.idRol = :rol";
+            $params[':rol'] = (int)$roleFilter;
+        }
+
+        $query .= " ORDER BY u.idUsuario DESC";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function updateRole(): void {
+        $this->requireAdmin();
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . url('/admin/users'));
+            exit;
+        }
+        $userId = (int)($_POST['user_id'] ?? 0);
+        $newRole = (int)($_POST['new_role'] ?? 0);
+        if ($userId > 0 && in_array($newRole, [2, 3, 4])) {
+            $stmt = $this->db->prepare("UPDATE usuarios SET idRol = :rol WHERE idUsuario = :id AND idRol != 1");
+            $stmt->execute([':rol' => $newRole, ':id' => $userId]);
+        }
+        header('Location: ' . url('/admin/users') . '?tab=todos&success=role_updated');
+        exit;
     }
 
     public function approveVerification(): void {

@@ -136,16 +136,26 @@ $router->post('/report', function () {
     $db = $database->connect();
     $report = new Report($db);
     $tipo    = $_POST['tipo']    ?? '';
+    $motivo  = trim($_POST['motivo'] ?? '');
     $mensaje = trim($_POST['mensaje'] ?? '');
     $idUsuarioReportado = !empty($_POST['idUsuarioReportado']) ? (int)$_POST['idUsuarioReportado'] : null;
     $idAnuncio          = !empty($_POST['idAnuncio'])          ? (int)$_POST['idAnuncio']          : null;
     $idChat             = !empty($_POST['idChat'])             ? (int)$_POST['idChat']             : null;
-    if (!in_array($tipo, ['usuario', 'anuncio', 'chat']) || empty($mensaje)) {
-        echo json_encode(['success' => false, 'message' => 'Datos inválidos.']);
+
+    $motivosValidos = ['spam', 'ofensivo', 'suplantacion', 'inapropiado', 'fraude', 'otro'];
+    if (!in_array($tipo, ['usuario', 'anuncio', 'chat']) || !in_array($motivo, $motivosValidos)) {
+        echo json_encode(['success' => false, 'message' => t('nav.report_error')]);
         exit;
     }
-    $ok = $report->createReport($tipo, $idUsuarioReportado, $idAnuncio, $idChat, (int)$_SESSION['user_id'], $mensaje);
-    echo json_encode(['success' => $ok, 'message' => $ok ? 'Reporte enviado. Gracias.' : 'No se pudo enviar el reporte.']);
+
+    // Prevenir duplicados
+    if ($report->existsPending($tipo, $idUsuarioReportado, $idAnuncio, $idChat, (int)$_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => t('nav.report_duplicate')]);
+        exit;
+    }
+
+    $ok = $report->createReport($tipo, $idUsuarioReportado, $idAnuncio, $idChat, (int)$_SESSION['user_id'], $mensaje ?: $motivo, $motivo);
+    echo json_encode(['success' => $ok, 'message' => $ok ? t('nav.report_sent') : t('nav.report_error')]);
     exit;
 });
 
@@ -191,24 +201,20 @@ $router->any('/premium', function () {
     };
 });
 
-// Administración
+// Administración — /admin redirige al dashboard
 $router->get('/admin', function () {
     session_start();
-    if (!isset($_SESSION['user_id'])) {
+    if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
         header('Location: ' . url('/login'));
         exit;
     }
-    if ((int)($_SESSION['user_role'] ?? 0) !== 1) {
-        header('Location: ' . url('/dashboard'));
-        exit;
-    }
-    $controller = new AdminController();
-    $controller->index();
+    header('Location: ' . url('/admin/dashboard'));
+    exit;
 });
 
-$router->any('/admin/dashboard', function () { // Panel de administración
+$router->any('/admin/dashboard', function () {
     session_start();
-    if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 1) {
+    if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
         header('Location: ' . url('/login'));
         exit;
     }
@@ -226,9 +232,10 @@ $router->any('/admin/users', function () { // Gestión de verificaciones de estu
     $controller = new AdminUserController();
     $action = $_POST['action'] ?? $_GET['action'] ?? null;
     match ($action) {
-        'approve' => $controller->approveVerification(),
-        'reject'  => $controller->rejectVerification(),
-        default   => $controller->verifications(),
+        'approve'     => $controller->approveVerification(),
+        'reject'      => $controller->rejectVerification(),
+        'update_role' => $controller->updateRole(),
+        default       => $controller->index(),
     };
 });
 
@@ -257,6 +264,71 @@ $router->any('/admin/reports', function () { // Gestión de reportes
     $successMsg = $_GET['success'] ?? null;
     $errorMsg   = $_GET['error'] ?? null;
     require_once __DIR__ . '/views/admin/reports.view.php';
+});
+
+$router->any('/admin/instituciones', function () {
+    session_start();
+    if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
+        header('Location: ' . url('/login'));
+        exit;
+    }
+    require_once __DIR__ . '/app/controllers/admin/AdminInstitucionController.php';
+    $controller = new AdminInstitucionController();
+    $action = $_POST['action'] ?? $_GET['action'] ?? 'list';
+    match ($action) {
+        'create' => $controller->create(),
+        'edit'   => $controller->edit(),
+        'delete' => $controller->delete(),
+        default  => $controller->listAll(),
+    };
+});
+
+$router->any('/admin/ads', function () {
+    session_start();
+    if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
+        header('Location: ' . url('/login'));
+        exit;
+    }
+    require_once __DIR__ . '/app/controllers/admin/AdminAdController.php';
+    $controller = new AdminAdController();
+    $action = $_POST['action'] ?? $_GET['action'] ?? 'list';
+    match ($action) {
+        'delete' => $controller->deleteAd(),
+        default  => $controller->listAll(),
+    };
+});
+
+$router->any('/admin/profile', function () {
+    session_start();
+    if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
+        header('Location: ' . url('/login'));
+        exit;
+    }
+    require_once __DIR__ . '/app/controllers/admin/AdminProfileController.php';
+    $controller = new AdminProfileController();
+    $action = $_POST['action'] ?? $_GET['action'] ?? null;
+    match ($action) {
+        'update_info'     => $controller->updateInfo(),
+        'change_password' => $controller->changePassword(),
+        default           => $controller->index(),
+    };
+});
+
+$router->any('/admin/premium', function () {
+    session_start();
+    if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
+        header('Location: ' . url('/login'));
+        exit;
+    }
+    require_once __DIR__ . '/app/controllers/admin/AdminPremiumController.php';
+    $controller = new AdminPremiumController();
+    $action = $_POST['action'] ?? $_GET['action'] ?? 'list';
+    match ($action) {
+        'grant'  => $controller->grant(),
+        'revoke' => $controller->revoke(),
+        'search' => $controller->searchUsers(),
+        default  => $controller->listAll(),
+    };
 });
 
 // Soporte

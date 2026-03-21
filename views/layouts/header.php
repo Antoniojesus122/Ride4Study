@@ -482,6 +482,7 @@
                     document.getElementById('report-idUsuario').value = opts.idUsuario ?? '';
                     document.getElementById('report-idAnuncio').value = opts.idAnuncio ?? '';
                     document.getElementById('report-idChat').value    = opts.idChat    ?? '';
+                    document.getElementById('report-motivo').value    = '';
                     document.getElementById('report-mensaje').value   = '';
 
                     const labels = { usuario: 'usuario', anuncio: 'anuncio', chat: 'mensaje de chat' };
@@ -496,11 +497,14 @@
                 }
 
                 function submitReport() {
+                    const motivo  = document.getElementById('report-motivo').value;
                     const mensaje = document.getElementById('report-mensaje').value.trim();
-                    if (!mensaje) { showToast('<?= t('nav.report_empty') ?>', false); return; }
+
+                    if (!motivo) { showToast('<?= t('nav.report_select_empty') ?>', false); return; }
 
                     const body = new FormData();
                     body.append('tipo',    document.getElementById('report-tipo').value);
+                    body.append('motivo',  motivo);
                     body.append('mensaje', mensaje);
 
                     if (reportData.idUsuario) body.append('idUsuarioReportado', reportData.idUsuario);
@@ -561,7 +565,20 @@
 
                         <div>
                             <label class="block text-sm font-medium text-gray-300 mb-2"><?= t('nav.report_reason') ?></label>
-                            <textarea id="report-mensaje" rows="4" maxlength="500" placeholder="<?= t('nav.report_placeholder') ?>" class="w-full bg-gray-800 border border-gray-600 text-gray-100 text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-primary resize-none placeholder-gray-500"></textarea>
+                            <select id="report-motivo" class="w-full bg-gray-800 border border-gray-600 text-gray-100 text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-primary">
+                                <option value=""><?= t('nav.report_select_reason') ?></option>
+                                <option value="spam"><?= t('nav.report_reason_spam') ?></option>
+                                <option value="ofensivo"><?= t('nav.report_reason_offensive') ?></option>
+                                <option value="suplantacion"><?= t('nav.report_reason_impersonation') ?></option>
+                                <option value="inapropiado"><?= t('nav.report_reason_inappropriate') ?></option>
+                                <option value="fraude"><?= t('nav.report_reason_fraud') ?></option>
+                                <option value="otro"><?= t('nav.report_reason_other') ?></option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2"><?= t('nav.report_details') ?></label>
+                            <textarea id="report-mensaje" rows="3" maxlength="500" placeholder="<?= t('nav.report_placeholder') ?>" class="w-full bg-gray-800 border border-gray-600 text-gray-100 text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-primary resize-none placeholder-gray-500"></textarea>
                         </div>
                     </div>
 
