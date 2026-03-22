@@ -60,6 +60,21 @@ class AuthController {
 
                         if ($userData !== false) {
 
+                            // Comprobar si el usuario está baneado
+                            $banInfo = $this->user->isBanned((int)$userData['idUsuario']);
+                            if ($banInfo) {
+                                $banMsg = t('auth.account_banned');
+                                if (!empty($banInfo['ban_motivo'])) {
+                                    $banMsg .= ' ' . t('auth.ban_reason') . ': ' . htmlspecialchars($banInfo['ban_motivo']) . '.';
+                                }
+                                if (!empty($banInfo['ban_hasta'])) {
+                                    $banMsg .= ' ' . t('auth.ban_until') . ': ' . date('d/m/Y H:i', strtotime($banInfo['ban_hasta'])) . '.';
+                                }
+                                $error = $banMsg;
+                                require __DIR__ . '/../../views/auth/login.view.php';
+                                return;
+                            }
+
                             session_regenerate_id(true);
 
                             $_SESSION['user_id']   = $userData['idUsuario'];

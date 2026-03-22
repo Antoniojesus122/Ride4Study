@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../models/User.php';
+require_once __DIR__ . '/../../models/Notification.php';
 require_once __DIR__ . '/../../../services/MailService.php';
 
 class AdminUserController {
@@ -30,6 +31,7 @@ class AdminUserController {
         $tab = $_GET['tab'] ?? 'todos';
         $pendingUsers = $this->user->getPendingVerifications();
         $allUsers = $this->getAllUsers();
+        $bannedUsers = $this->user->getBannedUsers();
         require_once __DIR__ . '/../../../views/admin/users.view.php';
     }
 
@@ -168,6 +170,147 @@ class AdminUserController {
         }
 
         header('Location: ' . url('/admin/users') . '?success=rejected');
+        exit;
+    }
+
+    // Banear/suspender usuario
+    public function banUser(): void {
+        $this->requireAdmin();
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . url('/admin/users'));
+            exit;
+        }
+
+        $userId = (int)($_POST['user_id'] ?? 0);
+        $motivo = trim($_POST['motivo'] ?? '');
+        $duracion = $_POST['duracion'] ?? 'permanente';
+
+        if ($userId <= 0 || empty($motivo)) {
+            header('Location: ' . url('/admin/users') . '?tab=baneados&error=invalid_data');
+            exit;
+        }
+
+        $userData = $this->user->getUserById($userId);
+        if (!$userData) {
+            header('Location: ' . url('/admin/users') . '?tab=baneados&error=user_not_found');
+            exit;
+        }
+
+        // Calcular fecha límite del ban
+        $hasta = null;
+        if ($duracion !== 'permanente') {
+            $dias = (int)$duracion;
+            if ($dias > 0) {
+                $hasta = date('Y-m-d H:i:s', strtotime("+{$dias} days"));
+            }
+        }
+
+        $this->user->banUser($userId, $motivo, $hasta);
+
+        // Notificación in-app
+        $notification = new Notification($this->db);
+        $notification->create(
+            $userId,
+            'Tu cuenta ha sido suspendida. Motivo: ' . htmlspecialchars($motivo),
+            'fas fa-ban',
+            url('/support')
+        );
+
+        // Email al usuario baneado
+        if ($this->mailService && !empty($userData['notificaciones_email'])) {
+            $hastaText = $hasta ? 'hasta el ' . date('d/m/Y H:i', strtotime($hasta)) : 'de forma indefinida';
+            $html = $this->mailService->generarPlantilla(
+                $userData['nombre'],
+                'Cuenta suspendida',
+                '<p>Tu cuenta en Ride4Study ha sido suspendida ' . $hastaText . '.</p>
+                <p><strong>Motivo:</strong> ' . htmlspecialchars($motivo) . '</p>
+                <p style="color:#94a3b8;">Si consideras que es un error, contacta con soporte.</p>',
+                null,
+                'http://localhost/Ride4Study/support',
+                'Contactar soporte'
+            );
+            $this->mailService->send($userData['correo'], $userData['nombre'], 'Cuenta suspendida · Ride4Study', $html);
+        }
+
+        header('Location: ' . url('/admin/users') . '?tab=baneados&success=banned');
+        exit;
+    }
+
+    // Desbanear usuario
+    public function unbanUser(): void {
+        $this->requireAdmin();
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . url('/admin/users'));
+            exit;
+        }
+
+        $userId = (int)($_POST['user_id'] ?? 0);
+        if ($userId <= 0) {
+            header('Location: ' . url('/admin/users') . '?tab=baneados&error=invalid_data');
+            exit;
+        }
+
+        $userData = $this->user->getUserById($userId);
+        $this->user->unbanUser($userId);
+
+        // Notificación in-app
+        $notification = new Notification($this->db);
+        $notification->create($userId, 'Tu cuenta ha sido reactivada. Ya puedes usar Ride4Study con normalidad.', 'fas fa-check-circle', url('/dashboard'));
+
+        // Email
+        if ($this->mailService && $userData && !empty($userData['notificaciones_email'])) {
+            $html = $this->mailService->generarPlantilla(
+                $userData['nombre'],
+                'Cuenta reactivada',
+                '<p>Tu cuenta en Ride4Study ha sido reactivada. Ya puedes volver a iniciar sesion y usar la plataforma con normalidad.</p>',
+                null,
+                'http://localhost/Ride4Study/login',
+                'Iniciar sesion'
+            );
+            $this->mailService->send($userData['correo'], $userData['nombre'], 'Cuenta reactivada · Ride4Study', $html);
+        }
+
+        header('Location: ' . url('/admin/users') . '?tab=baneados&success=unbanned');
+        exit;
+    }
+
+    // Exportar usuarios en CSV
+    public function exportCsv(): void {
+        $this->requireAdmin();
+
+        $users = $this->getAllUsers();
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="usuarios_ride4study_' . date('Y-m-d') . '.csv"');
+
+        $output = fopen('php://output', 'w');
+        // BOM UTF-8 para Excel
+        fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+        // Cabeceras
+        fputcsv($output, ['ID', 'Nombre', 'Correo', 'Telefono', 'Ciudad', 'Rol', 'Verificacion', 'Premium', 'Premium hasta', 'Registro'], ';');
+
+        foreach ($users as $u) {
+            $verificacion = match((int)($u['estado_verificacion'] ?? 0)) {
+                2 => 'Verificado',
+                1 => 'Pendiente',
+                default => 'No verificado'
+            };
+            fputcsv($output, [
+                $u['idUsuario'],
+                $u['nombre'],
+                $u['correo'],
+                $u['telefono'] ?? '',
+                $u['ciudad'] ?? '',
+                $u['nombreRol'] ?? 'Usuario',
+                $verificacion,
+                $u['premium'] ? 'Si' : 'No',
+                $u['premium_hasta'] ?? '',
+                $u['creado_en']
+            ], ';');
+        }
+
+        fclose($output);
         exit;
     }
 }

@@ -74,6 +74,7 @@ class User {
         if (isset($data['visibilidad_perfil'])) { $fields[] = 'visibilidad_perfil = :visibilidad_perfil'; $params[':visibilidad_perfil'] = $data['visibilidad_perfil']; }
         if (isset($data['visibilidad_telefono'])) { $fields[] = 'visibilidad_telefono = :visibilidad_telefono'; $params[':visibilidad_telefono'] = $data['visibilidad_telefono']; }
         if (isset($data['notificaciones_email'])) { $fields[] = 'notificaciones_email = :notificaciones_email'; $params[':notificaciones_email'] = $data['notificaciones_email']; }
+        if (isset($data['preferencias_viaje'])) { $fields[] = 'preferencias_viaje = :preferencias_viaje'; $params[':preferencias_viaje'] = $data['preferencias_viaje']; }
 
         if (empty($fields)) return true;
 
@@ -205,6 +206,90 @@ class User {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+
+    // Eliminar cuenta de usuario y todos sus datos asociados
+    public function deleteAccount(int $userId): bool {
+        try {
+            $this->conn->beginTransaction();
+
+            // Eliminar valoraciones donde participa
+            $this->conn->prepare("DELETE FROM valoraciones WHERE idValorador = ? OR idValorado = ?")->execute([$userId, $userId]);
+
+            // Eliminar mensajes
+            $this->conn->prepare("DELETE FROM mensajes WHERE idEmisor = ? OR idReceptor = ?")->execute([$userId, $userId]);
+
+            // Eliminar conversaciones
+            $this->conn->prepare("DELETE FROM conversations WHERE user1_id = ? OR user2_id = ?")->execute([$userId, $userId]);
+
+            // Eliminar viajes/reservas
+            $this->conn->prepare("DELETE FROM viajes WHERE idConductor = ? OR idPasajero = ?")->execute([$userId, $userId]);
+
+            // Eliminar anuncios
+            $this->conn->prepare("DELETE FROM anuncios WHERE idUsuario = ?")->execute([$userId]);
+
+            // Eliminar reportes donde participa
+            $this->conn->prepare("DELETE FROM reportes WHERE idUsuarioReportado = ? OR idUsuarioQueReporta = ?")->execute([$userId, $userId]);
+
+            // Eliminar notificaciones
+            $this->conn->prepare("DELETE FROM notificaciones WHERE idUsuario = ?")->execute([$userId]);
+
+            // Eliminar password resets
+            $this->conn->prepare("DELETE FROM password_resets WHERE user_id = ?")->execute([$userId]);
+
+            // Eliminar usuario
+            $this->conn->prepare("DELETE FROM {$this->table} WHERE idUsuario = ?")->execute([$userId]);
+
+            $this->conn->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            error_log("Error eliminando cuenta $userId: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // Banear/suspender usuario
+    public function banUser(int $userId, string $motivo, ?string $hasta = null): bool {
+        $sql = "UPDATE {$this->table} SET baneado = 1, ban_motivo = :motivo, ban_hasta = :hasta WHERE idUsuario = :id AND idRol != 1";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([':motivo' => $motivo, ':hasta' => $hasta, ':id' => $userId]);
+    }
+
+    // Desbanear usuario
+    public function unbanUser(int $userId): bool {
+        $sql = "UPDATE {$this->table} SET baneado = 0, ban_motivo = NULL, ban_hasta = NULL WHERE idUsuario = :id";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([':id' => $userId]);
+    }
+
+    // Comprobar si un usuario está baneado (y desbanear si expiró)
+    public function isBanned(int $userId): array|false {
+        $sql = "SELECT baneado, ban_motivo, ban_hasta FROM {$this->table} WHERE idUsuario = :id LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':id' => $userId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row || !$row['baneado']) return false;
+
+        // Si el ban tiene fecha límite y ya expiró, desbanear automáticamente
+        if ($row['ban_hasta'] && strtotime($row['ban_hasta']) < time()) {
+            $this->unbanUser($userId);
+            return false;
+        }
+
+        return $row;
+    }
+
+    // Obtener usuarios baneados
+    public function getBannedUsers(): array {
+        $sql = "SELECT idUsuario, nombre, correo, ban_motivo, ban_hasta, creado_en
+                FROM {$this->table}
+                WHERE baneado = 1 AND idRol != 1
+                ORDER BY idUsuario DESC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     // Resetear contraseña con código
     public function resetPasswordWithCode(int $userId, string $password): bool {

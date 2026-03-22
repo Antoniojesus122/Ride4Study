@@ -98,9 +98,11 @@ class MessageController {
             ? (int) $contextRide['user2_id']
             : (int) $contextRide['user1_id'];
 
-        $otherUser = $this->user->getUserById($otherUserId);
-        $messages  = $this->message->getMessages($conversationId, $userId);
-        $chats     = $this->message->getConversations($userId);
+        $otherUser     = $this->user->getUserById($otherUserId);
+        $totalMessages = $this->message->countMessages($conversationId);
+        $messages      = $this->message->getMessagesPaginated($conversationId, $userId, 30, 0);
+        $hasMore       = $totalMessages > 30;
+        $chats         = $this->message->getConversations($userId);
 
         $selectedConversationId = $conversationId;
         $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
@@ -108,7 +110,7 @@ class MessageController {
         require_once __DIR__ . '/../../views/user/chat.view.php';
     }
 
-    // Carga de mensajes vía AJAX
+    // Carga de mensajes vía AJAX con paginación
     public function fetchMessages() {
         if (!isset($_SESSION['user_id'])) {
             exit;
@@ -116,6 +118,8 @@ class MessageController {
 
         $userId         = (int) $_SESSION['user_id'];
         $conversationId = isset($_GET['conversation_id']) ? (int) $_GET['conversation_id'] : null;
+        $offset         = isset($_GET['offset']) ? max(0, (int) $_GET['offset']) : 0;
+        $limit          = 30;
 
         if (!$conversationId) exit;
 
@@ -124,7 +128,23 @@ class MessageController {
             exit;
         }
 
-        $messages = $this->message->getMessages($conversationId, $userId);
+        $totalMessages = $this->message->countMessages($conversationId);
+        $messages      = $this->message->getMessagesPaginated($conversationId, $userId, $limit, $offset);
+        $hasMore       = ($offset + $limit) < $totalMessages;
+
+        // Si se piden mensajes anteriores, devolver JSON
+        if ($offset > 0) {
+            header('Content-Type: application/json');
+            ob_start();
+            require __DIR__ . '/../../views/user/chat-messages.partial.php';
+            $html = ob_get_clean();
+            echo json_encode([
+                'html'    => $html,
+                'hasMore' => $hasMore,
+                'total'   => $totalMessages
+            ]);
+            exit;
+        }
 
         require_once __DIR__ . '/../../views/user/chat-messages.partial.php';
     }

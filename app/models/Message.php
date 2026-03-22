@@ -49,7 +49,41 @@ class Message {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Función para obtener los mensajes de una conversación específica
+    // Contar total de mensajes en una conversación
+    public function countMessages(int $conversationId): int {
+        $query = "SELECT COUNT(*) FROM {$this->table} WHERE idConversation = :conversationId";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':conversationId', $conversationId, PDO::PARAM_INT);
+        $stmt->execute();
+        return (int) $stmt->fetchColumn();
+    }
+
+    // Obtener mensajes paginados (los más recientes primero, luego se invierten para mostrar en orden cronológico)
+    public function getMessagesPaginated(int $conversationId, int $userId, int $limit = 30, int $offset = 0): array {
+        $query = "SELECT m.*, u.nombre AS nombreEmisor
+                  FROM {$this->table} m
+                  JOIN usuarios u ON u.idUsuario = m.idEmisor
+                  WHERE m.idConversation = :conversationId
+                  ORDER BY m.fechaCreacion DESC
+                  LIMIT :lim OFFSET :off";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':conversationId', $conversationId, PDO::PARAM_INT);
+        $stmt->bindParam(':lim', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':off', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // Marcar como leídos
+        if ($offset === 0) {
+            $this->markAsRead($conversationId, $userId);
+        }
+
+        // Invertir para orden cronológico (ASC)
+        $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_reverse($messages);
+    }
+
+    // Función para obtener los mensajes de una conversación específica (sin paginar, compatibilidad)
     public function getMessages(int $conversationId, int $userId): array {
         $query = "SELECT m.*, u.nombre AS nombreEmisor
                   FROM {$this->table} m

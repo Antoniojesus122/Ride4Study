@@ -53,6 +53,10 @@ class RideController {
         }
         unset($ride);
 
+        // CO2 para el widget lateral
+        $myCO2 = $this->ride->calculateUserCO2((int)$_SESSION['user_id']);
+        $totalCO2Global = $this->ride->getTotalCO2();
+
         // Variables para la vista
         $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
 
@@ -62,6 +66,7 @@ class RideController {
         require_once __DIR__ . '/../../scripts/cron_send_rating_notifications.php';
         require_once __DIR__ . '/../../scripts/cron_premium_expiration.php';
         require_once __DIR__ . '/../../scripts/cron_trip_reminders.php';
+        require_once __DIR__ . '/../../scripts/cron_update_co2.php';
     }
 
     public function myRides() {
@@ -912,5 +917,30 @@ class RideController {
         } else {
             header('Location: ' . url('/my-rides') . '?error=delete_failed');
         }
+    }
+
+    // Ranking de CO2 ahorrado
+    public function ranking() {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ' . url('/login'));
+            exit;
+        }
+
+        $ranking = $this->ride->getCO2Ranking(50);
+        $totalCO2 = $this->ride->getTotalCO2();
+        $userCO2 = $this->ride->calculateUserCO2((int)$_SESSION['user_id']);
+
+        // Encontrar posición del usuario actual
+        $userPosition = 0;
+        foreach ($ranking as $i => $r) {
+            if ((int)$r['idUsuario'] === (int)$_SESSION['user_id']) {
+                $userPosition = $i + 1;
+                break;
+            }
+        }
+
+        $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
+
+        require_once __DIR__ . '/../../views/user/ranking.view.php';
     }
 }

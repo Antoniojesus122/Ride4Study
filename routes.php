@@ -70,17 +70,19 @@ $router->any('/reserve', [RideController::class, 'reserve']); // Reservar
 $router->post('/manage-reservation', [RideController::class, 'manageRequest']); // Aceptar/rechazar reservas
 $router->any('/cancel-reservation', [RideController::class, 'cancelReservation']); // Cancelar reserva
 $router->post('/toggle-featured', [RideController::class, 'toggleFeatured']); // Destacar anuncio (premium)
+$router->get('/ranking', [RideController::class, 'ranking']); // Ranking CO2
 
 // Perfil de usuario
 $router->any('/profile', function () {
     $controller = new UserController();
     $action = $_GET['action'] ?? null;
     match ($action) {
-        'update'         => $controller->update(),
+        'update'          => $controller->update(),
         'change_password' => $controller->changePassword(),
-        'verify'         => $controller->verify(),
-        'update_privacy' => $controller->updatePrivacy(),
-        default          => $controller->index(),
+        'verify'          => $controller->verify(),
+        'update_privacy'  => $controller->updatePrivacy(),
+        'delete_account'  => $controller->deleteAccount(),
+        default           => $controller->index(),
     };
 });
 
@@ -235,6 +237,9 @@ $router->any('/admin/users', function () { // Gestión de verificaciones de estu
         'approve'     => $controller->approveVerification(),
         'reject'      => $controller->rejectVerification(),
         'update_role' => $controller->updateRole(),
+        'ban'         => $controller->banUser(),
+        'unban'       => $controller->unbanUser(),
+        'export_csv'  => $controller->exportCsv(),
         default       => $controller->index(),
     };
 });

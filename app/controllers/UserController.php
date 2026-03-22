@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Rating.php';
+require_once __DIR__ . '/../models/Ride.php';
 require_once __DIR__ . '/../../services/MailService.php';
 
 class UserController {
@@ -39,6 +40,10 @@ class UserController {
         $ratingModel = new Rating($this->db);
         $userStats['valoracion_promedio'] = round($ratingModel->getAverage($viewUserId), 1);
         $ratings = $ratingModel->getByUser($viewUserId, 10);
+
+        // CO2 ahorrado
+        $rideModel = new Ride($this->db);
+        $userStats['co2_ahorrado'] = $rideModel->calculateUserCO2($viewUserId);
 
         // Anuncios activos del usuario visitado (para mostrar en su perfil)
         $stmt = $this->db->prepare("
@@ -79,6 +84,11 @@ class UserController {
             'institucion' => trim($_POST['institucion'] ?? ''),
             'ciudad' => trim($_POST['ciudad'] ?? '')
         ];
+
+        // Preferencias de viaje
+        $validPrefs = ['silencio','charla','mascotas','no_fumar','equipaje','musica'];
+        $prefs = array_intersect($_POST['preferencias_viaje'] ?? [], $validPrefs);
+        $data['preferencias_viaje'] = json_encode(array_values($prefs));
 
         if (!filter_var($data['correo'], FILTER_VALIDATE_EMAIL)) {
             header('Location: ' . url('/profile') . '?error=invalid_email');
@@ -257,6 +267,49 @@ class UserController {
         } else {
              header('Location: ' . url('/profile') . '?error=no_file&tab=verification');
         }
+    }
+
+    public function deleteAccount() {
+        if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . url('/profile'));
+            exit;
+        }
+
+        $password = $_POST['password'] ?? '';
+        if (empty($password)) {
+            header('Location: ' . url('/profile') . '?error=empty_fields&tab=privacy');
+            exit;
+        }
+
+        // Verificar contraseña antes de eliminar
+        if (!$this->user->verifyPassword($_SESSION['user_id'], $password)) {
+            header('Location: ' . url('/profile') . '?error=wrong_password&tab=privacy');
+            exit;
+        }
+
+        $userData = $this->user->getUserById($_SESSION['user_id']);
+
+        if ($this->user->deleteAccount($_SESSION['user_id'])) {
+            // Enviar email de confirmación de eliminación
+            if ($this->mailService && $userData && !empty($userData['notificaciones_email'])) {
+                $html = $this->mailService->generarPlantilla(
+                    $userData['nombre'],
+                    t('profile.delete_email_title'),
+                    '<p>' . t('profile.delete_email_body') . '</p>',
+                    null, null
+                );
+                $this->mailService->send($userData['correo'], $userData['nombre'], t('profile.delete_email_title') . ' · Ride4Study', $html);
+            }
+
+            // Destruir sesión
+            $_SESSION = [];
+            session_destroy();
+            header('Location: ' . url('/login') . '?msg=account_deleted');
+            exit;
+        }
+
+        header('Location: ' . url('/profile') . '?error=delete_failed&tab=privacy');
+        exit;
     }
 
     public function updatePrivacy() {

@@ -13,8 +13,9 @@ class Ride {
     public function getPaginatedRides($page = 1, $limit = 9, $filters = [], $excludeUserId = null) {
         $offset = ($page - 1) * $limit;
         
-        $query = "SELECT a.*, u.nombre as nombreUsuario, u.foto_perfil, u.biografia, u.estado_verificacion,
+        $query = "SELECT a.*, u.nombre as nombreUsuario, u.foto_perfil, u.biografia, u.estado_verificacion, u.preferencias_viaje,
                   lo.nombreLocalidad as nombreOrigen, ld.nombreLocalidad as nombreDestino,
+                  lo.lat as origenLat, lo.lng as origenLng, ld.lat as destinoLat, ld.lng as destinoLng,
                   COALESCE(AVG(v.puntuacion), 0) as rating, COUNT(v.idValoracion) as ratingCount
                   FROM " . $this->table . " a
                   JOIN usuarios u ON a.idUsuario = u.idUsuario
@@ -477,6 +478,66 @@ class Ride {
         $stmt = $this->conn->query("SELECT COUNT(*) as total FROM {$this->table}");
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return (int)$row['total'];
+    }
+
+    // Calcular distancia entre dos puntos usando la fórmula de Haversine (en km)
+    public static function haversineDistance(float $lat1, float $lng1, float $lat2, float $lng2): float {
+        $R = 6371;
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLng = deg2rad($lng2 - $lng1);
+        $a = sin($dLat / 2) ** 2 + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLng / 2) ** 2;
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        return $R * $c;
+    }
+
+    // Calcular CO2 ahorrado por un usuario (en kg) basado en viajes completados
+    public function calculateUserCO2(int $userId): float {
+        $query = "SELECT lo.lat as origenLat, lo.lng as origenLng, ld.lat as destinoLat, ld.lng as destinoLng
+                  FROM viajes v
+                  JOIN anuncios a ON v.idAnuncio = a.idAnuncio
+                  JOIN localidades lo ON a.origen = lo.idLocalidad
+                  JOIN localidades ld ON a.destino = ld.idLocalidad
+                  WHERE (v.idConductor = :uid1 OR v.idPasajero = :uid2)
+                    AND v.estado = 'aceptado'
+                    AND a.fechaSalida < CURDATE()";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([':uid1' => $userId, ':uid2' => $userId]);
+        $trips = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $totalCO2 = 0.0;
+        foreach ($trips as $trip) {
+            if ($trip['origenLat'] && $trip['origenLng'] && $trip['destinoLat'] && $trip['destinoLng']) {
+                $distancia = self::haversineDistance(
+                    (float)$trip['origenLat'], (float)$trip['origenLng'],
+                    (float)$trip['destinoLat'], (float)$trip['destinoLng']
+                );
+                // Factor 1.3 para aproximar distancia por carretera, 0.12 kg CO2/km
+                $totalCO2 += $distancia * 1.3 * 0.12;
+            }
+        }
+
+        return round($totalCO2, 2);
+    }
+
+    // Obtener ranking de CO2 (top usuarios)
+    public function getCO2Ranking(int $limit = 50): array {
+        $stmt = $this->conn->prepare(
+            "SELECT idUsuario, nombre, foto_perfil, co2_ahorrado, estado_verificacion
+             FROM usuarios
+             WHERE co2_ahorrado > 0 AND idRol != 1
+             ORDER BY co2_ahorrado DESC
+             LIMIT :lim"
+        );
+        $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Obtener CO2 total de la comunidad
+    public function getTotalCO2(): float {
+        $stmt = $this->conn->query("SELECT COALESCE(SUM(co2_ahorrado), 0) as total FROM usuarios WHERE idRol != 1");
+        return (float)$stmt->fetch(PDO::FETCH_ASSOC)['total'];
     }
 
     // Cancelar una reserva (funciona tanto para pasajero en "ofrezco" como conductor en "busco")

@@ -290,7 +290,16 @@
 
             <!-- Area de mensajes -->
             <div class="flex-1 overflow-y-auto p-4 space-y-4" id="messages-container">
-                <?php require __DIR__ . '/chat-messages.partial.php'; ?>
+                <?php if (!empty($hasMore)): ?>
+                <div id="load-more-wrap" class="text-center py-3">
+                    <button onclick="loadOlderMessages()" id="load-more-btn" class="px-4 py-2 text-xs font-medium bg-gray-800 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-gray-200 transition border border-gray-700">
+                        <i class="fas fa-arrow-up mr-1"></i> <?= t('chat.load_older') ?>
+                    </button>
+                </div>
+                <?php endif; ?>
+                <div id="messages-list">
+                    <?php require __DIR__ . '/chat-messages.partial.php'; ?>
+                </div>
             </div>
 
             <!-- Area del input -->
@@ -388,6 +397,8 @@
     const form      = document.querySelector('form[action="<?= url("/chat") ?>?action=send"]');
     let isUserScrolling = false;
     let refreshInterval;
+    let chatOffset = 30;
+    let loadingMore = false;
 
     if (container) {
         container.scrollTop = container.scrollHeight;
@@ -586,6 +597,46 @@
                 showChatToast(data.error || 'No se pudo guardar el mensaje.', 'error');
             }
         });
+    }
+
+    // Cargar mensajes anteriores (paginación)
+    function loadOlderMessages() {
+        if (loadingMore) return;
+        loadingMore = true;
+
+        const urlParams      = new URLSearchParams(window.location.search);
+        const conversationId = urlParams.get('conversation_id');
+        if (!conversationId) return;
+
+        const btn = document.getElementById('load-more-btn');
+        if (btn) btn.textContent = '<?= t('chat.loading') ?>...';
+
+        const oldScrollHeight = container.scrollHeight;
+
+        fetch(`<?= url("/chat") ?>?action=fetch_messages&conversation_id=${conversationId}&offset=${chatOffset}`)
+            .then(res => res.json())
+            .then(data => {
+                const messagesList = document.getElementById('messages-list');
+                if (messagesList && data.html) {
+                    messagesList.insertAdjacentHTML('afterbegin', data.html);
+                    chatOffset += 30;
+
+                    // Mantener la posición de scroll
+                    container.scrollTop = container.scrollHeight - oldScrollHeight;
+                }
+                if (!data.hasMore) {
+                    const wrap = document.getElementById('load-more-wrap');
+                    if (wrap) wrap.remove();
+                }
+                loadingMore = false;
+                if (btn && data.hasMore) {
+                    btn.innerHTML = '<i class="fas fa-arrow-up mr-1"></i> <?= t('chat.load_older') ?>';
+                }
+            })
+            .catch(() => {
+                loadingMore = false;
+                if (btn) btn.innerHTML = '<i class="fas fa-arrow-up mr-1"></i> <?= t('chat.load_older') ?>';
+            });
     }
 
     // Ofrecer llevar a usuario que busca transporte

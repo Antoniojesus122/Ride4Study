@@ -149,6 +149,20 @@
                                             <span class="text-gray-400"><?= t('dashboard.not_verified') ?></span>
                                         <?php endif; ?>
                                     </div>
+                                    <?php
+                                    $ridePrefs = json_decode($ride['preferencias_viaje'] ?? '[]', true) ?: [];
+                                    if (!empty($ridePrefs)):
+                                        $prefIcons = ['silencio'=>'fa-volume-mute','charla'=>'fa-comments','mascotas'=>'fa-paw','no_fumar'=>'fa-smoking-ban','equipaje'=>'fa-suitcase','musica'=>'fa-music'];
+                                        $prefColors = ['silencio'=>'text-blue-400','charla'=>'text-green-400','mascotas'=>'text-yellow-400','no_fumar'=>'text-red-400','equipaje'=>'text-purple-400','musica'=>'text-pink-400'];
+                                    ?>
+                                    <div class="flex items-center gap-1 mt-1">
+                                        <?php foreach ($ridePrefs as $p): if (isset($prefIcons[$p])): ?>
+                                        <span class="w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center" title="<?= t('pref.' . $p) ?>">
+                                            <i class="fas <?= $prefIcons[$p] ?> text-[10px] <?= $prefColors[$p] ?>"></i>
+                                        </span>
+                                        <?php endif; endforeach; ?>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
 
@@ -288,6 +302,29 @@
                     </a>
                 </nav>
             </div>
+
+            <!-- Widget CO2 -->
+            <a href="<?= url('/ranking') ?>" class="block bg-gradient-to-br from-green-900/40 to-emerald-900/30 rounded-2xl p-5 border border-green-500/20 hover:border-green-500/40 transition-all group">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-white"><?= t('co2.saved') ?></h4>
+                        <p class="text-xs text-gray-400"><?= t('co2.view_ranking') ?> <i class="fas fa-arrow-right text-[10px] ml-1 opacity-0 group-hover:opacity-100 transition-opacity"></i></p>
+                    </div>
+                </div>
+                <div class="flex items-end justify-between">
+                    <div>
+                        <p class="text-2xl font-bold text-green-400"><?= number_format($myCO2, 1) ?> kg</p>
+                        <p class="text-[10px] text-gray-500 mt-0.5"><?= t('co2.your_position') ?></p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-semibold text-gray-400"><?= number_format($totalCO2Global, 0) ?> kg</p>
+                        <p class="text-[10px] text-gray-500 mt-0.5"><?= t('co2.total_saved') ?></p>
+                    </div>
+                </div>
+            </a>
 
             <div class="bg-gradient-to-br from-blue-900/50 to-purple-900/50 rounded-2xl p-6 border border-white/10 relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl -mr-16 -mt-16"></div>

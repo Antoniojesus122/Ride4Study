@@ -748,4 +748,50 @@ return [
     'cookies.section4_content' => 'Puedes configurar tu navegador para bloquear o eliminar cookies en cualquier momento. Ten en cuenta que si desactivas las cookies esenciales, es posible que algunas funciones de la plataforma no funcionen correctamente (como mantener la sesion iniciada o el idioma seleccionado).',
     'cookies.section5_title' => '5. Actualizaciones',
     'cookies.section5_content' => 'Nos reservamos el derecho de actualizar esta politica de cookies en cualquier momento. Los cambios seran efectivos desde su publicacion en esta pagina. Te recomendamos revisarla periodicamente.',
+
+    // Eliminar cuenta
+    'profile.danger_zone' => 'Zona peligrosa',
+    'profile.delete_warning' => 'Eliminar tu cuenta es una accion irreversible. Se borrarán todos tus datos, viajes, mensajes y valoraciones de forma permanente.',
+    'profile.delete_account' => 'Eliminar mi cuenta',
+    'profile.delete_irreversible' => 'Esta accion no se puede deshacer',
+    'profile.delete_confirm_text' => 'Para confirmar la eliminacion de tu cuenta, introduce tu contraseña actual. Se eliminaran permanentemente:',
+    'profile.delete_data_rides' => 'Todos tus viajes y reservas',
+    'profile.delete_data_messages' => 'Todos tus mensajes y conversaciones',
+    'profile.delete_data_ratings' => 'Todas tus valoraciones',
+    'profile.delete_data_profile' => 'Tu perfil y datos personales',
+    'profile.delete_password_label' => 'Contraseña actual',
+    'profile.delete_password_placeholder' => 'Introduce tu contraseña para confirmar',
+    'profile.delete_email_title' => 'Cuenta eliminada',
+    'profile.delete_email_body' => 'Tu cuenta en Ride4Study ha sido eliminada correctamente. Todos tus datos han sido borrados de forma permanente. Si deseas volver, siempre puedes crear una nueva cuenta.',
+
+    // Ban / Suspension
+    'auth.account_banned' => 'Tu cuenta ha sido suspendida.',
+    'auth.ban_reason' => 'Motivo',
+    'auth.ban_until' => 'Hasta',
+
+    // Chat paginación
+    'chat.load_older' => 'Cargar mensajes anteriores',
+    'chat.loading' => 'Cargando',
+
+    // Preferencias de viaje
+    'pref.title' => 'Preferencias de viaje',
+    'pref.subtitle' => 'Indica tus preferencias para que otros usuarios las vean en tus anuncios.',
+    'pref.silencio' => 'Prefiere silencio',
+    'pref.charla' => 'Le gusta charlar',
+    'pref.mascotas' => 'Acepta mascotas',
+    'pref.no_fumar' => 'No fumar',
+    'pref.equipaje' => 'Equipaje grande',
+    'pref.musica' => 'Amante de la musica',
+
+    // Ranking CO2
+    'co2.saved' => 'CO2 ahorrado',
+    'co2.ranking_title' => 'Ranking CO2',
+    'co2.ranking_subtitle' => 'Usuarios que mas CO2 han ahorrado compartiendo viajes.',
+    'co2.your_position' => 'Tu posicion',
+    'co2.view_ranking' => 'Ver ranking',
+    'co2.total_saved' => 'Total ahorrado por la comunidad',
+    'co2.no_data' => 'Aun no hay datos de CO2 ahorrado.',
+    'co2.equivalent' => 'Equivalente a',
+    'co2.trees' => 'arboles plantados',
+    'co2.you' => 'tu',
 ];

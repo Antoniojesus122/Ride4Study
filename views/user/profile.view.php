@@ -90,7 +90,7 @@
                  </div>
 
                  <!-- Estadísticas en cards -->
-                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                 <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                      <div class="bg-gray-800/50 rounded-xl p-3 border border-gray-700/50">
                          <div class="flex items-center gap-2 mb-1">
                              <i class="fas fa-star text-yellow-500 text-sm"></i>
@@ -123,6 +123,13 @@
                              <span class="text-xs text-gray-400"><?= t('profile.passenger') ?></span>
                          </div>
                          <p class="text-xl font-bold text-white"><?= $userStats['viajes_como_pasajero'] ?></p>
+                     </div>
+                     <div class="bg-gray-800/50 rounded-xl p-3 border border-green-500/20">
+                         <div class="flex items-center gap-2 mb-1">
+                             <i class="fas fa-leaf text-green-400 text-sm"></i>
+                             <span class="text-xs text-gray-400"><?= t('co2.saved') ?></span>
+                         </div>
+                         <p class="text-xl font-bold text-green-400"><?= number_format($userStats['co2_ahorrado'] ?? 0, 1) ?> kg</p>
                      </div>
                  </div>
              </div>
@@ -371,6 +378,35 @@
                                  <label class="block text-sm font-medium text-gray-400 mb-2">Biografía</label>
                                  <textarea name="biografia" rows="4" class="w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm resize-none" placeholder="Cuéntanos algo sobre ti..."><?= htmlspecialchars($profileUser['biografia'] ?? '') ?></textarea>
                              </div>
+
+                             <!-- Preferencias de viaje -->
+                             <div class="md:col-span-2">
+                                 <label class="block text-sm font-medium text-gray-400 mb-3"><?= t('pref.title') ?></label>
+                                 <p class="text-xs text-gray-500 mb-4"><?= t('pref.subtitle') ?></p>
+                                 <?php
+                                 $userPrefs = json_decode($profileUser['preferencias_viaje'] ?? '[]', true) ?: [];
+                                 $allPrefs = [
+                                     'silencio' => ['icon' => 'fa-volume-mute', 'color' => 'blue'],
+                                     'charla'   => ['icon' => 'fa-comments',    'color' => 'green'],
+                                     'mascotas' => ['icon' => 'fa-paw',         'color' => 'yellow'],
+                                     'no_fumar' => ['icon' => 'fa-smoking-ban', 'color' => 'red'],
+                                     'equipaje' => ['icon' => 'fa-suitcase',    'color' => 'purple'],
+                                     'musica'   => ['icon' => 'fa-music',       'color' => 'pink'],
+                                 ];
+                                 ?>
+                                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                     <?php foreach ($allPrefs as $key => $pref):
+                                         $isActive = in_array($key, $userPrefs);
+                                     ?>
+                                     <label class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all <?= $isActive ? 'bg-' . $pref['color'] . '-500/10 border-' . $pref['color'] . '-500/30' : 'bg-gray-800/50 border-gray-700 hover:border-gray-600' ?>">
+                                         <input type="checkbox" name="preferencias_viaje[]" value="<?= $key ?>" <?= $isActive ? 'checked' : '' ?>
+                                                class="hidden" onchange="this.closest('label').classList.toggle('bg-gray-800/50'); this.closest('label').classList.toggle('border-gray-700');">
+                                         <i class="fas <?= $pref['icon'] ?> text-<?= $pref['color'] ?>-400 w-5 text-center"></i>
+                                         <span class="text-sm text-gray-300"><?= t('pref.' . $key) ?></span>
+                                     </label>
+                                     <?php endforeach; ?>
+                                 </div>
+                             </div>
                          </div>
                          <div class="flex justify-end">
                              <button type="submit" class="px-6 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
@@ -562,6 +598,18 @@
                              </button>
                          </div>
                     </form>
+
+                    <!-- Zona peligrosa: Eliminar cuenta -->
+                    <div class="mt-10 pt-8 border-t border-red-500/20">
+                        <h4 class="text-red-400 font-semibold mb-2 flex items-center gap-2">
+                            <i class="fas fa-exclamation-triangle"></i> <?= t('profile.danger_zone') ?>
+                        </h4>
+                        <p class="text-sm text-gray-400 mb-4"><?= t('profile.delete_warning') ?></p>
+                        <button onclick="document.getElementById('delete-account-modal').classList.remove('hidden'); document.body.style.overflow='hidden';"
+                                class="px-5 py-2.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl text-sm font-medium hover:bg-red-500/20 transition-all">
+                            <i class="fas fa-trash-alt mr-2"></i><?= t('profile.delete_account') ?>
+                        </button>
+                    </div>
                 </div>
 
             <?php else: ?>
@@ -651,6 +699,46 @@
         </div>
      </div>
 
+</div>
+
+<!-- Modal de eliminación de cuenta -->
+<div id="delete-account-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4" onclick="if(event.target===this){this.classList.add('hidden');document.body.style.overflow='auto';}">
+    <div class="bg-surface rounded-2xl border border-gray-700 shadow-2xl max-w-md w-full">
+        <div class="p-6 border-b border-gray-700">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white"><?= t('profile.delete_account') ?></h3>
+                    <p class="text-sm text-gray-400"><?= t('profile.delete_irreversible') ?></p>
+                </div>
+            </div>
+        </div>
+        <form action="<?= url('/profile') ?>?action=delete_account" method="POST">
+            <div class="p-6">
+                <p class="text-gray-300 mb-4"><?= t('profile.delete_confirm_text') ?></p>
+                <ul class="text-sm text-gray-400 space-y-1 mb-6">
+                    <li><i class="fas fa-times text-red-400 mr-2 w-4 text-center"></i><?= t('profile.delete_data_rides') ?></li>
+                    <li><i class="fas fa-times text-red-400 mr-2 w-4 text-center"></i><?= t('profile.delete_data_messages') ?></li>
+                    <li><i class="fas fa-times text-red-400 mr-2 w-4 text-center"></i><?= t('profile.delete_data_ratings') ?></li>
+                    <li><i class="fas fa-times text-red-400 mr-2 w-4 text-center"></i><?= t('profile.delete_data_profile') ?></li>
+                </ul>
+                <label class="block text-sm text-gray-300 mb-2"><?= t('profile.delete_password_label') ?></label>
+                <input type="password" name="password" required placeholder="<?= t('profile.delete_password_placeholder') ?>"
+                       class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none">
+            </div>
+            <div class="p-6 bg-gray-800/50 border-t border-gray-700 flex gap-3">
+                <button type="button" onclick="document.getElementById('delete-account-modal').classList.add('hidden');document.body.style.overflow='auto';"
+                        class="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-medium transition-all">
+                    <?= t('chat.cancel') ?>
+                </button>
+                <button type="submit" class="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all">
+                    <i class="fas fa-trash-alt mr-2"></i><?= t('profile.delete_account') ?>
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>

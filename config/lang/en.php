@@ -748,4 +748,50 @@ return [
     'cookies.section4_content' => 'You can configure your browser to block or delete cookies at any time. Please note that if you disable essential cookies, some platform features may not work properly (such as keeping your session active or the selected language).',
     'cookies.section5_title' => '5. Updates',
     'cookies.section5_content' => 'We reserve the right to update this cookie policy at any time. Changes will be effective from the moment they are published on this page. We recommend reviewing it periodically.',
+
+    // Delete account
+    'profile.danger_zone' => 'Danger zone',
+    'profile.delete_warning' => 'Deleting your account is irreversible. All your data, rides, messages and ratings will be permanently deleted.',
+    'profile.delete_account' => 'Delete my account',
+    'profile.delete_irreversible' => 'This action cannot be undone',
+    'profile.delete_confirm_text' => 'To confirm account deletion, enter your current password. The following will be permanently deleted:',
+    'profile.delete_data_rides' => 'All your rides and bookings',
+    'profile.delete_data_messages' => 'All your messages and conversations',
+    'profile.delete_data_ratings' => 'All your ratings',
+    'profile.delete_data_profile' => 'Your profile and personal data',
+    'profile.delete_password_label' => 'Current password',
+    'profile.delete_password_placeholder' => 'Enter your password to confirm',
+    'profile.delete_email_title' => 'Account deleted',
+    'profile.delete_email_body' => 'Your Ride4Study account has been successfully deleted. All your data has been permanently removed. If you wish to return, you can always create a new account.',
+
+    // Ban / Suspension
+    'auth.account_banned' => 'Your account has been suspended.',
+    'auth.ban_reason' => 'Reason',
+    'auth.ban_until' => 'Until',
+
+    // Chat pagination
+    'chat.load_older' => 'Load older messages',
+    'chat.loading' => 'Loading',
+
+    // Travel preferences
+    'pref.title' => 'Travel preferences',
+    'pref.subtitle' => 'Set your preferences so other users can see them on your rides.',
+    'pref.silencio' => 'Prefers silence',
+    'pref.charla' => 'Likes chatting',
+    'pref.mascotas' => 'Accepts pets',
+    'pref.no_fumar' => 'No smoking',
+    'pref.equipaje' => 'Large luggage',
+    'pref.musica' => 'Music lover',
+
+    // CO2 Ranking
+    'co2.saved' => 'CO2 saved',
+    'co2.ranking_title' => 'CO2 Ranking',
+    'co2.ranking_subtitle' => 'Users who have saved the most CO2 by sharing rides.',
+    'co2.your_position' => 'Your position',
+    'co2.view_ranking' => 'View ranking',
+    'co2.total_saved' => 'Total saved by the community',
+    'co2.no_data' => 'No CO2 data available yet.',
+    'co2.equivalent' => 'Equivalent to',
+    'co2.trees' => 'trees planted',
+    'co2.you' => 'you',
 ];
