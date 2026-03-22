@@ -70,7 +70,7 @@ try {
                 "Tu Premium expira pronto",
                 $contenido,
                 null,
-                'http://localhost/Ride4Study/premium',
+                fullUrl('/premium'),
                 'Renovar Premium'
             );
             $mailService->send($user['correo'], $user['nombre'], 'Tu Premium expira pronto - Ride4Study', $html);

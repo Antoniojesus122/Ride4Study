@@ -176,7 +176,7 @@ class PremiumController {
                         "Premium activado",
                         $contenido,
                         null,
-                        'http://localhost/Ride4Study/premium',
+                        fullUrl('/premium'),
                         'Ver Mi Premium'
                     );
                     $mail->send($userData['correo'], $userData['nombre'], 'Premium activado - Ride4Study', $html);

@@ -182,7 +182,7 @@ class RatingNotificationService {
                 '¡Valora tu experiencia de viaje!',
                 $contenido,
                 null,
-                'http://localhost/Ride4Study/rating.php?viaje=' . $trip['idViaje'],
+                fullUrl('/rate') . '?viaje=' . $trip['idViaje'],
                 'Valorar ahora'
             );
 

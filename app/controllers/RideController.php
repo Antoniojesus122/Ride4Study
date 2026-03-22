@@ -480,7 +480,7 @@ class RideController {
                     "Hola {$conductor['nombre']},",
                     $contenido,
                     null,
-                    'http://localhost/Ride4Study/my-rides',
+                    fullUrl('/my-rides'),
                     'Ver Mis Viajes'
                 );
                 break;
@@ -509,7 +509,7 @@ class RideController {
                     "¡Reserva confirmada!",
                     $contenido,
                     null,
-                    'http://localhost/Ride4Study/my-rides.php?tab=bookings',
+                    fullUrl('/my-rides') . '?tab=bookings',
                     'Ver Mis Reservas'
                 );
                 break;
@@ -535,7 +535,7 @@ class RideController {
                     "Hola {$user['nombre']},",
                     $contenido,
                     null,
-                    'http://localhost/Ride4Study/dashboard',
+                    fullUrl('/dashboard'),
                     'Buscar Otros Viajes'
                 );
                 break;
@@ -569,7 +569,7 @@ class RideController {
                     "Hola {$pasajero['nombre']},",
                     $contenido,
                     null,
-                    'http://localhost/Ride4Study/my-rides',
+                    fullUrl('/my-rides'),
                     'Ver Mis Viajes'
                 );
                 break;
@@ -600,7 +600,7 @@ class RideController {
                     "Hola {$conductor['nombre']},",
                     $contenido,
                     null,
-                    'http://localhost/Ride4Study/my-rides',
+                    fullUrl('/my-rides'),
                     'Ver Mis Viajes'
                 );
                 break;
@@ -901,7 +901,7 @@ class RideController {
                         "Viaje cancelado",
                         $contenido,
                         null,
-                        'http://localhost/Ride4Study/dashboard',
+                        fullUrl('/dashboard'),
                         'Buscar Otros Viajes'
                     );
                     $this->mailService->send($connUser['correo'], $connUser['nombre'], 'Viaje cancelado - Ride4Study', $html);

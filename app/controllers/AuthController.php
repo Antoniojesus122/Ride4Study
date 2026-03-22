@@ -165,7 +165,7 @@ class AuthController {
                                 "¡Bienvenido a Ride4Study!",
                                 $contenido,
                                 null,
-                                'http://localhost/Ride4Study/login',
+                                fullUrl('/login'),
                                 'Iniciar sesión'
                             );
                             $mail->send($correo, $nombre, '¡Bienvenido a Ride4Study!', $html);

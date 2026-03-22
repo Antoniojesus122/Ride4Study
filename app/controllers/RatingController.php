@@ -122,7 +122,7 @@ class RatingController {
                         "Nueva valoracion recibida",
                         $contenido,
                         null,
-                        'http://localhost/Ride4Study/profile',
+                        fullUrl('/profile'),
                         'Ver Mi Perfil'
                     );
                     $this->mailService->send($ratedUser['correo'], $ratedUser['nombre'], 'Nueva valoracion recibida - Ride4Study', $html);
@@ -264,7 +264,7 @@ class RatingController {
                             "Respuesta a tu valoracion",
                             $contenido,
                             null,
-                            'http://localhost/Ride4Study/profile',
+                            fullUrl('/profile'),
                             'Ver Mi Perfil'
                         );
                         $this->mailService->send($ratingInfo['correo'], $ratingInfo['valoradorNombre'], 'Respuesta a tu valoracion - Ride4Study', $html);

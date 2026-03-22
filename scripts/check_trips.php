@@ -19,7 +19,7 @@ $html = $mailService->generarPlantilla(
     'Hola Antonio,',
     $contenido,
     null,
-    'http://localhost/Ride4Study/dashboard.php',
+    fullUrl('/dashboard'),
     'Ir al Dashboard'
 );
 

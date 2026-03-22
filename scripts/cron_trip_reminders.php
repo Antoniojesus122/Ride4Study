@@ -107,7 +107,7 @@ try {
                     "Recordatorio de viaje",
                     $contenido,
                     null,
-                    'http://localhost/Ride4Study/my-rides',
+                    fullUrl('/my-rides'),
                     'Ver Mis Viajes'
                 );
                 $mailService->send($user['correo'], $user['nombre'], 'Recordatorio: viaje manana - Ride4Study', $html);

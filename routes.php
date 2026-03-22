@@ -103,7 +103,7 @@ $router->any('/chat', function () {
         'send'           => $controller->send(),
         'edit'           => $controller->edit(),
         'delete'         => $controller->delete(),
-        'fetch_messages' => $controller->fetchMessages(),
+        'load'           => $controller->fetchMessages(),
         'offer_ride'     => $controller->offerRide(),
         default          => $controller->chat(),
     };

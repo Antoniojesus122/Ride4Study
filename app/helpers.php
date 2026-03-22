@@ -3,10 +3,18 @@
 // Ruta principal del proyecto
 define('BASE_PATH', '/Ride4Study');
 
-// Generar una URL absoluta a partir de una ruta relativa
+// Generar una URL relativa a partir de una ruta
 function url(string $path = ''): string
 {
     return BASE_PATH . $path;
+}
+
+// Generar una URL absoluta con dominio (para emails, APIs externas, etc.)
+function fullUrl(string $path = ''): string
+{
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    return $scheme . '://' . $host . BASE_PATH . $path;
 }
 
 // Verificar si la ruta actual coincide con la ruta dada

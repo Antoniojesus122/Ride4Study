@@ -226,7 +226,7 @@ class AdminUserController {
                 <p><strong>Motivo:</strong> ' . htmlspecialchars($motivo) . '</p>
                 <p style="color:#94a3b8;">Si consideras que es un error, contacta con soporte.</p>',
                 null,
-                'http://localhost/Ride4Study/support',
+                fullUrl('/support'),
                 'Contactar soporte'
             );
             $this->mailService->send($userData['correo'], $userData['nombre'], 'Cuenta suspendida · Ride4Study', $html);
@@ -264,7 +264,7 @@ class AdminUserController {
                 'Cuenta reactivada',
                 '<p>Tu cuenta en Ride4Study ha sido reactivada. Ya puedes volver a iniciar sesion y usar la plataforma con normalidad.</p>',
                 null,
-                'http://localhost/Ride4Study/login',
+                fullUrl('/login'),
                 'Iniciar sesion'
             );
             $this->mailService->send($userData['correo'], $userData['nombre'], 'Cuenta reactivada · Ride4Study', $html);

@@ -425,7 +425,7 @@
         
         if (!conversationId) return;
 
-        fetch(`<?= url("/chat") ?>?action=fetch_messages&conversation_id=${conversationId}`)
+        fetch(`<?= url("/chat") ?>?action=load&conversation_id=${conversationId}`)
             .then(response => response.text())
             .then(html => {
                 if (container) {
@@ -613,7 +613,7 @@
 
         const oldScrollHeight = container.scrollHeight;
 
-        fetch(`<?= url("/chat") ?>?action=fetch_messages&conversation_id=${conversationId}&offset=${chatOffset}`)
+        fetch(`<?= url("/chat") ?>?action=load&conversation_id=${conversationId}&offset=${chatOffset}`)
             .then(res => res.json())
             .then(data => {
                 const messagesList = document.getElementById('messages-list');

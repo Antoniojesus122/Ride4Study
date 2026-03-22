@@ -115,7 +115,7 @@ class ReportController
                     'Advertencia recibida',
                     $contenido,
                     null,
-                    'http://localhost/Ride4Study/dashboard',
+                    fullUrl('/dashboard'),
                     'Ir a Ride4Study'
                 );
                 $this->mailService->send($userData['correo'], $userData['nombre'], 'Advertencia - Ride4Study', $html);
@@ -194,7 +194,7 @@ class ReportController
                     'Reporte resuelto',
                     $contenido,
                     null,
-                    'http://localhost/Ride4Study/dashboard',
+                    fullUrl('/dashboard'),
                     'Ir a Ride4Study'
                 );
                 $this->mailService->send($reporter['correo'], $reporter['nombre'], 'Tu reporte ha sido resuelto - Ride4Study', $html);
