@@ -108,7 +108,10 @@ return [
     'login.submit' => 'Iniciar Sesión',
     'login.hero_1' => 'Tu viaje,',
     'login.hero_2' => 'tu comunidad.',
-    'login.hero_desc' => 'Únete a la plataforma de carpooling estudiantil más segura y eficiente.',
+    'login.hero_desc' => 'Unete a la plataforma de carpooling estudiantil mas segura y eficiente.',
+    'login.hero_feature_1' => 'Comparte viajes con estudiantes verificados',
+    'login.hero_feature_2' => 'Viajes seguros y de confianza',
+    'login.hero_feature_3' => 'Reduce tu huella de carbono',
     'login.rights' => 'Todos los derechos reservados.',
 
     // AUTH: REGISTER
@@ -129,6 +132,9 @@ return [
     'register.submit' => 'Crear mi cuenta',
     'register.hero_title' => 'Explora nuevos horizontes.',
     'register.hero_desc' => 'Registro en segundos. Sin comisiones ocultas. Solo comunidad.',
+    'register.hero_feature_1' => 'Registro rapido y gratuito',
+    'register.hero_feature_2' => 'Chat integrado con conductores',
+    'register.hero_feature_3' => 'Ahorra dinero en tus trayectos',
     'register.students_count' => '+100 estudiantes registrados',
     'register.rights' => 'Todos los derechos reservados.',
 
@@ -198,6 +204,9 @@ return [
     'dashboard.pending' => 'Pendiente',
     'dashboard.not_verified' => 'No verificado',
     'dashboard.arrival_approx' => 'Llegada aprox:',
+    'dashboard.departure' => 'Salida',
+    'dashboard.arrival' => 'Llegada aprox',
+    'dashboard.arrival_label' => 'Llegada',
     'dashboard.view_detail' => 'Ver detalle',
     'dashboard.per_seat' => '€',
     'dashboard.err_own_ride' => 'No puedes reservar tu propio viaje.',
@@ -226,6 +235,7 @@ return [
     'dashboard.contact' => 'Contactar',
     'dashboard.request_seat' => 'Solicitar Plaza',
     'dashboard.return_time' => 'Regreso:',
+    'dashboard.return' => 'Regreso',
     'dashboard.member_since' => 'Miembro desde',
     'dashboard.your_ride' => 'Tu anuncio',
     'dashboard.pending_request' => 'Solicitud pendiente',
@@ -301,6 +311,9 @@ return [
     'myrides.cancel_title' => 'Cancelar reserva',
     'myrides.cancel_confirm' => '¿Estás seguro de que deseas cancelar tu reserva? El dueño del anuncio será notificado por correo electrónico.',
     'myrides.cancel_back' => 'Volver',
+    'myrides.page' => 'Pagina',
+    'myrides.of' => 'de',
+    'myrides.total_items' => 'elementos',
 
     // PUBLISH
     'publish.save' => 'Guardar Cambios',
@@ -322,7 +335,9 @@ return [
     'publish.departure_date' => 'Fecha de salida',
     'publish.departure_time' => 'Hora de salida',
     'publish.return_time' => 'Hora de regreso (Opcional)',
-    'publish.return_hint' => 'Solo si haces viaje de vuelta el mismo día.',
+    'publish.return_hint' => 'Solo si haces viaje de vuelta el mismo dia.',
+    'publish.schedule' => 'Horario',
+    'publish.max_chars' => 'Maximo 500 caracteres.',
     'publish.details' => 'Detalles del Viaje',
     'publish.seats' => 'Plazas disponibles',
     'publish.price' => 'Precio por plaza (€)',
@@ -768,6 +783,22 @@ return [
     'auth.account_banned' => 'Tu cuenta ha sido suspendida.',
     'auth.ban_reason' => 'Motivo',
     'auth.ban_until' => 'Hasta',
+
+    // 2FA Admin
+    'auth.2fa_title' => 'Verificacion de seguridad',
+    'auth.2fa_subtitle' => 'Hemos enviado un codigo de 6 digitos a tu correo electronico.',
+    'auth.2fa_check_email' => 'Revisa tu bandeja de entrada y spam',
+    'auth.2fa_verify' => 'Verificar codigo',
+    'auth.2fa_back' => 'Volver al inicio de sesion',
+    'auth.2fa_empty' => 'Introduce el codigo de verificacion.',
+    'auth.2fa_invalid' => 'El codigo debe tener 6 digitos.',
+    'auth.2fa_wrong' => 'Codigo incorrecto. Intentalo de nuevo.',
+    'auth.2fa_expired' => 'El codigo ha expirado. Inicia sesion de nuevo.',
+    'auth.2fa_blocked' => 'Demasiados intentos fallidos. Inicia sesion de nuevo.',
+    'auth.2fa_attempts' => 'Intentos restantes',
+    'auth.2fa_hero_1' => 'Acceso',
+    'auth.2fa_hero_2' => 'protegido',
+    'auth.2fa_hero_desc' => 'La verificacion en dos pasos protege tu cuenta de administrador contra accesos no autorizados.',
 
     // Chat paginación
     'chat.load_older' => 'Cargar mensajes anteriores',

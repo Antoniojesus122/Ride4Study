@@ -29,7 +29,7 @@ class User {
 
     public function login(string $correo, string $contrasena): array|false {
 
-    $sql = "SELECT idUsuario, nombre, contrasena, idRol
+    $sql = "SELECT idUsuario, nombre, correo, contrasena, idRol
             FROM usuarios
             WHERE correo = :correo
             LIMIT 1";
@@ -44,6 +44,7 @@ class User {
         return [
             'idUsuario' => $usuario['idUsuario'],
             'nombre'    => $usuario['nombre'],
+            'correo'    => $usuario['correo'],
             'idRol'     => $usuario['idRol']
         ];
     }

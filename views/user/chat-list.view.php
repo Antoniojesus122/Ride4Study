@@ -1,9 +1,9 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
 
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-8">
     <div class="mb-8">
-        <h2 class="text-3xl font-bold text-white"><?= t('chatlist.title') ?></h2>
-        <p class="text-gray-400 mt-2"><?= t('chatlist.subtitle') ?></p>
+        <h2 class="text-3xl lg:text-4xl font-bold text-white"><?= t('chatlist.title') ?></h2>
+        <p class="text-gray-400 mt-2 lg:text-lg"><?= t('chatlist.subtitle') ?></p>
     </div>
 
     <div class="bg-surface rounded-2xl border border-gray-700 overflow-hidden shadow-lg">
@@ -19,8 +19,8 @@
             <ul class="divide-y divide-gray-700">
                 <?php foreach ($chats as $chat): ?>
                     <li>
-                        <a href="<?= url('/chat') ?>?user_id=<?= $chat['idUsuario'] ?>" class="block hover:bg-white/5 transition-colors p-4">
-                            <div class="flex items-center gap-4">
+                        <a href="<?= url('/chat') ?>?user_id=<?= $chat['idUsuario'] ?>" class="block hover:bg-white/5 transition-colors p-3 sm:p-4">
+                            <div class="flex items-center gap-3 sm:gap-4">
                                 <div class="relative">
                                     <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-lg font-bold text-white">
                                         <?= strtoupper(substr($chat['nombre'], 0, 2)) ?>
@@ -31,10 +31,10 @@
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex justify-between items-baseline mb-1">
-                                        <h4 class="text-base font-bold text-white truncate"><?= htmlspecialchars($chat['nombre']) ?></h4>
-                                        <span class="text-xs text-gray-500"><?= date('d M H:i', strtotime($chat['fechaCreacion'])) ?></span>
+                                        <h4 class="text-base lg:text-lg font-bold text-white truncate"><?= htmlspecialchars($chat['nombre']) ?></h4>
+                                        <span class="text-xs lg:text-sm text-gray-500"><?= date('d M H:i', strtotime($chat['fechaCreacion'])) ?></span>
                                     </div>
-                                    <p class="text-sm text-gray-400 truncate <?php echo (!$chat['leido'] && $chat['idEmisor'] != $_SESSION['user_id']) ? 'font-semibold text-white' : ''; ?>">
+                                    <p class="text-sm lg:text-base text-gray-400 truncate <?php echo (!$chat['leido'] && $chat['idEmisor'] != $_SESSION['user_id']) ? 'font-semibold text-white' : ''; ?>">
                                         <?= ($chat['idEmisor'] == $_SESSION['user_id'] ? t('chatlist.you') . ' ' : '') . htmlspecialchars($chat['mensaje']) ?>
                                     </p>
                                 </div>

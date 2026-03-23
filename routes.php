@@ -7,12 +7,8 @@
 $router->get('/', function () {
     session_start();
     if (isset($_SESSION['user_id'])) {
-        $role = $_SESSION['user_role'] ?? null;
-        if (in_array((int)$role, [1, 3], true)) {
-            header('Location: ' . url('/admin'));
-        } else {
-            header('Location: ' . url('/dashboard'));
-        }
+        $role = (int)($_SESSION['user_role'] ?? 0);
+        header('Location: ' . url($role === 1 ? '/admin/dashboard' : '/dashboard'));
         exit;
     }
     require_once __DIR__ . '/views/public/landing.view.php';
@@ -41,6 +37,7 @@ $router->any('/register', [AuthController::class, 'register']);
 $router->get('/logout', [AuthController::class, 'logout']);
 $router->any('/forgot-password', [AuthController::class, 'forgotPassword']);
 $router->any('/reset-password', [AuthController::class, 'resetPassword']);
+$router->any('/admin-verify', [AuthController::class, 'adminVerify']); // 2FA admin
 
 // Dashboard, para usuarios logeados
 $router->any('/dashboard', [RideController::class, 'index']);

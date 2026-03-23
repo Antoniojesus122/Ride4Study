@@ -1,15 +1,15 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
 
-    <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="w-full mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-8">
         <div class="mb-6 sm:mb-8">
-            <h2 class="text-2xl sm:text-3xl font-bold leading-tight text-white"><?= t('dashboard.title') ?></h2>
-            <p class="mt-2 text-gray-400"><?= t('dashboard.subtitle') ?></p>
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight text-white"><?= t('dashboard.title') ?></h2>
+            <p class="mt-2 text-gray-400 lg:text-lg"><?= t('dashboard.subtitle') ?></p>
         </div>  
 
         <div class="flex flex-col md:flex-row items-start gap-8">
             <div class="flex-1 w-full">
-                <div class="bg-surface rounded-2xl p-6 mb-8 border border-gray-700 shadow-lg">
-                <h3 class="text-sm font-semibold text-gray-300 mb-4 flex items-center gap-2">
+                <div class="bg-surface rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 border border-gray-700/50 shadow-lg">
+                <h3 class="text-sm lg:text-base font-semibold text-gray-300 mb-4 flex items-center gap-2">
                     <i class="fas fa-filter text-primary"></i> <?= t('dashboard.filters') ?>
                 </h3>
                 <form action="" method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
@@ -92,14 +92,14 @@
         <!-- Resultados -->
         <div class="space-y-4">
              <div class="flex justify-between items-center mb-4">
-                <p class="text-sm text-gray-400"><?= t('dashboard.showing_results') ?> <strong><?= $totalItems ?></strong> <?= t('dashboard.results_available') ?></p>
+                <p class="text-sm lg:text-base text-gray-400"><?= t('dashboard.showing_results') ?> <strong><?= $totalItems ?></strong> <?= t('dashboard.results_available') ?></p>
              </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                  <?php if (empty($rides)): ?>
                     <div class="col-span-full py-16 text-center border-2 border-dashed border-gray-700 rounded-2xl bg-surface/30">
-                        <div class="w-20 h-20 bg-surface rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
-                            <i class="fas fa-search-location text-3xl text-gray-500"></i>
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-surface rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-search-location text-2xl sm:text-3xl text-gray-500"></i>
                         </div>
                         <h3 class="text-lg font-medium text-white"><?= t('dashboard.no_rides') ?></h3>
                         <p class="text-gray-400 mt-2 max-w-sm mx-auto"><?= t('dashboard.no_rides_desc') ?></p>
@@ -137,8 +137,8 @@
                                     <?php endif; ?>
                                 </div>
                                 <div>
-                                    <h4 class="text-sm font-bold text-white"><?= htmlspecialchars($ride['nombreUsuario']) ?></h4>
-                                    <div class="flex items-center text-xs gap-2">
+                                    <h4 class="text-sm lg:text-base font-bold text-white"><?= htmlspecialchars($ride['nombreUsuario']) ?></h4>
+                                    <div class="flex items-center text-xs lg:text-sm gap-2">
                                         <span class="text-gray-400"><i class="fas fa-star text-yellow-500 mr-1"></i> <?= number_format((float)($ride['rating'] ?? 0), 1) ?></span>
                                         <span class="text-gray-600">•</span>
                                         <?php if ($ride['estado_verificacion'] == 2): ?>
@@ -174,15 +174,15 @@
                                 <div class="flex items-start mb-6 relative">
                                     <div class="w-4 h-4 rounded-full border-2 border-primary bg-gray-900 z-10 shrink-0 mt-1"></div>
                                     <div class="ml-4">
-                                        <p class="text-sm font-semibold text-white"><?= htmlspecialchars($ride['nombreOrigen']) ?></p>
-                                        <p class="text-xs text-primary font-mono mt-0.5"><?= substr($ride['horaSalida'], 0, 5) ?></p>
+                                        <p class="text-sm lg:text-base font-semibold text-white"><?= htmlspecialchars($ride['nombreOrigen']) ?></p>
+                                        <p class="text-xs lg:text-sm text-primary font-mono mt-0.5"><?= substr($ride['horaSalida'], 0, 5) ?></p>
                                     </div>
                                 </div>
                                 <div class="flex items-start relative">
                                     <div class="w-4 h-4 rounded-full border-2 border-gray-500 bg-gray-900 z-10 shrink-0 mt-1"></div>
                                     <div class="ml-4">
-                                        <p class="text-sm font-semibold text-white"><?= htmlspecialchars($ride['nombreDestino']) ?></p>
-                                        <p class="text-xs text-gray-500 mt-0.5">
+                                        <p class="text-sm lg:text-base font-semibold text-white"><?= htmlspecialchars($ride['nombreDestino']) ?></p>
+                                        <p class="text-xs lg:text-sm text-gray-500 mt-0.5">
                                             <?php if (!empty($ride['horaLlegada'])): ?>
                                                 <?= t('dashboard.arrival_approx') ?> <?= substr($ride['horaLlegada'], 0, 5) ?>
                                             <?php else: ?>
@@ -195,7 +195,7 @@
 
                             <!-- Información de la fecha, plazos y boton de acción -->
                             <div class="mt-4 pt-4 border-t border-gray-700/50 flex justify-between items-center">
-                                <div class="flex items-center gap-4 text-xs text-gray-400">
+                                <div class="flex items-center gap-4 text-xs lg:text-sm text-gray-400">
                                      <span class="flex items-center" title="<?= date('d/m/Y', strtotime($ride['fechaSalida'])) ?>">
                                         <i class="far fa-calendar text-gray-500 mr-2"></i>
                                         <?= date('d M', strtotime($ride['fechaSalida'])) ?>
@@ -205,7 +205,7 @@
                                         <?= $ride['plazasDisponibles'] ?>
                                      </span>
                                 </div>
-                                <button type="button" class="view-ride-btn text-sm font-medium text-white hover:text-primary transition-colors relative z-20"
+                                <button type="button" class="view-ride-btn text-sm lg:text-base font-medium text-white hover:text-primary transition-colors relative z-20"
                                         data-ride='<?= htmlspecialchars(json_encode($ride), ENT_QUOTES, 'UTF-8') ?>'>
                                     <?= t('dashboard.view_detail') ?> <i class="fas fa-arrow-right ml-1 text-xs"></i>
                                 </button>
@@ -255,8 +255,8 @@
 
 
     <!-- Barra lateral -->
-    <aside class="w-full md:w-80 px-6 hidden md:block shrink-0">
-        <div class="sticky top-6 space-y-6">
+    <aside class="w-full md:w-72 lg:w-80 xl:w-96 hidden md:block shrink-0">
+        <div class="sticky top-28 space-y-5">
              <!-- Alertas -->
             <?php if (isset($_GET['error'])): ?>
                 <div class="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-xl text-sm">
@@ -350,141 +350,160 @@
 
 <!-- Modal de detalles del viaje -->
 <div id="ride-modal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <!-- Fondo oscuro -->
     <div class="fixed inset-0 bg-gray-900/90 backdrop-blur-sm transition-opacity duration-300 opacity-0" id="modal-backdrop"></div>
 
-    <div class="fixed inset-0 z-10 overflow-y-auto">
-        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+    <div class="fixed inset-0 z-10 flex items-center justify-center p-4">
 
-            <div class="relative transform overflow-hidden rounded-2xl bg-surface text-left shadow-2xl transition-all duration-300 sm:my-8 sm:w-full sm:max-w-2xl border border-gray-700 opacity-0 translate-y-4 sm:scale-95" id="modal-panel">
+            <div class="relative transform overflow-hidden rounded-2xl bg-surface text-left shadow-2xl transition-all duration-300 w-full max-w-[60rem] border border-gray-700/50 opacity-0 translate-y-4 sm:scale-95" id="modal-panel">
 
                 <!-- Header -->
-                <div class="px-5 py-4 border-b border-gray-700 flex justify-between items-center">
+                <div class="relative px-6 py-4 bg-gradient-to-r from-primary/5 via-transparent to-transparent border-b border-gray-700/50 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <i class="fas fa-route text-primary text-sm"></i>
+                        <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                            <i class="fas fa-route text-primary"></i>
                         </div>
-                        <h3 class="text-base font-semibold text-white" id="modal-title"><?= t('dashboard.ride_details') ?></h3>
-                    </div>
-                    <button type="button" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-all" onclick="closeRideModal()">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-
-                <!-- Contenido -->
-                <div class="px-5 py-5 sm:p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                        <!-- Info del viaje -->
-                        <div class="md:col-span-2 space-y-5">
-
-                            <!-- Tipo badge + fecha -->
-                            <div class="flex items-center justify-between">
-                                <span id="modal-tipo-badge" class="px-3 py-1 rounded-full text-xs font-semibold border"></span>
+                        <div>
+                            <h3 class="text-xl font-bold text-white" id="modal-title"><?= t('dashboard.ride_details') ?></h3>
+                            <div class="flex items-center gap-3 mt-0.5">
+                                <span id="modal-tipo-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold border"></span>
                                 <span class="text-xs text-gray-400 flex items-center gap-1.5">
                                     <i class="far fa-calendar-alt text-gray-500"></i>
                                     <span id="modal-fecha">—</span>
                                 </span>
                             </div>
+                        </div>
+                    </div>
+                    <button type="button" class="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all" onclick="closeRideModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Contenido -->
+                <div class="px-7 py-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-7">
+
+                        <!-- Columna izquierda (3/5) -->
+                        <div class="lg:col-span-3 space-y-6">
 
                             <!-- Ruta -->
-                            <div class="relative pl-7 space-y-5">
-                                <div class="absolute left-[7px] top-2 bottom-2 w-0.5 bg-gray-700"></div>
-
-                                <div class="relative flex items-start gap-3">
-                                    <div class="absolute -left-[27px] top-1 w-3.5 h-3.5 rounded-full border-2 border-primary bg-surface z-10"></div>
-                                    <div>
-                                        <p class="text-base font-bold text-white" id="modal-origin"></p>
-                                        <p class="text-xs text-primary font-mono mt-0.5" id="modal-time-start"></p>
+                            <div class="bg-gray-800/30 rounded-xl p-5 border border-gray-700/40">
+                                <div class="flex items-stretch gap-5">
+                                    <!-- Linea vertical con puntos -->
+                                    <div class="flex flex-col items-center pt-1 pb-1">
+                                        <div class="w-4 h-4 rounded-full border-[3px] border-primary bg-surface shadow-md shadow-primary/20 shrink-0"></div>
+                                        <div class="w-0.5 flex-1 bg-gradient-to-b from-primary/60 to-gray-600 my-1"></div>
+                                        <div class="w-4 h-4 rounded-full border-[3px] border-gray-500 bg-surface shrink-0"></div>
                                     </div>
-                                </div>
-
-                                <div class="relative flex items-start gap-3">
-                                    <div class="absolute -left-[27px] top-1 w-3.5 h-3.5 rounded-full border-2 border-gray-500 bg-surface z-10"></div>
-                                    <div>
-                                        <p class="text-base font-bold text-white" id="modal-dest"></p>
-                                        <p class="text-xs text-gray-500 mt-0.5" id="modal-time-end"></p>
+                                    <!-- Ciudades y horas -->
+                                    <div class="flex-1 flex flex-col justify-between gap-5">
+                                        <!-- Origen -->
+                                        <div>
+                                            <p class="text-xl font-bold text-white" id="modal-origin"></p>
+                                            <p class="text-sm text-primary font-semibold mt-1 flex items-center gap-1.5" id="modal-time-start">
+                                                <i class="far fa-clock text-xs"></i>
+                                            </p>
+                                        </div>
+                                        <!-- Destino -->
+                                        <div>
+                                            <p class="text-xl font-bold text-white" id="modal-dest"></p>
+                                            <p class="text-sm text-primary font-semibold mt-1 flex items-center gap-1.5" id="modal-time-end">
+                                                <i class="far fa-clock text-xs"></i>
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Precio y plazas -->
-                            <div class="grid grid-cols-2 gap-3" id="modal-specs">
-                                <div class="bg-gray-800 rounded-xl p-3.5 border border-gray-700" id="modal-price-container">
-                                    <p class="text-xs text-gray-400 mb-1"><?= t('dashboard.price_per_seat') ?></p>
-                                    <p class="text-xl font-bold text-primary" id="modal-price"></p>
+                            <!-- Stats en linea -->
+                            <div class="grid grid-cols-3 gap-3" id="modal-specs">
+                                <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/40 text-center" id="modal-price-container">
+                                    <i class="fas fa-euro-sign text-primary text-lg mb-2"></i>
+                                    <p class="text-2xl font-bold text-primary" id="modal-price"></p>
+                                    <p class="text-xs text-gray-500 mt-1"><?= t('dashboard.price_per_seat') ?></p>
                                 </div>
-                                <div class="bg-gray-800 rounded-xl p-3.5 border border-gray-700">
-                                    <p class="text-xs text-gray-400 mb-1"><?= t('dashboard.seats_available') ?></p>
-                                    <p class="text-xl font-bold text-white flex items-center gap-2">
-                                        <span id="modal-seats"></span>
-                                        <i class="fas fa-chair text-sm text-gray-500"></i>
-                                    </p>
+                                <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/40 text-center">
+                                    <i class="fas fa-chair text-blue-400 text-lg mb-2"></i>
+                                    <p class="text-2xl font-bold text-white"><span id="modal-seats"></span></p>
+                                    <p class="text-xs text-gray-500 mt-1"><?= t('dashboard.seats_available') ?></p>
+                                </div>
+                                <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/40 text-center" id="modal-return-container" style="display:none;">
+                                    <i class="fas fa-undo text-purple-400 text-lg mb-2"></i>
+                                    <p class="text-2xl font-bold text-purple-400" id="modal-return-time"></p>
+                                    <p class="text-xs text-gray-500 mt-1"><?= t('dashboard.return') ?></p>
                                 </div>
                             </div>
 
-                            <!-- Descripción -->
+                            <!-- Descripcion -->
                             <div>
-                                <h5 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"><?= t('dashboard.ride_comments') ?></h5>
-                                <p class="text-sm text-gray-400 leading-relaxed bg-gray-800/50 p-4 rounded-xl border border-gray-700/50 italic" id="modal-desc"></p>
+                                <h5 class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                    <i class="fas fa-comment-dots"></i> <?= t('dashboard.ride_comments') ?>
+                                </h5>
+                                <p class="text-sm text-gray-300 leading-relaxed bg-gray-800/20 p-5 rounded-xl border border-gray-700/30" id="modal-desc"></p>
+                            </div>
+
+                            <!-- Preferencias -->
+                            <div id="modal-prefs-container" style="display:none;">
+                                <h5 class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                    <i class="fas fa-sliders-h"></i> <?= t('pref.title') ?>
+                                </h5>
+                                <div class="flex flex-wrap gap-2" id="modal-prefs"></div>
                             </div>
                         </div>
 
-                        <!-- Info del usuario -->
-                        <div class="md:col-span-1">
-                            <div class="bg-gray-800 rounded-xl p-4 border border-gray-700 h-full flex flex-col">
+                        <!-- Columna derecha: Usuario (2/5) -->
+                        <div class="lg:col-span-2">
+                            <div class="bg-gray-800/30 rounded-xl p-5 border border-gray-700/40 h-full flex flex-col">
                                 <div class="text-center mb-4">
-                                    <div class="w-20 h-20 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700" id="modal-avatar"></div>
-                                    <h4 class="font-bold text-white truncate" id="modal-driver-name"></h4>
-                                    <div class="flex items-center justify-center mt-2">
-                                        <span class="bg-yellow-500/10 text-yellow-500 px-2.5 py-1 rounded-full border border-yellow-500/20 flex items-center gap-1.5 text-xs font-semibold">
-                                            <i class="fas fa-star text-xs"></i>
+                                    <div class="w-20 h-20 rounded-xl mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 ring-2 ring-gray-700/50" id="modal-avatar"></div>
+                                    <h4 class="text-lg font-bold text-white" id="modal-driver-name"></h4>
+                                    <div class="flex items-center justify-center gap-2 mt-2">
+                                        <span class="bg-yellow-500/10 text-yellow-500 px-2.5 py-1 rounded-lg border border-yellow-500/20 flex items-center gap-1 text-xs font-semibold">
+                                            <i class="fas fa-star text-[10px]"></i>
                                             <span id="modal-rating"></span>
                                         </span>
                                     </div>
                                 </div>
 
-                                <div class="space-y-2.5 pt-4 border-t border-gray-700 flex-1">
-                                    <div class="flex items-center gap-2.5 text-sm">
+                                <div class="space-y-2 pt-3 border-t border-gray-700/40 flex-1">
+                                    <div class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-gray-800/40">
                                         <i class="fas fa-shield-alt w-4 text-center" id="modal-verified-icon"></i>
-                                        <span id="modal-verified" class="text-sm"></span>
+                                        <span id="modal-verified" class="text-sm font-medium"></span>
                                     </div>
-                                    <div class="flex items-center gap-2.5 text-sm text-gray-400" id="modal-member-info">
+                                    <div class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-gray-800/40" id="modal-member-info">
                                         <i class="far fa-calendar w-4 text-center text-gray-500"></i>
-                                        <span id="modal-member-since"></span>
+                                        <span id="modal-member-since" class="text-sm text-gray-400"></span>
                                     </div>
                                 </div>
 
-                                <div class="mt-4 pt-4 border-t border-gray-700">
-                                    <a href="#" id="modal-profile-link" class="w-full flex justify-center items-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg py-2 text-sm font-medium transition-all">
+                                <div class="mt-4 pt-3 border-t border-gray-700/40 space-y-2">
+                                    <a href="#" id="modal-profile-link" class="w-full flex justify-center items-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl py-2.5 text-sm font-medium transition-all">
                                         <i class="fas fa-user text-xs"></i> <?= t('dashboard.view_profile') ?>
                                     </a>
+                                    <a href="#" id="btn-contact"
+                                       class="w-full flex justify-center items-center gap-2 bg-gray-700/40 hover:bg-gray-700 text-gray-300 hover:text-white border border-gray-600/40 rounded-xl py-2.5 text-sm font-medium transition-all">
+                                        <i class="fas fa-comment-alt text-xs"></i> <?= t('dashboard.contact') ?>
+                                    </a>
+                                    <button type="button" id="btn-report"
+                                            class="hidden w-full px-3 py-2.5 rounded-xl border border-red-500/20 bg-red-500/5 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all flex items-center justify-center gap-2"
+                                            onclick="reportCurrentRide()">
+                                        <i class="fas fa-flag text-xs"></i> Reportar
+                                    </button>
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
                 <!-- Footer -->
-                <div class="px-5 py-4 sm:px-6 border-t border-gray-700 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+                <div class="px-7 py-4 border-t border-gray-700/50 bg-gray-800/10 flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-3">
                     <button type="button"
-                            class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-gray-600 bg-transparent text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-white transition-all"
+                            class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-gray-600 bg-transparent text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-white transition-all"
                             onclick="closeRideModal()">
                         <?= t('dashboard.close') ?>
                     </button>
-                    <button type="button" id="btn-report"
-                            class="hidden w-full sm:w-auto px-4 py-2.5 rounded-xl border border-red-500/20 bg-red-500/10 text-sm font-medium text-red-400 hover:bg-red-500/20 transition-all flex items-center justify-center gap-2"
-                            onclick="reportCurrentRide()">
-                        <i class="fas fa-flag text-xs"></i> Reportar
-                    </button>
-                    <a href="#" id="btn-contact"
-                       class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-gray-600 bg-gray-800 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-comment-alt text-xs"></i> <?= t('dashboard.contact') ?>
-                    </a>
                     <button type="button" id="btn-reserve"
-                            class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-secondary text-sm font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
-                        <i class="fas fa-ticket-alt text-xs"></i> <?= t('dashboard.request_seat') ?>
+                            class="w-full sm:w-auto px-7 py-2.5 rounded-xl bg-primary text-secondary text-sm font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                        <i class="fas fa-ticket-alt"></i> <?= t('dashboard.request_seat') ?>
                     </button>
                 </div>
 
@@ -543,14 +562,21 @@
         // Ruta
         document.getElementById('modal-origin').textContent = ride.nombreOrigen;
         document.getElementById('modal-dest').textContent = ride.nombreDestino;
-        document.getElementById('modal-time-start').textContent = ride.horaSalida.substring(0, 5);
-        
-        if (ride.horaLlegada) {
-            document.getElementById('modal-time-end').textContent = '<?= t('dashboard.arrival_approx') ?> ' + ride.horaLlegada.substring(0, 5);
-        } else if (ride.horaRegreso) {
-            document.getElementById('modal-time-end').textContent = '<?= t('dashboard.return_time') ?> ' + ride.horaRegreso.substring(0, 5);
+
+        const timeStartEl = document.getElementById('modal-time-start');
+        timeStartEl.innerHTML = '<i class="far fa-clock text-xs"></i> <?= t('dashboard.departure') ?>: ' + ride.horaSalida.substring(0, 5);
+
+        const timeEndEl = document.getElementById('modal-time-end');
+        const arrivalTime = ride.horaLlegada ? ride.horaLlegada.substring(0, 5) : '--:--';
+        timeEndEl.innerHTML = '<i class="far fa-clock text-xs"></i> <?= t('dashboard.arrival_label') ?>: ' + arrivalTime;
+
+        // Hora de regreso (card separada)
+        const returnContainer = document.getElementById('modal-return-container');
+        if (ride.horaRegreso) {
+            document.getElementById('modal-return-time').textContent = ride.horaRegreso.substring(0, 5);
+            returnContainer.style.display = '';
         } else {
-            document.getElementById('modal-time-end').textContent = '<?= t('dashboard.arrival_approx') ?>';
+            returnContainer.style.display = 'none';
         }
         // Precio y plazas
         const priceEl     = document.getElementById('modal-price');
@@ -572,9 +598,28 @@
         const avatarEl = document.getElementById('modal-avatar');
         if (ride.foto_perfil) {
             avatarEl.innerHTML = `<img src="public/uploads/profiles/${encodeURIComponent(ride.foto_perfil)}" alt="avatar" class="w-full h-full object-cover">`;
+            avatarEl.className = 'w-20 h-20 rounded-xl mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 ring-2 ring-gray-700/50';
         } else {
             avatarEl.innerHTML = ride.nombreUsuario.substring(0, 2).toUpperCase();
-            avatarEl.className = 'w-20 h-20 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg bg-gradient-to-br from-primary to-primary-dark';
+            avatarEl.className = 'w-20 h-20 rounded-xl mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg bg-gradient-to-br from-primary to-primary-dark ring-2 ring-primary/20';
+        }
+
+        // Preferencias de viaje
+        const prefsContainer = document.getElementById('modal-prefs-container');
+        const prefsEl = document.getElementById('modal-prefs');
+        const prefIcons = {silencio:'fa-volume-mute',charla:'fa-comments',mascotas:'fa-paw',no_fumar:'fa-smoking-ban',equipaje:'fa-suitcase',musica:'fa-music'};
+        const prefColors = {silencio:'blue',charla:'green',mascotas:'yellow',no_fumar:'red',equipaje:'purple',musica:'pink'};
+        const prefLabels = <?= json_encode([
+            'silencio' => t('pref.silencio'), 'charla' => t('pref.charla'), 'mascotas' => t('pref.mascotas'),
+            'no_fumar' => t('pref.no_fumar'), 'equipaje' => t('pref.equipaje'), 'musica' => t('pref.musica')
+        ]) ?>;
+        let prefs = [];
+        try { prefs = JSON.parse(ride.preferencias_viaje || '[]'); } catch(e) {}
+        if (prefs.length > 0) {
+            prefsEl.innerHTML = prefs.map(p => `<span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-${prefColors[p]}-500/10 text-${prefColors[p]}-400 border border-${prefColors[p]}-500/20 text-xs font-medium"><i class="fas ${prefIcons[p]}"></i> ${prefLabels[p] || p}</span>`).join('');
+            prefsContainer.style.display = '';
+        } else {
+            prefsContainer.style.display = 'none';
         }
 
         // Nombre y rating

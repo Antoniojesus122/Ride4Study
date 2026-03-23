@@ -13,7 +13,7 @@
     ];
 ?>
 
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="w-full mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-8">
 
     <!-- Encabezado del perfil -->
     <div class="bg-surface rounded-2xl border border-gray-700 shadow-xl overflow-hidden mb-8">
@@ -25,15 +25,15 @@
         </div>
         
 
-        <div class="px-8 pb-8 flex flex-col md:flex-row items-start gap-6 -mt-16 relative">
+        <div class="px-4 sm:px-8 pb-6 sm:pb-8 flex flex-col md:flex-row items-start gap-4 sm:gap-6 -mt-16 relative">
              <!-- Avatar -->
              <div class="relative group">
-                <div id="profile-avatar" class="w-32 h-32 rounded-2xl border-4 border-surface bg-gray-800 flex items-center justify-center overflow-hidden shadow-2xl shadow-black/50 ring-4 ring-primary/20">
+                <div id="profile-avatar" class="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-surface bg-gray-800 flex items-center justify-center overflow-hidden shadow-2xl shadow-black/50 ring-4 ring-primary/20">
                     <?php if (!empty($profileUser['foto_perfil']) && file_exists(__DIR__ . '/../../public/uploads/profiles/' . $profileUser['foto_perfil'])): ?>
                         <?php $pf = htmlspecialchars($profileUser['foto_perfil']); $ver = filemtime(__DIR__ . '/../../public/uploads/profiles/' . $profileUser['foto_perfil']); ?>
                         <img src="public/uploads/profiles/<?= $pf ?>?v=<?= $ver ?>" alt="Profile" class="w-full h-full object-cover">
                     <?php else: ?>
-                        <span class="text-5xl font-bold text-white"><?= strtoupper(substr($profileUser['nombre'], 0, 2)) ?></span>
+                        <span class="text-3xl sm:text-5xl font-bold text-white"><?= strtoupper(substr($profileUser['nombre'], 0, 2)) ?></span>
                     <?php endif; ?>
                 </div>
                 
@@ -56,14 +56,14 @@
                  <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
                      <div>
                          <div class="flex items-center gap-3 mb-2">
-                             <h1 class="text-3xl font-bold text-white"><?= htmlspecialchars($profileUser['nombre']) ?></h1>
+                             <h1 class="text-3xl lg:text-4xl font-bold text-white"><?= htmlspecialchars($profileUser['nombre']) ?></h1>
                              <?php if (!empty($profileUser['premium']) && (!empty($profileUser['premium_hasta']) ? $profileUser['premium_hasta'] > date('Y-m-d H:i:s') : true)): ?>
                                  <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full border border-yellow-500/30 flex items-center gap-1 flex-shrink-0">
                                      <i class="fas fa-crown"></i> <?= t('profile.premium') ?>
                                  </span>
                              <?php endif; ?>
                          </div>
-                         <div class="flex flex-wrap items-center gap-4 text-sm text-gray-400">
+                         <div class="flex flex-wrap items-center gap-4 text-sm lg:text-base text-gray-400">
                              <span class="flex items-center gap-2">
                                  <i class="fas fa-map-marker-alt text-primary"></i> 
                                  <?= htmlspecialchars($profileUser['ciudad'] ?? t('profile.no_location')) ?>
@@ -90,8 +90,8 @@
                  </div>
 
                  <!-- Estadísticas en cards -->
-                 <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                     <div class="bg-gray-800/50 rounded-xl p-3 border border-gray-700/50">
+                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 lg:gap-4">
+                     <div class="bg-gray-800/50 rounded-xl p-3 lg:p-4 border border-gray-700/50">
                          <div class="flex items-center gap-2 mb-1">
                              <i class="fas fa-star text-yellow-500 text-sm"></i>
                              <span class="text-xs text-gray-400"><?= t('profile.rating') ?></span>
@@ -101,7 +101,7 @@
                          </p>
                      </div>
                      
-                     <div class="bg-gray-800/50 rounded-xl p-3 border border-gray-700/50">
+                     <div class="bg-gray-800/50 rounded-xl p-3 lg:p-4 border border-gray-700/50">
                          <div class="flex items-center gap-2 mb-1">
                              <i class="fas fa-route text-blue-400 text-sm"></i>
                              <span class="text-xs text-gray-400"><?= t('profile.rides') ?></span>
@@ -109,7 +109,7 @@
                          <p class="text-xl font-bold text-white"><?= $userStats['total_viajes'] ?></p>
                      </div>
                      
-                     <div class="bg-gray-800/50 rounded-xl p-3 border border-gray-700/50">
+                     <div class="bg-gray-800/50 rounded-xl p-3 lg:p-4 border border-gray-700/50">
                          <div class="flex items-center gap-2 mb-1">
                              <i class="fas fa-steering-wheel text-primary text-sm"></i>
                              <span class="text-xs text-gray-400"><?= t('profile.driver') ?></span>
@@ -117,7 +117,7 @@
                          <p class="text-xl font-bold text-white"><?= $userStats['viajes_como_conductor'] ?></p>
                      </div>
                      
-                     <div class="bg-gray-800/50 rounded-xl p-3 border border-gray-700/50">
+                     <div class="bg-gray-800/50 rounded-xl p-3 lg:p-4 border border-gray-700/50">
                          <div class="flex items-center gap-2 mb-1">
                              <i class="fas fa-users text-purple-400 text-sm"></i>
                              <span class="text-xs text-gray-400"><?= t('profile.passenger') ?></span>
@@ -137,8 +137,8 @@
         
         <!-- Navegación de pestañas -->
         <?php if ($isOwnProfile): ?>
-        <div class="px-8 pb-6">
-            <div class="flex gap-2 overflow-x-auto border-t border-gray-700 pt-4">
+        <div class="px-4 sm:px-8 pb-6">
+            <div class="flex gap-2 overflow-x-auto border-t border-gray-700 pt-4 scrollbar-hide">
                 <button onclick="switchTab('profile')" id="tab-profile" class="px-4 py-2 rounded-lg bg-primary/10 text-primary font-medium border border-primary/20 whitespace-nowrap transition-colors">
                     <i class="fas fa-user mr-2"></i><?= t('profile.tab_profile') ?>
                 </button>
@@ -321,7 +321,7 @@
             <?php if ($isOwnProfile): ?>
                 
                 <!-- Perfil -->
-                <div id="content-profile" class="bg-surface rounded-2xl border border-gray-700 p-8">
+                <div id="content-profile" class="bg-surface rounded-2xl border border-gray-700 p-4 sm:p-6 lg:p-8">
                      <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
                          <i class="fas fa-user-edit text-primary"></i> Editar Perfil
                      </h3>
@@ -349,7 +349,7 @@
                      <form action="<?= url('/profile') ?>?action=update" method="POST" enctype="multipart/form-data">
                          <input type="file" name="foto_perfil" id="photo-input" class="hidden" accept="image/*">
                          
-                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
                              <div>
                                  <label class="block text-sm font-medium text-gray-400 mb-2">Nombre Completo</label>
                                  <input type="text" name="nombre" value="<?= htmlspecialchars($profileUser['nombre']) ?>" class="w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm">
@@ -394,7 +394,7 @@
                                      'musica'   => ['icon' => 'fa-music',       'color' => 'pink'],
                                  ];
                                  ?>
-                                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                                      <?php foreach ($allPrefs as $key => $pref):
                                          $isActive = in_array($key, $userPrefs);
                                      ?>
@@ -417,7 +417,7 @@
                 </div>
 
                 <!-- Seguridad -->
-                <div id="content-security" class="hidden bg-surface rounded-2xl border border-gray-700 p-8">
+                <div id="content-security" class="hidden bg-surface rounded-2xl border border-gray-700 p-4 sm:p-6 lg:p-8">
                     <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
                         <i class="fas fa-lock text-primary"></i> Cambiar Contraseña
                     </h3>
@@ -652,8 +652,10 @@
                                         'rating'              => $userStats['valoracion_promedio'] ?? 0,
                                         'estado_verificacion' => $profileUser['estado_verificacion'] ?? 0,
                                         'idUsuario'           => $profileUser['idUsuario'],
+                                        'horaLlegada'         => $ar['horaLlegada'] ?? null,
                                         'horaRegreso'         => $ar['horaRegreso'] ?? null,
-                                        'descripcion'         => null,
+                                        'descripcion'         => $ar['descripcion'] ?? null,
+                                        'preferencias_viaje'  => $profileUser['preferencias_viaje'] ?? '[]',
                                         'booking_status'      => null,
                                     ]);
                                 ?>
@@ -854,121 +856,147 @@
 <!-- Modal de detalles del anuncio -->
 <div id="profile-ride-modal" class="fixed inset-0 z-[100] hidden" role="dialog" aria-modal="true">
     <div class="fixed inset-0 bg-gray-900/90 backdrop-blur-sm transition-opacity duration-300 opacity-0" id="profile-modal-backdrop"></div>
-    <div class="fixed inset-0 z-10 overflow-y-auto">
-        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-2xl bg-surface text-left shadow-2xl transition-all duration-300 sm:my-8 sm:w-full sm:max-w-2xl border border-gray-700 opacity-0 translate-y-4 sm:scale-95" id="profile-modal-panel">
+    <div class="fixed inset-0 z-10 flex items-center justify-center p-4">
+
+            <div class="relative transform overflow-hidden rounded-2xl bg-surface text-left shadow-2xl transition-all duration-300 w-full max-w-[60rem] border border-gray-700/50 opacity-0 translate-y-4 sm:scale-95" id="profile-modal-panel">
 
                 <!-- Header -->
-                <div class="px-5 py-4 border-b border-gray-700 flex justify-between items-center">
+                <div class="relative px-6 py-4 bg-gradient-to-r from-primary/5 via-transparent to-transparent border-b border-gray-700/50 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <i class="fas fa-route text-primary text-sm"></i>
+                        <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                            <i class="fas fa-route text-primary"></i>
                         </div>
-                        <h3 class="text-base font-semibold text-white">Detalles del Anuncio</h3>
-                    </div>
-                    <button type="button" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-all" onclick="closeProfileRideModal()">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-
-                <!-- Contenido -->
-                <div class="px-5 py-5 sm:p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                        <!-- Info del viaje -->
-                        <div class="md:col-span-2 space-y-5">
-                            <div class="flex items-center justify-between">
-                                <span id="prm-tipo-badge" class="px-3 py-1 rounded-full text-xs font-semibold border"></span>
+                        <div>
+                            <h3 class="text-xl font-bold text-white"><?= t('dashboard.ride_details') ?></h3>
+                            <div class="flex items-center gap-3 mt-0.5">
+                                <span id="prm-tipo-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold border"></span>
                                 <span class="text-xs text-gray-400 flex items-center gap-1.5">
                                     <i class="far fa-calendar-alt text-gray-500"></i>
                                     <span id="prm-fecha">—</span>
                                 </span>
                             </div>
+                        </div>
+                    </div>
+                    <button type="button" class="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all" onclick="closeProfileRideModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
 
+                <!-- Contenido -->
+                <div class="px-7 py-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-7">
+
+                        <!-- Columna izquierda (3/5) -->
+                        <div class="lg:col-span-3 space-y-6">
                             <!-- Ruta -->
-                            <div class="relative pl-7 space-y-5">
-                                <div class="absolute left-[7px] top-2 bottom-2 w-0.5 bg-gray-700"></div>
-                                <div class="relative flex items-start gap-3">
-                                    <div class="absolute -left-[27px] top-1 w-3.5 h-3.5 rounded-full border-2 border-primary bg-surface z-10"></div>
-                                    <div>
-                                        <p class="text-base font-bold text-white" id="prm-origin"></p>
-                                        <p class="text-xs text-primary font-mono mt-0.5" id="prm-time-start"></p>
+                            <div class="bg-gray-800/30 rounded-xl p-5 border border-gray-700/40">
+                                <div class="flex items-stretch gap-5">
+                                    <div class="flex flex-col items-center pt-1 pb-1">
+                                        <div class="w-4 h-4 rounded-full border-[3px] border-primary bg-surface shadow-md shadow-primary/20 shrink-0"></div>
+                                        <div class="w-0.5 flex-1 bg-gradient-to-b from-primary/60 to-gray-600 my-1"></div>
+                                        <div class="w-4 h-4 rounded-full border-[3px] border-gray-500 bg-surface shrink-0"></div>
                                     </div>
-                                </div>
-                                <div class="relative flex items-start gap-3">
-                                    <div class="absolute -left-[27px] top-1 w-3.5 h-3.5 rounded-full border-2 border-gray-500 bg-surface z-10"></div>
-                                    <div>
-                                        <p class="text-base font-bold text-white" id="prm-dest"></p>
-                                        <p class="text-xs text-gray-500 mt-0.5" id="prm-time-end"></p>
+                                    <div class="flex-1 flex flex-col justify-between gap-5">
+                                        <div>
+                                            <p class="text-xl font-bold text-white" id="prm-origin"></p>
+                                            <p class="text-sm text-primary font-semibold mt-0.5 flex items-center gap-1.5" id="prm-time-start"><i class="far fa-clock text-xs"></i></p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xl font-bold text-white" id="prm-dest"></p>
+                                            <p class="text-sm text-primary font-semibold mt-0.5 flex items-center gap-1.5" id="prm-time-end"><i class="far fa-clock text-xs"></i></p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Precio y plazas -->
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="bg-gray-800 rounded-xl p-3.5 border border-gray-700" id="prm-price-container">
-                                    <p class="text-xs text-gray-400 mb-1">Precio por plaza</p>
-                                    <p class="text-xl font-bold text-primary" id="prm-price"></p>
+                            <!-- Stats -->
+                            <div class="grid grid-cols-3 gap-3">
+                                <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/40 text-center" id="prm-price-container">
+                                    <i class="fas fa-euro-sign text-primary text-lg mb-2"></i>
+                                    <p class="text-2xl font-bold text-primary" id="prm-price"></p>
+                                    <p class="text-xs text-gray-500 mt-1"><?= t('dashboard.price_per_seat') ?></p>
                                 </div>
-                                <div class="bg-gray-800 rounded-xl p-3.5 border border-gray-700">
-                                    <p class="text-xs text-gray-400 mb-1">Plazas disponibles</p>
-                                    <p class="text-xl font-bold text-white flex items-center gap-2">
-                                        <span id="prm-seats"></span>
-                                        <i class="fas fa-chair text-sm text-gray-500"></i>
-                                    </p>
+                                <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/40 text-center">
+                                    <i class="fas fa-chair text-blue-400 text-lg mb-2"></i>
+                                    <p class="text-2xl font-bold text-white"><span id="prm-seats"></span></p>
+                                    <p class="text-xs text-gray-500 mt-1"><?= t('dashboard.seats_available') ?></p>
                                 </div>
+                                <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/40 text-center" id="prm-return-container" style="display:none;">
+                                    <i class="fas fa-undo text-purple-400 text-lg mb-2"></i>
+                                    <p class="text-2xl font-bold text-purple-400" id="prm-return-time"></p>
+                                    <p class="text-xs text-gray-500 mt-1"><?= t('dashboard.return') ?></p>
+                                </div>
+                            </div>
+
+                            <!-- Descripcion -->
+                            <div>
+                                <h5 class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                    <i class="fas fa-comment-dots"></i> <?= t('dashboard.ride_comments') ?>
+                                </h5>
+                                <p class="text-sm text-gray-300 leading-relaxed bg-gray-800/20 p-5 rounded-xl border border-gray-700/30" id="prm-desc"></p>
+                            </div>
+
+                            <!-- Preferencias -->
+                            <div id="prm-prefs-container" style="display:none;">
+                                <h5 class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                    <i class="fas fa-sliders-h"></i> <?= t('pref.title') ?>
+                                </h5>
+                                <div class="flex flex-wrap gap-2" id="prm-prefs"></div>
                             </div>
                         </div>
 
-                        <!-- Info del usuario -->
-                        <div class="md:col-span-1">
-                            <div class="bg-gray-800 rounded-xl p-4 border border-gray-700 h-full flex flex-col">
+                        <!-- Columna derecha: Usuario (2/5) -->
+                        <div class="lg:col-span-2">
+                            <div class="bg-gray-800/30 rounded-xl p-5 border border-gray-700/40 h-full flex flex-col">
                                 <div class="text-center mb-4">
-                                    <div class="w-20 h-20 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700" id="prm-avatar"></div>
-                                    <h4 class="font-bold text-white truncate" id="prm-driver-name"></h4>
-                                    <div class="flex items-center justify-center mt-2">
-                                        <span class="bg-yellow-500/10 text-yellow-500 px-2.5 py-1 rounded-full border border-yellow-500/20 flex items-center gap-1.5 text-xs font-semibold">
-                                            <i class="fas fa-star text-xs"></i>
+                                    <div class="w-20 h-20 rounded-xl mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 ring-2 ring-gray-700/50" id="prm-avatar"></div>
+                                    <h4 class="text-lg font-bold text-white" id="prm-driver-name"></h4>
+                                    <div class="flex items-center justify-center gap-2 mt-2">
+                                        <span class="bg-yellow-500/10 text-yellow-500 px-2.5 py-1 rounded-lg border border-yellow-500/20 flex items-center gap-1 text-xs font-semibold">
+                                            <i class="fas fa-star text-[10px]"></i>
                                             <span id="prm-rating"></span>
                                         </span>
                                     </div>
                                 </div>
-                                <div class="space-y-2.5 pt-4 border-t border-gray-700 flex-1">
-                                    <div class="flex items-center gap-2.5 text-sm">
+                                <div class="space-y-2 pt-3 border-t border-gray-700/40 flex-1">
+                                    <div class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-gray-800/40">
                                         <i class="fas fa-shield-alt w-4 text-center" id="prm-verified-icon"></i>
-                                        <span id="prm-verified" class="text-sm"></span>
+                                        <span id="prm-verified" class="text-sm font-medium"></span>
                                     </div>
                                 </div>
-                                <div class="mt-4 pt-4 border-t border-gray-700">
-                                    <a href="<?= url('/profile') ?>?id=<?= (int)$profileUser['idUsuario'] ?>" class="w-full flex justify-center items-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-lg py-2 text-sm font-medium transition-all">
-                                        <i class="fas fa-user text-xs"></i> Ver perfil
+                                <div class="mt-4 pt-3 border-t border-gray-700/40 space-y-2">
+                                    <a href="<?= url('/profile') ?>?id=<?= (int)$profileUser['idUsuario'] ?>" class="w-full flex justify-center items-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl py-2.5 text-sm font-medium transition-all">
+                                        <i class="fas fa-user text-xs"></i> <?= t('dashboard.view_profile') ?>
                                     </a>
+                                    <a href="#" id="prm-btn-contact"
+                                       class="w-full flex justify-center items-center gap-2 bg-gray-700/40 hover:bg-gray-700 text-gray-300 hover:text-white border border-gray-600/40 rounded-xl py-2.5 text-sm font-medium transition-all">
+                                        <i class="fas fa-comment-alt text-xs"></i> <?= t('dashboard.contact') ?>
+                                    </a>
+                                    <button type="button" id="prm-btn-report"
+                                            class="hidden w-full px-3 py-2.5 rounded-xl border border-red-500/20 bg-red-500/5 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all flex items-center justify-center gap-2"
+                                            onclick="reportProfileRide()">
+                                        <i class="fas fa-flag text-xs"></i> Reportar
+                                    </button>
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
                 <!-- Footer -->
-                <div class="px-5 py-4 sm:px-6 border-t border-gray-700 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+                <div class="px-7 py-4 border-t border-gray-700/50 bg-gray-800/10 flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-3">
                     <button type="button"
-                            class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-gray-600 bg-transparent text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-white transition-all"
+                            class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-gray-600 bg-transparent text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-white transition-all"
                             onclick="closeProfileRideModal()">
-                        Cerrar
+                        <?= t('dashboard.close') ?>
                     </button>
-                    <a href="#" id="prm-btn-contact"
-                       class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-gray-600 bg-gray-800 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-comment-alt text-xs"></i> Contactar
-                    </a>
                     <button type="button" id="prm-btn-reserve"
-                            class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-secondary text-sm font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
-                        <i class="fas fa-ticket-alt text-xs"></i> Solicitar Plaza
+                            class="w-full sm:w-auto px-7 py-2.5 rounded-xl bg-primary text-secondary text-sm font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                        <i class="fas fa-ticket-alt"></i> <?= t('dashboard.request_seat') ?>
                     </button>
                 </div>
 
             </div>
-        </div>
     </div>
 </div>
 
@@ -977,6 +1005,15 @@
     const prmBackdrop = document.getElementById('profile-modal-backdrop');
     const prmPanel    = document.getElementById('profile-modal-panel');
     const prmCurrentUserId = <?= (int)$_SESSION['user_id'] ?>;
+    let prmCurrentRide = null;
+
+    function reportProfileRide() {
+        if (!prmCurrentRide) return;
+        openReportModal('anuncio', {
+            idAnuncio: prmCurrentRide.idAnuncio,
+            idUsuario: prmCurrentRide.idUsuario
+        });
+    }
 
     const prmBtnStyles = {
         active:   'w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-secondary text-sm font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2',
@@ -984,7 +1021,12 @@
     };
 
     function openProfileRideModal(ride) {
+        prmCurrentRide = ride;
         const btnReserve = document.getElementById('prm-btn-reserve');
+        const btnReport  = document.getElementById('prm-btn-report');
+
+        // Mostrar boton de reporte solo para anuncios de otros usuarios
+        if (btnReport) btnReport.classList.toggle('hidden', ride.idUsuario == prmCurrentUserId);
 
         // Tipo badge
         const badge = document.getElementById('prm-tipo-badge');
@@ -1002,18 +1044,30 @@
             : '—';
 
         // Ruta
-        document.getElementById('prm-origin').textContent     = ride.nombreOrigen;
-        document.getElementById('prm-dest').textContent       = ride.nombreDestino;
-        document.getElementById('prm-time-start').textContent = ride.horaSalida.substring(0, 5);
-        document.getElementById('prm-time-end').textContent   = ride.horaRegreso
-            ? '<?= t('profile.return_time') ?>' + ride.horaRegreso.substring(0, 5)
-            : '<?= t('profile.arrival_approx') ?>';
+        document.getElementById('prm-origin').textContent = ride.nombreOrigen;
+        document.getElementById('prm-dest').textContent   = ride.nombreDestino;
+
+        const prmTimeStart = document.getElementById('prm-time-start');
+        prmTimeStart.innerHTML = '<i class="far fa-clock text-xs"></i> <?= t('dashboard.departure') ?>: ' + ride.horaSalida.substring(0, 5);
+
+        const prmTimeEnd = document.getElementById('prm-time-end');
+        const prmArrival = ride.horaLlegada ? ride.horaLlegada.substring(0, 5) : '--:--';
+        prmTimeEnd.innerHTML = '<i class="far fa-clock text-xs"></i> <?= t('dashboard.arrival_label') ?>: ' + prmArrival;
+
+        // Hora de regreso
+        const prmReturnContainer = document.getElementById('prm-return-container');
+        if (ride.horaRegreso) {
+            document.getElementById('prm-return-time').textContent = ride.horaRegreso.substring(0, 5);
+            prmReturnContainer.style.display = '';
+        } else {
+            prmReturnContainer.style.display = 'none';
+        }
 
         // Precio y plazas
         const priceEl        = document.getElementById('prm-price');
         const priceContainer = document.getElementById('prm-price-container');
-        if (ride.tipo.toLowerCase() === 'ofrezco' && ride.precio != null) {
-            priceEl.textContent = new Intl.NumberFormat('<?= currentLang() === 'es' ? 'es-ES' : 'en-GB' ?>', { style: 'currency', currency: 'EUR' }).format(ride.precio);
+        if (ride.tipo.toLowerCase() === 'ofrezco') {
+            priceEl.textContent = new Intl.NumberFormat('<?= currentLang() === 'es' ? 'es-ES' : 'en-GB' ?>', { style: 'currency', currency: 'EUR' }).format(ride.precio || 0);
             priceContainer.style.display = '';
         } else {
             priceContainer.style.display = 'none';
@@ -1024,10 +1078,10 @@
         const avatarEl = document.getElementById('prm-avatar');
         if (ride.foto_perfil) {
             avatarEl.innerHTML = `<img src="public/uploads/profiles/${encodeURIComponent(ride.foto_perfil)}" alt="avatar" class="w-full h-full object-cover">`;
-            avatarEl.className = 'w-20 h-20 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700';
+            avatarEl.className = 'w-20 h-20 rounded-xl mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 ring-2 ring-gray-700/50';
         } else {
             avatarEl.innerHTML = ride.nombreUsuario.substring(0, 2).toUpperCase();
-            avatarEl.className = 'w-20 h-20 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg bg-gradient-to-br from-primary to-primary-dark';
+            avatarEl.className = 'w-20 h-20 rounded-xl mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg bg-gradient-to-br from-primary to-primary-dark ring-2 ring-primary/20';
         }
 
         // Nombre y rating
@@ -1046,6 +1100,29 @@
         } else {
             verEl.textContent  = 'No verificado';        verEl.className  = 'text-sm text-gray-500';
             verIcon.className  = 'fas fa-shield-alt w-4 text-center text-gray-500';
+        }
+
+        // Descripcion
+        document.getElementById('prm-desc').textContent = ride.descripcion?.trim()
+            ? ride.descripcion
+            : '<?= t('dashboard.no_comments') ?>';
+
+        // Preferencias de viaje
+        const prmPrefsContainer = document.getElementById('prm-prefs-container');
+        const prmPrefsEl = document.getElementById('prm-prefs');
+        const prmPrefIcons = {silencio:'fa-volume-mute',charla:'fa-comments',mascotas:'fa-paw',no_fumar:'fa-smoking-ban',equipaje:'fa-suitcase',musica:'fa-music'};
+        const prmPrefColors = {silencio:'blue',charla:'green',mascotas:'yellow',no_fumar:'red',equipaje:'purple',musica:'pink'};
+        const prmPrefLabels = <?= json_encode([
+            'silencio' => t('pref.silencio'), 'charla' => t('pref.charla'), 'mascotas' => t('pref.mascotas'),
+            'no_fumar' => t('pref.no_fumar'), 'equipaje' => t('pref.equipaje'), 'musica' => t('pref.musica')
+        ]) ?>;
+        let prmPrefs = [];
+        try { prmPrefs = JSON.parse(ride.preferencias_viaje || '[]'); } catch(e) {}
+        if (prmPrefs.length > 0) {
+            prmPrefsEl.innerHTML = prmPrefs.map(p => `<span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-${prmPrefColors[p]}-500/10 text-${prmPrefColors[p]}-400 border border-${prmPrefColors[p]}-500/20 text-xs font-medium"><i class="fas ${prmPrefIcons[p]}"></i> ${prmPrefLabels[p] || p}</span>`).join('');
+            prmPrefsContainer.style.display = '';
+        } else {
+            prmPrefsContainer.style.display = 'none';
         }
 
         // Contactar

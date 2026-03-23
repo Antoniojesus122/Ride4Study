@@ -63,7 +63,7 @@
                     <div class="mx-auto max-w-7xl px-6 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <div class="space-y-8">
 
-                            <h1 class="text-5xl lg:text-7xl font-bold leading-tight">
+                            <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
                                 <?= t('landing.hero_1') ?><br>
                                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400"><?= t('landing.hero_2') ?></span>
                             </h1>

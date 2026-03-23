@@ -57,7 +57,7 @@
             }
         </style>
     </head>
-    <body class="h-full text-gray-100 flex flex-col pt-28 bg-cover bg-center">
+    <body class="min-h-screen text-gray-100 flex flex-col pt-28 bg-cover bg-center">
         <div class="fixed inset-0 bg-gray-900/90 z-[-1]"></div>
             <nav class="fixed top-6 inset-x-0 mx-auto z-50 w-full max-w-5xl px-4 sm:px-6">
 
@@ -231,7 +231,7 @@
 
                 <!-- Menú móvil (solo para usuario logueado) -->
                 <?php if ($isLoggedIn): ?>
-                    <div id="mobile-menu" class="hidden md:hidden mt-3 mx-0 rounded-2xl bg-[#1a1b26]/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden">
+                    <div id="mobile-menu" class="hidden md:hidden mt-2 mx-0 rounded-2xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden">
 
                         <!-- Cabecera del menú móvil -->
                         <div class="px-4 py-4 border-b border-white/10 bg-white/5 flex items-center gap-3">

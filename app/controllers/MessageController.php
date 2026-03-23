@@ -119,12 +119,25 @@ class MessageController {
         $userId         = (int) $_SESSION['user_id'];
         $conversationId = isset($_GET['conversation_id']) ? (int) $_GET['conversation_id'] : null;
         $offset         = isset($_GET['offset']) ? max(0, (int) $_GET['offset']) : 0;
+        $afterId        = isset($_GET['after']) ? (int) $_GET['after'] : 0;
         $limit          = 30;
 
         if (!$conversationId) exit;
 
         // Verificar pertenencia
         if (!$this->conversation->belongsToUser($conversationId, $userId)) {
+            exit;
+        }
+
+        // Polling: obtener solo mensajes nuevos (después de un ID)
+        if ($afterId > 0) {
+            $messages = $this->message->getMessagesAfter($conversationId, $userId, $afterId);
+            // Filtrar mensajes del propio usuario (ya los añadimos via optimistic update)
+            $messages = array_filter($messages, fn($m) => (int)$m['idEmisor'] !== $userId);
+            $messages = array_values($messages);
+            if (!empty($messages)) {
+                require __DIR__ . '/../../views/user/chat-messages.partial.php';
+            }
             exit;
         }
 
@@ -180,7 +193,7 @@ class MessageController {
             'mensaje'        => $mensaje,
         ];
 
-        $this->message->createMessage($data);
+        $msgId = $this->message->createMessage($data);
 
         // Notificación in-app al receptor
         $senderName = $_SESSION['user_name'] ?? 'Un usuario';
@@ -203,11 +216,28 @@ class MessageController {
                     <strong>' . htmlspecialchars($senderName) . '</strong> te ha enviado un nuevo mensaje en Ride4Study.<br><br>
                     Accede a tu bandeja de entrada para leerlo y responder.',
                     null,
-                    url('/chat') . '?conversation_id=' . $conversationId,
+                    fullUrl('/chat') . '?conversation_id=' . $conversationId,
                     'Ver mensaje'
                 );
                 $this->mailService->send($receiver['correo'], $receiver['nombre'], 'Nuevo mensaje · Ride4Study', $html);
             }
+        }
+
+        // Respuesta AJAX 
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => true,
+                'message' => [
+                    'idMensaje'     => $msgId,
+                    'idEmisor'      => $userId,
+                    'mensaje'       => htmlspecialchars($mensaje),
+                    'fechaCreacion' => date('Y-m-d H:i:s'),
+                    'leido'         => 0,
+                ]
+            ]);
+            exit;
         }
 
         header('Location: ' . url('/chat') . '?conversation_id=' . $conversationId);

@@ -1,6 +1,6 @@
 <!-- Footer -->
-    <footer class="relative bg-gray-900 border-t border-gray-800">
-        <div class="mx-auto max-w-7xl px-6 py-16">
+    <footer class="relative bg-gray-900 border-t border-gray-800 mt-auto">
+        <div class="mx-auto max-w-7xl px-6 py-12 lg:py-16">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12 items-start">
                 <!-- Logo y descripcion -->
                 <div>

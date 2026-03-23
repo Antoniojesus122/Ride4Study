@@ -24,132 +24,137 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
 ?>
 
 <body>
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div class="bg-surface rounded-2xl border border-gray-700 shadow-2xl overflow-hidden relative">
-            <!-- Alertas de error -->
-            <?php if (!empty($errors)): ?>
-                <div class="bg-red-500/10 border-l-4 border-red-500 text-red-400 p-4 mb-0" role="alert">
-                    <p class="font-bold"><?= t('publish.fix_errors') ?></p>
-                    <ul class="list-disc list-inside text-sm">
-                        <?php foreach ($errors as $error): ?>
-                            <li><?= $error ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
+    <div class="w-full mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-10">
+
+        <!-- Header -->
+        <div class="mb-8 flex items-center justify-between">
+            <div>
+                <h2 class="text-3xl lg:text-4xl font-bold text-white"><?= $pageTitle ?></h2>
+                <p class="text-gray-400 mt-2 lg:text-lg"><?= $pageDesc ?></p>
+            </div>
+            <a href="<?= url('/my-rides') ?>" class="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-800 transition-all font-medium">
+                <i class="fas fa-arrow-left"></i> <?= t('publish.cancel') ?>
+            </a>
+        </div>
+
+        <!-- Alertas de error -->
+        <?php if (!empty($errors)): ?>
+            <div class="bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-xl mb-6" role="alert">
+                <p class="font-bold mb-1"><i class="fas fa-exclamation-triangle mr-2"></i><?= t('publish.fix_errors') ?></p>
+                <ul class="list-disc list-inside text-sm">
+                    <?php foreach ($errors as $error): ?>
+                        <li><?= $error ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
+        <form action="<?= $formAction ?>" method="POST" id="publishForm">
+            <?php if ($isEdit): ?>
+                <input type="hidden" name="ride_id" value="<?= $ride['idAnuncio'] ?>">
             <?php endif; ?>
 
-            <div class="p-8">
-                <div class="mb-8">
-                    <h2 class="text-3xl font-bold text-white"><?= $pageTitle ?></h2>
-                    <p class="text-gray-400 mt-2"><?= $pageDesc ?></p>
-                </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                <form action="<?= $formAction ?>" method="POST" id="publishForm" class="space-y-8">
-                    <?php if ($isEdit): ?>
-                        <input type="hidden" name="ride_id" value="<?= $ride['idAnuncio'] ?>">
-                    <?php endif; ?>
+                <!-- Columna izquierda: Tipo + Ruta + Horarios (7/12) -->
+                <div class="lg:col-span-7 space-y-6">
 
-                    <!-- Sección 1: Ruta -->
-                    <div class="space-y-6">
-                        <h3 class="text-lg font-semibold text-primary border-b border-gray-700 pb-2 flex items-center gap-2">
-                            <i class="fas fa-map-marked-alt"></i> <?= t('publish.route_schedule') ?>
+                    <!-- Tipo de viaje -->
+                    <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                        <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center"><i class="fas fa-exchange-alt text-primary text-sm"></i></div>
+                            <?= t('publish.driver_or_passenger') ?>
                         </h3>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Tipo -->
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-400 mb-2"><?= t('publish.driver_or_passenger') ?></label>
-                                <?php
-                                    $currentType = isset($_POST['tipo']) ? $_POST['tipo'] : ($isEdit ? strtolower($ride['tipo']) : 'ofrezco');
-                                ?>
+                        <?php
+                            $currentType = isset($_POST['tipo']) ? $_POST['tipo'] : ($isEdit ? strtolower($ride['tipo']) : 'ofrezco');
+                        ?>
 
-                                <?php if ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers): ?>
-                                    <!-- Mensaje informativo cuando hay pasajeros confirmados -->
-                                    <div class="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl mb-3">
-                                        <div class="flex items-start gap-3">
-                                            <i class="fas fa-lock text-yellow-500 mt-0.5"></i>
-                                            <div>
-                                                <p class="text-yellow-400 text-sm font-medium"><?= t('publish.cant_change_type') ?></p>
-                                                <p class="text-yellow-300/70 text-xs mt-1"><?= t('publish.cant_change_type_desc') ?></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
-
-                                <div class="flex gap-4">
-                                    <label class="flex-1">
-                                        <input type="radio" name="tipo" value="ofrezco" class="peer hidden"
-                                            <?= $currentType == 'ofrezco' ? 'checked' : '' ?>
-                                            <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'disabled' : '' ?>>
-                                        <div class="p-4 rounded-xl border border-gray-600 <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-800' ?> peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-white text-gray-400 transition-all text-center">
-                                            <i class="fas fa-car text-xl mb-2"></i>
-                                            <div class="font-bold"><?= t('publish.i_drive') ?></div>
-                                        </div>
-                                    </label>
-                                    <label class="flex-1">
-                                        <input type="radio" name="tipo" value="busco" class="peer hidden"
-                                            <?= $currentType == 'busco' ? 'checked' : '' ?>
-                                            <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'disabled' : '' ?>>
-                                        <div class="p-4 rounded-xl border border-gray-600 <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-800' ?> peer-checked:border-purple-500 peer-checked:bg-purple-500/10 peer-checked:text-white text-gray-400 transition-all text-center">
-                                            <i class="fas fa-walking text-xl mb-2"></i>
-                                            <div class="font-bold"><?= t('publish.i_search') ?></div>
-                                        </div>
-                                    </label>
+                        <?php if ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers): ?>
+                            <div class="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl mb-4">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-lock text-yellow-500"></i>
+                                    <p class="text-yellow-400 text-sm font-medium"><?= t('publish.cant_change_type') ?></p>
                                 </div>
                             </div>
+                        <?php endif; ?>
 
-                            <!-- Origen (Autocompletado) -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="tipo" value="ofrezco" class="peer hidden"
+                                    <?= $currentType == 'ofrezco' ? 'checked' : '' ?>
+                                    <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'disabled' : '' ?>>
+                                <div class="p-5 rounded-xl border-2 border-gray-600 <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'opacity-60 cursor-not-allowed' : 'hover:bg-gray-800' ?> peer-checked:border-primary peer-checked:bg-primary/10 text-gray-400 peer-checked:text-white transition-all text-center">
+                                    <i class="fas fa-car text-2xl mb-2"></i>
+                                    <div class="font-bold text-sm lg:text-base"><?= t('publish.i_drive') ?></div>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="tipo" value="busco" class="peer hidden"
+                                    <?= $currentType == 'busco' ? 'checked' : '' ?>
+                                    <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'disabled' : '' ?>>
+                                <div class="p-5 rounded-xl border-2 border-gray-600 <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'opacity-60 cursor-not-allowed' : 'hover:bg-gray-800' ?> peer-checked:border-purple-500 peer-checked:bg-purple-500/10 text-gray-400 peer-checked:text-white transition-all text-center">
+                                    <i class="fas fa-walking text-2xl mb-2"></i>
+                                    <div class="font-bold text-sm lg:text-base"><?= t('publish.i_search') ?></div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Ruta: Origen y Destino -->
+                    <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                        <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><i class="fas fa-route text-blue-400 text-sm"></i></div>
+                            <?= t('publish.route_schedule') ?>
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <!-- Origen -->
                             <div class="group relative">
                                 <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.origin') ?></label>
                                 <div class="relative">
-                                    <i class="fas fa-map-marker-alt absolute left-3 top-3.5 text-gray-500 z-10"></i>
+                                    <i class="fas fa-map-marker-alt absolute left-3 top-3.5 text-primary z-10"></i>
                                     <input type="text" id="origen" autocomplete="off" required
                                         value="<?= htmlspecialchars($preOrigen) ?>"
                                         placeholder="<?= t('publish.city_placeholder') ?>"
                                         class="block w-full pl-10 pr-10 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary placeholder-gray-500 outline-none">
-                                    <!-- Spinner de carga -->
-                                    <div id="origen-spinner" class="hidden absolute right-3 top-3.5">
-                                        <i class="fas fa-spinner fa-spin text-gray-500 text-sm"></i>
-                                    </div>
-                                    <!-- Icono de check cuando se selecciona -->
-                                    <div id="origen-check" class="<?= !empty($preOrigenLat) ? '' : 'hidden' ?> absolute right-3 top-3.5">
-                                        <i class="fas fa-check-circle text-green-400 text-sm"></i>
-                                    </div>
-                                    <!-- Hidden inputs para enviar nombre + coordenadas -->
+                                    <div id="origen-spinner" class="hidden absolute right-3 top-3.5"><i class="fas fa-spinner fa-spin text-gray-500 text-sm"></i></div>
+                                    <div id="origen-check" class="<?= !empty($preOrigenLat) ? '' : 'hidden' ?> absolute right-3 top-3.5"><i class="fas fa-check-circle text-green-400 text-sm"></i></div>
                                     <input type="hidden" name="origen_nombre" id="origen_nombre" value="<?= htmlspecialchars($preOrigen) ?>">
                                     <input type="hidden" name="origen_lat" id="origen_lat" value="<?= htmlspecialchars($preOrigenLat) ?>">
                                     <input type="hidden" name="origen_lng" id="origen_lng" value="<?= htmlspecialchars($preOrigenLng) ?>">
                                 </div>
-                                <!-- Dropdown de sugerencias -->
                                 <div id="origen-dropdown" class="hidden absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl overflow-hidden"></div>
                             </div>
 
-                            <!-- Destino (Autocompletado) -->
+                            <!-- Destino -->
                             <div class="group relative">
                                 <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.destination') ?></label>
                                 <div class="relative">
-                                    <i class="fas fa-flag-checkered absolute left-3 top-3.5 text-gray-500 z-10"></i>
+                                    <i class="fas fa-flag-checkered absolute left-3 top-3.5 text-red-400 z-10"></i>
                                     <input type="text" id="destino" autocomplete="off" required
                                         value="<?= htmlspecialchars($preDestino) ?>"
                                         placeholder="<?= t('publish.city_placeholder') ?>"
                                         class="block w-full pl-10 pr-10 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary placeholder-gray-500 outline-none">
-                                    <!-- Spinner de carga -->
-                                    <div id="destino-spinner" class="hidden absolute right-3 top-3.5">
-                                        <i class="fas fa-spinner fa-spin text-gray-500 text-sm"></i>
-                                    </div>
-                                    <!-- Icono de check cuando se selecciona -->
-                                    <div id="destino-check" class="<?= !empty($preDestinoLat) ? '' : 'hidden' ?> absolute right-3 top-3.5">
-                                        <i class="fas fa-check-circle text-green-400 text-sm"></i>
-                                    </div>
-                                    <!-- Hidden inputs para enviar nombre + coordenadas -->
+                                    <div id="destino-spinner" class="hidden absolute right-3 top-3.5"><i class="fas fa-spinner fa-spin text-gray-500 text-sm"></i></div>
+                                    <div id="destino-check" class="<?= !empty($preDestinoLat) ? '' : 'hidden' ?> absolute right-3 top-3.5"><i class="fas fa-check-circle text-green-400 text-sm"></i></div>
                                     <input type="hidden" name="destino_nombre" id="destino_nombre" value="<?= htmlspecialchars($preDestino) ?>">
                                     <input type="hidden" name="destino_lat" id="destino_lat" value="<?= htmlspecialchars($preDestinoLat) ?>">
                                     <input type="hidden" name="destino_lng" id="destino_lng" value="<?= htmlspecialchars($preDestinoLng) ?>">
                                 </div>
-                                <!-- Dropdown de sugerencias -->
                                 <div id="destino-dropdown" class="hidden absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl overflow-hidden"></div>
                             </div>
+                        </div>
+                    </div>
 
+                    <!-- Horarios -->
+                    <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                        <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center"><i class="far fa-clock text-purple-400 text-sm"></i></div>
+                            <?= t('publish.schedule') ?>
+                        </h3>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                             <!-- Fecha -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.departure_date') ?></label>
@@ -172,11 +177,11 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                                 </div>
                             </div>
 
-                            <!-- Hora Regreso (Opcional) -->
+                            <!-- Hora Regreso -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.return_time') ?></label>
                                 <div class="relative">
-                                    <i class="fas fa-history absolute left-3 top-3.5 text-gray-500"></i>
+                                    <i class="fas fa-undo absolute left-3 top-3.5 text-gray-500"></i>
                                     <input type="time" name="horaRegreso" id="horaRegreso"
                                         value="<?= getVal('horaRegreso', $isEdit ? $ride : [], $_POST) ?>"
                                         class="block w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary [color-scheme:dark]">
@@ -185,14 +190,19 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Sección 2: Detalles del Viaje -->
-                    <div class="space-y-6">
-                        <h3 class="text-lg font-semibold text-primary border-b border-gray-700 pb-2 flex items-center gap-2">
-                            <i class="fas fa-info-circle"></i> <?= t('publish.details') ?>
+                <!-- Columna derecha: Detalles + Acciones (5/12) -->
+                <div class="lg:col-span-5 space-y-6">
+
+                    <!-- Plazas y Precio -->
+                    <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                        <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center"><i class="fas fa-sliders-h text-green-400 text-sm"></i></div>
+                            <?= t('publish.details') ?>
                         </h3>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-2 gap-5">
                             <!-- Plazas -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.seats') ?></label>
@@ -215,27 +225,33 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                                         class="block w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary placeholder-gray-500">
                                 </div>
                             </div>
-
-                            <!-- Descripción -->
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.comments') ?></label>
-                                <textarea name="descripcion" rows="3"
-                                        placeholder="<?= t('publish.comments_placeholder') ?>"
-                                        class="block w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary resize-none placeholder-gray-500"><?= htmlspecialchars(getVal('descripcion', $isEdit ? $ride : [], $_POST)) ?></textarea>
-                            </div>
                         </div>
                     </div>
 
-                    <div class="pt-6 border-t border-gray-700 flex items-center justify-end gap-4">
-                        <a href="<?= url('/dashboard') ?>" class="px-6 py-3 rounded-xl border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-800 transition-all font-medium"><?= t('publish.cancel') ?></a>
-                        <button type="submit" class="px-8 py-3 rounded-xl bg-primary text-secondary font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5">
-                            <?= $submitText ?> <i class="fas fa-paper-plane ml-2"></i>
-                        </button>
+                    <!-- Descripcion -->
+                    <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                        <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center"><i class="fas fa-comment-dots text-yellow-400 text-sm"></i></div>
+                            <?= t('publish.comments') ?>
+                        </h3>
+                        <textarea name="descripcion" rows="4"
+                                placeholder="<?= t('publish.comments_placeholder') ?>"
+                                class="block w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary resize-none placeholder-gray-500"><?= htmlspecialchars(getVal('descripcion', $isEdit ? $ride : [], $_POST)) ?></textarea>
+                        <p class="text-xs text-gray-500 mt-2"><?= t('publish.max_chars') ?></p>
                     </div>
 
-                </form>
+                    <!-- Boton de envio -->
+                    <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                        <button type="submit" class="w-full px-8 py-4 rounded-xl bg-primary text-secondary font-bold text-lg hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5">
+                            <i class="fas fa-paper-plane mr-2"></i> <?= $submitText ?>
+                        </button>
+                        <a href="<?= url('/my-rides') ?>" class="w-full flex items-center justify-center mt-3 px-6 py-3 rounded-xl border border-gray-600 text-gray-400 hover:text-white hover:bg-gray-800 transition-all font-medium">
+                            <?= t('publish.cancel') ?>
+                        </a>
+                    </div>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 
     <script>

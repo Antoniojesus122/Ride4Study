@@ -138,21 +138,43 @@
 
         <!-- Sección de la imagen -->
         <div class="relative hidden w-0 flex-1 lg:block">
-          <div class="absolute inset-0 flex flex-col justify-between p-12 text-white split-bg" style="background-image: url('public/img/imgRegister.jpg');">
-            <div class="absolute inset-0 bg-gradient-to-r from-secondary/80 to-transparent"></div>
+          <div class="absolute inset-0 flex flex-col justify-between p-12 text-white" style="background-image: url('public/img/imgRegister.jpg'); background-size: cover; background-position: center;">
+            <div class="absolute inset-0 bg-gradient-to-r from-secondary/90 via-secondary/60 to-secondary/30"></div>
             <div class="z-10 relative">
-              <h1 class="text-5xl font-bold leading-tight tracking-tight drop-shadow-lg"><?= t('register.hero_title') ?></h1>
-              <p class="mt-6 text-xl max-w-md text-gray-200 drop-shadow-md"><?= t('register.hero_desc') ?></p>
+              <h1 class="text-5xl font-bold leading-tight tracking-tight drop-shadow-lg">
+                <?= t('register.hero_title') ?>
+              </h1>
+              <p class="mt-6 text-xl max-w-md text-gray-300 drop-shadow-md"><?= t('register.hero_desc') ?></p>
+
+              <div class="mt-10 space-y-3 max-w-sm">
+                <div class="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
+                  <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+                    <i class="fas fa-user-check text-primary text-sm"></i>
+                  </div>
+                  <p class="text-sm text-gray-300"><?= t('register.hero_feature_1') ?></p>
+                </div>
+                <div class="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
+                  <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+                    <i class="fas fa-comments text-primary text-sm"></i>
+                  </div>
+                  <p class="text-sm text-gray-300"><?= t('register.hero_feature_2') ?></p>
+                </div>
+                <div class="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
+                  <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+                    <i class="fas fa-euro-sign text-primary text-sm"></i>
+                  </div>
+                  <p class="text-sm text-gray-300"><?= t('register.hero_feature_3') ?></p>
+                </div>
+              </div>
             </div>
-            <div class="z-10 relative text-sm text-gray-400">
+            <div class="z-10 relative text-sm text-gray-500">
               <div class="flex items-center gap-4">
                   <div class="flex -space-x-2">
-                    <!-- Simulación de avatars -->
-                    <div class="h-8 w-8 rounded-full ring-2 ring-secondary bg-gray-500"></div>
-                    <div class="h-8 w-8 rounded-full ring-2 ring-secondary bg-gray-600"></div>
-                    <div class="h-8 w-8 rounded-full ring-2 ring-secondary bg-gray-700"></div>
+                    <div class="h-8 w-8 rounded-full ring-2 ring-secondary bg-gradient-to-br from-primary/40 to-primary/20 flex items-center justify-center text-xs text-primary font-bold">A</div>
+                    <div class="h-8 w-8 rounded-full ring-2 ring-secondary bg-gradient-to-br from-blue-500/40 to-blue-500/20 flex items-center justify-center text-xs text-blue-300 font-bold">M</div>
+                    <div class="h-8 w-8 rounded-full ring-2 ring-secondary bg-gradient-to-br from-purple-500/40 to-purple-500/20 flex items-center justify-center text-xs text-purple-300 font-bold">L</div>
                   </div>
-                  <span><?= t('register.students_count') ?></span>
+                  <span class="text-gray-400"><?= t('register.students_count') ?></span>
               </div>
               <div class="mt-4">
                 &copy; <?= date('Y') ?> Ride4Study. <?= t('register.rights') ?>

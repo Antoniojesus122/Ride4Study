@@ -109,6 +109,9 @@ return [
     'login.hero_1' => 'Your ride,',
     'login.hero_2' => 'your community.',
     'login.hero_desc' => 'Join the safest and most efficient student carpooling platform.',
+    'login.hero_feature_1' => 'Share rides with verified students',
+    'login.hero_feature_2' => 'Safe and trusted rides',
+    'login.hero_feature_3' => 'Reduce your carbon footprint',
     'login.rights' => 'All rights reserved.',
 
     // AUTH: REGISTER 
@@ -129,6 +132,9 @@ return [
     'register.submit' => 'Create my account',
     'register.hero_title' => 'Explore new horizons.',
     'register.hero_desc' => 'Sign up in seconds. No hidden fees. Just community.',
+    'register.hero_feature_1' => 'Quick and free registration',
+    'register.hero_feature_2' => 'Built-in chat with drivers',
+    'register.hero_feature_3' => 'Save money on your commute',
     'register.students_count' => '+100 registered students',
     'register.rights' => 'All rights reserved.',
 
@@ -198,6 +204,9 @@ return [
     'dashboard.pending' => 'Pending',
     'dashboard.not_verified' => 'Not verified',
     'dashboard.arrival_approx' => 'Approx. arrival:',
+    'dashboard.departure' => 'Departure',
+    'dashboard.arrival' => 'Arrival approx',
+    'dashboard.arrival_label' => 'Arrival',
     'dashboard.view_detail' => 'View detail',
     'dashboard.per_seat' => '€',
     'dashboard.err_own_ride' => 'You cannot book your own ride.',
@@ -226,6 +235,7 @@ return [
     'dashboard.contact' => 'Contact',
     'dashboard.request_seat' => 'Request Seat',
     'dashboard.return_time' => 'Return:',
+    'dashboard.return' => 'Return',
     'dashboard.member_since' => 'Member since',
     'dashboard.your_ride' => 'Your listing',
     'dashboard.pending_request' => 'Pending request',
@@ -301,6 +311,9 @@ return [
     'myrides.cancel_title' => 'Cancel booking',
     'myrides.cancel_confirm' => 'Are you sure you want to cancel your booking? The listing owner will be notified by email.',
     'myrides.cancel_back' => 'Go back',
+    'myrides.page' => 'Page',
+    'myrides.of' => 'of',
+    'myrides.total_items' => 'items',
 
     // PUBLISH 
     'publish.save' => 'Save Changes',
@@ -323,6 +336,8 @@ return [
     'publish.departure_time' => 'Departure time',
     'publish.return_time' => 'Return time (Optional)',
     'publish.return_hint' => 'Only if you make a return trip the same day.',
+    'publish.schedule' => 'Schedule',
+    'publish.max_chars' => 'Maximum 500 characters.',
     'publish.details' => 'Ride Details',
     'publish.seats' => 'Available seats',
     'publish.price' => 'Price per seat (€)',
@@ -768,6 +783,22 @@ return [
     'auth.account_banned' => 'Your account has been suspended.',
     'auth.ban_reason' => 'Reason',
     'auth.ban_until' => 'Until',
+
+    // 2FA Admin
+    'auth.2fa_title' => 'Security verification',
+    'auth.2fa_subtitle' => 'We have sent a 6-digit code to your email address.',
+    'auth.2fa_check_email' => 'Check your inbox and spam folder',
+    'auth.2fa_verify' => 'Verify code',
+    'auth.2fa_back' => 'Back to login',
+    'auth.2fa_empty' => 'Enter the verification code.',
+    'auth.2fa_invalid' => 'The code must be 6 digits.',
+    'auth.2fa_wrong' => 'Incorrect code. Try again.',
+    'auth.2fa_expired' => 'The code has expired. Please log in again.',
+    'auth.2fa_blocked' => 'Too many failed attempts. Please log in again.',
+    'auth.2fa_attempts' => 'Attempts remaining',
+    'auth.2fa_hero_1' => 'Protected',
+    'auth.2fa_hero_2' => 'access',
+    'auth.2fa_hero_desc' => 'Two-step verification protects your admin account from unauthorized access.',
 
     // Chat pagination
     'chat.load_older' => 'Load older messages',

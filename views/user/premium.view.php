@@ -1,6 +1,6 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
 
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-8">
 
     <?php if ($isPremium): ?>
 
@@ -57,8 +57,8 @@
         <div class="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary text-sm font-medium rounded-full border border-primary/20 mb-4">
             <i class="fas fa-star"></i> <?= t('premium.improve_title') ?>
         </div>
-        <h1 class="text-4xl font-bold text-white mb-3"><?= t('premium.title') ?></h1>
-        <p class="text-gray-400 text-lg max-w-xl mx-auto"><?= t('premium.subtitle') ?></p>
+        <h1 class="text-4xl lg:text-5xl font-bold text-white mb-3"><?= t('premium.title') ?></h1>
+        <p class="text-gray-400 text-lg lg:text-xl max-w-2xl mx-auto"><?= t('premium.subtitle') ?></p>
     </div>
 
     <?php if (isset($_GET['success'])): ?>
@@ -83,7 +83,7 @@
     <?php endif; ?>
 
     <!-- Comparativa de planes -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-10">
 
         <!-- Plan Gratuito -->
         <div class="bg-surface rounded-2xl border border-gray-700 p-6">

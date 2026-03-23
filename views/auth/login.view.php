@@ -107,13 +107,37 @@
 
         <!-- Sección de la imagen -->
         <div class="relative hidden w-0 flex-1 lg:block">
-          <div class="absolute inset-0 flex flex-col justify-between p-12 text-white split-bg" style="background-image: url('public/img/imgLogin.jpg');">
-            <div class="absolute inset-0 bg-gradient-to-r from-secondary/80 to-transparent"></div>
+          <div class="absolute inset-0 flex flex-col justify-between p-12 text-white" style="background-image: url('public/img/imgLogin.jpg'); background-size: cover; background-position: center;">
+            <div class="absolute inset-0 bg-gradient-to-r from-secondary/90 via-secondary/60 to-secondary/30"></div>
             <div class="z-10 relative">
-              <h1 class="text-5xl font-bold leading-tight tracking-tight drop-shadow-lg"><?= t('login.hero_1') ?><br><?= t('login.hero_2') ?></h1>
-              <p class="mt-6 text-xl max-w-md text-gray-200 drop-shadow-md"><?= t('login.hero_desc') ?></p>
+              <h1 class="text-5xl font-bold leading-tight tracking-tight drop-shadow-lg">
+                <?= t('login.hero_1') ?><br>
+                <span class="text-primary"><?= t('login.hero_2') ?></span>
+              </h1>
+              <p class="mt-6 text-xl max-w-md text-gray-300 drop-shadow-md"><?= t('login.hero_desc') ?></p>
+
+              <div class="mt-10 space-y-3 max-w-sm">
+                <div class="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
+                  <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+                    <i class="fas fa-car text-primary text-sm"></i>
+                  </div>
+                  <p class="text-sm text-gray-300"><?= t('login.hero_feature_1') ?></p>
+                </div>
+                <div class="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
+                  <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+                    <i class="fas fa-shield-alt text-primary text-sm"></i>
+                  </div>
+                  <p class="text-sm text-gray-300"><?= t('login.hero_feature_2') ?></p>
+                </div>
+                <div class="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
+                  <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+                    <i class="fas fa-leaf text-primary text-sm"></i>
+                  </div>
+                  <p class="text-sm text-gray-300"><?= t('login.hero_feature_3') ?></p>
+                </div>
+              </div>
             </div>
-            <div class="z-10 relative text-sm text-gray-400">
+            <div class="z-10 relative text-sm text-gray-500">
               &copy; <?= date('Y') ?> Ride4Study. <?= t('login.rights') ?>
             </div>
           </div>

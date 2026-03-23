@@ -30,17 +30,23 @@ class AuthController {
             $user = $this->user->getUserById((int)$_SESSION['user_id']);
             if ($user) {
                 $idRol = (int)$user['idRol'];
-                if (in_array($idRol, [1, 3], true)) {
-                    header('Location: ' . url('/admin'));
-                } else {
-                    header('Location: ' . url('/dashboard'));
-                }
+                header('Location: ' . url($idRol === 1 ? '/admin/dashboard' : '/dashboard'));
                 exit;
             }
         }
 
-        if (isset($_GET['msg']) && $_GET['msg'] === 'registrado') {
-            $success = 'Registro completado. Inicia sesión para continuar.';
+        if (isset($_GET['msg'])) {
+            switch ($_GET['msg']) {
+                case 'registrado':
+                    $success = 'Registro completado. Inicia sesion para continuar.';
+                    break;
+                case '2fa_expired':
+                    $error = t('auth.2fa_expired');
+                    break;
+                case '2fa_blocked':
+                    $error = t('auth.2fa_blocked');
+                    break;
+            }
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -75,23 +81,64 @@ class AuthController {
                                 return;
                             }
 
+                            $idRol = (int)$userData['idRol'];
+
+                            // 2FA para administradores: enviar código por email antes de completar el login
+                            if ($idRol === 1) {
+                                session_regenerate_id(true);
+
+                                // Generar código de 6 dígitos
+                                $code2fa = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+                                // Guardar datos temporales en sesión (NO se loguea aún)
+                                $_SESSION['2fa_pending']  = true;
+                                $_SESSION['2fa_user_id']  = $userData['idUsuario'];
+                                $_SESSION['2fa_code']     = password_hash($code2fa, PASSWORD_DEFAULT);
+                                $_SESSION['2fa_expires']  = time() + 600; // 10 minutos
+                                $_SESSION['2fa_attempts'] = 0;
+
+                                // Enviar código por email
+                                try {
+                                    $mail = new MailService();
+                                    $contenido = "
+                                        <p>Se ha detectado un inicio de sesion en el panel de administracion.</p>
+                                        <p>Introduce el siguiente codigo para verificar tu identidad:</p>
+                                        <p style=\"font-size:14px; color:#94a3b8; margin-top:10px;\">
+                                            Este codigo es valido por <strong>10 minutos</strong>.
+                                        </p>
+                                        <p style=\"font-size:14px; color:#94a3b8;\">
+                                            Si no has sido tu, cambia tu contrasena inmediatamente.
+                                        </p>
+                                    ";
+                                    $html = $mail->generarPlantilla(
+                                        $userData['nombre'],
+                                        "Verificacion de acceso",
+                                        $contenido,
+                                        $code2fa,
+                                        null,
+                                        null
+                                    );
+                                    $mail->send($userData['correo'], $userData['nombre'], 'Codigo de verificacion - Ride4Study Admin', $html);
+                                } catch (Exception $e) {
+                                    error_log('2FA email error: ' . $e->getMessage());
+                                }
+
+                                header('Location: ' . url('/admin-verify'));
+                                exit;
+                            }
+
+                            // Login normal para usuarios no-admin
                             session_regenerate_id(true);
 
                             $_SESSION['user_id']   = $userData['idUsuario'];
                             $_SESSION['user_role'] = $userData['idRol'];
                             $_SESSION['user_name'] = $userData['nombre'] ?? '';
-                            // Cargar foto de perfil en sesión para mostrarla globalmente
                             $full = $this->user->getUserById((int)$userData['idUsuario']);
                             if ($full && !empty($full['foto_perfil'])) {
                                 $_SESSION['user_photo'] = $full['foto_perfil'];
                             }
 
-                            $idRol = (int)$userData['idRol'];
-                            if (in_array($idRol, [1, 3], true)) {
-                                header('Location: ' . url('/admin/dashboard'));
-                            } else {
-                                header('Location: ' . url('/dashboard'));
-                            }
+                            header('Location: ' . url('/dashboard'));
                             exit;
 
                         } else {
@@ -209,6 +256,72 @@ class AuthController {
 
         header('Location: ' . url('/login'));
         exit;
+    }
+
+    // Verificación 2FA para administradores
+    public function adminVerify(): void
+    {
+        $error = '';
+
+        // Si no hay 2FA pendiente, redirigir al login
+        if (empty($_SESSION['2fa_pending'])) {
+            header('Location: ' . url('/login'));
+            exit;
+        }
+
+        // Comprobar si el código ha expirado
+        if (time() > ($_SESSION['2fa_expires'] ?? 0)) {
+            unset($_SESSION['2fa_pending'], $_SESSION['2fa_user_id'], $_SESSION['2fa_code'], $_SESSION['2fa_expires'], $_SESSION['2fa_attempts']);
+            header('Location: ' . url('/login') . '?msg=2fa_expired');
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            $code = trim($_POST['code'] ?? '');
+
+            if (empty($code)) {
+                $error = t('auth.2fa_empty');
+            } elseif (!preg_match('/^\d{6}$/', $code)) {
+                $error = t('auth.2fa_invalid');
+            } else {
+                $_SESSION['2fa_attempts'] = ($_SESSION['2fa_attempts'] ?? 0) + 1;
+
+                // Máximo 5 intentos
+                if ($_SESSION['2fa_attempts'] > 5) {
+                    unset($_SESSION['2fa_pending'], $_SESSION['2fa_user_id'], $_SESSION['2fa_code'], $_SESSION['2fa_expires'], $_SESSION['2fa_attempts']);
+                    header('Location: ' . url('/login') . '?msg=2fa_blocked');
+                    exit;
+                }
+
+                // Verificar código
+                if (password_verify($code, $_SESSION['2fa_code'])) {
+                    $userId = (int)$_SESSION['2fa_user_id'];
+
+                    // Limpiar datos 2FA
+                    unset($_SESSION['2fa_pending'], $_SESSION['2fa_user_id'], $_SESSION['2fa_code'], $_SESSION['2fa_expires'], $_SESSION['2fa_attempts']);
+
+                    // Completar login
+                    session_regenerate_id(true);
+                    $userData = $this->user->getUserById($userId);
+
+                    $_SESSION['user_id']   = $userData['idUsuario'];
+                    $_SESSION['user_role'] = $userData['idRol'];
+                    $_SESSION['user_name'] = $userData['nombre'] ?? '';
+                    if (!empty($userData['foto_perfil'])) {
+                        $_SESSION['user_photo'] = $userData['foto_perfil'];
+                    }
+
+                    header('Location: ' . url('/admin/dashboard'));
+                    exit;
+                } else {
+                    $error = t('auth.2fa_wrong');
+                }
+            }
+        }
+
+        $attemptsLeft = 5 - ($_SESSION['2fa_attempts'] ?? 0);
+        require __DIR__ . '/../../views/auth/admin-verify.view.php';
     }
 
     // Solicitar código de reseteo

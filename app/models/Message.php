@@ -102,7 +102,7 @@ class Message {
     }
 
     // Función para enviar un mensaje
-    public function createMessage(array $data): bool {
+    public function createMessage(array $data): int|false {
         $query = "INSERT INTO {$this->table}
                     (idConversation, idEmisor, idReceptor, mensaje)
                   VALUES
@@ -117,7 +117,28 @@ class Message {
         $stmt->bindParam(':idReceptor',     $data['idReceptor'],     PDO::PARAM_INT);
         $stmt->bindParam(':mensaje',        $mensaje);
 
-        return $stmt->execute();
+        if ($stmt->execute()) {
+            return (int)$this->conn->lastInsertId();
+        }
+        return false;
+    }
+
+    // Obtener mensajes posteriores a un ID (para polling en tiempo real)
+    public function getMessagesAfter(int $conversationId, int $userId, int $afterId): array {
+        $query = "SELECT * FROM {$this->table}
+                  WHERE idConversation = :conversationId
+                    AND idMensaje > :afterId
+                  ORDER BY fechaCreacion ASC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':conversationId', $conversationId, PDO::PARAM_INT);
+        $stmt->bindParam(':afterId', $afterId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // Marcar como leídos los mensajes recibidos
+        $this->markAsRead($conversationId, $userId);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // Función para marcar mensajes como leídos

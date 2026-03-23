@@ -1,98 +1,110 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
 
 <!-- Vista completa del chat -->
-<div class="h-[calc(100vh-80px)] flex flex-col md:flex-row overflow-hidden bg-[#111827]">
-    
+<div class="h-[calc(100vh-80px)] flex flex-col md:flex-row overflow-hidden bg-secondary">
+
     <!-- Barra lateral de chats -->
-    <div class="w-full md:w-80 lg:w-96 border-r border-gray-700 bg-surface flex flex-col shrink-0 <?= $selectedConversationId ? 'hidden md:flex' : 'flex' ?>">
-        
+    <div class="w-full md:w-80 lg:w-96 xl:w-[26rem] border-r border-gray-700 bg-surface flex flex-col shrink-0 <?= $selectedConversationId ? 'hidden md:flex' : 'flex' ?>">
+
         <!-- Header de chats -->
-        <div class="p-4 border-b border-gray-700">
-            <h2 class="text-xl font-bold text-white"><?= t('chat.title') ?></h2>
+        <div class="px-5 py-4 border-b border-gray-700">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                        <i class="fas fa-comments text-primary text-sm"></i>
+                    </div>
+                    <h2 class="text-lg lg:text-xl font-bold text-white"><?= t('chat.title') ?></h2>
+                </div>
+                <span class="text-xs text-gray-500 bg-gray-800 px-2.5 py-1 rounded-full"><?= count($chats) ?></span>
+            </div>
         </div>
 
         <!-- Listado de conversaciones -->
         <div class="flex-1 overflow-y-auto">
             <?php if (empty($chats)): ?>
-                <div class="p-8 text-center text-gray-400">
-                    <i class="far fa-comments text-4xl mb-3 opacity-50"></i>
-                    <p class="text-sm"><?= t('chat.no_conversations') ?></p>
+                <div class="p-10 text-center text-gray-500">
+                    <div class="w-16 h-16 bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="far fa-comments text-2xl text-gray-600"></i>
+                    </div>
+                    <p class="text-sm font-medium"><?= t('chat.no_conversations') ?></p>
                 </div>
             <?php else: ?>
-                <ul class="divide-y divide-gray-800">
+                <div class="py-2">
                     <?php foreach ($chats as $chat): ?>
-                        <?php $isActive = ($selectedConversationId == $chat['idConversation']); ?>
-                        <li>
-                            <a href="<?= url('/chat') ?>?conversation_id=<?= $chat['idConversation'] ?>" class="block p-4 hover:bg-white/5 transition-colors <?= $isActive ? 'bg-white/5 border-l-4 border-primary' : 'border-l-4 border-transparent' ?>">
-                                <div class="flex items-center gap-3">
-                                    <div class="relative">
-                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-600 flex items-center justify-center text-sm font-bold text-white uppercase">
-                                            <?= substr($chat['otherUserName'], 0, 2) ?>
-                                        </div>
-                                        <?php if (!$chat['leido'] && $chat['idEmisor'] != $_SESSION['user_id']): ?>
-                                            <div class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-surface"></div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex justify-between items-baseline mb-0.5">
-                                            <h4 class="text-sm font-bold text-white truncate <?= $isActive ? 'text-primary' : '' ?>"><?= htmlspecialchars($chat['otherUserName']) ?></h4>
-                                            <span class="text-[10px] text-gray-500 shrink-0 ml-2"><?= date('H:i', strtotime($chat['fechaCreacion'])) ?></span>
-                                        </div>
-                                        <!-- Ruta del anuncio -->
-                                        <p class="text-[10px] text-primary/70 truncate mb-0.5">
-                                            <i class="fas fa-car text-[9px] mr-1"></i>
-                                            <?= htmlspecialchars($chat['nombreOrigen']) ?> → <?= htmlspecialchars($chat['nombreDestino']) ?>
-                                        </p>
-                                        <!-- Último mensaje -->
-                                        <p class="text-xs text-gray-400 truncate <?= (!$chat['leido'] && $chat['idEmisor'] != $_SESSION['user_id']) ? 'font-semibold text-white' : '' ?>">
-                                            <?php if ($chat['idEmisor'] == $_SESSION['user_id']): ?>
-                                                <i class="fas fa-reply text-[10px] mr-1"></i>
-                                            <?php endif; ?>
-                                            <?= htmlspecialchars($chat['mensaje']) ?>
-                                        </p>
-                                    </div>
+                        <?php
+                        $isActive = ($selectedConversationId == $chat['idConversation']);
+                        $hasUnread = (!$chat['leido'] && $chat['idEmisor'] != $_SESSION['user_id']);
+                        ?>
+                        <a href="<?= url('/chat') ?>?conversation_id=<?= $chat['idConversation'] ?>"
+                           class="flex items-center gap-3.5 px-4 py-3.5 mx-2 rounded-xl transition-all <?= $isActive ? 'bg-primary/10 border border-primary/20' : 'hover:bg-white/5 border border-transparent' ?>">
+                            <!-- Avatar -->
+                            <div class="relative shrink-0">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br <?= $isActive ? 'from-primary to-primary-dark' : 'from-gray-700 to-gray-600' ?> flex items-center justify-center text-sm font-bold text-white uppercase shadow-lg">
+                                    <?= substr($chat['otherUserName'], 0, 2) ?>
                                 </div>
-                            </a>
-                        </li>
+                                <?php if ($hasUnread): ?>
+                                    <div class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-[#161b22] animate-pulse"></div>
+                                <?php endif; ?>
+                            </div>
+                            <!-- Info -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h4 class="text-sm lg:text-base font-bold truncate <?= $isActive ? 'text-primary' : 'text-white' ?>"><?= htmlspecialchars($chat['otherUserName']) ?></h4>
+                                    <span class="text-[10px] lg:text-xs text-gray-500 shrink-0 ml-2 tabular-nums"><?= date('H:i', strtotime($chat['fechaCreacion'])) ?></span>
+                                </div>
+                                <p class="text-xs text-primary/60 truncate mb-0.5">
+                                    <i class="fas fa-route text-[9px] mr-1"></i>
+                                    <?= htmlspecialchars($chat['nombreOrigen']) ?> → <?= htmlspecialchars($chat['nombreDestino']) ?>
+                                </p>
+                                <p class="text-xs lg:text-sm truncate <?= $hasUnread ? 'font-semibold text-white' : 'text-gray-500' ?>">
+                                    <?php if ($chat['idEmisor'] == $_SESSION['user_id']): ?>
+                                        <i class="fas fa-reply text-[9px] mr-1 text-gray-600"></i>
+                                    <?php endif; ?>
+                                    <?= htmlspecialchars($chat['mensaje']) ?>
+                                </p>
+                            </div>
+                        </a>
                     <?php endforeach; ?>
-                </ul>
+                </div>
             <?php endif; ?>
         </div>
     </div>
 
     <!-- Contenido principal -->
-    <div class="flex-1 flex flex-col min-w-0 bg-[#0B1120] relative <?= !$selectedConversationId ? 'hidden md:flex' : 'flex' ?>">
-        
+    <div class="flex-1 flex flex-col min-w-0 bg-secondary relative <?= !$selectedConversationId ? 'hidden md:flex' : 'flex' ?>">
+
         <?php if ($selectedConversationId): ?>
             <!-- Encabezado del chat -->
-            <div class="h-16 border-b border-gray-700 bg-surface flex items-center justify-between px-4 shrink-0 shadow-sm z-10">
-                <div class="flex items-center gap-3">
+            <div class="border-b border-gray-700 bg-surface flex items-center justify-between px-5 lg:px-6 py-3.5 shrink-0 shadow-lg z-10">
+                <div class="flex items-center gap-4">
                     <a href="<?= url('/messages') ?>" class="md:hidden p-2 -ml-2 text-gray-400 hover:text-white">
                         <i class="fas fa-arrow-left"></i>
                     </a>
-                    
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-sm font-bold text-white uppercase">
+
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-sm font-bold text-secondary uppercase shadow-lg shadow-primary/20">
                         <?= substr($otherUser['nombre'], 0, 2) ?>
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-white leading-tight"><?= htmlspecialchars($otherUser['nombre']) ?></h3>
-                        <a href="<?= url('/profile') ?>?id=<?= $otherUser['idUsuario'] ?>" class="text-xs text-primary hover:underline"><?= t('chat.view_profile') ?></a>
+                        <h3 class="text-base lg:text-lg font-bold text-white leading-tight"><?= htmlspecialchars($otherUser['nombre']) ?></h3>
+                        <a href="<?= url('/profile') ?>?id=<?= $otherUser['idUsuario'] ?>" class="text-xs text-primary hover:underline flex items-center gap-1">
+                            <i class="fas fa-user text-[9px]"></i> <?= t('chat.view_profile') ?>
+                        </a>
                     </div>
                 </div>
 
-                <!-- Opciones de conversación -->
-                <button onclick="confirmDeleteConversation(<?= $selectedConversationId ?>)" class="p-2 text-gray-400 hover:text-red-400 transition-colors" title="<?= t('chat.delete_conversation') ?>">
-                    <i class="fas fa-trash-alt"></i>
+                <!-- Opciones -->
+                <button onclick="confirmDeleteConversation(<?= $selectedConversationId ?>)" class="w-9 h-9 flex items-center justify-center rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all" title="<?= t('chat.delete_conversation') ?>">
+                    <i class="fas fa-trash-alt text-sm"></i>
                 </button>
             </div>
 
             <!-- Tarjeta de contexto del anuncio (desde conversations JOIN anuncios) -->
             <?php if ($contextRide): ?>
-            <div class="bg-gradient-to-r from-gray-800 to-gray-800/50 border-b border-gray-700 p-4 shrink-0 shadow-lg">
-                <div class="flex items-center justify-between gap-4">
-                    <div class="flex items-center gap-3 flex-1 min-w-0">
-                        <div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary shrink-0 shadow-inner">
-                             <i class="fas fa-car text-xl"></i>
+            <div class="bg-gradient-to-r from-gray-800 to-gray-800/50 border-b border-gray-700 px-4 sm:px-5 py-3 shrink-0 shadow-lg">
+                <div class="flex items-center justify-between gap-3 sm:gap-4">
+                    <div class="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary shrink-0 shadow-inner">
+                             <i class="fas fa-car text-base sm:text-xl"></i>
                         </div>
                         <div class="min-w-0 flex-1">
                             <p class="text-xs text-gray-400 mb-1">💬 <?= t('chat.about_ride') ?></p>
@@ -289,11 +301,11 @@
             <?php endif; ?>
 
             <!-- Area de mensajes -->
-            <div class="flex-1 overflow-y-auto p-4 space-y-4" id="messages-container">
+            <div class="flex-1 overflow-y-auto px-4 lg:px-8 py-5 space-y-3" id="messages-container">
                 <?php if (!empty($hasMore)): ?>
                 <div id="load-more-wrap" class="text-center py-3">
-                    <button onclick="loadOlderMessages()" id="load-more-btn" class="px-4 py-2 text-xs font-medium bg-gray-800 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-gray-200 transition border border-gray-700">
-                        <i class="fas fa-arrow-up mr-1"></i> <?= t('chat.load_older') ?>
+                    <button onclick="loadOlderMessages()" id="load-more-btn" class="px-5 py-2 text-xs font-medium bg-white/5 text-gray-400 rounded-full hover:bg-white/10 hover:text-gray-200 transition border border-gray-700/50">
+                        <i class="fas fa-arrow-up mr-1.5"></i> <?= t('chat.load_older') ?>
                     </button>
                 </div>
                 <?php endif; ?>
@@ -303,27 +315,28 @@
             </div>
 
             <!-- Area del input -->
-            <div class="p-4 bg-surface border-t border-gray-700 shrink-0">
+            <div class="px-4 lg:px-8 py-4 bg-surface border-t border-gray-700 shrink-0">
                 <form action="<?= url('/chat') ?>?action=send" method="POST" class="flex items-end gap-3">
                     <input type="hidden" name="conversation_id" value="<?= $selectedConversationId ?>">
                     <input type="hidden" name="receiver_id"     value="<?= $otherUser['idUsuario'] ?>">
-                    
-                    <div class="flex-1 bg-gray-800 rounded-xl border border-gray-600 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
-                        <textarea name="message" rows="1" class="block w-full bg-transparent p-3 text-white placeholder-gray-500 outline-none text-sm resize-none max-h-32" placeholder="<?= t('chat.write_message') ?>" required oninput="this.style.height='auto'; this.style.height=this.scrollHeight + 'px'"></textarea>
+
+                    <div class="flex-1 bg-secondary rounded-2xl border border-gray-700 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 transition-all">
+                        <textarea name="message" rows="1" class="block w-full bg-transparent px-5 py-3.5 text-white placeholder-gray-600 outline-none text-sm lg:text-base resize-none max-h-32" placeholder="<?= t('chat.write_message') ?>" required oninput="this.style.height='auto'; this.style.height=this.scrollHeight + 'px'"></textarea>
                     </div>
-                    <button type="submit" class="p-3 bg-primary text-secondary rounded-xl hover:bg-primary-dark transition-colors shadow-lg shadow-primary/20">
+                    <button type="submit" class="w-12 h-12 flex items-center justify-center bg-primary text-secondary rounded-2xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 shrink-0">
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </form>
             </div>
 
         <?php else: ?>
-            <div class="flex-1 flex flex-col items-center justify-center text-gray-500 p-8">
-                <div class="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mb-6 animate-pulse">
-                    <i class="far fa-paper-plane text-4xl text-gray-600"></i>
+            <!-- Empty state -->
+            <div class="flex-1 flex flex-col items-center justify-center p-8">
+                <div class="w-28 h-28 bg-gradient-to-br from-primary/10 to-primary/5 rounded-3xl flex items-center justify-center mb-6 border border-primary/10">
+                    <i class="far fa-paper-plane text-4xl text-primary/40"></i>
                 </div>
-                <h3 class="text-xl font-bold text-white mb-2"><?= t('chat.your_messages') ?></h3>
-                <p class="text-center max-w-sm"><?= t('chat.select_conversation') ?></p>
+                <h3 class="text-xl lg:text-2xl font-bold text-white mb-2"><?= t('chat.your_messages') ?></h3>
+                <p class="text-center max-w-sm text-gray-500 lg:text-base"><?= t('chat.select_conversation') ?></p>
             </div>
         <?php endif; ?>
     </div>
@@ -408,34 +421,97 @@
         });
     }
 
+    // Envío de mensajes por AJAX (sin recargar la página)
+    function sendMessageAjax() {
+        if (!textarea || !form) return;
+        const msg = textarea.value.trim();
+        if (!msg) return;
+
+        const formData = new FormData(form);
+        textarea.value = '';
+        textarea.style.height = 'auto';
+
+        // Añadir mensaje al DOM inmediatamente (optimistic)
+        const now = new Date();
+        const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        const tempId = 'msg-temp-' + Date.now();
+        const msgHtml = `
+            <div class="flex w-full justify-end group" id="${tempId}">
+                <div class="max-w-[80%] md:max-w-[65%] lg:max-w-[55%]">
+                    <div class="relative px-4 py-3 rounded-2xl text-sm lg:text-base shadow-md bg-gradient-to-br from-primary to-primary-dark text-secondary rounded-br-md">
+                        <p class="whitespace-pre-wrap message-content leading-relaxed">${escapeHtml(msg)}</p>
+                        <div class="flex items-center justify-end gap-1.5 mt-1.5 opacity-70 text-[10px]">
+                            <span>${timeStr}</span>
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        const messagesList = document.getElementById('messages-list');
+        if (messagesList) messagesList.insertAdjacentHTML('beforeend', msgHtml);
+        if (container) container.scrollTop = container.scrollHeight;
+
+        // Enviar al servidor
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.message) {
+                // Actualizar el ID temporal con el real
+                const tempEl = document.getElementById(tempId);
+                if (tempEl) tempEl.id = 'msg-' + data.message.idMensaje;
+            }
+        })
+        .catch(() => {
+            showChatToast('Error al enviar el mensaje', 'error');
+        });
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
     if (textarea && form) {
+        // Prevenir submit normal del form
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            sendMessageAjax();
+        });
+
         textarea.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                if (this.value.trim() !== '') {
-                    form.submit();
-                }
+                sendMessageAjax();
             }
         });
     }
 
     function fetchMessages() {
-        const urlParams        = new URLSearchParams(window.location.search);
-        const conversationId   = urlParams.get('conversation_id');
-        
+        const urlParams      = new URLSearchParams(window.location.search);
+        const conversationId = urlParams.get('conversation_id');
         if (!conversationId) return;
 
-        fetch(`<?= url("/chat") ?>?action=load&conversation_id=${conversationId}`)
+        // Obtener el ID del último mensaje que tenemos
+        const allMsgs = document.querySelectorAll('#messages-list [id^="msg-"]');
+        let lastId = 0;
+        allMsgs.forEach(el => {
+            const id = parseInt(el.id.replace('msg-', '').replace('temp-', ''));
+            if (!isNaN(id) && id > lastId) lastId = id;
+        });
+
+        fetch(`<?= url("/chat") ?>?action=load&conversation_id=${conversationId}&after=${lastId}`)
             .then(response => response.text())
             .then(html => {
-                if (container) {
-                     const oldScrollTop = container.scrollTop;
-                     container.innerHTML = html;
-                     if (!isUserScrolling) {
-                          container.scrollTop = container.scrollHeight;
-                     } else {
-                          container.scrollTop = oldScrollTop;
-                     }
+                const trimmed = html.trim();
+                if (trimmed && container) {
+                    const messagesList = document.getElementById('messages-list');
+                    if (messagesList) messagesList.insertAdjacentHTML('beforeend', trimmed);
+                    if (!isUserScrolling) container.scrollTop = container.scrollHeight;
                 }
             })
             .catch(err => console.error('Error fetching messages:', err));
