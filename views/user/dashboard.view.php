@@ -8,85 +8,150 @@
 
         <div class="flex flex-col md:flex-row items-start gap-8">
             <div class="flex-1 w-full">
-                <div class="bg-surface rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 border border-gray-700/50 shadow-lg">
-                <h3 class="text-sm lg:text-base font-semibold text-gray-300 mb-4 flex items-center gap-2">
-                    <i class="fas fa-filter text-primary"></i> <?= t('dashboard.filters') ?>
-                </h3>
-                <form action="" method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-                <!-- Tipo -->
-                <div class="md:col-span-2">
-                     <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-1"><?= t('dashboard.type') ?></label>
-                     <div class="relative group">
-                        <select name="tipo" class="appearance-none block w-full rounded-xl border border-gray-600 bg-gray-800 py-3 pl-3 pr-8 text-white focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm outline-none cursor-pointer">
-                            <option value=""><?= t('dashboard.all') ?></option>
-                            <option value="Ofrezco" <?= (isset($_GET['tipo']) && $_GET['tipo'] == 'Ofrezco') ? 'selected' : '' ?>><?= t('dashboard.driver') ?></option>
-                            <option value="Busco" <?= (isset($_GET['tipo']) && $_GET['tipo'] == 'Busco') ? 'selected' : '' ?>><?= t('dashboard.passenger') ?></option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                             <i class="fas fa-chevron-down text-xs"></i>
-                        </div>
-                     </div>
-                </div>
+                <div class="bg-surface rounded-2xl mb-6 sm:mb-8 border border-gray-700/50 shadow-lg overflow-hidden">
 
-                <!-- Origen (con autocompletado) -->
-                <div class="md:col-span-3 relative">
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-1"><?= t('dashboard.origin') ?></label>
-                    <div class="relative group">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-map-marker-alt text-gray-500 group-focus-within:text-primary transition-colors"></i>
+                <form action="" method="GET">
+                    <!-- Fila principal: Ruta + Fecha + Buscar -->
+                    <div class="px-5 sm:px-6 pt-5 pb-4">
+                        <div class="flex flex-col lg:flex-row gap-3 items-end">
+                            <!-- Tipo -->
+                            <div class="w-full lg:w-36 shrink-0">
+                                <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-0.5"><?= t('dashboard.type') ?></label>
+                                <div class="relative">
+                                    <select name="tipo" class="appearance-none w-full rounded-xl border border-gray-600/70 bg-gray-800/80 py-3 pl-3.5 pr-9 text-white text-sm outline-none cursor-pointer focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all hover:border-gray-500">
+                                        <option value=""><?= t('dashboard.all') ?></option>
+                                        <option value="Ofrezco" <?= (isset($_GET['tipo']) && $_GET['tipo'] == 'Ofrezco') ? 'selected' : '' ?>><?= t('dashboard.driver') ?></option>
+                                        <option value="Busco" <?= (isset($_GET['tipo']) && $_GET['tipo'] == 'Busco') ? 'selected' : '' ?>><?= t('dashboard.passenger') ?></option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
+                                        <i class="fas fa-chevron-down text-[10px]"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Origen -->
+                            <div class="w-full lg:flex-1 relative">
+                                <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-0.5"><?= t('dashboard.origin') ?></label>
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                        <i class="fas fa-circle text-[6px] text-primary group-focus-within:scale-125 transition-transform"></i>
+                                    </div>
+                                    <input type="text" name="origen" id="filter-origen" autocomplete="off"
+                                        value="<?= htmlspecialchars($_GET['origen'] ?? '') ?>"
+                                        class="w-full rounded-xl border border-gray-600/70 bg-gray-800/80 py-3 pl-9 pr-3 text-white placeholder-gray-500 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all hover:border-gray-500"
+                                        placeholder="<?= t('dashboard.origin_placeholder') ?>">
+                                </div>
+                                <div id="filter-origen-dropdown" class="hidden absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl overflow-hidden"></div>
+                            </div>
+
+                            <!-- Separador -->
+                            <div class="hidden lg:flex items-center pb-1">
+                                <i class="fas fa-arrow-right text-gray-600 text-xs"></i>
+                            </div>
+
+                            <!-- Destino -->
+                            <div class="w-full lg:flex-1 relative">
+                                <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-0.5"><?= t('dashboard.destination') ?></label>
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                        <i class="fas fa-circle text-[6px] text-gray-400 group-focus-within:text-primary group-focus-within:scale-125 transition-all"></i>
+                                    </div>
+                                    <input type="text" name="destino" id="filter-destino" autocomplete="off"
+                                        value="<?= htmlspecialchars($_GET['destino'] ?? '') ?>"
+                                        class="w-full rounded-xl border border-gray-600/70 bg-gray-800/80 py-3 pl-9 pr-3 text-white placeholder-gray-500 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all hover:border-gray-500"
+                                        placeholder="<?= t('dashboard.destination_placeholder') ?>">
+                                </div>
+                                <div id="filter-destino-dropdown" class="hidden absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl overflow-hidden"></div>
+                            </div>
+
+                            <!-- Fecha -->
+                            <div class="w-full lg:w-44 shrink-0">
+                                <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-0.5"><?= t('dashboard.date') ?></label>
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                        <i class="far fa-calendar-alt text-gray-500 text-sm group-focus-within:text-primary transition-colors"></i>
+                                    </div>
+                                    <input type="date" name="fecha" value="<?= htmlspecialchars($_GET['fecha'] ?? '') ?>"
+                                        class="w-full rounded-xl border border-gray-600/70 bg-gray-800/80 py-3 pl-10 pr-3 text-white text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all hover:border-gray-500 [color-scheme:dark]">
+                                </div>
+                            </div>
+
+                            <!-- Buscar + Limpiar -->
+                            <div class="flex gap-2 w-full lg:w-auto shrink-0">
+                                <button type="submit" class="flex-1 lg:flex-none bg-primary hover:bg-primary-dark text-secondary font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-primary/20 hover:shadow-primary/30 flex items-center justify-center gap-2 text-sm">
+                                    <i class="fas fa-search text-xs"></i> <?= t('dashboard.search') ?>
+                                </button>
+                                <a href="<?= url('/dashboard') ?>" class="flex items-center justify-center w-12 py-3 bg-gray-800/80 hover:bg-red-500/10 text-gray-400 hover:text-red-400 rounded-xl transition-all border border-gray-600/70 hover:border-red-500/30 group" title="<?= t('dashboard.clear_filters') ?>">
+                                    <i class="fas fa-times text-sm group-hover:rotate-90 transition-transform duration-300"></i>
+                                </a>
+                            </div>
                         </div>
-                        <input type="text" name="origen" id="filter-origen" autocomplete="off"
-                            value="<?= htmlspecialchars($_GET['origen'] ?? '') ?>"
-                            class="block w-full rounded-xl border border-gray-600 bg-gray-800 py-3 pl-10 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm outline-none"
-                            placeholder="<?= t('dashboard.origin_placeholder') ?>">
                     </div>
-                    <div id="filter-origen-dropdown" class="hidden absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl overflow-hidden"></div>
-                </div>
 
-                <!-- Destino (con autocompletado) -->
-                <div class="md:col-span-3 relative">
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-1"><?= t('dashboard.destination') ?></label>
-                    <div class="relative group">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-flag-checkered text-gray-500 group-focus-within:text-primary transition-colors"></i>
+                    <!-- Fila secundaria: Filtros avanzados + accesos rápidos -->
+                    <div class="px-5 sm:px-6 pb-5 pt-3 border-t border-gray-700/30">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5">
+                            <!-- Filtros avanzados -->
+                            <div class="flex flex-wrap items-center gap-3 flex-1">
+                                <!-- Precio máximo -->
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-euro-sign text-xs text-gray-500"></i>
+                                    </div>
+                                    <input type="number" name="precio_max" step="0.5" min="0"
+                                        value="<?= htmlspecialchars($_GET['precio_max'] ?? '') ?>"
+                                        class="w-36 rounded-xl border border-gray-600/60 bg-gray-800/70 py-2.5 pl-8 pr-3 text-sm text-white placeholder-gray-500 outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all hover:border-gray-500"
+                                        placeholder="<?= t('dashboard.max_price') ?>">
+                                </div>
+
+                                <!-- Plazas mínimas -->
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-user-friends text-xs text-gray-500"></i>
+                                    </div>
+                                    <input type="number" name="plazas_min" min="1" max="8"
+                                        value="<?= htmlspecialchars($_GET['plazas_min'] ?? '') ?>"
+                                        class="w-36 rounded-xl border border-gray-600/60 bg-gray-800/70 py-2.5 pl-8 pr-3 text-sm text-white placeholder-gray-500 outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all hover:border-gray-500"
+                                        placeholder="<?= t('dashboard.min_seats') ?>">
+                                </div>
+
+                                <!-- Solo verificados -->
+                                <label class="flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-all text-sm font-medium <?= !empty($_GET['verificado']) ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'border-gray-600/60 bg-gray-800/70 text-gray-400 hover:border-gray-500 hover:text-gray-300' ?>">
+                                    <input type="checkbox" name="verificado" value="1" <?= !empty($_GET['verificado']) ? 'checked' : '' ?> class="hidden" onchange="this.form.submit()">
+                                    <i class="fas fa-check-circle text-xs"></i>
+                                    <?= t('dashboard.verified_only') ?>
+                                </label>
+
+                                <!-- Ordenar -->
+                                <div class="relative">
+                                    <select name="orden" class="appearance-none rounded-xl border border-gray-600/60 bg-gray-800/70 py-2.5 pl-3.5 pr-8 text-sm text-gray-300 outline-none cursor-pointer focus:border-primary transition-all hover:border-gray-500" onchange="this.form.submit()">
+                                        <option value="" <?= empty($_GET['orden']) ? 'selected' : '' ?>><?= t('dashboard.sort_relevance') ?></option>
+                                        <option value="precio_asc" <?= ($_GET['orden'] ?? '') === 'precio_asc' ? 'selected' : '' ?>><?= t('dashboard.sort_price_asc') ?></option>
+                                        <option value="precio_desc" <?= ($_GET['orden'] ?? '') === 'precio_desc' ? 'selected' : '' ?>><?= t('dashboard.sort_price_desc') ?></option>
+                                        <option value="fecha_asc" <?= ($_GET['orden'] ?? '') === 'fecha_asc' ? 'selected' : '' ?>><?= t('dashboard.sort_date_asc') ?></option>
+                                        <option value="fecha_desc" <?= ($_GET['orden'] ?? '') === 'fecha_desc' ? 'selected' : '' ?>><?= t('dashboard.sort_date_desc') ?></option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
+                                        <i class="fas fa-sort text-xs"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Filtros rápidos -->
+                            <div class="flex items-center gap-2 shrink-0">
+                                <a href="?fecha=<?= date('Y-m-d') ?>" class="px-3.5 py-2 bg-gray-700/40 hover:bg-primary/15 hover:text-primary border border-gray-600/40 rounded-xl text-sm text-gray-400 transition-all font-medium">
+                                    <i class="far fa-clock mr-1.5 text-xs"></i><?= t('dashboard.today') ?>
+                                </a>
+                                <a href="?fecha=<?= date('Y-m-d', strtotime('+1 day')) ?>" class="px-3.5 py-2 bg-gray-700/40 hover:bg-primary/15 hover:text-primary border border-gray-600/40 rounded-xl text-sm text-gray-400 transition-all font-medium">
+                                    <i class="far fa-calendar mr-1.5 text-xs"></i><?= t('dashboard.tomorrow') ?>
+                                </a>
+                                <a href="?fecha=<?= date('Y-m-d', strtotime('next monday')) ?>" class="px-3.5 py-2 bg-gray-700/40 hover:bg-primary/15 hover:text-primary border border-gray-600/40 rounded-xl text-sm text-gray-400 transition-all font-medium hidden sm:inline-flex">
+                                    <i class="fas fa-forward mr-1.5 text-xs"></i><?= t('dashboard.next_week') ?>
+                                </a>
+                            </div>
                         </div>
-                        <input type="text" name="destino" id="filter-destino" autocomplete="off"
-                            value="<?= htmlspecialchars($_GET['destino'] ?? '') ?>"
-                            class="block w-full rounded-xl border border-gray-600 bg-gray-800 py-3 pl-10 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm outline-none"
-                            placeholder="<?= t('dashboard.destination_placeholder') ?>">
                     </div>
-                    <div id="filter-destino-dropdown" class="hidden absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl overflow-hidden"></div>
-                </div>
-
-                <!-- Fecha -->
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-1"><?= t('dashboard.date') ?></label>
-                    <div class="relative group">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="far fa-calendar-alt text-gray-500 group-focus-within:text-primary transition-colors"></i>
-                        </div>
-                        <input type="date" name="fecha" value="<?= htmlspecialchars($_GET['fecha'] ?? '') ?>" 
-                            class="block w-full rounded-xl border border-gray-600 bg-gray-800 py-3 pl-10 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm outline-none [color-scheme:dark]">
-                    </div>
-                </div>
-
-                <!-- Botones de acción -->
-                <div class="md:col-span-2 flex gap-2">
-                    <button type="submit" class="flex-1 bg-primary hover:bg-primary-dark text-secondary font-bold py-3 px-4 rounded-xl transition-all shadow-lg shadow-primary/20 transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
-                        <i class="fas fa-search"></i> <?= t('dashboard.search') ?>
-                    </button>
-                    <a href="<?= url('/dashboard') ?>" class="flex items-center justify-center px-3 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl transition-all border border-gray-600 group" title="<?= t('dashboard.clear_filters') ?>">
-                        <i class="fas fa-times group-hover:rotate-90 transition-transform duration-300"></i>
-                    </a>
-                </div>
-            </form>
-            
-            <!-- Tags de filtros rápidos-->
-            <div class="mt-4 flex flex-wrap gap-2">
-                <span class="text-xs text-gray-500 mr-2 self-center"><?= t('dashboard.quick_filters') ?></span>
-                <a href="?fecha=<?= date('Y-m-d') ?>" class="px-3 py-1 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-full text-xs text-gray-300 transition-colors"><?= t('dashboard.today') ?></a>
-                <a href="?fecha=<?= date('Y-m-d', strtotime('+1 day')) ?>" class="px-3 py-1 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-full text-xs text-gray-300 transition-colors"><?= t('dashboard.tomorrow') ?></a>
-            </div>
+                </form>
         </div>
 
         <!-- Resultados -->
@@ -175,20 +240,14 @@
                                     <div class="w-4 h-4 rounded-full border-2 border-primary bg-gray-900 z-10 shrink-0 mt-1"></div>
                                     <div class="ml-4">
                                         <p class="text-sm lg:text-base font-semibold text-white"><?= htmlspecialchars($ride['nombreOrigen']) ?></p>
-                                        <p class="text-xs lg:text-sm text-primary font-mono mt-0.5"><?= substr($ride['horaSalida'], 0, 5) ?></p>
+                                        <p class="text-xs lg:text-sm text-primary font-mono mt-0.5"><?= t('dashboard.departure_label') ?> <?= substr($ride['horaSalida'], 0, 5) ?></p>
                                     </div>
                                 </div>
                                 <div class="flex items-start relative">
                                     <div class="w-4 h-4 rounded-full border-2 border-gray-500 bg-gray-900 z-10 shrink-0 mt-1"></div>
                                     <div class="ml-4">
                                         <p class="text-sm lg:text-base font-semibold text-white"><?= htmlspecialchars($ride['nombreDestino']) ?></p>
-                                        <p class="text-xs lg:text-sm text-gray-500 mt-0.5">
-                                            <?php if (!empty($ride['horaLlegada'])): ?>
-                                                <?= t('dashboard.arrival_approx') ?> <?= substr($ride['horaLlegada'], 0, 5) ?>
-                                            <?php else: ?>
-                                                <?= t('dashboard.arrival_approx') ?>
-                                            <?php endif; ?>
-                                        </p>
+                                        <p class="text-xs lg:text-sm text-primary font-mono mt-0.5"><?= t('dashboard.arrival_label') ?> <?= !empty($ride['horaLlegada']) ? substr($ride['horaLlegada'], 0, 5) : '--:--' ?></p>
                                     </div>
                                 </div>
                             </div>

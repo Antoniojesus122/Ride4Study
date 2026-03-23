@@ -30,10 +30,14 @@ class RideController {
         }
 
         $filters = [
-            'origen' => $_GET['origen'] ?? '',
-            'destino' => $_GET['destino'] ?? '',
-            'fecha' => $_GET['fecha'] ?? '',
-            'tipo' => $_GET['tipo'] ?? ''
+            'origen'     => $_GET['origen'] ?? '',
+            'destino'    => $_GET['destino'] ?? '',
+            'fecha'      => $_GET['fecha'] ?? '',
+            'tipo'       => $_GET['tipo'] ?? '',
+            'precio_max' => $_GET['precio_max'] ?? '',
+            'plazas_min' => $_GET['plazas_min'] ?? '',
+            'verificado' => $_GET['verificado'] ?? '',
+            'orden'      => $_GET['orden'] ?? '',
         ];
 
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;

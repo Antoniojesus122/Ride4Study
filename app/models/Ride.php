@@ -47,17 +47,41 @@ class Ride {
         }
 
         if (!empty($filters['tipo'])) {
-            // Pasar los tipos de minúsculas
             $query .= " AND LOWER(a.tipo) = :tipo";
             $params[':tipo'] = strtolower($filters['tipo']);
         }
-        
+
+        // Filtro: precio máximo
+        if (isset($filters['precio_max']) && $filters['precio_max'] !== '') {
+            $query .= " AND a.precio <= :precio_max";
+            $params[':precio_max'] = (float)$filters['precio_max'];
+        }
+
+        // Filtro: plazas mínimas disponibles
+        if (!empty($filters['plazas_min'])) {
+            $query .= " AND a.plazasDisponibles >= :plazas_min";
+            $params[':plazas_min'] = (int)$filters['plazas_min'];
+        }
+
+        // Filtro: solo usuarios verificados
+        if (!empty($filters['verificado'])) {
+            $query .= " AND u.estado_verificacion = 2";
+        }
+
         // Excluir viajes pasados
         $query .= " AND (a.fechaSalida > CURDATE() OR (a.fechaSalida = CURDATE() AND a.horaSalida >= CURTIME()))";
 
         $query .= " GROUP BY a.idAnuncio";
-        // Destacados primero, luego los más recientes, luego por fecha de salida
-        $query .= " ORDER BY a.destacado DESC, a.fechaPublicacion DESC, a.fechaSalida ASC, a.horaSalida ASC";
+
+        // Ordenación
+        $orderMap = [
+            'precio_asc'  => 'a.precio ASC, a.fechaSalida ASC',
+            'precio_desc' => 'a.precio DESC, a.fechaSalida ASC',
+            'fecha_asc'   => 'a.fechaSalida ASC, a.horaSalida ASC',
+            'fecha_desc'  => 'a.fechaSalida DESC, a.horaSalida DESC',
+        ];
+        $order = $orderMap[$filters['orden'] ?? ''] ?? 'a.destacado DESC, a.fechaPublicacion DESC, a.fechaSalida ASC, a.horaSalida ASC';
+        $query .= " ORDER BY " . $order;
         $query .= " LIMIT :limit OFFSET :offset";
 
         $stmt = $this->conn->prepare($query);
@@ -74,14 +98,15 @@ class Ride {
         $rides = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Obtener total para paginación
-        $countQuery = "SELECT COUNT(*) as total 
+        $countQuery = "SELECT COUNT(*) as total
                        FROM " . $this->table . " a
+                       JOIN usuarios u ON a.idUsuario = u.idUsuario
                        JOIN localidades lo ON a.origen = lo.idLocalidad
                        JOIN localidades ld ON a.destino = ld.idLocalidad
                        WHERE 1=1";
-        
+
         $countParams = [];
-        
+
         if ($excludeUserId) {
             $countQuery .= " AND a.idUsuario != :excludeUserId";
             $countParams[':excludeUserId'] = $excludeUserId;
@@ -105,6 +130,20 @@ class Ride {
         if (!empty($filters['tipo'])) {
             $countQuery .= " AND LOWER(a.tipo) = :tipo";
             $countParams[':tipo'] = strtolower($filters['tipo']);
+        }
+
+        if (isset($filters['precio_max']) && $filters['precio_max'] !== '') {
+            $countQuery .= " AND a.precio <= :precio_max";
+            $countParams[':precio_max'] = (float)$filters['precio_max'];
+        }
+
+        if (!empty($filters['plazas_min'])) {
+            $countQuery .= " AND a.plazasDisponibles >= :plazas_min";
+            $countParams[':plazas_min'] = (int)$filters['plazas_min'];
+        }
+
+        if (!empty($filters['verificado'])) {
+            $countQuery .= " AND u.estado_verificacion = 2";
         }
 
         // Se excluyen los viajes pasados en el recuento de viajes

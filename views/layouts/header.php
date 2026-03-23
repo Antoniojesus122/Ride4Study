@@ -59,17 +59,17 @@
     </head>
     <body class="min-h-screen text-gray-100 flex flex-col pt-28 bg-cover bg-center">
         <div class="fixed inset-0 bg-gray-900/90 z-[-1]"></div>
-            <nav class="fixed top-6 inset-x-0 mx-auto z-50 w-full max-w-5xl px-4 sm:px-6">
+            <nav class="fixed top-6 inset-x-0 mx-auto z-50 w-full max-w-6xl px-4 sm:px-6">
 
                 <!-- Principal-->
-                <div class="bg-gray-900/80 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl px-4 sm:px-6 py-3 mx-auto">
-                    <div class="flex items-center justify-between gap-2">
+                <div class="bg-gray-900/80 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl px-5 sm:px-8 py-3.5 mx-auto">
+                    <div class="flex items-center justify-between gap-3">
 
                         <!-- Logo -->
                         <a href="<?= url('/') ?>" class="flex-shrink-0 group">
-                            <div class="flex items-center gap-2 sm:gap-3">
-                                <img src="public/img/logo.png" alt="Ride4Study" class="w-9 h-9 sm:w-10 sm:h-10 object-contain transition-transform group-hover:scale-110">
-                                <span class="text-lg sm:text-xl font-bold text-white transition-colors group-hover:text-primary">Ride4Study</span>
+                            <div class="flex items-center gap-2.5 sm:gap-3">
+                                <img src="public/img/logo.png" alt="Ride4Study" class="w-10 h-10 sm:w-11 sm:h-11 object-contain transition-transform group-hover:scale-110">
+                                <span class="text-xl sm:text-2xl font-bold text-white transition-colors group-hover:text-primary">Ride4Study</span>
                             </div>
                         </a>
 
@@ -77,35 +77,35 @@
                         <?php if ($isLoggedIn): ?>
 
                             <!-- Enlaces de navegacion (solo escritorio) -->
-                            <div class="hidden md:flex items-center gap-1 bg-white/5 rounded-full p-1 border border-white/5">
-                                <a href="<?= url('/dashboard') ?>" class="px-4 py-1.5 rounded-full text-sm font-medium transition-all <?= isActive('/dashboard') ? 'bg-primary text-secondary shadow-lg shadow-primary/25' : 'text-gray-300 hover:text-white hover:bg-white/5' ?>">
+                            <div class="hidden md:flex items-center gap-1 bg-white/5 rounded-full p-1.5 border border-white/5">
+                                <a href="<?= url('/dashboard') ?>" class="px-5 py-2 rounded-full text-sm font-medium transition-all <?= isActive('/dashboard') ? 'bg-primary text-secondary shadow-lg shadow-primary/25' : 'text-gray-300 hover:text-white hover:bg-white/5' ?>">
                                     <i class="fas fa-search mr-1.5"></i><?= t('nav.search') ?>
                                 </a>
 
-                                <a href="<?= url('/my-rides') ?>" class="px-4 py-1.5 rounded-full text-sm font-medium transition-all <?= isActive('/my-rides') ? 'bg-primary text-secondary shadow-lg shadow-primary/25' : 'text-gray-300 hover:text-white hover:bg-white/5' ?>">
+                                <a href="<?= url('/my-rides') ?>" class="px-5 py-2 rounded-full text-sm font-medium transition-all <?= isActive('/my-rides') ? 'bg-primary text-secondary shadow-lg shadow-primary/25' : 'text-gray-300 hover:text-white hover:bg-white/5' ?>">
                                     <i class="fas fa-car mr-1.5"></i><?= t('nav.my_rides') ?>
                                 </a>
 
-                                <a href="<?= url('/messages') ?>" class="px-4 py-1.5 rounded-full text-sm font-medium transition-all relative <?= isActive('/messages') ? 'bg-primary text-secondary shadow-lg shadow-primary/25' : 'text-gray-300 hover:text-white hover:bg-white/5' ?>">
+                                <a href="<?= url('/messages') ?>" class="px-5 py-2 rounded-full text-sm font-medium transition-all relative <?= isActive('/messages') ? 'bg-primary text-secondary shadow-lg shadow-primary/25' : 'text-gray-300 hover:text-white hover:bg-white/5' ?>">
                                     <i class="fas fa-comment-alt mr-1.5"></i><?= t('nav.messages') ?>
                                 </a>
                             </div>
 
                             <!-- Acciones derechas -->
-                            <div class="flex items-center gap-1.5 sm:gap-2">
+                            <div class="flex items-center gap-2 sm:gap-3">
 
                                 <!-- Selector de idioma -->
                                 <div class="flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/5">
-                                    <a href="<?= url('/set-lang') ?>?lang=es" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'es' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">ES</a>
-                                    <a href="<?= url('/set-lang') ?>?lang=en" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'en' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">EN</a>
+                                    <a href="<?= url('/set-lang') ?>?lang=es" class="px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'es' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">ES</a>
+                                    <a href="<?= url('/set-lang') ?>?lang=en" class="px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'en' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">EN</a>
                                 </div>
 
-                                <div class="h-6 w-px bg-white/10 hidden md:block"></div>
+                                <div class="h-7 w-px bg-white/10 hidden md:block"></div>
 
                                 <!-- Campana de notificaciones -->
                                 <div class="relative" id="notif-wrapper">
-                                    <button onclick="toggleNotifPanel()" class="relative p-2 rounded-full hover:bg-white/10 transition-all text-gray-300 hover:text-white">
-                                        <i class="fas fa-bell text-base"></i>
+                                    <button onclick="toggleNotifPanel()" class="relative p-2.5 rounded-full hover:bg-white/10 transition-all text-gray-300 hover:text-white">
+                                        <i class="fas fa-bell text-lg"></i>
                                         
                                         <?php if ($unreadNotifCount > 0): ?>
                                             <span class="absolute top-0.5 right-0.5 min-w-[16px] h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-0.5" id="notif-badge"><?= $unreadNotifCount ?></span>
@@ -127,12 +127,12 @@
                                     </div>
                                 </div>
 
-                                <div class="h-6 w-px bg-white/10 hidden md:block"></div>
+                                <div class="h-7 w-px bg-white/10 hidden md:block"></div>
 
                                 <!-- Avatar + desplegable (escritorio) -->
                                 <div class="relative hidden md:block">
-                                    <button type="button" onclick="toggleUserMenu()" class="flex items-center gap-2 rounded-full pr-1 pl-1 py-1 hover:bg-white/10 transition-all border border-transparent hover:border-white/10" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-                                        <div class="h-9 w-9 rounded-full overflow-hidden ring-2 ring-gray-900 bg-gray-800 flex items-center justify-center">
+                                    <button type="button" onclick="toggleUserMenu()" class="flex items-center gap-2 rounded-full pr-1.5 pl-1.5 py-1 hover:bg-white/10 transition-all border border-transparent hover:border-white/10" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                                        <div class="h-10 w-10 rounded-full overflow-hidden ring-2 ring-gray-900 bg-gray-800 flex items-center justify-center">
                                             <?php if (!empty($_SESSION['user_photo']) && file_exists(__DIR__ . '/../../public/uploads/profiles/' . $_SESSION['user_photo'])):
                                                 $photoPath = 'public/uploads/profiles/' . $_SESSION['user_photo'];
                                                 $fsPath = __DIR__ . '/../../public/uploads/profiles/' . $_SESSION['user_photo'];
