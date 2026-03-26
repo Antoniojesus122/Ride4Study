@@ -46,8 +46,7 @@ class PremiumController {
 
         if (!$this->stripe) {
             error_log('Premium checkout: StripeService no disponible');
-            header('Location: ' . url('/premium') . '?error=stripe_unavailable');
-            exit;
+            redirectWithFlash(url('/premium'), 'error', 'stripe_unavailable');
         }
 
         $userData = $this->user->getUserById($_SESSION['user_id']);
@@ -71,8 +70,7 @@ class PremiumController {
 
         if (isset($session['error'])) {
             error_log('Stripe checkout error: ' . json_encode($session['error']));
-            header('Location: ' . url('/premium') . '?error=checkout_failed');
-            exit;
+            redirectWithFlash(url('/premium'), 'error', 'checkout_failed');
         }
 
         if (isset($session['url'])) {
@@ -81,8 +79,7 @@ class PremiumController {
         }
 
         error_log('Stripe checkout: respuesta inesperada: ' . json_encode($session));
-        header('Location: ' . url('/premium') . '?error=checkout_failed');
-        exit;
+        redirectWithFlash(url('/premium'), 'error', 'checkout_failed');
     }
 
     // Página de éxito tras el pago — verificar con Stripe y activar premium
@@ -94,8 +91,7 @@ class PremiumController {
 
         $sessionId = $_GET['session_id'] ?? '';
         if (!$sessionId || !$this->stripe) {
-            header('Location: ' . url('/premium') . '?error=invalid_session');
-            exit;
+            redirectWithFlash(url('/premium'), 'error', 'invalid_session');
         }
 
         // Verificar el estado del pago directamente en Stripe
@@ -103,8 +99,7 @@ class PremiumController {
 
         if (($session['payment_status'] ?? '') !== 'paid') {
             error_log('Premium success: payment_status=' . ($session['payment_status'] ?? 'null') . ' session=' . json_encode($session));
-            header('Location: ' . url('/premium') . '?error=payment_not_confirmed');
-            exit;
+            redirectWithFlash(url('/premium'), 'error', 'payment_not_confirmed');
         }
 
         // Evitar doble activación si el usuario recarga la página
@@ -112,20 +107,17 @@ class PremiumController {
         $stmt->execute([':id' => $_SESSION['user_id']]);
         $current = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($current && $current['premium'] && $current['premium_hasta'] && $current['premium_hasta'] > date('Y-m-d H:i:s')) {
-            header('Location: ' . url('/premium') . '?activated=1');
-            exit;
+            redirectWithFlash(url('/premium'), 'success', 'activated');
         }
 
         // Activar premium durante 30 días
         $this->activatePremium((int)$_SESSION['user_id']);
-        header('Location: ' . url('/premium') . '?activated=1');
-        exit;
+        redirectWithFlash(url('/premium'), 'success', 'activated');
     }
 
     // Cancelación del proceso de pago
     public function cancel() {
-        header('Location: ' . url('/premium') . '?cancelled=1');
-        exit;
+        redirectWithFlash(url('/premium'), 'error', 'cancelled');
     }
 
     // Activar premium para el usuario (30 días)

@@ -49,14 +49,15 @@
             <main class="flex-grow bg-surface">
                 <div class="mx-auto max-w-4xl px-6 py-12">
                     
-                    <?php if (isset($_GET['status']) && $_GET['status'] === 'success'): ?>
+                    <?php $flashData = $flashData ?? getFlash(); ?>
+                    <?php if ($flashData && $flashData['type'] === 'success'): ?>
                     <div class="bg-green-500/10 border border-green-500/20 text-green-400 p-6 rounded-2xl flex items-center gap-4 mb-12 animate-fade-in-down">
                         <div class="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center flex-shrink-0">
                             <i class="fas fa-check text-2xl"></i>
                         </div>
                         <div>
                             <h3 class="font-bold text-lg"><?= t('support.success') ?></h3>
-                            <p class="text-green-400/80"><?php echo htmlspecialchars($_GET['msg']); ?></p>
+                            <p class="text-green-400/80"><?= htmlspecialchars($flashData['message']) ?></p>
                         </div>
                     </div>
                     <?php endif; ?>

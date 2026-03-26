@@ -213,7 +213,12 @@ class RideController {
         $data['origen']  = $this->ride->findOrCreateLocation($origenNombre, $origenLat, $origenLng);
         $data['destino'] = $this->ride->findOrCreateLocation($destinoNombre, $destinoLat, $destinoLng);
 
-        $data['horaLlegada'] = $this->calculateArrivalTime($origenLat, $origenLng, $destinoLat, $destinoLng, $data['fechaSalida'], $data['horaSalida']);
+        // Calcular ruta, hora de llegada, distancia y polyline
+        $routeInfo = $this->calculateRouteData($origenLat, $origenLng, $destinoLat, $destinoLng, $data['fechaSalida'], $data['horaSalida']);
+        $data['horaLlegada']   = $routeInfo['horaLlegada'];
+        $data['ruta_polyline'] = $routeInfo['ruta_polyline'];
+        $data['distancia_km']  = $routeInfo['distancia_km'];
+        $data['duracion_min']  = $routeInfo['duracion_min'];
 
         // Comprobar límite de anuncios para usuarios gratuitos (máximo 4 activos)
         $userData = $this->db->prepare("SELECT premium, premium_hasta FROM usuarios WHERE idUsuario = :id");
@@ -230,7 +235,7 @@ class RideController {
 
         // Creación de viaje
         if ($this->ride->createRide($data)) {
-            header('Location: ' . url('/my-rides') . '?success=created');
+            redirectWithFlash(url('/my-rides'), 'success', 'created');
         } else {
              $errors[] = 'Error al publicar el viaje. Inténtalo de nuevo.';
              $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
@@ -241,12 +246,12 @@ class RideController {
 
     // Función para manejar tanto reservas en anuncios tipo "ofrezco" como ofertas en anuncios tipo "busco"
     public function reserve() {
-        if (!isset($_SESSION['user_id'])) {
+        if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: ' . url('/login'));
             exit;
         }
 
-        $rideId = $_GET['ride_id'] ?? null;
+        $rideId = $_POST['ride_id'] ?? null;
         if (!$rideId) {
             header('Location: ' . url('/dashboard'));
             exit;
@@ -256,28 +261,24 @@ class RideController {
         $ride = $this->ride->getRideById($rideId);
         
         if (!$ride) {
-            header('Location: ' . url('/dashboard') . '?error=not_found');
-            exit;
+            redirectWithFlash(url('/dashboard'), 'error', 'not_found');
         }
 
         $tipoAnuncio = strtolower($ride['tipo']);
 
         // Evitar reservar/ofrecer en anuncio propio
         if ($ride['idUsuario'] == $_SESSION['user_id']) {
-            header('Location: ' . url('/dashboard') . '?error=own_ride');
-            exit;
+            redirectWithFlash(url('/dashboard'), 'error', 'own_ride');
         }
 
         // Evitar la doble reserva/oferta
         if ($this->ride->hasBooking($rideId, $_SESSION['user_id'])) {
-            header('Location: ' . url('/dashboard') . '?error=already_booked');
-            exit;
+            redirectWithFlash(url('/dashboard'), 'error', 'already_booked');
         }
 
         // Verificar si hay plazas disponibles (solo para tipo "ofrezco")
         if ($tipoAnuncio === 'ofrezco' && $ride['plazasDisponibles'] <= 0) {
-            header('Location: ' . url('/dashboard') . '?error=no_seats');
-            exit;
+            redirectWithFlash(url('/dashboard'), 'error', 'no_seats');
         }
 
         // Crear reserva/oferta
@@ -320,9 +321,9 @@ class RideController {
                 error_log("Error enviando notificación in-app: " . $e->getMessage());
             }
 
-            header('Location: ' . url('/my-rides') . '?success=reserved');
+            redirectWithFlash(url('/my-rides'), 'success', 'reserved');
         } else {
-            header('Location: ' . url('/dashboard') . '?error=reservation_failed');
+            redirectWithFlash(url('/dashboard'), 'error', 'reservation_failed');
         }
     }
 
@@ -336,14 +337,12 @@ class RideController {
         $action = $_POST['action'] ?? null;
 
         if (!$rideId || !$passengerId || !$action) {
-             header('Location: ' . url('/my-rides') . '?error=missing_params');
-             exit;
+             redirectWithFlash(url('/my-rides'), 'error', 'missing_params');
         }
 
         $ride = $this->ride->getRideById($rideId);
         if (!$ride || $ride['idUsuario'] != $_SESSION['user_id']) {
-             header('Location: ' . url('/my-rides') . '?error=unauthorized');
-             exit;
+             redirectWithFlash(url('/my-rides'), 'error', 'unauthorized');
         }
 
         $status = ($action === 'accept') ? 'aceptado' : 'rechazado';
@@ -371,9 +370,9 @@ class RideController {
                  );
              }
 
-             header('Location: ' . url('/my-rides') . '?success=status_updated&action=' . $action);
+             redirectWithFlash(url('/my-rides'), 'success', 'status_updated');
         } else {
-             header('Location: ' . url('/my-rides') . '?error=update_failed');
+             redirectWithFlash(url('/my-rides'), 'error', 'update_failed');
         }
     }
 
@@ -386,16 +385,14 @@ class RideController {
         $rideId = $_POST['ride_id'] ?? null;
         
         if (!$rideId) {
-            header('Location: ' . url('/my-rides') . '?error=missing_params');
-            exit;
+            redirectWithFlash(url('/my-rides'), 'error', 'missing_params');
         }
 
         // Verificar que el usuario tiene una reserva activa
         $booking = $this->ride->hasBooking($rideId, $_SESSION['user_id']);
-        
+
         if (!$booking) {
-            header('Location: ' . url('/my-rides') . '?error=no_booking&tab=bookings');
-            exit;
+            redirectWithFlash(url('/my-rides'), 'error', 'no_booking', 'bookings');
         }
 
         // No permitir cancelar reservas aceptadas a menos que falten más de 24h
@@ -406,8 +403,7 @@ class RideController {
             $hoursUntilRide = ($rideDateTime - $now) / 3600;
 
             if ($hoursUntilRide < 24) {
-                header('Location: ' . url('/my-rides') . '?error=too_late_to_cancel&tab=bookings');
-                exit;
+                redirectWithFlash(url('/my-rides'), 'error', 'too_late_to_cancel', 'bookings');
             }
         }
 
@@ -434,9 +430,9 @@ class RideController {
                 error_log("Error enviando notificación in-app: " . $e->getMessage());
             }
 
-            header('Location: ' . url('/my-rides') . '?success=reservation_cancelled&tab=bookings');
+            redirectWithFlash(url('/my-rides'), 'success', 'reservation_cancelled', 'bookings');
         } else {
-            header('Location: ' . url('/my-rides') . '?error=cancel_failed&tab=bookings');
+            redirectWithFlash(url('/my-rides'), 'error', 'cancel_failed', 'bookings');
         }
     }
 
@@ -666,8 +662,7 @@ class RideController {
         $ride = $this->ride->getRideById($rideId);
 
         if (!$ride || $ride['idUsuario'] != $_SESSION['user_id']) {
-            header('Location: ' . url('/my-rides') . '?error=unauthorized');
-            exit;
+            redirectWithFlash(url('/my-rides'), 'error', 'unauthorized');
         }
 
         // Verificar si hay pasajeros con reserva aceptada
@@ -702,8 +697,7 @@ class RideController {
 
         $ride = $this->ride->getRideById($rideId);
         if (!$ride || $ride['idUsuario'] != $_SESSION['user_id']) {
-            header('Location: ' . url('/my-rides') . '?error=unauthorized');
-            exit;
+            redirectWithFlash(url('/my-rides'), 'error', 'unauthorized');
         }
 
         $errors = [];
@@ -799,12 +793,16 @@ class RideController {
         $data['origen']  = $this->ride->findOrCreateLocation($origenNombre, $origenLat, $origenLng);
         $data['destino'] = $this->ride->findOrCreateLocation($destinoNombre, $destinoLat, $destinoLng);
 
-        // Calcular hora de llegada con OpenRouteService
-        $data['horaLlegada'] = $this->calculateArrivalTime($origenLat, $origenLng, $destinoLat, $destinoLng, $data['fechaSalida'], $data['horaSalida']);
+        // Calcular ruta, hora de llegada, distancia y polyline
+        $routeInfo = $this->calculateRouteData($origenLat, $origenLng, $destinoLat, $destinoLng, $data['fechaSalida'], $data['horaSalida']);
+        $data['horaLlegada']   = $routeInfo['horaLlegada'];
+        $data['ruta_polyline'] = $routeInfo['ruta_polyline'];
+        $data['distancia_km']  = $routeInfo['distancia_km'];
+        $data['duracion_min']  = $routeInfo['duracion_min'];
 
         // Actualizar viaje
         if ($this->ride->updateRide($rideId, $data)) {
-            header('Location: ' . url('/my-rides') . '?success=updated');
+            redirectWithFlash(url('/my-rides'), 'success', 'updated');
         } else {
              $errors[] = 'Error al actualizar el viaje. Inténtalo de nuevo.';
              $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
@@ -814,13 +812,19 @@ class RideController {
         }
     }
 
-    /* Calcula la hora de llegada estimada usando OpenRouteService */
-    private function calculateArrivalTime(float $origenLat, float $origenLng, float $destinoLat, float $destinoLng, string $fechaSalida, string $horaSalida): ?string {
+    // Calcula hora de llegada, polyline, distancia y duración usando OpenRouteService
+    private function calculateRouteData(float $origenLat, float $origenLng, float $destinoLat, float $destinoLng, string $fechaSalida, string $horaSalida): array {
+        $result = ['horaLlegada' => null, 'ruta_polyline' => null, 'distancia_km' => null, 'duracion_min' => null];
+
         if ($origenLat == 0 || $origenLng == 0 || $destinoLat == 0 || $destinoLng == 0) {
-            return null;
+            return $result;
         }
 
-        $apiKey = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjkyMTRlZDJiZjMxYTQ4Nzc4NGVkYmVkNGMxNGY4YTdiIiwiaCI6Im11cm11cjY0In0=';
+        $apiKey = $_ENV['ORS_API_KEY'] ?? '';
+        if (!$apiKey) {
+            error_log('ORS_API_KEY no configurada en .env');
+            return $result;
+        }
         $url = "https://api.openrouteservice.org/v2/directions/driving-car?api_key={$apiKey}&start={$origenLng},{$origenLat}&end={$destinoLng},{$destinoLat}";
 
         $ch = curl_init($url);
@@ -831,38 +835,65 @@ class RideController {
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($response && $httpCode === 200) {
-            $routeData = json_decode($response, true);
-            if (isset($routeData['features'][0]['properties']['summary']['duration'])) {
-                $segundos = $routeData['features'][0]['properties']['summary']['duration'];
-                $llegada = new DateTime($fechaSalida . ' ' . $horaSalida);
-                $llegada->modify("+" . round($segundos) . " seconds");
-                return $llegada->format('H:i:s');
-            }
+        if (!$response || $httpCode !== 200) {
+            error_log('OpenRouteService error: HTTP ' . $httpCode . ' - ' . ($response ?: 'sin respuesta'));
+            return $result;
         }
 
-        return null;
+        $routeData = json_decode($response, true);
+        $feature = $routeData['features'][0] ?? null;
+
+        if (!$feature) {
+            error_log('OpenRouteService: respuesta sin features');
+            return $result;
+        }
+
+        // Hora de llegada
+        $duration = $feature['properties']['summary']['duration'] ?? 0;
+        $distance = $feature['properties']['summary']['distance'] ?? 0;
+
+        if ($duration > 0) {
+            $llegada = new DateTime($fechaSalida . ' ' . $horaSalida);
+            $llegada->modify("+" . round($duration) . " seconds");
+            $result['horaLlegada'] = $llegada->format('H:i:s');
+        }
+
+        // Distancia y duración
+        $result['distancia_km'] = round($distance / 1000, 2);
+        $result['duracion_min'] = (int)ceil($duration / 60);
+
+        // Polyline (coordenadas GeoJSON => JSON compacto)
+        $coords = $feature['geometry']['coordinates'] ?? [];
+        if (!empty($coords)) {
+            $result['ruta_polyline'] = json_encode($coords);
+        }
+
+        return $result;
+    }
+
+    // Mantener compatibilidad con la función anterior
+    private function calculateArrivalTime(float $origenLat, float $origenLng, float $destinoLat, float $destinoLng, string $fechaSalida, string $horaSalida): ?string {
+        $data = $this->calculateRouteData($origenLat, $origenLng, $destinoLat, $destinoLng, $fechaSalida, $horaSalida);
+        return $data['horaLlegada'];
     }
 
     public function delete() {
-        if (!isset($_SESSION['user_id'])) {
+        if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: ' . url('/login'));
             exit;
         }
 
-        $rideId = $_GET['id'] ?? null;
+        $rideId = $_POST['id'] ?? null;
         $userId = $_SESSION['user_id'];
 
         if (!$rideId) {
-            header('Location: ' . url('/my-rides') . '?error=missing_id');
-            exit;
+            redirectWithFlash(url('/my-rides'), 'error', 'missing_id');
         }
 
         // Verificar que el usuario sea el dueño del viaje
         $ride = $this->ride->getRideById($rideId);
         if (!$ride || $ride['idUsuario'] != $userId) {
-            header('Location: ' . url('/my-rides') . '?error=unauthorized');
-            exit;
+            redirectWithFlash(url('/my-rides'), 'error', 'unauthorized');
         }
 
         // Notificar a los usuarios conectados (pasajeros/conductores con reserva) antes de eliminar
@@ -917,9 +948,9 @@ class RideController {
 
         // Eliminar viaje (las reservas se eliminan por CASCADE o manualmente)
         if ($this->ride->deleteRide($rideId)) {
-            header('Location: ' . url('/my-rides') . '?success=deleted');
+            redirectWithFlash(url('/my-rides'), 'success', 'deleted');
         } else {
-            header('Location: ' . url('/my-rides') . '?error=delete_failed');
+            redirectWithFlash(url('/my-rides'), 'error', 'delete_failed');
         }
     }
 

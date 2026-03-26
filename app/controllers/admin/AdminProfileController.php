@@ -17,8 +17,9 @@ class AdminProfileController {
 
     public function index(): void {
         $adminData = $this->user->getUserById((int)$_SESSION['user_id']);
-        $successMsg = $_GET['success'] ?? null;
-        $errorMsg = $_GET['error'] ?? null;
+        $flash = getFlash();
+        $successMsg = ($flash && $flash['type'] === 'success') ? $flash['message'] : null;
+        $errorMsg = ($flash && $flash['type'] === 'error') ? $flash['message'] : null;
         require_once __DIR__ . '/../../../views/admin/profile.view.php';
     }
 
@@ -34,16 +35,14 @@ class AdminProfileController {
         $telefono = trim($_POST['telefono'] ?? '');
 
         if (!$nombre || !$correo) {
-            header('Location: ' . url('/admin/profile') . '?error=campos_obligatorios');
-            exit;
+            redirectWithFlash(url('/admin/profile'), 'error', 'campos_obligatorios');
         }
 
         // Verificar email unico
         $existing = $this->db->prepare("SELECT idUsuario FROM usuarios WHERE correo = :c AND idUsuario != :id");
         $existing->execute([':c' => $correo, ':id' => $userId]);
         if ($existing->fetch()) {
-            header('Location: ' . url('/admin/profile') . '?error=correo_en_uso');
-            exit;
+            redirectWithFlash(url('/admin/profile'), 'error', 'correo_en_uso');
         }
 
         $stmt = $this->db->prepare(
@@ -53,8 +52,7 @@ class AdminProfileController {
 
         $_SESSION['user_name'] = $nombre;
 
-        header('Location: ' . url('/admin/profile') . '?success=info_updated');
-        exit;
+        redirectWithFlash(url('/admin/profile'), 'success', 'info_updated');
     }
 
     public function changePassword(): void {
@@ -69,29 +67,24 @@ class AdminProfileController {
         $confirm = $_POST['confirm_password'] ?? '';
 
         if (!$current || !$new || !$confirm) {
-            header('Location: ' . url('/admin/profile') . '?error=campos_obligatorios');
-            exit;
+            redirectWithFlash(url('/admin/profile'), 'error', 'campos_obligatorios');
         }
 
         if ($new !== $confirm) {
-            header('Location: ' . url('/admin/profile') . '?error=passwords_no_coinciden');
-            exit;
+            redirectWithFlash(url('/admin/profile'), 'error', 'passwords_no_coinciden');
         }
 
         if (strlen($new) < 6) {
-            header('Location: ' . url('/admin/profile') . '?error=password_corta');
-            exit;
+            redirectWithFlash(url('/admin/profile'), 'error', 'password_corta');
         }
 
         $hash = $this->user->getPasswordHash($userId);
         if (!password_verify($current, $hash)) {
-            header('Location: ' . url('/admin/profile') . '?error=password_incorrecta');
-            exit;
+            redirectWithFlash(url('/admin/profile'), 'error', 'password_incorrecta');
         }
 
         $this->user->updatePassword($userId, $new);
 
-        header('Location: ' . url('/admin/profile') . '?success=password_updated');
-        exit;
+        redirectWithFlash(url('/admin/profile'), 'success', 'password_updated');
     }
 }

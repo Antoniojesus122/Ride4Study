@@ -34,8 +34,7 @@ class AdminPremiumController {
         $days = max(1, (int)($_POST['days'] ?? 30));
 
         if (!$userId) {
-            header('Location: ' . url('/admin/premium') . '?error=user_not_found');
-            exit;
+            redirectWithFlash(url('/admin/premium'), 'error', 'user_not_found');
         }
 
         $stmt = $this->db->prepare(
@@ -52,8 +51,7 @@ class AdminPremiumController {
             url('/premium')
         );
 
-        header('Location: ' . url('/admin/premium') . '?success=granted');
-        exit;
+        redirectWithFlash(url('/admin/premium'), 'success', 'granted');
     }
 
     public function revoke(): void {
@@ -81,8 +79,7 @@ class AdminPremiumController {
             url('/premium')
         );
 
-        header('Location: ' . url('/admin/premium') . '?success=revoked');
-        exit;
+        redirectWithFlash(url('/admin/premium'), 'success', 'revoked');
     }
 
     private function getPremiumUsers(): array {

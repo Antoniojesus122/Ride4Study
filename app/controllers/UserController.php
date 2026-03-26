@@ -47,7 +47,9 @@ class UserController {
 
         // Anuncios activos del usuario visitado (para mostrar en su perfil)
         $stmt = $this->db->prepare("
-            SELECT a.idAnuncio, a.tipo, a.fechaSalida, a.horaSalida, a.precio, a.plazasDisponibles,
+            SELECT a.idAnuncio, a.tipo, a.fechaSalida, a.horaSalida, a.horaLlegada, a.horaRegreso,
+                   a.precio, a.plazasDisponibles, a.descripcion,
+                   a.ruta_polyline, a.distancia_km, a.duracion_min,
                    lo.nombreLocalidad AS nombreOrigen, ld.nombreLocalidad AS nombreDestino
             FROM anuncios a
             JOIN localidades lo ON a.origen = lo.idLocalidad
@@ -91,13 +93,11 @@ class UserController {
         $data['preferencias_viaje'] = json_encode(array_values($prefs));
 
         if (!filter_var($data['correo'], FILTER_VALIDATE_EMAIL)) {
-            header('Location: ' . url('/profile') . '?error=invalid_email');
-            exit;
+            redirectWithFlash(url('/profile'), 'error', 'invalid_email');
         }
 
         if (!empty($data['biografia']) && mb_strlen($data['biografia']) > 300) {
-            header('Location: ' . url('/profile') . '?error=biografia_too_long');
-            exit;
+            redirectWithFlash(url('/profile'), 'error', 'biografia_too_long');
         }
 
         // Foto de perfil
@@ -123,12 +123,10 @@ class UserController {
             if (isset($data['foto_perfil'])) {
                 $_SESSION['user_photo'] = $data['foto_perfil'];
             }
-            header('Location: ' . url('/profile') . '?success=updated');
-            exit;
+            redirectWithFlash(url('/profile'), 'success', 'updated');
         }
 
-        header('Location: ' . url('/profile') . '?error=update_failed');
-        exit;
+        redirectWithFlash(url('/profile'), 'error', 'update_failed');
     }
 
 
@@ -145,44 +143,37 @@ class UserController {
 
         // Campos vacíos
         if (empty($current) || empty($new) || empty($confirm)) {
-            header('Location: ' . url('/profile') . '?error=empty_fields&tab=security');
-            exit;
+            redirectWithFlash(url('/profile'), 'error', 'empty_fields', 'security');
         }
 
         // Las nuevas contraseñas no coinciden
         if ($new !== $confirm) {
-            header('Location: ' . url('/profile') . '?error=password_mismatch&tab=security');
-            exit;
+            redirectWithFlash(url('/profile'), 'error', 'password_mismatch', 'security');
         }
 
         // Longitud mínima
         if (strlen($new) < 8) {
-            header('Location: ' . url('/profile') . '?error=password_too_short&tab=security');
-            exit;
+            redirectWithFlash(url('/profile'), 'error', 'password_too_short', 'security');
         }
 
         // La nueva contraseña debe contener al menos una letra mayúscula y un número
         if (!preg_match('/[A-Z]/', $new) || !preg_match('/[0-9]/', $new)) {
-            header('Location: ' . url('/profile') . '?error=password_weak&tab=security');
-            exit;
+            redirectWithFlash(url('/profile'), 'error', 'password_weak', 'security');
         }
 
         // Verificar que la contraseña actual es correcta
         if (!$this->user->verifyPassword($_SESSION['user_id'], $current)) {
-            header('Location: ' . url('/profile') . '?error=wrong_password&tab=security');
-            exit;
+            redirectWithFlash(url('/profile'), 'error', 'wrong_password', 'security');
         }
 
         // La nueva contraseña no puede ser igual a la actual
         if (password_verify($new, $this->user->getPasswordHash($_SESSION['user_id']))) {
-            header('Location: ' . url('/profile') . '?error=same_password&tab=security');
-            exit;
+            redirectWithFlash(url('/profile'), 'error', 'same_password', 'security');
         }
 
         // Actualizar contraseña
         if (!$this->user->updatePassword($_SESSION['user_id'], $new)) {
-            header('Location: ' . url('/profile') . '?error=update_failed&tab=security');
-            exit;
+            redirectWithFlash(url('/profile'), 'error', 'update_failed', 'security');
         }
 
         // Email de confirmación de cambio de contraseña
@@ -200,8 +191,7 @@ class UserController {
             $this->mailService->send($userData['correo'], $userData['nombre'], 'Contraseña actualizada · Ride4Study', $html);
         }
 
-        header('Location: ' . url('/profile') . '?success=password_updated&tab=security');
-        exit;
+        redirectWithFlash(url('/profile'), 'success', 'password_updated', 'security');
     }
 
     public function verify() {
@@ -219,21 +209,18 @@ class UserController {
               ];
               $mime = mime_content_type($_FILES['document']['tmp_name']);
               if (!isset($allowedMimes[$mime])) {
-                  header('Location: ' . url('/profile') . '?error=invalid_file_type&tab=verification');
-                  exit;
+                  redirectWithFlash(url('/profile'), 'error', 'invalid_file_type', 'verification');
               }
 
               // Validar extensión del archivo original
               $ext = strtolower(pathinfo($_FILES['document']['name'], PATHINFO_EXTENSION));
               if (!in_array($ext, ['pdf', 'jpg', 'jpeg', 'png', 'webp'], true)) {
-                  header('Location: ' . url('/profile') . '?error=invalid_file_type&tab=verification');
-                  exit;
+                  redirectWithFlash(url('/profile'), 'error', 'invalid_file_type', 'verification');
               }
 
               // Límite de 5MB
               if ($_FILES['document']['size'] > 5 * 1024 * 1024) {
-                  header('Location: ' . url('/profile') . '?error=file_too_large&tab=verification');
-                  exit;
+                  redirectWithFlash(url('/profile'), 'error', 'file_too_large', 'verification');
               }
 
               $uploadDir = __DIR__ . '/../../public/uploads/verification/';
@@ -260,12 +247,12 @@ class UserController {
                        $this->mailService->send($userData['correo'], $userData['nombre'], 'Verificación recibida · Ride4Study', $html);
                    }
 
-                   header('Location: ' . url('/profile') . '?success=verification_sent&tab=verification');
+                   redirectWithFlash(url('/profile'), 'success', 'verification_sent', 'verification');
               } else {
-                   header('Location: ' . url('/profile') . '?error=upload_failed&tab=verification');
+                   redirectWithFlash(url('/profile'), 'error', 'upload_failed', 'verification');
               }
         } else {
-             header('Location: ' . url('/profile') . '?error=no_file&tab=verification');
+             redirectWithFlash(url('/profile'), 'error', 'no_file', 'verification');
         }
     }
 
@@ -277,14 +264,12 @@ class UserController {
 
         $password = $_POST['password'] ?? '';
         if (empty($password)) {
-            header('Location: ' . url('/profile') . '?error=empty_fields&tab=privacy');
-            exit;
+            redirectWithFlash(url('/profile'), 'error', 'empty_fields', 'privacy');
         }
 
         // Verificar contraseña antes de eliminar
         if (!$this->user->verifyPassword($_SESSION['user_id'], $password)) {
-            header('Location: ' . url('/profile') . '?error=wrong_password&tab=privacy');
-            exit;
+            redirectWithFlash(url('/profile'), 'error', 'wrong_password', 'privacy');
         }
 
         $userData = $this->user->getUserById($_SESSION['user_id']);
@@ -304,12 +289,10 @@ class UserController {
             // Destruir sesión
             $_SESSION = [];
             session_destroy();
-            header('Location: ' . url('/login') . '?msg=account_deleted');
-            exit;
+            redirectWithFlash(url('/login'), 'success', 'account_deleted');
         }
 
-        header('Location: ' . url('/profile') . '?error=delete_failed&tab=privacy');
-        exit;
+        redirectWithFlash(url('/profile'), 'error', 'delete_failed', 'privacy');
     }
 
     public function updatePrivacy() {
@@ -325,11 +308,9 @@ class UserController {
         ];
 
         if ($this->user->updateUser($id, $data)) {
-            header('Location: ' . url('/profile') . '?success=privacy_updated&tab=privacy');
-            exit;
+            redirectWithFlash(url('/profile'), 'success', 'privacy_updated', 'privacy');
         } else {
-            header('Location: ' . url('/profile') . '?error=update_failed&tab=privacy');
-            exit;
+            redirectWithFlash(url('/profile'), 'error', 'update_failed', 'privacy');
         }
     }
 }

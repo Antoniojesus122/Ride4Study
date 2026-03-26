@@ -38,8 +38,7 @@ class AdminAdController {
             $this->ride->deleteRide($id);
         }
 
-        header('Location: ' . url('/admin/ads') . '?success=deleted');
-        exit;
+        redirectWithFlash(url('/admin/ads'), 'success', 'deleted');
     }
 
     private function getAllAds(int $page, int $limit, array $filters): array {

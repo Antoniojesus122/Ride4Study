@@ -1,10 +1,11 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
+<?php $flashData = $flashData ?? getFlash(); ?>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-8">
 
     <?php if ($isPremium): ?>
 
-    <?php if (isset($_GET['activated'])): ?>
+    <?php if ($flashData && $flashData['type'] === 'success' && $flashData['message'] === 'activated'): ?>
         <div class="mb-6 bg-green-500/10 border border-green-500/50 text-green-400 p-4 rounded-xl flex items-center gap-3">
             <i class="fas fa-check-circle text-xl"></i>
             <span class="font-medium"><?= t('premium.success') ?></span>
@@ -61,21 +62,21 @@
         <p class="text-gray-400 text-lg lg:text-xl max-w-2xl mx-auto"><?= t('premium.subtitle') ?></p>
     </div>
 
-    <?php if (isset($_GET['success'])): ?>
+    <?php if ($flashData && $flashData['type'] === 'success'): ?>
         <div class="mb-6 bg-green-500/10 border border-green-500/50 text-green-400 p-4 rounded-xl flex items-center gap-3">
             <i class="fas fa-check-circle text-xl"></i>
             <span class="font-medium"><?= t('premium.success') ?></span>
         </div>
     <?php endif; ?>
 
-    <?php if (isset($_GET['cancelled'])): ?>
+    <?php if ($flashData && $flashData['type'] === 'cancelled'): ?>
         <div class="mb-6 bg-yellow-500/10 border border-yellow-500/50 text-yellow-400 p-4 rounded-xl flex items-center gap-3">
             <i class="fas fa-info-circle text-xl"></i>
             <span class="font-medium"><?= t('premium.cancelled') ?></span>
         </div>
     <?php endif; ?>
 
-    <?php if (isset($_GET['error'])): ?>
+    <?php if ($flashData && $flashData['type'] === 'error'): ?>
         <div class="mb-6 bg-red-500/10 border border-red-500/50 text-red-400 p-4 rounded-xl flex items-center gap-3">
             <i class="fas fa-exclamation-circle text-xl"></i>
             <span class="font-medium"><?= t('premium.error') ?></span>

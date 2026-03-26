@@ -37,3 +37,27 @@ function currentLang(): string
 {
     return $GLOBALS['lang'] ?? 'es';
 }
+
+// Flash messages en sesión (esto para que no puedan manipular los GET params)
+function flash(string $type, string $message, ?string $tab = null): void
+{
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    $_SESSION['_flash'] = ['type' => $type, 'message' => $message, 'tab' => $tab];
+}
+
+function getFlash(): ?array
+{
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    $flash = $_SESSION['_flash'] ?? null;
+    unset($_SESSION['_flash']);
+    return $flash;
+}
+
+// Redirigir con flash message
+function redirectWithFlash(string $url, string $type, string $message, ?string $tab = null): void
+{
+    flash($type, $message, $tab);
+    $tabParam = $tab ? '?tab=' . $tab : '';
+    header('Location: ' . $url . $tabParam);
+    exit;
+}

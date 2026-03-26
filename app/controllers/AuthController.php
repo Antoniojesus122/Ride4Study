@@ -35,17 +35,12 @@ class AuthController {
             }
         }
 
-        if (isset($_GET['msg'])) {
-            switch ($_GET['msg']) {
-                case 'registrado':
-                    $success = 'Registro completado. Inicia sesion para continuar.';
-                    break;
-                case '2fa_expired':
-                    $error = t('auth.2fa_expired');
-                    break;
-                case '2fa_blocked':
-                    $error = t('auth.2fa_blocked');
-                    break;
+        $flash = getFlash();
+        if ($flash) {
+            if ($flash['type'] === 'success') {
+                $success = $flash['message'];
+            } else {
+                $error = $flash['message'];
             }
         }
 
@@ -220,8 +215,7 @@ class AuthController {
                             error_log('Welcome email error: ' . $e->getMessage());
                         }
 
-                        header('Location: ' . url('/login') . '?msg=registrado');
-                        exit;
+                        redirectWithFlash(url('/login'), 'success', 'Registro completado. Inicia sesion para continuar.');
                     } else {
                         $error = 'El correo ya está registrado o ha ocurrido un error.';
                     }
@@ -272,8 +266,7 @@ class AuthController {
         // Comprobar si el código ha expirado
         if (time() > ($_SESSION['2fa_expires'] ?? 0)) {
             unset($_SESSION['2fa_pending'], $_SESSION['2fa_user_id'], $_SESSION['2fa_code'], $_SESSION['2fa_expires'], $_SESSION['2fa_attempts']);
-            header('Location: ' . url('/login') . '?msg=2fa_expired');
-            exit;
+            redirectWithFlash(url('/login'), 'error', t('auth.2fa_expired'));
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -290,8 +283,7 @@ class AuthController {
                 // Máximo 5 intentos
                 if ($_SESSION['2fa_attempts'] > 5) {
                     unset($_SESSION['2fa_pending'], $_SESSION['2fa_user_id'], $_SESSION['2fa_code'], $_SESSION['2fa_expires'], $_SESSION['2fa_attempts']);
-                    header('Location: ' . url('/login') . '?msg=2fa_blocked');
-                    exit;
+                    redirectWithFlash(url('/login'), 'error', t('auth.2fa_blocked'));
                 }
 
                 // Verificar código

@@ -317,11 +317,12 @@
     <aside class="w-full md:w-72 lg:w-80 xl:w-96 hidden md:block shrink-0">
         <div class="sticky top-28 space-y-5">
              <!-- Alertas -->
-            <?php if (isset($_GET['error'])): ?>
+            <?php $flashData = $flashData ?? getFlash(); ?>
+            <?php if ($flashData && $flashData['type'] === 'error'): ?>
                 <div class="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-xl text-sm">
                     <i class="fas fa-exclamation-circle mr-2"></i>
-                    <?php 
-                    switch($_GET['error']) {
+                    <?php
+                    switch($flashData['message']) {
                         case 'own_ride': echo t('dashboard.err_own_ride'); break;
                         case 'already_booked': echo t('dashboard.err_already_booked'); break;
                         case 'no_seats': echo t('dashboard.err_no_seats'); break;
@@ -409,172 +410,178 @@
 
 <!-- Modal de detalles del viaje -->
 <div id="ride-modal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-gray-900/90 backdrop-blur-sm transition-opacity duration-300 opacity-0" id="modal-backdrop"></div>
+    <div class="fixed inset-0 bg-black/70 backdrop-blur-md transition-opacity duration-300 opacity-0" id="modal-backdrop"></div>
 
-    <div class="fixed inset-0 z-10 flex items-center justify-center p-4">
+    <div class="fixed inset-0 z-10 flex items-center justify-center p-3 sm:p-5">
+        <div class="relative transform overflow-y-auto max-h-[92vh] rounded-3xl bg-gray-900 text-left shadow-2xl shadow-black/50 transition-all duration-300 w-full max-w-[76rem] border border-gray-700/40 opacity-0 translate-y-4 sm:scale-95" id="modal-panel">
 
-            <div class="relative transform overflow-hidden rounded-2xl bg-surface text-left shadow-2xl transition-all duration-300 w-full max-w-[60rem] border border-gray-700/50 opacity-0 translate-y-4 sm:scale-95" id="modal-panel">
-
-                <!-- Header -->
-                <div class="relative px-6 py-4 bg-gradient-to-r from-primary/5 via-transparent to-transparent border-b border-gray-700/50 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                            <i class="fas fa-route text-primary"></i>
+            <!-- Header -->
+            <div class="sticky top-0 z-20 px-6 sm:px-8 py-4 bg-gray-900/95 backdrop-blur-xl border-b border-gray-800/80 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-lg shadow-primary/5">
+                        <i class="fas fa-route text-primary text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg sm:text-xl font-bold text-white" id="modal-title"><?= t('dashboard.ride_details') ?></h3>
+                        <div class="flex items-center gap-3 mt-0.5">
+                            <span id="modal-tipo-badge" class="px-3 py-0.5 rounded-full text-xs font-bold border"></span>
+                            <span class="text-sm text-gray-400 flex items-center gap-1.5">
+                                <i class="far fa-calendar-alt"></i>
+                                <span id="modal-fecha">—</span>
+                            </span>
                         </div>
+                    </div>
+                </div>
+                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all" onclick="closeRideModal()">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Barra de usuario (horizontal, debajo del header) -->
+            <div class="px-6 sm:px-8 py-3.5 border-b border-gray-800/60 bg-gray-800/20">
+                <div class="flex items-center gap-4">
+                    <!-- Avatar -->
+                    <div class="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold text-secondary shadow-lg overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 ring-2 ring-gray-600/50 shrink-0" id="modal-avatar"></div>
+                    <!-- Nombre + info -->
+                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                        <h4 class="text-base font-bold text-white truncate shrink-0" id="modal-driver-name"></h4>
+                        <span class="bg-yellow-500/10 text-yellow-400 px-2 py-0.5 rounded-lg border border-yellow-500/20 inline-flex items-center gap-1 text-xs font-bold shrink-0">
+                            <i class="fas fa-star text-[9px]"></i>
+                            <span id="modal-rating"></span>
+                        </span>
+                        <span class="text-gray-700 hidden sm:inline">|</span>
+                        <div class="hidden sm:flex items-center gap-1.5 text-sm shrink-0" id="modal-verified-wrapper">
+                            <i class="fas fa-shield-alt text-xs" id="modal-verified-icon"></i>
+                            <span id="modal-verified" class="font-medium"></span>
+                        </div>
+                        <span class="text-gray-700 hidden md:inline">|</span>
+                        <div class="hidden md:flex items-center gap-1.5 text-sm text-gray-400 shrink-0" id="modal-member-info">
+                            <i class="far fa-calendar text-xs text-gray-500"></i>
+                            <span id="modal-member-since"></span>
+                        </div>
+                    </div>
+                    <!-- Preferencias + Ver perfil -->
+                    <div class="flex items-center gap-2.5 shrink-0">
+                        <div id="modal-prefs-container" class="hidden sm:flex items-center gap-1.5" style="display:none;">
+                            <div class="flex flex-wrap gap-1.5" id="modal-prefs"></div>
+                        </div>
+                        <a href="#" id="modal-profile-link" class="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl px-4 py-2 text-sm font-semibold transition-all">
+                            <i class="fas fa-user text-xs"></i> <span class="hidden sm:inline"><?= t('dashboard.view_profile') ?></span><span class="sm:hidden"><?= t('dashboard.profile_short') ?></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2 columnas (Ruta | Mapa) -->
+            <div class="px-6 sm:px-8 py-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                    <!-- Columna izquierda: Ruta + Stats + Descripción -->
+                    <div class="lg:col-span-5 space-y-5 order-1">
+
+                        <!-- Card de ruta -->
+                        <div class="bg-gray-800/40 rounded-2xl p-6 border border-gray-700/30 shadow-lg shadow-black/10">
+                            <div class="flex items-stretch gap-5">
+                                <div class="flex flex-col items-center py-1">
+                                    <div class="w-4 h-4 rounded-full border-[3px] border-primary bg-gray-900 shadow-lg shadow-primary/30 shrink-0"></div>
+                                    <div class="w-0.5 flex-1 bg-gradient-to-b from-primary/50 via-primary/20 to-gray-700 my-1.5"></div>
+                                    <div class="w-4 h-4 rounded-full border-[3px] border-gray-500 bg-gray-900 shrink-0"></div>
+                                </div>
+                                <div class="flex-1 flex flex-col justify-between gap-6">
+                                    <div>
+                                        <p class="text-xl font-bold text-white tracking-tight" id="modal-origin"></p>
+                                        <p class="text-sm text-primary font-semibold mt-1 flex items-center gap-2" id="modal-time-start">
+                                            <i class="far fa-clock text-xs opacity-70"></i>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xl font-bold text-white tracking-tight" id="modal-dest"></p>
+                                        <p class="text-sm text-primary font-semibold mt-1 flex items-center gap-2" id="modal-time-end">
+                                            <i class="far fa-clock text-xs opacity-70"></i>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Estadísticas -->
+                            <div class="flex flex-wrap items-center gap-2.5 mt-5 pt-5 border-t border-gray-700/30" id="modal-specs">
+                                <span class="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-xl border border-primary/20" id="modal-price-container">
+                                    <i class="fas fa-euro-sign text-primary"></i>
+                                    <span class="text-lg font-extrabold text-primary" id="modal-price"></span>
+                                    <span class="text-xs text-gray-500 font-medium">/<?= t('dashboard.seat') ?></span>
+                                </span>
+                                <span class="inline-flex items-center gap-2 bg-blue-500/10 px-4 py-2 rounded-xl border border-blue-500/20">
+                                    <i class="fas fa-chair text-blue-400"></i>
+                                    <span class="text-lg font-extrabold text-white" id="modal-seats"></span>
+                                    <span class="text-xs text-gray-500 font-medium"><?= t('dashboard.seats_short') ?></span>
+                                </span>
+                                <span class="inline-flex items-center gap-2 bg-purple-500/10 px-4 py-2 rounded-xl border border-purple-500/20" id="modal-return-container" style="display:none;">
+                                    <i class="fas fa-undo text-purple-400"></i>
+                                    <span class="text-lg font-extrabold text-purple-400" id="modal-return-time"></span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Comentarios -->
                         <div>
-                            <h3 class="text-xl font-bold text-white" id="modal-title"><?= t('dashboard.ride_details') ?></h3>
-                            <div class="flex items-center gap-3 mt-0.5">
-                                <span id="modal-tipo-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold border"></span>
-                                <span class="text-xs text-gray-400 flex items-center gap-1.5">
-                                    <i class="far fa-calendar-alt text-gray-500"></i>
-                                    <span id="modal-fecha">—</span>
+                            <h5 class="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2.5 flex items-center gap-2">
+                                <i class="fas fa-comment-dots text-xs"></i> <?= t('dashboard.ride_comments') ?>
+                            </h5>
+                            <p class="text-sm text-gray-300 leading-relaxed bg-gray-800/30 p-5 rounded-2xl border border-gray-700/30" id="modal-desc"></p>
+                        </div>
+                    </div>
+
+                    <!-- Columna derecha: Mapa -->
+                    <div class="lg:col-span-7 order-2" id="modal-map-container" style="display:none;">
+                        <div class="relative rounded-2xl overflow-hidden border border-gray-700/30 shadow-xl shadow-black/20 h-full">
+                            <div id="modal-map" class="w-full h-[300px] sm:h-[350px] lg:h-full lg:min-h-[380px]" style="z-index: 1;"></div>
+                            <!-- Mini info -->
+                            <div class="absolute bottom-3 left-3 flex items-center gap-2 z-[2]">
+                                <span id="modal-map-distance" class="inline-flex items-center gap-1.5 bg-gray-900/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-medium text-gray-200 border border-gray-700/50">
+                                    <i class="fas fa-road text-primary text-[10px]"></i> <span></span>
+                                </span>
+                                <span id="modal-map-duration" class="inline-flex items-center gap-1.5 bg-gray-900/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-medium text-gray-200 border border-gray-700/50">
+                                    <i class="fas fa-clock text-primary text-[10px]"></i> <span></span>
                                 </span>
                             </div>
                         </div>
                     </div>
-                    <button type="button" class="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all" onclick="closeRideModal()">
-                        <i class="fas fa-times"></i>
-                    </button>
                 </div>
+            </div>
 
-                <!-- Contenido -->
-                <div class="px-7 py-6">
-                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-7">
-
-                        <!-- Columna izquierda (3/5) -->
-                        <div class="lg:col-span-3 space-y-6">
-
-                            <!-- Ruta -->
-                            <div class="bg-gray-800/30 rounded-xl p-5 border border-gray-700/40">
-                                <div class="flex items-stretch gap-5">
-                                    <!-- Linea vertical con puntos -->
-                                    <div class="flex flex-col items-center pt-1 pb-1">
-                                        <div class="w-4 h-4 rounded-full border-[3px] border-primary bg-surface shadow-md shadow-primary/20 shrink-0"></div>
-                                        <div class="w-0.5 flex-1 bg-gradient-to-b from-primary/60 to-gray-600 my-1"></div>
-                                        <div class="w-4 h-4 rounded-full border-[3px] border-gray-500 bg-surface shrink-0"></div>
-                                    </div>
-                                    <!-- Ciudades y horas -->
-                                    <div class="flex-1 flex flex-col justify-between gap-5">
-                                        <!-- Origen -->
-                                        <div>
-                                            <p class="text-xl font-bold text-white" id="modal-origin"></p>
-                                            <p class="text-sm text-primary font-semibold mt-1 flex items-center gap-1.5" id="modal-time-start">
-                                                <i class="far fa-clock text-xs"></i>
-                                            </p>
-                                        </div>
-                                        <!-- Destino -->
-                                        <div>
-                                            <p class="text-xl font-bold text-white" id="modal-dest"></p>
-                                            <p class="text-sm text-primary font-semibold mt-1 flex items-center gap-1.5" id="modal-time-end">
-                                                <i class="far fa-clock text-xs"></i>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Stats en linea -->
-                            <div class="grid grid-cols-3 gap-3" id="modal-specs">
-                                <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/40 text-center" id="modal-price-container">
-                                    <i class="fas fa-euro-sign text-primary text-lg mb-2"></i>
-                                    <p class="text-2xl font-bold text-primary" id="modal-price"></p>
-                                    <p class="text-xs text-gray-500 mt-1"><?= t('dashboard.price_per_seat') ?></p>
-                                </div>
-                                <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/40 text-center">
-                                    <i class="fas fa-chair text-blue-400 text-lg mb-2"></i>
-                                    <p class="text-2xl font-bold text-white"><span id="modal-seats"></span></p>
-                                    <p class="text-xs text-gray-500 mt-1"><?= t('dashboard.seats_available') ?></p>
-                                </div>
-                                <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/40 text-center" id="modal-return-container" style="display:none;">
-                                    <i class="fas fa-undo text-purple-400 text-lg mb-2"></i>
-                                    <p class="text-2xl font-bold text-purple-400" id="modal-return-time"></p>
-                                    <p class="text-xs text-gray-500 mt-1"><?= t('dashboard.return') ?></p>
-                                </div>
-                            </div>
-
-                            <!-- Descripcion -->
-                            <div>
-                                <h5 class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                                    <i class="fas fa-comment-dots"></i> <?= t('dashboard.ride_comments') ?>
-                                </h5>
-                                <p class="text-sm text-gray-300 leading-relaxed bg-gray-800/20 p-5 rounded-xl border border-gray-700/30" id="modal-desc"></p>
-                            </div>
-
-                            <!-- Preferencias -->
-                            <div id="modal-prefs-container" style="display:none;">
-                                <h5 class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                                    <i class="fas fa-sliders-h"></i> <?= t('pref.title') ?>
-                                </h5>
-                                <div class="flex flex-wrap gap-2" id="modal-prefs"></div>
-                            </div>
-                        </div>
-
-                        <!-- Columna derecha: Usuario (2/5) -->
-                        <div class="lg:col-span-2">
-                            <div class="bg-gray-800/30 rounded-xl p-5 border border-gray-700/40 h-full flex flex-col">
-                                <div class="text-center mb-4">
-                                    <div class="w-20 h-20 rounded-xl mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 ring-2 ring-gray-700/50" id="modal-avatar"></div>
-                                    <h4 class="text-lg font-bold text-white" id="modal-driver-name"></h4>
-                                    <div class="flex items-center justify-center gap-2 mt-2">
-                                        <span class="bg-yellow-500/10 text-yellow-500 px-2.5 py-1 rounded-lg border border-yellow-500/20 flex items-center gap-1 text-xs font-semibold">
-                                            <i class="fas fa-star text-[10px]"></i>
-                                            <span id="modal-rating"></span>
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div class="space-y-2 pt-3 border-t border-gray-700/40 flex-1">
-                                    <div class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-gray-800/40">
-                                        <i class="fas fa-shield-alt w-4 text-center" id="modal-verified-icon"></i>
-                                        <span id="modal-verified" class="text-sm font-medium"></span>
-                                    </div>
-                                    <div class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-gray-800/40" id="modal-member-info">
-                                        <i class="far fa-calendar w-4 text-center text-gray-500"></i>
-                                        <span id="modal-member-since" class="text-sm text-gray-400"></span>
-                                    </div>
-                                </div>
-
-                                <div class="mt-4 pt-3 border-t border-gray-700/40 space-y-2">
-                                    <a href="#" id="modal-profile-link" class="w-full flex justify-center items-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl py-2.5 text-sm font-medium transition-all">
-                                        <i class="fas fa-user text-xs"></i> <?= t('dashboard.view_profile') ?>
-                                    </a>
-                                    <a href="#" id="btn-contact"
-                                       class="w-full flex justify-center items-center gap-2 bg-gray-700/40 hover:bg-gray-700 text-gray-300 hover:text-white border border-gray-600/40 rounded-xl py-2.5 text-sm font-medium transition-all">
-                                        <i class="fas fa-comment-alt text-xs"></i> <?= t('dashboard.contact') ?>
-                                    </a>
-                                    <button type="button" id="btn-report"
-                                            class="hidden w-full px-3 py-2.5 rounded-xl border border-red-500/20 bg-red-500/5 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all flex items-center justify-center gap-2"
-                                            onclick="reportCurrentRide()">
-                                        <i class="fas fa-flag text-xs"></i> Reportar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Footer -->
-                <div class="px-7 py-4 border-t border-gray-700/50 bg-gray-800/10 flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-3">
-                    <button type="button"
-                            class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-gray-600 bg-transparent text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-white transition-all"
-                            onclick="closeRideModal()">
-                        <?= t('dashboard.close') ?>
-                    </button>
+            <!-- Footer: Cerrar | Reportar | Solicitar -->
+            <div class="sticky bottom-0 px-6 sm:px-8 py-4 border-t border-gray-800/80 bg-gray-900/95 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center gap-3">
+                <button type="button"
+                        class="w-full sm:w-auto px-6 py-3 rounded-xl border border-gray-700 bg-gray-800/50 text-sm font-semibold text-gray-300 hover:bg-gray-800 hover:text-white transition-all order-3 sm:order-1"
+                        onclick="closeRideModal()">
+                    <?= t('dashboard.close') ?>
+                </button>
+                <button type="button" id="btn-report"
+                        class="hidden w-full sm:w-auto px-5 py-3 rounded-xl border border-red-500/20 bg-red-500/5 text-sm font-medium text-red-400 hover:bg-red-500/15 hover:border-red-500/30 transition-all flex items-center justify-center gap-2 order-2 sm:order-2"
+                        onclick="reportCurrentRide()">
+                    <i class="fas fa-flag text-xs"></i> Reportar
+                </button>
+                <div class="flex-1 hidden sm:block order-3"></div>
+                <div class="flex gap-3 order-1 sm:order-4 w-full sm:w-auto">
+                    <a href="#" id="btn-contact"
+                       class="flex-1 sm:flex-none flex justify-center items-center gap-2 bg-gray-700/50 hover:bg-gray-700 text-gray-200 hover:text-white border border-gray-600/30 rounded-xl px-6 py-3 text-sm font-semibold transition-all">
+                        <i class="fas fa-comment-alt text-xs"></i> <?= t('dashboard.contact') ?>
+                    </a>
                     <button type="button" id="btn-reserve"
-                            class="w-full sm:w-auto px-7 py-2.5 rounded-xl bg-primary text-secondary text-sm font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                            class="flex-1 sm:flex-none px-8 py-3 rounded-xl bg-primary text-secondary text-base font-bold hover:bg-primary-dark shadow-xl shadow-primary/25 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2.5">
                         <i class="fas fa-ticket-alt"></i> <?= t('dashboard.request_seat') ?>
                     </button>
                 </div>
-
             </div>
+
         </div>
     </div>
 </div>
 
 <script>
-    const modal       = document.getElementById('ride-modal');
-    const backdrop    = document.getElementById('modal-backdrop');
-    const panel       = document.getElementById('modal-panel');
+    const modal = document.getElementById('ride-modal');
+    const backdrop = document.getElementById('modal-backdrop');
+    const panel = document.getElementById('modal-panel');
     const currentUserId = <?= $_SESSION['user_id'] ?>;
     let currentModalRide = null;
 
@@ -594,6 +601,19 @@
         confirmed: 'w-full sm:w-auto px-5 py-2.5 rounded-xl border border-green-500/30 bg-green-500/10 text-sm font-bold text-green-400 cursor-not-allowed flex items-center justify-center gap-2',
         rejected:  'w-full sm:w-auto px-5 py-2.5 rounded-xl border border-red-500/30 bg-red-500/10 text-sm font-bold text-red-400 cursor-not-allowed flex items-center justify-center gap-2',
     };
+
+    function submitReserveForm(rideId) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '<?= url("/reserve") ?>';
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'ride_id';
+        input.value = rideId;
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
 
     function openRideModal(ride) {
         currentModalRide = ride;
@@ -749,11 +769,94 @@
         } else if (ride.tipo.toLowerCase() === 'ofrezco') {
             btnReserve.className  = btnStyles.active;
             btnReserve.innerHTML  = '<i class="fas fa-ticket-alt text-xs"></i> <?= t('dashboard.request_seat') ?>';
-            btnReserve.onclick    = () => { window.location.href = '<?= url("/reserve") ?>?ride_id=' + ride.idAnuncio; };
+            btnReserve.onclick    = () => { submitReserveForm(ride.idAnuncio); };
 
         } else {
             // Tipo "busco" — solo contactar
             btnReserve.style.display = 'none';
+        }
+
+        // Mapa de ruta
+        const mapContainer = document.getElementById('modal-map-container');
+        const mapEl = document.getElementById('modal-map');
+        const mapDistEl = document.getElementById('modal-map-distance');
+        const mapDurEl = document.getElementById('modal-map-duration');
+
+        if (ride.ruta_polyline) {
+            mapContainer.style.display = '';
+            // Mostrar modal primero para que el contenedor tenga dimensiones
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                backdrop.classList.remove('opacity-0');
+                panel.classList.remove('opacity-0', 'translate-y-4', 'sm:scale-95');
+                panel.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100');
+            });
+
+            setTimeout(() => {
+                // Limpiar mapa anterior si existe
+                if (window._modalMap) { window._modalMap.remove(); window._modalMap = null; }
+
+                const modalMap = L.map(mapEl, { zoomControl: true, attributionControl: false }).setView([39.5, -3.5], 6);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(modalMap);
+                window._modalMap = modalMap;
+
+                try {
+                    const coords = JSON.parse(ride.ruta_polyline);
+                    const latLngs = coords.map(c => [c[1], c[0]]);
+
+                    // Ruta
+                    const polyline = L.polyline(latLngs, { color: '#34d399', weight: 4, opacity: 0.8 }).addTo(modalMap);
+
+                    // Marcadores
+                    const greenIcon = L.divIcon({ html: '<div style="background:#34d399;width:12px;height:12px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>', iconSize: [12,12], iconAnchor: [6,6], className: '' });
+                    const redIcon = L.divIcon({ html: '<div style="background:#f87171;width:12px;height:12px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>', iconSize: [12,12], iconAnchor: [6,6], className: '' });
+
+                    L.marker(latLngs[0], { icon: greenIcon }).addTo(modalMap).bindTooltip(ride.nombreOrigen, { permanent: false, direction: 'top', className: 'leaflet-tooltip-custom' });
+                    L.marker(latLngs[latLngs.length - 1], { icon: redIcon }).addTo(modalMap).bindTooltip(ride.nombreDestino, { permanent: false, direction: 'top', className: 'leaflet-tooltip-custom' });
+
+                    modalMap.fitBounds(polyline.getBounds(), { padding: [25, 25] });
+                } catch(e) { console.error('Error parsing route:', e); }
+
+                // Info distancia/duración
+                if (ride.distancia_km) {
+                    mapDistEl.querySelector('span').textContent = ride.distancia_km + ' km';
+                    mapDurEl.querySelector('span').textContent = ride.duracion_min + ' min';
+                }
+            }, 350);
+            return; // Ya mostramos el modal arriba
+        } else if (ride.origenLat && ride.origenLng && ride.destinoLat && ride.destinoLng) {
+            // Si no hay polyline guardada pero hay coordenadas, mostrar solo marcadores
+            mapContainer.style.display = '';
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                backdrop.classList.remove('opacity-0');
+                panel.classList.remove('opacity-0', 'translate-y-4', 'sm:scale-95');
+                panel.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100');
+            });
+
+            setTimeout(() => {
+                if (window._modalMap) { window._modalMap.remove(); window._modalMap = null; }
+                const modalMap = L.map(mapEl, { zoomControl: true, attributionControl: false }).setView([39.5, -3.5], 6);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(modalMap);
+                window._modalMap = modalMap;
+
+                const greenIcon = L.divIcon({ html: '<div style="background:#34d399;width:12px;height:12px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>', iconSize: [12,12], iconAnchor: [6,6], className: '' });
+                const redIcon = L.divIcon({ html: '<div style="background:#f87171;width:12px;height:12px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>', iconSize: [12,12], iconAnchor: [6,6], className: '' });
+
+                const oLat = parseFloat(ride.origenLat), oLng = parseFloat(ride.origenLng);
+                const dLat = parseFloat(ride.destinoLat), dLng = parseFloat(ride.destinoLng);
+                L.marker([oLat, oLng], { icon: greenIcon }).addTo(modalMap);
+                L.marker([dLat, dLng], { icon: redIcon }).addTo(modalMap);
+
+                const bounds = L.latLngBounds([[oLat, oLng], [dLat, dLng]]);
+                modalMap.fitBounds(bounds, { padding: [30, 30] });
+
+                mapDistEl.querySelector('span').textContent = '';
+                mapDurEl.querySelector('span').textContent = '';
+            }, 350);
+            return;
+        } else {
+            mapContainer.style.display = 'none';
         }
 
         // Mostrar modal con animación
@@ -766,6 +869,8 @@
     }
 
     function closeRideModal() {
+        // Limpiar mapa al cerrar
+        if (window._modalMap) { window._modalMap.remove(); window._modalMap = null; }
         backdrop.classList.add('opacity-0');
         panel.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100');
         panel.classList.add('opacity-0', 'translate-y-4', 'sm:scale-95');

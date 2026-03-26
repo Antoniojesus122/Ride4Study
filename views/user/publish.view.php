@@ -192,52 +192,72 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                     </div>
                 </div>
 
-                <!-- Columna derecha: Detalles + Acciones (5/12) -->
+                <!-- Columna derecha: Detalles + Acciones -->
                 <div class="lg:col-span-5 space-y-6">
 
-                    <!-- Plazas y Precio -->
-                    <div class="bg-surface rounded-2xl border border-gray-700 p-6">
-                        <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center"><i class="fas fa-sliders-h text-green-400 text-sm"></i></div>
+                    <!-- Plazas, Precio y Descripción -->
+                    <div class="bg-surface rounded-2xl border border-gray-700 p-5">
+                        <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center"><i class="fas fa-sliders-h text-green-400 text-xs"></i></div>
                             <?= t('publish.details') ?>
                         </h3>
 
-                        <div class="grid grid-cols-2 gap-5">
+                        <div class="grid grid-cols-2 gap-3 mb-3">
                             <!-- Plazas -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.seats') ?></label>
+                                <label class="block text-xs font-medium text-gray-400 mb-1"><?= t('publish.seats') ?></label>
                                 <div class="relative">
-                                    <i class="fas fa-chair absolute left-3 top-3.5 text-gray-500"></i>
+                                    <i class="fas fa-chair absolute left-3 top-2.5 text-gray-500 text-xs"></i>
                                     <input type="number" name="plazasDisponibles" min="1" max="8" required
                                         value="<?= getVal('plazasDisponibles', $isEdit ? $ride : [], $_POST, '1') ?>"
-                                        class="block w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary">
+                                        class="block w-full pl-8 pr-3 py-2.5 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:ring-primary focus:border-primary">
                                 </div>
                             </div>
 
                             <!-- Precio -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.price') ?></label>
+                                <label class="block text-xs font-medium text-gray-400 mb-1"><?= t('publish.price') ?></label>
                                 <div class="relative text-white">
-                                    <i class="fas fa-euro-sign absolute left-3 top-3.5 text-gray-500"></i>
+                                    <i class="fas fa-euro-sign absolute left-3 top-2.5 text-gray-500 text-xs"></i>
                                     <input type="number" name="precio" min="0" step="0.50"
                                         value="<?= getVal('precio', $isEdit ? $ride : [], $_POST) ?>"
                                         placeholder="<?= t('publish.price_placeholder') ?>"
-                                        class="block w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary placeholder-gray-500">
+                                        class="block w-full pl-8 pr-3 py-2.5 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:ring-primary focus:border-primary placeholder-gray-500">
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Descripcion -->
+                        <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-1"><?= t('publish.comments') ?></label>
+                            <textarea name="descripcion" rows="3"
+                                    placeholder="<?= t('publish.comments_placeholder') ?>"
+                                    class="block w-full px-3 py-2.5 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:ring-primary focus:border-primary resize-none placeholder-gray-500"><?= htmlspecialchars(getVal('descripcion', $isEdit ? $ride : [], $_POST)) ?></textarea>
+                            <p class="text-[10px] text-gray-500 mt-1"><?= t('publish.max_chars') ?></p>
+                        </div>
                     </div>
 
-                    <!-- Descripcion -->
+                    <!-- Vista previa del mapa -->
                     <div class="bg-surface rounded-2xl border border-gray-700 p-6">
                         <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center"><i class="fas fa-comment-dots text-yellow-400 text-sm"></i></div>
-                            <?= t('publish.comments') ?>
+                            <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><i class="fas fa-map-marked-alt text-blue-400 text-sm"></i></div>
+                            <?= t('publish.route_preview') ?>
                         </h3>
-                        <textarea name="descripcion" rows="4"
-                                placeholder="<?= t('publish.comments_placeholder') ?>"
-                                class="block w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary resize-none placeholder-gray-500"><?= htmlspecialchars(getVal('descripcion', $isEdit ? $ride : [], $_POST)) ?></textarea>
-                        <p class="text-xs text-gray-500 mt-2"><?= t('publish.max_chars') ?></p>
+                        <div id="publish-map" class="w-full h-64 rounded-xl border border-gray-600 bg-gray-800 overflow-hidden" style="z-index: 1;"></div>
+                        <div id="route-info" class="hidden mt-3 flex items-center gap-4 text-sm">
+                            <span class="flex items-center gap-1.5 text-gray-400">
+                                <i class="fas fa-road text-primary text-xs"></i>
+                                <span id="route-distance" class="text-white font-medium">--</span> km
+                            </span>
+                            <span class="flex items-center gap-1.5 text-gray-400">
+                                <i class="fas fa-clock text-primary text-xs"></i>
+                                <span id="route-duration" class="text-white font-medium">--</span> min
+                            </span>
+                        </div>
+                        <p id="map-placeholder" class="text-xs text-gray-500 mt-3 text-center">
+                            <i class="fas fa-info-circle mr-1"></i> <?= t('publish.map_hint') ?>
+                        </p>
+                        <input type="hidden" name="ruta_polyline" id="ruta_polyline" value="<?= htmlspecialchars($isEdit ? ($ride['ruta_polyline'] ?? '') : '') ?>">
                     </div>
 
                     <!-- Boton de envio -->
@@ -548,5 +568,143 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                 return;
             }
         });
+
+        // Vista previa del mapa con ruta
+        const ORS_API_KEY = '<?= $_ENV['ORS_API_KEY'] ?? '' ?>';
+        let publishMap = null;
+        let routeLayer = null;
+        let markersLayer = null;
+
+        // Inicializar mapa
+        function initPublishMap() {
+            if (publishMap) return;
+            publishMap = L.map('publish-map', {
+                zoomControl: true,
+                attributionControl: false
+            }).setView([39.5, -3.5], 6);
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                maxZoom: 18
+            }).addTo(publishMap);
+
+            routeLayer = L.layerGroup().addTo(publishMap);
+            markersLayer = L.layerGroup().addTo(publishMap);
+        }
+
+        // Actualizar ruta cuando se seleccionan origen y destino
+        function updateRoutePreview() {
+            const oLat = parseFloat(document.getElementById('origen_lat')?.value || 0);
+            const oLng = parseFloat(document.getElementById('origen_lng')?.value || 0);
+            const dLat = parseFloat(document.getElementById('destino_lat')?.value || 0);
+            const dLng = parseFloat(document.getElementById('destino_lng')?.value || 0);
+
+            if (!oLat || !oLng || !dLat || !dLng) return;
+
+            initPublishMap();
+            routeLayer.clearLayers();
+            markersLayer.clearLayers();
+
+            // Marcadores de origen y destino
+            const greenIcon = L.divIcon({
+                html: '<div style="background:#34d399;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>',
+                iconSize: [14, 14], iconAnchor: [7, 7], className: ''
+            });
+            const redIcon = L.divIcon({
+                html: '<div style="background:#f87171;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>',
+                iconSize: [14, 14], iconAnchor: [7, 7], className: ''
+            });
+
+            L.marker([oLat, oLng], { icon: greenIcon }).addTo(markersLayer);
+            L.marker([dLat, dLng], { icon: redIcon }).addTo(markersLayer);
+
+            // Pedir ruta a OpenRouteService
+            const url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${ORS_API_KEY}&start=${oLng},${oLat}&end=${dLng},${dLat}`;
+
+            fetch(url, { headers: { 'Accept': 'application/json, application/geo+json' } })
+                .then(r => r.json())
+                .then(data => {
+                    const feature = data.features?.[0];
+                    if (!feature) return;
+
+                    const coords = feature.geometry.coordinates.map(c => [c[1], c[0]]);
+                    const polyline = L.polyline(coords, {
+                        color: '#34d399', weight: 4, opacity: 0.8, smoothFactor: 1
+                    }).addTo(routeLayer);
+
+                    publishMap.fitBounds(polyline.getBounds(), { padding: [30, 30] });
+
+                    // Info de distancia y duración
+                    const dist = (feature.properties.summary.distance / 1000).toFixed(1);
+                    const dur = Math.ceil(feature.properties.summary.duration / 60);
+                    document.getElementById('route-distance').textContent = dist;
+                    document.getElementById('route-duration').textContent = dur;
+                    document.getElementById('route-info').classList.remove('hidden');
+                    document.getElementById('map-placeholder').classList.add('hidden');
+
+                    // Guardar polyline para el backend
+                    document.getElementById('ruta_polyline').value = JSON.stringify(feature.geometry.coordinates);
+                })
+                .catch(err => console.error('Error fetching route:', err));
+        }
+
+        // Observar cambios en los campos de coordenadas
+        initPublishMap();
+        const coordFields = ['origen_lat', 'origen_lng', 'destino_lat', 'destino_lng'];
+        coordFields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                const observer = new MutationObserver(() => updateRoutePreview());
+                observer.observe(el, { attributes: true, attributeFilter: ['value'] });
+                el.addEventListener('change', updateRoutePreview);
+            }
+        });
+
+        // Sobreescribir el setter de value en los campos hidden para detectar cambios
+        coordFields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                const desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+                Object.defineProperty(el, 'value', {
+                    set(v) {
+                        desc.set.call(this, v);
+                        setTimeout(updateRoutePreview, 100);
+                    },
+                    get() { return desc.get.call(this); }
+                });
+            }
+        });
+
+        <?php if ($isEdit && !empty($ride['ruta_polyline'])): ?>
+        // Si estamos editando y hay ruta guardada, mostrarla
+        setTimeout(() => {
+            initPublishMap();
+            try {
+                const coords = JSON.parse('<?= addslashes($ride['ruta_polyline']) ?>');
+                const latLngs = coords.map(c => [c[1], c[0]]);
+                const polyline = L.polyline(latLngs, {
+                    color: '#34d399', weight: 4, opacity: 0.8, smoothFactor: 1
+                }).addTo(routeLayer);
+                publishMap.fitBounds(polyline.getBounds(), { padding: [30, 30] });
+
+                const greenIcon = L.divIcon({
+                    html: '<div style="background:#34d399;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>',
+                    iconSize: [14, 14], iconAnchor: [7, 7], className: ''
+                });
+                const redIcon = L.divIcon({
+                    html: '<div style="background:#f87171;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>',
+                    iconSize: [14, 14], iconAnchor: [7, 7], className: ''
+                });
+                L.marker(latLngs[0], { icon: greenIcon }).addTo(markersLayer);
+                L.marker(latLngs[latLngs.length - 1], { icon: redIcon }).addTo(markersLayer);
+                document.getElementById('map-placeholder').classList.add('hidden');
+
+                <?php if (!empty($ride['distancia_km'])): ?>
+                document.getElementById('route-distance').textContent = '<?= $ride['distancia_km'] ?>';
+                document.getElementById('route-duration').textContent = '<?= $ride['duracion_min'] ?? '--' ?>';
+                document.getElementById('route-info').classList.remove('hidden');
+                <?php endif; ?>
+            } catch(e) { console.error('Error loading saved route:', e); }
+        }, 300);
+        <?php endif; ?>
     </script>
 </body>

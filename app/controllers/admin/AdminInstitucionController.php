@@ -33,13 +33,11 @@ class AdminInstitucionController {
         ];
 
         if (!$data['nombre'] || !$data['correo']) {
-            header('Location: ' . url('/admin/instituciones') . '?error=campos_obligatorios');
-            exit;
+            redirectWithFlash(url('/admin/instituciones'), 'error', 'campos_obligatorios');
         }
 
         $this->institution->create($data);
-        header('Location: ' . url('/admin/instituciones') . '?success=created');
-        exit;
+        redirectWithFlash(url('/admin/instituciones'), 'success', 'created');
     }
 
     public function edit(): void {
@@ -62,8 +60,7 @@ class AdminInstitucionController {
         }
 
         $this->institution->update($id, $data);
-        header('Location: ' . url('/admin/instituciones') . '?success=updated');
-        exit;
+        redirectWithFlash(url('/admin/instituciones'), 'success', 'updated');
     }
 
     public function delete(): void {
@@ -77,7 +74,6 @@ class AdminInstitucionController {
             $this->institution->delete($id);
         }
 
-        header('Location: ' . url('/admin/instituciones') . '?success=deleted');
-        exit;
+        redirectWithFlash(url('/admin/instituciones'), 'success', 'deleted');
     }
 }

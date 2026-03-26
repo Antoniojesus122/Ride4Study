@@ -1,7 +1,8 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; 
-    $error = $_GET['error'] ?? null;
-    $success = $_GET['success'] ?? null;
-    $tab = $_GET['tab'] ?? 'profile';
+    $flashData = getFlash();
+    $error = ($flashData && $flashData['type'] === 'error') ? $flashData['message'] : null;
+    $success = ($flashData && $flashData['type'] === 'success') ? $flashData['message'] : null;
+    $tab = ($flashData && isset($flashData['tab'])) ? $flashData['tab'] : 'profile';
     
     // Calcular estadísticas del usuario
     $userStats = [
@@ -17,18 +18,11 @@
 
     <!-- Encabezado del perfil -->
     <div class="bg-surface rounded-2xl border border-gray-700 shadow-xl overflow-hidden mb-8">
-        <!-- Banner superior con gradiente -->
-        <div class="h-40 bg-gradient-to-r from-primary via-blue-500 to-purple-600 relative">
-            <div class="absolute inset-0 bg-black/20"></div>
-            <!-- Patrón decorativo -->
-            <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
-        </div>
-        
 
-        <div class="px-4 sm:px-8 pb-6 sm:pb-8 flex flex-col md:flex-row items-start gap-4 sm:gap-6 -mt-16 relative">
+        <div class="px-4 sm:px-8 pt-6 sm:pt-8 pb-6 sm:pb-8 flex flex-col md:flex-row items-start gap-4 sm:gap-6 relative">
              <!-- Avatar -->
              <div class="relative group">
-                <div id="profile-avatar" class="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-surface bg-gray-800 flex items-center justify-center overflow-hidden shadow-2xl shadow-black/50 ring-4 ring-primary/20">
+                <div id="profile-avatar" class="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-2 border-gray-700 bg-gray-800 flex items-center justify-center overflow-hidden shadow-xl">
                     <?php if (!empty($profileUser['foto_perfil']) && file_exists(__DIR__ . '/../../public/uploads/profiles/' . $profileUser['foto_perfil'])): ?>
                         <?php $pf = htmlspecialchars($profileUser['foto_perfil']); $ver = filemtime(__DIR__ . '/../../public/uploads/profiles/' . $profileUser['foto_perfil']); ?>
                         <img src="public/uploads/profiles/<?= $pf ?>?v=<?= $ver ?>" alt="Profile" class="w-full h-full object-cover">
@@ -855,148 +849,153 @@
 <?php if (!$isOwnProfile && !empty($activeRides)): ?>
 <!-- Modal de detalles del anuncio -->
 <div id="profile-ride-modal" class="fixed inset-0 z-[100] hidden" role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-gray-900/90 backdrop-blur-sm transition-opacity duration-300 opacity-0" id="profile-modal-backdrop"></div>
-    <div class="fixed inset-0 z-10 flex items-center justify-center p-4">
+    <div class="fixed inset-0 bg-black/70 backdrop-blur-md transition-opacity duration-300 opacity-0" id="profile-modal-backdrop"></div>
+    <div class="fixed inset-0 z-10 flex items-center justify-center p-3 sm:p-5">
+        <div class="relative transform overflow-y-auto max-h-[92vh] rounded-3xl bg-gray-900 text-left shadow-2xl shadow-black/50 transition-all duration-300 w-full max-w-[76rem] border border-gray-700/40 opacity-0 translate-y-4 sm:scale-95" id="profile-modal-panel">
 
-            <div class="relative transform overflow-hidden rounded-2xl bg-surface text-left shadow-2xl transition-all duration-300 w-full max-w-[60rem] border border-gray-700/50 opacity-0 translate-y-4 sm:scale-95" id="profile-modal-panel">
-
-                <!-- Header -->
-                <div class="relative px-6 py-4 bg-gradient-to-r from-primary/5 via-transparent to-transparent border-b border-gray-700/50 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                            <i class="fas fa-route text-primary"></i>
+            <!-- Header -->
+            <div class="sticky top-0 z-20 px-6 sm:px-8 py-4 bg-gray-900/95 backdrop-blur-xl border-b border-gray-800/80 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-lg shadow-primary/5">
+                        <i class="fas fa-route text-primary text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg sm:text-xl font-bold text-white"><?= t('dashboard.ride_details') ?></h3>
+                        <div class="flex items-center gap-3 mt-0.5">
+                            <span id="prm-tipo-badge" class="px-3 py-0.5 rounded-full text-xs font-bold border"></span>
+                            <span class="text-sm text-gray-400 flex items-center gap-1.5">
+                                <i class="far fa-calendar-alt"></i>
+                                <span id="prm-fecha">—</span>
+                            </span>
                         </div>
+                    </div>
+                </div>
+                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all" onclick="closeProfileRideModal()">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Barra de usuario horizontal -->
+            <div class="px-6 sm:px-8 py-3.5 border-b border-gray-800/60 bg-gray-800/20">
+                <div class="flex items-center gap-4">
+                    <div class="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold text-secondary shadow-lg overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 ring-2 ring-gray-600/50 shrink-0" id="prm-avatar"></div>
+                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                        <h4 class="text-base font-bold text-white truncate shrink-0" id="prm-driver-name"></h4>
+                        <span class="bg-yellow-500/10 text-yellow-400 px-2 py-0.5 rounded-lg border border-yellow-500/20 inline-flex items-center gap-1 text-xs font-bold shrink-0">
+                            <i class="fas fa-star text-[9px]"></i>
+                            <span id="prm-rating"></span>
+                        </span>
+                        <span class="text-gray-700 hidden sm:inline">|</span>
+                        <div class="hidden sm:flex items-center gap-1.5 text-sm shrink-0">
+                            <i class="fas fa-shield-alt text-xs" id="prm-verified-icon"></i>
+                            <span id="prm-verified" class="font-medium"></span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2.5 shrink-0">
+                        <div id="prm-prefs-container" class="hidden sm:flex items-center gap-1.5" style="display:none;">
+                            <div class="flex flex-wrap gap-1.5" id="prm-prefs"></div>
+                        </div>
+                        <a href="<?= url('/profile') ?>?id=<?= (int)$profileUser['idUsuario'] ?>" class="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl px-4 py-2 text-sm font-semibold transition-all">
+                            <i class="fas fa-user text-xs"></i> <span class="hidden sm:inline"><?= t('dashboard.view_profile') ?></span><span class="sm:hidden"><?= t('dashboard.profile_short') ?></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2 columnas (Ruta | Mapa) -->
+            <div class="px-6 sm:px-8 py-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                    <!-- Ruta + Stats + Descripcion -->
+                    <div class="lg:col-span-5 space-y-5 order-1">
+                        <div class="bg-gray-800/40 rounded-2xl p-6 border border-gray-700/30 shadow-lg shadow-black/10">
+                            <div class="flex items-stretch gap-5">
+                                <div class="flex flex-col items-center py-1">
+                                    <div class="w-4 h-4 rounded-full border-[3px] border-primary bg-gray-900 shadow-lg shadow-primary/30 shrink-0"></div>
+                                    <div class="w-0.5 flex-1 bg-gradient-to-b from-primary/50 via-primary/20 to-gray-700 my-1.5"></div>
+                                    <div class="w-4 h-4 rounded-full border-[3px] border-gray-500 bg-gray-900 shrink-0"></div>
+                                </div>
+                                <div class="flex-1 flex flex-col justify-between gap-6">
+                                    <div>
+                                        <p class="text-xl font-bold text-white tracking-tight" id="prm-origin"></p>
+                                        <p class="text-sm text-primary font-semibold mt-1 flex items-center gap-2" id="prm-time-start"><i class="far fa-clock text-xs opacity-70"></i></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xl font-bold text-white tracking-tight" id="prm-dest"></p>
+                                        <p class="text-sm text-primary font-semibold mt-1 flex items-center gap-2" id="prm-time-end"><i class="far fa-clock text-xs opacity-70"></i></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Estadísticas -->
+                            <div class="flex flex-wrap items-center gap-2.5 mt-5 pt-5 border-t border-gray-700/30">
+                                <span class="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-xl border border-primary/20" id="prm-price-container">
+                                    <i class="fas fa-euro-sign text-primary"></i>
+                                    <span class="text-lg font-extrabold text-primary" id="prm-price"></span>
+                                    <span class="text-xs text-gray-500 font-medium">/<?= t('dashboard.seat') ?></span>
+                                </span>
+                                <span class="inline-flex items-center gap-2 bg-blue-500/10 px-4 py-2 rounded-xl border border-blue-500/20">
+                                    <i class="fas fa-chair text-blue-400"></i>
+                                    <span class="text-lg font-extrabold text-white" id="prm-seats"></span>
+                                    <span class="text-xs text-gray-500 font-medium"><?= t('dashboard.seats_short') ?></span>
+                                </span>
+                                <span class="inline-flex items-center gap-2 bg-purple-500/10 px-4 py-2 rounded-xl border border-purple-500/20" id="prm-return-container" style="display:none;">
+                                    <i class="fas fa-undo text-purple-400"></i>
+                                    <span class="text-lg font-extrabold text-purple-400" id="prm-return-time"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <!-- Comentarios -->
                         <div>
-                            <h3 class="text-xl font-bold text-white"><?= t('dashboard.ride_details') ?></h3>
-                            <div class="flex items-center gap-3 mt-0.5">
-                                <span id="prm-tipo-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold border"></span>
-                                <span class="text-xs text-gray-400 flex items-center gap-1.5">
-                                    <i class="far fa-calendar-alt text-gray-500"></i>
-                                    <span id="prm-fecha">—</span>
+                            <h5 class="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2.5 flex items-center gap-2">
+                                <i class="fas fa-comment-dots text-xs"></i> <?= t('dashboard.ride_comments') ?>
+                            </h5>
+                            <p class="text-sm text-gray-300 leading-relaxed bg-gray-800/30 p-5 rounded-2xl border border-gray-700/30" id="prm-desc"></p>
+                        </div>
+                    </div>
+
+                    <!-- Mapa -->
+                    <div class="lg:col-span-7 order-2" id="prm-map-container" style="display:none;">
+                        <div class="relative rounded-2xl overflow-hidden border border-gray-700/30 shadow-xl shadow-black/20 h-full">
+                            <div id="prm-map" class="w-full h-[300px] sm:h-[350px] lg:h-full lg:min-h-[380px]" style="z-index: 1;"></div>
+                            <div class="absolute bottom-3 left-3 flex items-center gap-2 z-[2]">
+                                <span id="prm-map-distance" class="inline-flex items-center gap-1.5 bg-gray-900/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-medium text-gray-200 border border-gray-700/50">
+                                    <i class="fas fa-road text-primary text-[10px]"></i> <span></span>
+                                </span>
+                                <span id="prm-map-duration" class="inline-flex items-center gap-1.5 bg-gray-900/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-medium text-gray-200 border border-gray-700/50">
+                                    <i class="fas fa-clock text-primary text-[10px]"></i> <span></span>
                                 </span>
                             </div>
                         </div>
                     </div>
-                    <button type="button" class="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all" onclick="closeProfileRideModal()">
-                        <i class="fas fa-times"></i>
-                    </button>
                 </div>
+            </div>
 
-                <!-- Contenido -->
-                <div class="px-7 py-6">
-                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-7">
-
-                        <!-- Columna izquierda (3/5) -->
-                        <div class="lg:col-span-3 space-y-6">
-                            <!-- Ruta -->
-                            <div class="bg-gray-800/30 rounded-xl p-5 border border-gray-700/40">
-                                <div class="flex items-stretch gap-5">
-                                    <div class="flex flex-col items-center pt-1 pb-1">
-                                        <div class="w-4 h-4 rounded-full border-[3px] border-primary bg-surface shadow-md shadow-primary/20 shrink-0"></div>
-                                        <div class="w-0.5 flex-1 bg-gradient-to-b from-primary/60 to-gray-600 my-1"></div>
-                                        <div class="w-4 h-4 rounded-full border-[3px] border-gray-500 bg-surface shrink-0"></div>
-                                    </div>
-                                    <div class="flex-1 flex flex-col justify-between gap-5">
-                                        <div>
-                                            <p class="text-xl font-bold text-white" id="prm-origin"></p>
-                                            <p class="text-sm text-primary font-semibold mt-0.5 flex items-center gap-1.5" id="prm-time-start"><i class="far fa-clock text-xs"></i></p>
-                                        </div>
-                                        <div>
-                                            <p class="text-xl font-bold text-white" id="prm-dest"></p>
-                                            <p class="text-sm text-primary font-semibold mt-0.5 flex items-center gap-1.5" id="prm-time-end"><i class="far fa-clock text-xs"></i></p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Stats -->
-                            <div class="grid grid-cols-3 gap-3">
-                                <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/40 text-center" id="prm-price-container">
-                                    <i class="fas fa-euro-sign text-primary text-lg mb-2"></i>
-                                    <p class="text-2xl font-bold text-primary" id="prm-price"></p>
-                                    <p class="text-xs text-gray-500 mt-1"><?= t('dashboard.price_per_seat') ?></p>
-                                </div>
-                                <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/40 text-center">
-                                    <i class="fas fa-chair text-blue-400 text-lg mb-2"></i>
-                                    <p class="text-2xl font-bold text-white"><span id="prm-seats"></span></p>
-                                    <p class="text-xs text-gray-500 mt-1"><?= t('dashboard.seats_available') ?></p>
-                                </div>
-                                <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/40 text-center" id="prm-return-container" style="display:none;">
-                                    <i class="fas fa-undo text-purple-400 text-lg mb-2"></i>
-                                    <p class="text-2xl font-bold text-purple-400" id="prm-return-time"></p>
-                                    <p class="text-xs text-gray-500 mt-1"><?= t('dashboard.return') ?></p>
-                                </div>
-                            </div>
-
-                            <!-- Descripcion -->
-                            <div>
-                                <h5 class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                                    <i class="fas fa-comment-dots"></i> <?= t('dashboard.ride_comments') ?>
-                                </h5>
-                                <p class="text-sm text-gray-300 leading-relaxed bg-gray-800/20 p-5 rounded-xl border border-gray-700/30" id="prm-desc"></p>
-                            </div>
-
-                            <!-- Preferencias -->
-                            <div id="prm-prefs-container" style="display:none;">
-                                <h5 class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                                    <i class="fas fa-sliders-h"></i> <?= t('pref.title') ?>
-                                </h5>
-                                <div class="flex flex-wrap gap-2" id="prm-prefs"></div>
-                            </div>
-                        </div>
-
-                        <!-- Columna derecha: Usuario (2/5) -->
-                        <div class="lg:col-span-2">
-                            <div class="bg-gray-800/30 rounded-xl p-5 border border-gray-700/40 h-full flex flex-col">
-                                <div class="text-center mb-4">
-                                    <div class="w-20 h-20 rounded-xl mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 ring-2 ring-gray-700/50" id="prm-avatar"></div>
-                                    <h4 class="text-lg font-bold text-white" id="prm-driver-name"></h4>
-                                    <div class="flex items-center justify-center gap-2 mt-2">
-                                        <span class="bg-yellow-500/10 text-yellow-500 px-2.5 py-1 rounded-lg border border-yellow-500/20 flex items-center gap-1 text-xs font-semibold">
-                                            <i class="fas fa-star text-[10px]"></i>
-                                            <span id="prm-rating"></span>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="space-y-2 pt-3 border-t border-gray-700/40 flex-1">
-                                    <div class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-gray-800/40">
-                                        <i class="fas fa-shield-alt w-4 text-center" id="prm-verified-icon"></i>
-                                        <span id="prm-verified" class="text-sm font-medium"></span>
-                                    </div>
-                                </div>
-                                <div class="mt-4 pt-3 border-t border-gray-700/40 space-y-2">
-                                    <a href="<?= url('/profile') ?>?id=<?= (int)$profileUser['idUsuario'] ?>" class="w-full flex justify-center items-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl py-2.5 text-sm font-medium transition-all">
-                                        <i class="fas fa-user text-xs"></i> <?= t('dashboard.view_profile') ?>
-                                    </a>
-                                    <a href="#" id="prm-btn-contact"
-                                       class="w-full flex justify-center items-center gap-2 bg-gray-700/40 hover:bg-gray-700 text-gray-300 hover:text-white border border-gray-600/40 rounded-xl py-2.5 text-sm font-medium transition-all">
-                                        <i class="fas fa-comment-alt text-xs"></i> <?= t('dashboard.contact') ?>
-                                    </a>
-                                    <button type="button" id="prm-btn-report"
-                                            class="hidden w-full px-3 py-2.5 rounded-xl border border-red-500/20 bg-red-500/5 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all flex items-center justify-center gap-2"
-                                            onclick="reportProfileRide()">
-                                        <i class="fas fa-flag text-xs"></i> Reportar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Footer -->
-                <div class="px-7 py-4 border-t border-gray-700/50 bg-gray-800/10 flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-3">
-                    <button type="button"
-                            class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-gray-600 bg-transparent text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-white transition-all"
-                            onclick="closeProfileRideModal()">
-                        <?= t('dashboard.close') ?>
-                    </button>
+            <!-- Footer -->
+            <div class="sticky bottom-0 px-6 sm:px-8 py-4 border-t border-gray-800/80 bg-gray-900/95 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center gap-3">
+                <button type="button"
+                        class="w-full sm:w-auto px-6 py-3 rounded-xl border border-gray-700 bg-gray-800/50 text-sm font-semibold text-gray-300 hover:bg-gray-800 hover:text-white transition-all order-3 sm:order-1"
+                        onclick="closeProfileRideModal()">
+                    <?= t('dashboard.close') ?>
+                </button>
+                <button type="button" id="prm-btn-report"
+                        class="hidden w-full sm:w-auto px-5 py-3 rounded-xl border border-red-500/20 bg-red-500/5 text-sm font-medium text-red-400 hover:bg-red-500/15 hover:border-red-500/30 transition-all flex items-center justify-center gap-2 order-2 sm:order-2"
+                        onclick="reportProfileRide()">
+                    <i class="fas fa-flag text-xs"></i> Reportar
+                </button>
+                <div class="flex-1 hidden sm:block order-3"></div>
+                <div class="flex gap-3 order-1 sm:order-4 w-full sm:w-auto">
+                    <a href="#" id="prm-btn-contact"
+                       class="flex-1 sm:flex-none flex justify-center items-center gap-2 bg-gray-700/50 hover:bg-gray-700 text-gray-200 hover:text-white border border-gray-600/30 rounded-xl px-6 py-3 text-sm font-semibold transition-all">
+                        <i class="fas fa-comment-alt text-xs"></i> <?= t('dashboard.contact') ?>
+                    </a>
                     <button type="button" id="prm-btn-reserve"
-                            class="w-full sm:w-auto px-7 py-2.5 rounded-xl bg-primary text-secondary text-sm font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                            class="flex-1 sm:flex-none px-8 py-3 rounded-xl bg-primary text-secondary text-base font-bold hover:bg-primary-dark shadow-xl shadow-primary/25 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2.5">
                         <i class="fas fa-ticket-alt"></i> <?= t('dashboard.request_seat') ?>
                     </button>
                 </div>
-
             </div>
+
+        </div>
     </div>
 </div>
 
@@ -1019,6 +1018,19 @@
         active:   'w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-secondary text-sm font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2',
         disabled: 'w-full sm:w-auto px-5 py-2.5 rounded-xl border border-gray-700 bg-gray-800 text-sm font-bold text-gray-500 cursor-not-allowed flex items-center justify-center gap-2',
     };
+
+    function submitReserveForm(rideId) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '<?= url("/reserve") ?>';
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'ride_id';
+        input.value = rideId;
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
 
     function openProfileRideModal(ride) {
         prmCurrentRide = ride;
@@ -1136,7 +1148,7 @@
         if (ride.tipo.toLowerCase() === 'ofrezco' && ride.plazasDisponibles > 0) {
             btnReserve.className = prmBtnStyles.active;
             btnReserve.innerHTML = '<i class="fas fa-ticket-alt text-xs"></i> Solicitar Plaza';
-            btnReserve.onclick   = () => { window.location.href = '<?= url("/reserve") ?>?ride_id=' + ride.idAnuncio; };
+            btnReserve.onclick   = () => { submitReserveForm(ride.idAnuncio); };
         } else if (ride.tipo.toLowerCase() === 'ofrezco' && ride.plazasDisponibles <= 0) {
             btnReserve.className = prmBtnStyles.disabled;
             btnReserve.innerHTML = '<i class="fas fa-ban text-xs"></i> Viaje completo';
@@ -1144,6 +1156,47 @@
         } else {
             // Tipo "busco" — solo contactar
             btnReserve.style.display = 'none';
+        }
+
+        // Mapa de ruta
+        const prmMapContainer = document.getElementById('prm-map-container');
+        const prmMapEl = document.getElementById('prm-map');
+
+        if (ride.ruta_polyline) {
+            prmMapContainer.style.display = '';
+            prmModal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                prmBackdrop.classList.remove('opacity-0');
+                prmPanel.classList.remove('opacity-0', 'translate-y-4', 'sm:scale-95');
+                prmPanel.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100');
+            });
+
+            setTimeout(() => {
+                if (window._prmMap) { window._prmMap.remove(); window._prmMap = null; }
+                const map = L.map(prmMapEl, { zoomControl: true, attributionControl: false }).setView([39.5, -3.5], 6);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(map);
+                window._prmMap = map;
+
+                try {
+                    const coords = JSON.parse(ride.ruta_polyline);
+                    const latLngs = coords.map(c => [c[1], c[0]]);
+                    const polyline = L.polyline(latLngs, { color: '#34d399', weight: 4, opacity: 0.8 }).addTo(map);
+
+                    const greenIcon = L.divIcon({ html: '<div style="background:#34d399;width:12px;height:12px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>', iconSize: [12,12], iconAnchor: [6,6], className: '' });
+                    const redIcon = L.divIcon({ html: '<div style="background:#f87171;width:12px;height:12px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>', iconSize: [12,12], iconAnchor: [6,6], className: '' });
+                    L.marker(latLngs[0], { icon: greenIcon }).addTo(map);
+                    L.marker(latLngs[latLngs.length - 1], { icon: redIcon }).addTo(map);
+                    map.fitBounds(polyline.getBounds(), { padding: [25, 25] });
+                } catch(e) {}
+
+                if (ride.distancia_km) {
+                    document.querySelector('#prm-map-distance span').textContent = ride.distancia_km + ' km';
+                    document.querySelector('#prm-map-duration span').textContent = (ride.duracion_min || '--') + ' min';
+                }
+            }, 350);
+            return;
+        } else {
+            prmMapContainer.style.display = 'none';
         }
 
         // Mostrar modal
@@ -1156,6 +1209,7 @@
     }
 
     function closeProfileRideModal() {
+        if (window._prmMap) { window._prmMap.remove(); window._prmMap = null; }
         prmBackdrop.classList.add('opacity-0');
         prmPanel.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100');
         prmPanel.classList.add('opacity-0', 'translate-y-4', 'sm:scale-95');

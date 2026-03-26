@@ -346,12 +346,12 @@ class Ride {
     }
 
     public function createRide($data) {
-        $query = "INSERT INTO " . $this->table . " 
-                  (idUsuario, tipo, origen, destino, fechaSalida, horaSalida, horaLlegada, horaRegreso, plazasDisponibles, precio, descripcion)
+        $query = "INSERT INTO " . $this->table . "
+                  (idUsuario, tipo, origen, destino, fechaSalida, horaSalida, horaLlegada, horaRegreso, plazasDisponibles, precio, descripcion, ruta_polyline, distancia_km, duracion_min)
                   VALUES
-                  (:idUsuario, :tipo, :origen, :destino, :fechaSalida, :horaSalida, :horaLlegada, :horaRegreso, :plazasDisponibles, :precio, :descripcion)";
-        
-                  $stmt = $this->conn->prepare($query);
+                  (:idUsuario, :tipo, :origen, :destino, :fechaSalida, :horaSalida, :horaLlegada, :horaRegreso, :plazasDisponibles, :precio, :descripcion, :ruta_polyline, :distancia_km, :duracion_min)";
+
+        $stmt = $this->conn->prepare($query);
 
         // Sanitización de datos
         $data['descripcion'] = htmlspecialchars(strip_tags($data['descripcion']));
@@ -367,6 +367,9 @@ class Ride {
         $stmt->bindParam(':plazasDisponibles', $data['plazasDisponibles']);
         $stmt->bindParam(':precio', $data['precio']);
         $stmt->bindParam(':descripcion', $data['descripcion']);
+        $stmt->bindParam(':ruta_polyline', $data['ruta_polyline']);
+        $stmt->bindParam(':distancia_km', $data['distancia_km']);
+        $stmt->bindParam(':duracion_min', $data['duracion_min']);
 
         if ($stmt->execute()) {
             return true;
@@ -481,17 +484,20 @@ class Ride {
     }
 
     public function updateRide($id, $data) {
-        $query = "UPDATE " . $this->table . " 
+        $query = "UPDATE " . $this->table . "
                   SET tipo = :tipo,
-                      origen = :origen, 
-                      destino = :destino, 
-                      fechaSalida = :fechaSalida, 
-                      horaSalida = :horaSalida, 
+                      origen = :origen,
+                      destino = :destino,
+                      fechaSalida = :fechaSalida,
+                      horaSalida = :horaSalida,
                       horaLlegada = :horaLlegada,
-                      horaRegreso = :horaRegreso, 
-                      plazasDisponibles = :plazasDisponibles, 
-                      precio = :precio, 
-                      descripcion = :descripcion
+                      horaRegreso = :horaRegreso,
+                      plazasDisponibles = :plazasDisponibles,
+                      precio = :precio,
+                      descripcion = :descripcion,
+                      ruta_polyline = :ruta_polyline,
+                      distancia_km = :distancia_km,
+                      duracion_min = :duracion_min
                   WHERE idAnuncio = :id";
 
         $stmt = $this->conn->prepare($query);
@@ -508,6 +514,9 @@ class Ride {
         $stmt->bindParam(':plazasDisponibles', $data['plazasDisponibles']);
         $stmt->bindParam(':precio', $data['precio']);
         $stmt->bindParam(':descripcion', $data['descripcion']);
+        $stmt->bindParam(':ruta_polyline', $data['ruta_polyline']);
+        $stmt->bindParam(':distancia_km', $data['distancia_km']);
+        $stmt->bindParam(':duracion_min', $data['duracion_min']);
         $stmt->bindParam(':id', $id);
 
         return $stmt->execute();

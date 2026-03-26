@@ -84,8 +84,7 @@ class AdminUserController {
             $stmt = $this->db->prepare("UPDATE usuarios SET idRol = :rol WHERE idUsuario = :id AND idRol != 1");
             $stmt->execute([':rol' => $newRole, ':id' => $userId]);
         }
-        header('Location: ' . url('/admin/users') . '?tab=todos&success=role_updated');
-        exit;
+        redirectWithFlash(url('/admin/users'), 'success', 'role_updated', 'todos');
     }
 
     public function approveVerification(): void {
@@ -97,14 +96,12 @@ class AdminUserController {
 
         $userId = (int)($_POST['user_id'] ?? 0);
         if ($userId <= 0) {
-            header('Location: ' . url('/admin/users') . '?error=invalid_user');
-            exit;
+            redirectWithFlash(url('/admin/users'), 'error', 'invalid_user');
         }
 
         $userData = $this->user->getUserById($userId);
         if (!$userData) {
-            header('Location: ' . url('/admin/users') . '?error=user_not_found');
-            exit;
+            redirectWithFlash(url('/admin/users'), 'error', 'user_not_found');
         }
 
         $this->user->setVerificationStatus($userId, 2);
@@ -124,8 +121,7 @@ class AdminUserController {
             $this->mailService->send($userData['correo'], $userData['nombre'], 'Verificación aprobada · Ride4Study', $html);
         }
 
-        header('Location: ' . url('/admin/users') . '?success=approved');
-        exit;
+        redirectWithFlash(url('/admin/users'), 'success', 'approved');
     }
 
     public function rejectVerification(): void {
@@ -139,14 +135,12 @@ class AdminUserController {
         $reason = trim($_POST['reason'] ?? '');
 
         if ($userId <= 0) {
-            header('Location: ' . url('/admin/users') . '?error=invalid_user');
-            exit;
+            redirectWithFlash(url('/admin/users'), 'error', 'invalid_user');
         }
 
         $userData = $this->user->getUserById($userId);
         if (!$userData) {
-            header('Location: ' . url('/admin/users') . '?error=user_not_found');
-            exit;
+            redirectWithFlash(url('/admin/users'), 'error', 'user_not_found');
         }
 
         $this->user->setVerificationStatus($userId, 0);
@@ -169,8 +163,7 @@ class AdminUserController {
             $this->mailService->send($userData['correo'], $userData['nombre'], 'Verificación no aprobada · Ride4Study', $html);
         }
 
-        header('Location: ' . url('/admin/users') . '?success=rejected');
-        exit;
+        redirectWithFlash(url('/admin/users'), 'success', 'rejected');
     }
 
     // Banear/suspender usuario
@@ -186,14 +179,12 @@ class AdminUserController {
         $duracion = $_POST['duracion'] ?? 'permanente';
 
         if ($userId <= 0 || empty($motivo)) {
-            header('Location: ' . url('/admin/users') . '?tab=baneados&error=invalid_data');
-            exit;
+            redirectWithFlash(url('/admin/users'), 'error', 'invalid_data', 'baneados');
         }
 
         $userData = $this->user->getUserById($userId);
         if (!$userData) {
-            header('Location: ' . url('/admin/users') . '?tab=baneados&error=user_not_found');
-            exit;
+            redirectWithFlash(url('/admin/users'), 'error', 'user_not_found', 'baneados');
         }
 
         // Calcular fecha límite del ban
@@ -232,8 +223,7 @@ class AdminUserController {
             $this->mailService->send($userData['correo'], $userData['nombre'], 'Cuenta suspendida · Ride4Study', $html);
         }
 
-        header('Location: ' . url('/admin/users') . '?tab=baneados&success=banned');
-        exit;
+        redirectWithFlash(url('/admin/users'), 'success', 'banned', 'baneados');
     }
 
     // Desbanear usuario
@@ -246,8 +236,7 @@ class AdminUserController {
 
         $userId = (int)($_POST['user_id'] ?? 0);
         if ($userId <= 0) {
-            header('Location: ' . url('/admin/users') . '?tab=baneados&error=invalid_data');
-            exit;
+            redirectWithFlash(url('/admin/users'), 'error', 'invalid_data', 'baneados');
         }
 
         $userData = $this->user->getUserById($userId);
@@ -270,8 +259,7 @@ class AdminUserController {
             $this->mailService->send($userData['correo'], $userData['nombre'], 'Cuenta reactivada · Ride4Study', $html);
         }
 
-        header('Location: ' . url('/admin/users') . '?tab=baneados&success=unbanned');
-        exit;
+        redirectWithFlash(url('/admin/users'), 'success', 'unbanned', 'baneados');
     }
 
     // Exportar usuarios en CSV

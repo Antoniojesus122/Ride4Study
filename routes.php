@@ -61,9 +61,9 @@ $router->any('/edit-ride', function () { // Editar viaje
     }
 });
 
-$router->get('/delete-ride', [RideController::class, 'delete']); // Eliminar viaje
+$router->post('/delete-ride', [RideController::class, 'delete']); // Eliminar viaje
 $router->get('/my-rides', [RideController::class, 'myRides']); // Ver viajes propios
-$router->any('/reserve', [RideController::class, 'reserve']); // Reservar
+$router->post('/reserve', [RideController::class, 'reserve']); // Reservar
 $router->post('/manage-reservation', [RideController::class, 'manageRequest']); // Aceptar/rechazar reservas
 $router->any('/cancel-reservation', [RideController::class, 'cancelReservation']); // Cancelar reserva
 $router->post('/toggle-featured', [RideController::class, 'toggleFeatured']); // Destacar anuncio (premium)
@@ -263,8 +263,9 @@ $router->any('/admin/reports', function () { // Gestión de reportes
         case 'chat':    $reportes = $controller->getReportsByType('chat');    break;
         default:        $reportes = $controller->getReportsByType('usuario'); $tab = 'usuario'; break;
     }
-    $successMsg = $_GET['success'] ?? null;
-    $errorMsg   = $_GET['error'] ?? null;
+    $flashData = getFlash();
+    $successMsg = ($flashData && $flashData['type'] === 'success') ? $flashData['message'] : null;
+    $errorMsg   = ($flashData && $flashData['type'] === 'error') ? $flashData['message'] : null;
     require_once __DIR__ . '/views/admin/reports.view.php';
 });
 

@@ -62,15 +62,27 @@ class MessageController {
 
         $userId = (int) $_SESSION['user_id'];
 
-        // // Desde contactar mediante un anuncio
+        // Desde contactar mediante un anuncio
         if (isset($_GET['anuncio_id']) && isset($_GET['other_user_id'])) {
             $idAnuncio   = (int) $_GET['anuncio_id'];
             $otherUserId = (int) $_GET['other_user_id'];
 
             // Validaciones básicas
             if ($idAnuncio <= 0 || $otherUserId <= 0 || $otherUserId === $userId) {
-                header('Location: ' . url('/messages'));
-                exit;
+                redirectWithFlash(url('/messages'), 'error', 'invalid_params');
+            }
+
+            // Verificar que el anuncio existe y que other_user_id es su dueño
+            $stmt = $this->db->prepare("SELECT idUsuario FROM anuncios WHERE idAnuncio = :id LIMIT 1");
+            $stmt->execute([':id' => $idAnuncio]);
+            $anuncio = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$anuncio) {
+                redirectWithFlash(url('/messages'), 'error', 'ride_not_found');
+            }
+
+            if ((int)$anuncio['idUsuario'] !== $otherUserId) {
+                redirectWithFlash(url('/messages'), 'error', 'unauthorized');
             }
 
             $conversationId = $this->getOrCreateConversation($idAnuncio, $userId, $otherUserId);

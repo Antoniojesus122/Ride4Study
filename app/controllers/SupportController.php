@@ -47,15 +47,10 @@ class SupportController {
             $response = $mailService->send($to, 'Soporte Ride4Study', $subject, $html);
 
             if (is_array($response) && !empty($response['success'])) {
-                $status = 'success';
-                $msg = 'Tu mensaje ha sido enviado correctamente.';
+                redirectWithFlash(url('/support'), 'success', 'Tu mensaje ha sido enviado correctamente.');
             } else {
-                $status = 'error';
-                $msg = 'No se pudo enviar el mensaje. Comprueba la configuración de correo.';
+                redirectWithFlash(url('/support'), 'error', 'No se pudo enviar el mensaje. Comprueba la configuración de correo.');
             }
-
-            header("Location: " . url('/support') . "?status=$status&msg=" . urlencode($msg));
-            exit;
         }
     }
 }

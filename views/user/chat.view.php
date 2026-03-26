@@ -195,10 +195,12 @@
                             <?php endif; ?>
                         <?php elseif (!$myOffer): ?>
                             <!-- No soy el publicador y no he reservado aún -->
-                            <a href="<?= url('/reserve') ?>?ride_id=<?= $anuncioId ?>"
-                               class="px-4 py-2 text-xs border border-primary/30 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors whitespace-nowrap shrink-0 font-medium shadow-sm">
-                                <i class="fas fa-user-plus mr-1"></i> <?= t('chat.request_seat') ?>
-                            </a>
+                            <form action="<?= url('/reserve') ?>" method="POST" class="inline">
+                                <input type="hidden" name="ride_id" value="<?= $anuncioId ?>">
+                                <button type="submit" class="px-4 py-2 text-xs border border-primary/30 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors whitespace-nowrap shrink-0 font-medium shadow-sm cursor-pointer">
+                                    <i class="fas fa-user-plus mr-1"></i> <?= t('chat.request_seat') ?>
+                                </button>
+                            </form>
                         <?php elseif ($myOffer['estado'] === 'pendiente'): ?>
                             <span class="px-4 py-2 text-xs bg-yellow-500/10 text-yellow-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-yellow-500/30 shadow-sm">
                                 <i class="fas fa-clock mr-1"></i> <?= t('chat.request_sent') ?>

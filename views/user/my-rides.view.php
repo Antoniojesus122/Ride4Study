@@ -12,40 +12,41 @@
         </a>
     </div>
 
-    <?php if (isset($_GET['success'])): ?>
+    <?php $flashData = $flashData ?? getFlash(); ?>
+    <?php if ($flashData && $flashData['type'] === 'success'): ?>
         <div class="mb-6 bg-green-500/10 border border-green-500/50 text-green-500 p-4 rounded-xl flex items-center gap-3">
             <i class="fas fa-check-circle text-xl"></i>
             <div class="font-medium">
-                <?php if ($_GET['success'] == 'created'): ?>
+                <?php if ($flashData['message'] == 'created'): ?>
                     <?= t('myrides.success_created') ?>
-                <?php elseif ($_GET['success'] == 'reserved'): ?>
+                <?php elseif ($flashData['message'] == 'reserved'): ?>
                     <?= t('myrides.success_reserved') ?>
-                <?php elseif ($_GET['success'] == 'status_updated'): ?>
+                <?php elseif ($flashData['message'] == 'status_updated'): ?>
                     <?= t('myrides.success_status') ?>
-                <?php elseif ($_GET['success'] == 'updated'): ?>
+                <?php elseif ($flashData['message'] == 'updated'): ?>
                     <?= t('myrides.success_updated') ?>
-                <?php elseif ($_GET['success'] == 'deleted'): ?>
+                <?php elseif ($flashData['message'] == 'deleted'): ?>
                     <?= t('myrides.success_deleted') ?>
-                <?php elseif ($_GET['success'] == 'reservation_cancelled'): ?>
+                <?php elseif ($flashData['message'] == 'reservation_cancelled'): ?>
                     <?= t('myrides.success_cancelled') ?>
                 <?php endif; ?>
             </div>
         </div>
     <?php endif; ?>
-    
-    <?php if (isset($_GET['error'])): ?>
+
+    <?php if ($flashData && $flashData['type'] === 'error'): ?>
         <div class="mb-6 bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-xl flex items-center gap-3">
              <i class="fas fa-exclamation-circle text-xl"></i>
              <div class="font-medium">
-                <?php if ($_GET['error'] == 'update_failed'): ?>
+                <?php if ($flashData['message'] == 'update_failed'): ?>
                     <?= t('myrides.err_update_failed') ?>
-                <?php elseif ($_GET['error'] == 'unauthorized'): ?>
+                <?php elseif ($flashData['message'] == 'unauthorized'): ?>
                     <?= t('myrides.err_unauthorized') ?>
-                <?php elseif ($_GET['error'] == 'too_late_to_cancel'): ?>
+                <?php elseif ($flashData['message'] == 'too_late_to_cancel'): ?>
                     <?= t('myrides.err_too_late') ?>
-                <?php elseif ($_GET['error'] == 'no_booking'): ?>
+                <?php elseif ($flashData['message'] == 'no_booking'): ?>
                     <?= t('myrides.err_no_booking') ?>
-                <?php elseif ($_GET['error'] == 'cancel_failed'): ?>
+                <?php elseif ($flashData['message'] == 'cancel_failed'): ?>
                     <?= t('myrides.err_cancel_failed') ?>
                 <?php else: ?>
                     <?= t('myrides.err_generic') ?>
@@ -498,7 +499,16 @@ function closeDeleteModal() {
 
 function executeDelete() {
     if (rideToDelete) {
-        window.location.href = `<?= url("/delete-ride") ?>?id=${rideToDelete}`;
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '<?= url("/delete-ride") ?>';
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'id';
+        input.value = rideToDelete;
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
     }
 }
 

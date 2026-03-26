@@ -47,14 +47,12 @@ class ReportController
         $notaAdmin = trim($_POST['nota_admin'] ?? '');
 
         if (!$idReporte) {
-            header("Location: " . url('/admin/reports') . "?tab=$tab&error=missing_id");
-            exit;
+            redirectWithFlash(url('/admin/reports'), 'error', 'missing_id', $tab);
         }
 
         $reporteInfo = $this->report->getReportById((int)$idReporte);
         if (!$reporteInfo) {
-            header("Location: " . url('/admin/reports') . "?tab=$tab&error=not_found");
-            exit;
+            redirectWithFlash(url('/admin/reports'), 'error', 'not_found', $tab);
         }
 
         // Marcar como resuelto con nota
@@ -70,8 +68,7 @@ class ReportController
         // Notificar al usuario que envio el reporte
         $this->notificarReportante($reporteInfo, $accion, $notaAdmin);
 
-        header("Location: " . url('/admin/reports') . "?tab=$tab&success=resolved");
-        exit;
+        redirectWithFlash(url('/admin/reports'), 'success', 'resolved', $tab);
     }
 
     // Eliminar un reporte
@@ -80,11 +77,9 @@ class ReportController
         $idReporte = $_POST['idReporte'] ?? null;
         if ($idReporte) {
             $this->report->deleteReport((int)$idReporte);
-            header("Location: " . url('/admin/reports') . "?tab=$tab&success=deleted");
-            exit;
+            redirectWithFlash(url('/admin/reports'), 'success', 'deleted', $tab);
         }
-        header("Location: " . url('/admin/reports') . "?tab=$tab&error=missing_id");
-        exit;
+        redirectWithFlash(url('/admin/reports'), 'error', 'missing_id', $tab);
     }
 
     // Advertir al usuario reportado (notificacion + email)

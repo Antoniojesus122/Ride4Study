@@ -6,17 +6,18 @@
     <?php require_once __DIR__ . '/layout/topbar.view.php'; ?>
     <div class="flex-1 p-8">
 
-    <?php if (isset($_GET['success'])): ?>
+    <?php $flashData = $flashData ?? getFlash(); ?>
+    <?php if ($flashData && $flashData['type'] === 'success'): ?>
         <div class="mb-5 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-sm flex items-center gap-2">
             <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
             <?php
             $msgs = ['created' => 'Institucion creada', 'updated' => 'Institucion actualizada', 'deleted' => 'Institucion eliminada'];
-            echo $msgs[$_GET['success']] ?? 'Operacion realizada';
+            echo $msgs[$flashData['message']] ?? 'Operacion realizada';
             ?>
         </div>
     <?php endif; ?>
-    <?php if (isset($_GET['error'])): ?>
-        <div class="mb-5 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">Nombre y correo son obligatorios.</div>
+    <?php if ($flashData && $flashData['type'] === 'error'): ?>
+        <div class="mb-5 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm"><?= htmlspecialchars($flashData['message']) ?></div>
     <?php endif; ?>
 
     <div class="flex items-center justify-between mb-6">
