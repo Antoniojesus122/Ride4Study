@@ -18,7 +18,7 @@
             <i class="fas fa-crown"></i> <?= t('premium.active_title') ?>
         </div>
         <h1 class="text-4xl font-bold text-white mb-3"><?= t('premium.already_premium') ?></h1>
-        <p class="text-gray-400 text-lg"><?= t('premium.active_desc') ?><?= $premiumHasta ? ' hasta el <strong class="text-white">' . date('d/m/Y', strtotime($premiumHasta)) . '</strong>' : '' ?>.</p>
+        <p class="text-gray-400 text-lg"><?= t('premium.active_desc') ?><?= $premiumHasta ? ' ' . t('premium.active_until') . ' <strong class="text-white">' . date('d/m/Y', strtotime($premiumHasta)) . '</strong>' : '' ?>.</p>
     </div>
 
     <div class="bg-gradient-to-br from-yellow-500/10 to-amber-500/5 border border-yellow-500/20 rounded-2xl p-8 mb-8 text-center">

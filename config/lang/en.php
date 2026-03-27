@@ -564,6 +564,7 @@ return [
     'premium.active_title' => 'Active subscription',
     'premium.already_premium' => 'You\'re already Premium!',
     'premium.active_desc' => 'Your subscription is active',
+    'premium.active_until' => 'until',
     'premium.perks_title' => 'Perks you enjoy',
     'premium.perk_unlimited' => 'Unlimited listings',
     'premium.perk_unlimited_desc' => 'No limit on active rides',
@@ -842,4 +843,37 @@ return [
     'co2.equivalent' => 'Equivalent to',
     'co2.trees' => 'trees planted',
     'co2.you' => 'you',
+
+    // AUTH: Security and verification
+    'auth.password_min_8' => 'Password must be at least 8 characters.',
+    'auth.too_many_attempts' => 'Too many attempts. Please try again in',
+    'auth.session_expired' => 'Your session has expired due to inactivity. Please log in again.',
+    'auth.email_already_exists' => 'This email is already registered.',
+    'auth.register_error' => 'Error processing registration. Please try again.',
+    'auth.register_success' => 'Account verified and created successfully. You can now log in.',
+
+    // AUTH: Email verification
+    'auth.verify_title' => 'Verify your email',
+    'auth.verify_subtitle' => 'We have sent a 6-digit code to your email address.',
+    'auth.verify_btn' => 'Verify and create account',
+    'auth.verify_resend' => 'Resend code',
+    'auth.verify_back' => 'Back to registration',
+    'auth.verify_wait' => 'Please wait a few seconds before resending.',
+    'auth.verify_invalid_code' => 'Incorrect or expired code. Please try again.',
+    'auth.verify_email_subject' => 'Verification code',
+    'auth.verify_email_heading' => 'Verify your email address',
+    'auth.verify_email_body' => 'To complete your registration, enter the following verification code on the page:',
+    'auth.verify_email_expires' => 'This code is valid for <strong>15 minutes</strong>.',
+    'auth.verify_hero_1' => 'One more',
+    'auth.verify_hero_2' => 'step',
+    'auth.verify_hero_desc' => 'We verify your email to protect your account and make sure it is you.',
+    'auth.verify_feature_1' => 'Verify your identity with a code',
+    'auth.verify_feature_2' => 'Protect your account from the start',
+    'auth.verify_feature_3' => 'Code valid for 15 minutes',
+
+    // PUBLISH: Validations
+    'publish.error_invalid_type' => 'Invalid ad type.',
+    'publish.error_invalid_price' => 'Price must be between 0 and 999.',
+    'publish.error_invalid_seats' => 'Seats must be between 1 and 8.',
+    'publish.error_date_too_far' => 'Date cannot be more than 1 year ahead.',
 ];

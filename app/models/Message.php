@@ -13,37 +13,39 @@ class Message {
             SELECT
                 c.idConversation,
                 c.idAnuncio,
-                -- Determinar quién es el otro usuario
-                CASE WHEN c.user1_id = :userId THEN c.user2_id ELSE c.user1_id END AS otherUserId,
+                CASE WHEN c.user1_id = :uid1 THEN c.user2_id ELSE c.user1_id END AS otherUserId,
                 u.nombre      AS otherUserName,
                 u.foto_perfil AS otherUserPhoto,
-                -- Info del anuncio
                 lo.nombreLocalidad AS nombreOrigen,
                 ld.nombreLocalidad AS nombreDestino,
                 a.fechaSalida,
-                -- Último mensaje
-                m.mensaje,
-                m.fechaCreacion,
-                m.leido,
-                m.idEmisor
+                lm.mensaje,
+                lm.fechaCreacion,
+                lm.leido,
+                lm.idEmisor
             FROM conversations c
-            JOIN usuarios  u  ON u.idUsuario  = CASE WHEN c.user1_id = :userId THEN c.user2_id ELSE c.user1_id END
+            JOIN (
+                SELECT m1.idConversation, m1.mensaje, m1.fechaCreacion, m1.leido, m1.idEmisor
+                FROM mensajes m1
+                INNER JOIN (
+                    SELECT idConversation, MAX(idMensaje) AS maxId
+                    FROM mensajes
+                    GROUP BY idConversation
+                ) m2 ON m1.idConversation = m2.idConversation AND m1.idMensaje = m2.maxId
+            ) lm ON lm.idConversation = c.idConversation
+            JOIN usuarios u ON u.idUsuario = CASE WHEN c.user1_id = :uid2 THEN c.user2_id ELSE c.user1_id END
             JOIN anuncios  a  ON a.idAnuncio  = c.idAnuncio
             JOIN localidades lo ON lo.idLocalidad = a.origen
             JOIN localidades ld ON ld.idLocalidad = a.destino
-            -- Subconsulta para obtener el último mensaje de cada conversación
-            JOIN mensajes m ON m.idMensaje = (
-                SELECT idMensaje FROM mensajes
-                WHERE idConversation = c.idConversation
-                ORDER BY fechaCreacion DESC
-                LIMIT 1
-            )
-            WHERE c.user1_id = :userId OR c.user2_id = :userId
-            ORDER BY m.fechaCreacion DESC
+            WHERE c.user1_id = :uid3 OR c.user2_id = :uid4
+            ORDER BY lm.fechaCreacion DESC
         ";
 
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+        $stmt->bindValue(':uid1', $userId, PDO::PARAM_INT);
+        $stmt->bindValue(':uid2', $userId, PDO::PARAM_INT);
+        $stmt->bindValue(':uid3', $userId, PDO::PARAM_INT);
+        $stmt->bindValue(':uid4', $userId, PDO::PARAM_INT);
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

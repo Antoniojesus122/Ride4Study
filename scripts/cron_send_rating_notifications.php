@@ -28,4 +28,6 @@ try {
     error_log($e->getMessage() . "\n");
     error_log("\nStack trace:\n");
     error_log($e->getTraceAsString() . "\n");
+} finally {
+    ob_end_clean();
 }

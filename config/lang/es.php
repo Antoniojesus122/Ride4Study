@@ -564,6 +564,7 @@ return [
     'premium.active_title' => 'Suscripción activa',
     'premium.already_premium' => '¡Ya eres Premium!',
     'premium.active_desc' => 'Tu suscripción está activa',
+    'premium.active_until' => 'hasta el',
     'premium.perks_title' => 'Ventajas que disfrutas',
     'premium.perk_unlimited' => 'Anuncios ilimitados',
     'premium.perk_unlimited_desc' => 'Sin límite de viajes activos',
@@ -842,4 +843,37 @@ return [
     'co2.equivalent' => 'Equivalente a',
     'co2.trees' => 'arboles plantados',
     'co2.you' => 'tu',
+
+    // AUTH: Seguridad y verificacion
+    'auth.password_min_8' => 'La contrasena debe tener al menos 8 caracteres.',
+    'auth.too_many_attempts' => 'Demasiados intentos. Vuelve a intentarlo en',
+    'auth.session_expired' => 'Tu sesion ha expirado por inactividad. Inicia sesion de nuevo.',
+    'auth.email_already_exists' => 'Este correo ya esta registrado.',
+    'auth.register_error' => 'Error al procesar el registro. Intentalo de nuevo.',
+    'auth.register_success' => 'Cuenta verificada y creada correctamente. Ya puedes iniciar sesion.',
+
+    // AUTH: Verificacion de email
+    'auth.verify_title' => 'Verifica tu correo',
+    'auth.verify_subtitle' => 'Hemos enviado un codigo de 6 digitos a tu correo electronico.',
+    'auth.verify_btn' => 'Verificar y crear cuenta',
+    'auth.verify_resend' => 'Reenviar codigo',
+    'auth.verify_back' => 'Volver al registro',
+    'auth.verify_wait' => 'Espera unos segundos antes de reenviar.',
+    'auth.verify_invalid_code' => 'Codigo incorrecto o expirado. Intentalo de nuevo.',
+    'auth.verify_email_subject' => 'Codigo de verificacion',
+    'auth.verify_email_heading' => 'Verifica tu correo electronico',
+    'auth.verify_email_body' => 'Para completar tu registro, introduce el siguiente codigo de verificacion en la pagina:',
+    'auth.verify_email_expires' => 'Este codigo es valido por <strong>15 minutos</strong>.',
+    'auth.verify_hero_1' => 'Un paso',
+    'auth.verify_hero_2' => 'mas',
+    'auth.verify_hero_desc' => 'Verificamos tu correo para proteger tu cuenta y asegurar que eres tu.',
+    'auth.verify_feature_1' => 'Verifica tu identidad con un codigo',
+    'auth.verify_feature_2' => 'Protege tu cuenta desde el inicio',
+    'auth.verify_feature_3' => 'Codigo valido durante 15 minutos',
+
+    // PUBLISH: Validaciones
+    'publish.error_invalid_type' => 'Tipo de anuncio no valido.',
+    'publish.error_invalid_price' => 'El precio debe estar entre 0 y 999.',
+    'publish.error_invalid_seats' => 'Las plazas deben estar entre 1 y 8.',
+    'publish.error_date_too_far' => 'La fecha no puede ser superior a 1 ano.',
 ];

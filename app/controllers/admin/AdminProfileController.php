@@ -74,7 +74,7 @@ class AdminProfileController {
             redirectWithFlash(url('/admin/profile'), 'error', 'passwords_no_coinciden');
         }
 
-        if (strlen($new) < 6) {
+        if (strlen($new) < 12) {
             redirectWithFlash(url('/admin/profile'), 'error', 'password_corta');
         }
 

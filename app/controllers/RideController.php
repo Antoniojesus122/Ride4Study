@@ -180,6 +180,27 @@ class RideController {
             $errors[] = 'La descripción no puede superar los 500 caracteres.';
         }
 
+        // Validar tipo de anuncio
+        if (!in_array($tipo, ['ofrezco', 'busco'], true)) {
+            $errors[] = t('publish.error_invalid_type');
+        }
+
+        // Validar precio (no negativo)
+        if ($data['precio'] !== null && $data['precio'] !== '') {
+            $precio = (float)$data['precio'];
+            if ($precio < 0 || $precio > 999) {
+                $errors[] = t('publish.error_invalid_price');
+            }
+        }
+
+        // Validar plazas (1-8, solo para ofrezco)
+        if ($tipo === 'ofrezco' && !empty($data['plazasDisponibles'])) {
+            $plazas = (int)$data['plazasDisponibles'];
+            if ($plazas < 1 || $plazas > 8) {
+                $errors[] = t('publish.error_invalid_seats');
+            }
+        }
+
         // Validaciones lógicas
         if ($origenNombre && $destinoNombre && strtolower($origenNombre) === strtolower($destinoNombre)) {
              $errors[] = 'El origen y el destino no pueden ser el mismo.';
@@ -187,6 +208,11 @@ class RideController {
 
         if ($data['fechaSalida'] < date('Y-m-d')) {
              $errors[] = 'La fecha de salida no puede ser en el pasado.';
+        }
+
+        // No permitir fechas con más de 1 año de antelación
+        if ($data['fechaSalida'] > date('Y-m-d', strtotime('+1 year'))) {
+            $errors[] = t('publish.error_date_too_far');
         }
 
         // Validar hora de salida si el viaje es para el mismo día

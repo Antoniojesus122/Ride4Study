@@ -12,68 +12,58 @@ class Ride {
     // Obtener viajes con paginación y filtros
     public function getPaginatedRides($page = 1, $limit = 9, $filters = [], $excludeUserId = null) {
         $offset = ($page - 1) * $limit;
-        
+
+        $conditions = '';
+        $params = [];
+
+        if ($excludeUserId) {
+            $conditions .= " AND a.idUsuario != :excludeUserId";
+            $params[':excludeUserId'] = $excludeUserId;
+        }
+        if (!empty($filters['origen'])) {
+            $conditions .= " AND lo.nombreLocalidad LIKE :origen";
+            $params[':origen'] = '%' . $filters['origen'] . '%';
+        }
+        if (!empty($filters['destino'])) {
+            $conditions .= " AND ld.nombreLocalidad LIKE :destino";
+            $params[':destino'] = '%' . $filters['destino'] . '%';
+        }
+        if (!empty($filters['fecha'])) {
+            $conditions .= " AND a.fechaSalida = :fecha";
+            $params[':fecha'] = $filters['fecha'];
+        }
+        if (!empty($filters['tipo'])) {
+            $conditions .= " AND LOWER(a.tipo) = :tipo";
+            $params[':tipo'] = strtolower($filters['tipo']);
+        }
+        if (isset($filters['precio_max']) && $filters['precio_max'] !== '') {
+            $conditions .= " AND a.precio <= :precio_max";
+            $params[':precio_max'] = (float)$filters['precio_max'];
+        }
+        if (!empty($filters['plazas_min'])) {
+            $conditions .= " AND a.plazasDisponibles >= :plazas_min";
+            $params[':plazas_min'] = (int)$filters['plazas_min'];
+        }
+        if (!empty($filters['verificado'])) {
+            $conditions .= " AND u.estado_verificacion = 2";
+        }
+        $conditions .= " AND (a.fechaSalida > CURDATE() OR (a.fechaSalida = CURDATE() AND a.horaSalida >= CURTIME()))";
+
+        $baseJoins = "FROM " . $this->table . " a
+                      JOIN usuarios u ON a.idUsuario = u.idUsuario
+                      JOIN localidades lo ON a.origen = lo.idLocalidad
+                      JOIN localidades ld ON a.destino = ld.idLocalidad";
+
+        // Query de datos
         $query = "SELECT a.*, u.nombre as nombreUsuario, u.foto_perfil, u.biografia, u.estado_verificacion, u.preferencias_viaje,
                   lo.nombreLocalidad as nombreOrigen, ld.nombreLocalidad as nombreDestino,
                   lo.lat as origenLat, lo.lng as origenLng, ld.lat as destinoLat, ld.lng as destinoLng,
                   COALESCE(AVG(v.puntuacion), 0) as rating, COUNT(v.idValoracion) as ratingCount
-                  FROM " . $this->table . " a
-                  JOIN usuarios u ON a.idUsuario = u.idUsuario
-                  JOIN localidades lo ON a.origen = lo.idLocalidad
-                  JOIN localidades ld ON a.destino = ld.idLocalidad
+                  {$baseJoins}
                   LEFT JOIN valoraciones v ON u.idUsuario = v.idValorado
-                  WHERE 1=1";
+                  WHERE 1=1 {$conditions}
+                  GROUP BY a.idAnuncio";
 
-        $params = [];
-
-        if ($excludeUserId) {
-            $query .= " AND a.idUsuario != :excludeUserId";
-            $params[':excludeUserId'] = $excludeUserId;
-        }
-
-        if (!empty($filters['origen'])) {
-            $query .= " AND lo.nombreLocalidad LIKE :origen";
-            $params[':origen'] = '%' . $filters['origen'] . '%';
-        }
-
-        if (!empty($filters['destino'])) {
-            $query .= " AND ld.nombreLocalidad LIKE :destino";
-            $params[':destino'] = '%' . $filters['destino'] . '%';
-        }
-
-        if (!empty($filters['fecha'])) {
-            $query .= " AND a.fechaSalida = :fecha";
-            $params[':fecha'] = $filters['fecha'];
-        }
-
-        if (!empty($filters['tipo'])) {
-            $query .= " AND LOWER(a.tipo) = :tipo";
-            $params[':tipo'] = strtolower($filters['tipo']);
-        }
-
-        // Filtro: precio máximo
-        if (isset($filters['precio_max']) && $filters['precio_max'] !== '') {
-            $query .= " AND a.precio <= :precio_max";
-            $params[':precio_max'] = (float)$filters['precio_max'];
-        }
-
-        // Filtro: plazas mínimas disponibles
-        if (!empty($filters['plazas_min'])) {
-            $query .= " AND a.plazasDisponibles >= :plazas_min";
-            $params[':plazas_min'] = (int)$filters['plazas_min'];
-        }
-
-        // Filtro: solo usuarios verificados
-        if (!empty($filters['verificado'])) {
-            $query .= " AND u.estado_verificacion = 2";
-        }
-
-        // Excluir viajes pasados
-        $query .= " AND (a.fechaSalida > CURDATE() OR (a.fechaSalida = CURDATE() AND a.horaSalida >= CURTIME()))";
-
-        $query .= " GROUP BY a.idAnuncio";
-
-        // Ordenación
         $orderMap = [
             'precio_asc'  => 'a.precio ASC, a.fechaSalida ASC',
             'precio_desc' => 'a.precio DESC, a.fechaSalida ASC',
@@ -81,84 +71,25 @@ class Ride {
             'fecha_desc'  => 'a.fechaSalida DESC, a.horaSalida DESC',
         ];
         $order = $orderMap[$filters['orden'] ?? ''] ?? 'a.destacado DESC, a.fechaPublicacion DESC, a.fechaSalida ASC, a.horaSalida ASC';
-        $query .= " ORDER BY " . $order;
-        $query .= " LIMIT :limit OFFSET :offset";
+        $query .= " ORDER BY " . $order . " LIMIT :limit OFFSET :offset";
 
         $stmt = $this->conn->prepare($query);
-        
-        // Filtros fijados
         foreach ($params as $key => $val) {
             $stmt->bindValue($key, $val);
         }
-
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        
         $stmt->execute();
         $rides = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Obtener total para paginación
-        $countQuery = "SELECT COUNT(*) as total
-                       FROM " . $this->table . " a
-                       JOIN usuarios u ON a.idUsuario = u.idUsuario
-                       JOIN localidades lo ON a.origen = lo.idLocalidad
-                       JOIN localidades ld ON a.destino = ld.idLocalidad
-                       WHERE 1=1";
-
-        $countParams = [];
-
-        if ($excludeUserId) {
-            $countQuery .= " AND a.idUsuario != :excludeUserId";
-            $countParams[':excludeUserId'] = $excludeUserId;
-        }
-
-        if (!empty($filters['origen'])) {
-            $countQuery .= " AND lo.nombreLocalidad LIKE :origen";
-            $countParams[':origen'] = '%' . $filters['origen'] . '%';
-        }
-
-        if (!empty($filters['destino'])) {
-            $countQuery .= " AND ld.nombreLocalidad LIKE :destino";
-            $countParams[':destino'] = '%' . $filters['destino'] . '%';
-        }
-
-        if (!empty($filters['fecha'])) {
-            $countQuery .= " AND a.fechaSalida = :fecha";
-            $countParams[':fecha'] = $filters['fecha'];
-        }
-
-        if (!empty($filters['tipo'])) {
-            $countQuery .= " AND LOWER(a.tipo) = :tipo";
-            $countParams[':tipo'] = strtolower($filters['tipo']);
-        }
-
-        if (isset($filters['precio_max']) && $filters['precio_max'] !== '') {
-            $countQuery .= " AND a.precio <= :precio_max";
-            $countParams[':precio_max'] = (float)$filters['precio_max'];
-        }
-
-        if (!empty($filters['plazas_min'])) {
-            $countQuery .= " AND a.plazasDisponibles >= :plazas_min";
-            $countParams[':plazas_min'] = (int)$filters['plazas_min'];
-        }
-
-        if (!empty($filters['verificado'])) {
-            $countQuery .= " AND u.estado_verificacion = 2";
-        }
-
-        // Se excluyen los viajes pasados en el recuento de viajes
-        $countQuery .= " AND (a.fechaSalida > CURDATE() OR (a.fechaSalida = CURDATE() AND a.horaSalida >= CURTIME()))";
-
+        // Query de conteo
+        $countQuery = "SELECT COUNT(DISTINCT a.idAnuncio) as total {$baseJoins} WHERE 1=1 {$conditions}";
         $countStmt = $this->conn->prepare($countQuery);
-        
-        // Vincular parámetros
-        foreach ($countParams as $key => $val) {
+        foreach ($params as $key => $val) {
             $countStmt->bindValue($key, $val);
         }
-        
         $countStmt->execute();
-        $totalRow = $countStmt->fetch(PDO::FETCH_ASSOC);
-        $totalRides = $totalRow['total'];
+        $totalRides = (int)$countStmt->fetch(PDO::FETCH_ASSOC)['total'];
 
         return [
             'rides' => $rides,

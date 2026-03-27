@@ -102,19 +102,24 @@ class UserController {
 
         // Foto de perfil
         if (isset($_FILES['foto_perfil']) && $_FILES['foto_perfil']['error'] === UPLOAD_ERR_OK) {
-            $allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+            $allowedMimes = [
+                'image/jpeg' => 'jpg',
+                'image/png'  => 'png',
+                'image/webp' => 'webp',
+            ];
 
-            if (
-                $_FILES['foto_perfil']['size'] <= 2097152 &&
-                in_array(mime_content_type($_FILES['foto_perfil']['tmp_name']), $allowedTypes, true)
-            ) {
-                $uploadDir = __DIR__ . '/../../public/uploads/profiles/';
-                if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+            $validation = validateUploadedFile($_FILES['foto_perfil'], $allowedMimes, 2);
 
-                $fileName = uniqid('profile_') . '.jpg';
-                if (move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $uploadDir . $fileName)) {
-                    $data['foto_perfil'] = $fileName;
-                }
+            if (!$validation['valid']) {
+                redirectWithFlash(url('/profile'), 'error', $validation['error']);
+            }
+
+            $uploadDir = __DIR__ . '/../../public/uploads/profiles/';
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+            $fileName = uniqid('profile_') . '.' . $validation['ext'];
+            if (move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $uploadDir . $fileName)) {
+                $data['foto_perfil'] = $fileName;
             }
         }
 
@@ -200,35 +205,22 @@ class UserController {
         }
 
         if (isset($_FILES['document']) && $_FILES['document']['error'] === UPLOAD_ERR_OK) {
-              // Validar tipo de archivo: solo PDF e imágenes
               $allowedMimes = [
                   'application/pdf' => 'pdf',
                   'image/jpeg'      => 'jpg',
                   'image/png'       => 'png',
                   'image/webp'      => 'webp',
               ];
-              $mime = mime_content_type($_FILES['document']['tmp_name']);
-              if (!isset($allowedMimes[$mime])) {
-                  redirectWithFlash(url('/profile'), 'error', 'invalid_file_type', 'verification');
-              }
 
-              // Validar extensión del archivo original
-              $ext = strtolower(pathinfo($_FILES['document']['name'], PATHINFO_EXTENSION));
-              if (!in_array($ext, ['pdf', 'jpg', 'jpeg', 'png', 'webp'], true)) {
-                  redirectWithFlash(url('/profile'), 'error', 'invalid_file_type', 'verification');
-              }
-
-              // Límite de 5MB
-              if ($_FILES['document']['size'] > 5 * 1024 * 1024) {
-                  redirectWithFlash(url('/profile'), 'error', 'file_too_large', 'verification');
+              $validation = validateUploadedFile($_FILES['document'], $allowedMimes, 5);
+              if (!$validation['valid']) {
+                  redirectWithFlash(url('/profile'), 'error', $validation['error'], 'verification');
               }
 
               $uploadDir = __DIR__ . '/../../public/uploads/verification/';
               if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
-              // Extensión segura basada en MIME type
-              $safeExt = $allowedMimes[$mime];
-              $fileName = uniqid() . '-verification.' . $safeExt;
+              $fileName = uniqid() . '-verification.' . $validation['ext'];
               if (move_uploaded_file($_FILES['document']['tmp_name'], $uploadDir . $fileName)) {
                    $this->user->submitVerification($_SESSION['user_id'], $fileName);
 

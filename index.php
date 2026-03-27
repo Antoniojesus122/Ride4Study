@@ -2,6 +2,9 @@
 
 // Entry Point
 
+// Cargar variables de entorno
+require_once __DIR__ . '/config/env.php';
+
 // Cargar helpers para definir rutas y generar URLs
 require_once __DIR__ . '/app/helpers.php';
 
@@ -12,6 +15,9 @@ if (!in_array($lang, ['es', 'en'], true)) {
 }
 $GLOBALS['translations'] = require __DIR__ . '/config/lang/' . $lang . '.php';
 $GLOBALS['lang'] = $lang;
+
+// Comprobar expiración de sesión por inactividad
+checkSessionTimeout();
 
 // Autoload para cargar controladores y modelos automáticamente
 spl_autoload_register(function ($class) {

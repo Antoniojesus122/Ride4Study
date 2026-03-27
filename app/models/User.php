@@ -292,6 +292,70 @@ class User {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Crear código de verificación de email para registro
+    public function createEmailVerification(string $correo, string $nombre, string $hashedPassword, int $telefono): string|false {
+        try {
+            // Eliminar verificaciones anteriores del mismo correo
+            $this->conn->prepare("DELETE FROM email_verifications WHERE correo = ?")->execute([$correo]);
+
+            $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $expiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+
+            $stmt = $this->conn->prepare("
+                INSERT INTO email_verifications (correo, nombre, contrasena, telefono, code, expires_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([$correo, $nombre, $hashedPassword, $telefono, $code, $expiresAt]);
+
+            return $code;
+        } catch (Exception $e) {
+            error_log('createEmailVerification error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    // Validar código de verificación de email y completar registro
+    public function verifyEmailCode(string $correo, string $code): bool|string {
+        $stmt = $this->conn->prepare("
+            SELECT * FROM email_verifications
+            WHERE correo = ? AND code = ? AND expires_at > NOW()
+            LIMIT 1
+        ");
+        $stmt->execute([$correo, $code]);
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$data) {
+            return 'invalid_code';
+        }
+
+        // Comprobar si el correo ya está registrado (por si acaso)
+        $existing = $this->conn->prepare("SELECT idUsuario FROM {$this->table} WHERE correo = ? LIMIT 1");
+        $existing->execute([$correo]);
+        if ($existing->fetch()) {
+            return 'email_exists';
+        }
+
+        // Registrar usuario con los datos guardados
+        $sql = "INSERT INTO {$this->table} (nombre, correo, contrasena, idRol, telefono)
+                VALUES (:nombre, :correo, :contrasena, :idRol, :telefono)";
+        $stmt = $this->conn->prepare($sql);
+        $result = $stmt->execute([
+            ':nombre'     => htmlspecialchars(strip_tags($data['nombre'])),
+            ':correo'     => $data['correo'],
+            ':contrasena' => $data['contrasena'],
+            ':idRol'      => 2,
+            ':telefono'   => $data['telefono'] ?: null
+        ]);
+
+        if ($result) {
+            // Limpiar verificaciones
+            $this->conn->prepare("DELETE FROM email_verifications WHERE correo = ?")->execute([$correo]);
+            return true;
+        }
+
+        return 'register_failed';
+    }
+
     // Resetear contraseña con código
     public function resetPasswordWithCode(int $userId, string $password): bool {
 

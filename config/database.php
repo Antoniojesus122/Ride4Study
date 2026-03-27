@@ -1,10 +1,17 @@
 <?php
 class Database {
-    private $host = 'localhost';
-    private $db_name = 'if0_40294789_ride4study';
-    private $username = 'root';
-    private $password = '';
-    public $conn;
+    private string $host;
+    private string $db_name;
+    private string $username;
+    private string $password;
+    public ?PDO $conn = null;
+
+    public function __construct() {
+        $this->host     = $_ENV['DB_HOST'] ?? 'localhost';
+        $this->db_name  = $_ENV['DB_NAME'] ?? 'ride4study';
+        $this->username = $_ENV['DB_USER'] ?? 'root';
+        $this->password = $_ENV['DB_PASS'] ?? '';
+    }
 
     public function connect() {
         $this->conn = null;

@@ -5,7 +5,7 @@
 
 // Página de inicio (landing page)
 $router->get('/', function () {
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) session_start();
     if (isset($_SESSION['user_id'])) {
         $role = (int)($_SESSION['user_role'] ?? 0);
         header('Location: ' . url($role === 1 ? '/admin/dashboard' : '/dashboard'));
@@ -37,6 +37,7 @@ $router->any('/register', [AuthController::class, 'register']);
 $router->get('/logout', [AuthController::class, 'logout']);
 $router->any('/forgot-password', [AuthController::class, 'forgotPassword']);
 $router->any('/reset-password', [AuthController::class, 'resetPassword']);
+$router->any('/verify-email', [AuthController::class, 'verifyEmail']);  // Verificación email registro
 $router->any('/admin-verify', [AuthController::class, 'adminVerify']); // 2FA admin
 
 // Dashboard, para usuarios logeados
@@ -202,7 +203,7 @@ $router->any('/premium', function () {
 
 // Administración — /admin redirige al dashboard
 $router->get('/admin', function () {
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) session_start();
     if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
         header('Location: ' . url('/login'));
         exit;
@@ -212,7 +213,7 @@ $router->get('/admin', function () {
 });
 
 $router->any('/admin/dashboard', function () {
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) session_start();
     if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
         header('Location: ' . url('/login'));
         exit;
@@ -222,7 +223,7 @@ $router->any('/admin/dashboard', function () {
 });
 
 $router->any('/admin/users', function () { // Gestión de verificaciones de estudiantes
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) session_start();
     if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
         header('Location: ' . url('/login'));
         exit;
@@ -242,7 +243,7 @@ $router->any('/admin/users', function () { // Gestión de verificaciones de estu
 });
 
 $router->any('/admin/reports', function () { // Gestión de reportes
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) session_start();
     if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] ?? 0) != 1) {
         header('Location: ' . url('/login'));
         exit;
@@ -270,7 +271,7 @@ $router->any('/admin/reports', function () { // Gestión de reportes
 });
 
 $router->any('/admin/instituciones', function () {
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) session_start();
     if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
         header('Location: ' . url('/login'));
         exit;
@@ -287,7 +288,7 @@ $router->any('/admin/instituciones', function () {
 });
 
 $router->any('/admin/ads', function () {
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) session_start();
     if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
         header('Location: ' . url('/login'));
         exit;
@@ -302,7 +303,7 @@ $router->any('/admin/ads', function () {
 });
 
 $router->any('/admin/profile', function () {
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) session_start();
     if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
         header('Location: ' . url('/login'));
         exit;
@@ -318,7 +319,7 @@ $router->any('/admin/profile', function () {
 });
 
 $router->any('/admin/premium', function () {
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) session_start();
     if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
         header('Location: ' . url('/login'));
         exit;
@@ -336,7 +337,7 @@ $router->any('/admin/premium', function () {
 
 // Soporte
 $router->any('/support', function () {
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) session_start();
     $controller = new SupportController();
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'contact') {
         $controller->sendSupportEmail();
@@ -347,21 +348,21 @@ $router->any('/support', function () {
 
 // Otras páginas públicas
 $router->get('/privacy', function () { // Política de privacidad
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) session_start();
     require_once __DIR__ . '/views/public/privacy.view.php';
 });
 
 $router->get('/terms', function () { // Términos y condiciones
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) session_start();
     require_once __DIR__ . '/views/public/terms.view.php';
 });
 
 $router->get('/cookies', function () { // Politica de cookies
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) session_start();
     require_once __DIR__ . '/views/public/cookies.view.php';
 });
 
 $router->get('/safety', function () { // Consejos de seguridad
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) session_start();
     require_once __DIR__ . '/views/public/safety.view.php';
 });

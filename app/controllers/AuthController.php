@@ -55,6 +55,29 @@ class AuthController {
                 if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
                     $error = 'El correo no tiene un formato válido.';
                 } else {
+                    // Rate limiting: máximo 5 intentos en 15 minutos por IP
+                    $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+                    $lockKey = 'login_attempts_' . md5($ip);
+                    if (!isset($_SESSION[$lockKey])) {
+                        $_SESSION[$lockKey] = ['count' => 0, 'first_attempt' => time()];
+                    }
+                    $attempts = &$_SESSION[$lockKey];
+
+                    // Resetear si han pasado 15 minutos desde el primer intento
+                    if (time() - $attempts['first_attempt'] > 900) {
+                        $attempts = ['count' => 0, 'first_attempt' => time()];
+                    }
+
+                    if ($attempts['count'] >= 5) {
+                        $remaining = 900 - (time() - $attempts['first_attempt']);
+                        $mins = ceil($remaining / 60);
+                        $error = t('auth.too_many_attempts') . ' ' . $mins . ' min.';
+                        require __DIR__ . '/../../views/auth/login.view.php';
+                        return;
+                    }
+
+                    $attempts['count']++;
+
                     try {
                         $userData = $this->user->login($correo, $contrasena);
 
@@ -80,6 +103,7 @@ class AuthController {
 
                             // 2FA para administradores: enviar código por email antes de completar el login
                             if ($idRol === 1) {
+                                unset($_SESSION[$lockKey]);
                                 session_regenerate_id(true);
 
                                 // Generar código de 6 dígitos
@@ -121,6 +145,9 @@ class AuthController {
                                 header('Location: ' . url('/admin-verify'));
                                 exit;
                             }
+
+                            // Login exitoso: resetear rate limiting
+                            unset($_SESSION[$lockKey]);
 
                             // Login normal para usuarios no-admin
                             session_regenerate_id(true);
@@ -176,8 +203,8 @@ class AuthController {
                 $error = 'El correo no tiene un formato válido.';
             } elseif ($password !== $confirm) {
                 $error = 'Las contraseñas no coinciden.';
-            } elseif (strlen($password) < 6) {
-                $error = 'La contraseña debe tener al menos 6 caracteres.';
+            } elseif (strlen($password) < 8) {
+                $error = t('auth.password_min_8');
             } elseif ($telefono !== 0 && (!is_numeric($telefono) || strlen((string)$telefono) !== 9)) {
                 $error = 'El teléfono debe ser numérico y tener 9 dígitos.';
             } elseif ($poliza !== 1) {
@@ -185,39 +212,46 @@ class AuthController {
             } else {
 
                 try {
-                    $registered = $this->user->register(
-                        $nombre,
-                        $correo,
-                        $password,
-                        2,
-                        $telefono
-                    );
-
-                    if ($registered) {
-                        try {
-                            $mail = new MailService();
-                            $contenido = "
-                                <p>Tu cuenta ha sido creada correctamente. Ya puedes iniciar sesión y empezar a compartir trayectos con otros estudiantes.</p>
-                                <p style=\"font-size:14px; color:#94a3b8; margin-top:15px;\">
-                                    Si tienes alguna duda, no dudes en contactarnos.
-                                </p>
-                            ";
-                            $html = $mail->generarPlantilla(
-                                $nombre,
-                                "¡Bienvenido a Ride4Study!",
-                                $contenido,
-                                null,
-                                fullUrl('/login'),
-                                'Iniciar sesión'
-                            );
-                            $mail->send($correo, $nombre, '¡Bienvenido a Ride4Study!', $html);
-                        } catch (Exception $e) {
-                            error_log('Welcome email error: ' . $e->getMessage());
-                        }
-
-                        redirectWithFlash(url('/login'), 'success', 'Registro completado. Inicia sesion para continuar.');
+                    // Comprobar si el correo ya existe
+                    $existing = $this->user->getUserByEmail($correo);
+                    if ($existing) {
+                        $error = t('auth.email_already_exists');
                     } else {
-                        $error = 'El correo ya está registrado o ha ocurrido un error.';
+                        // Generar hash de contraseña y código de verificación
+                        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+                        $code = $this->user->createEmailVerification($correo, $nombre, $hashedPassword, $telefono);
+
+                        if ($code) {
+                            // Enviar email con código de verificación
+                            try {
+                                $mail = new MailService();
+                                $contenido = "
+                                    <p>" . t('auth.verify_email_body') . "</p>
+                                    <p style=\"font-size:14px; color:#94a3b8; margin-top:10px;\">
+                                        " . t('auth.verify_email_expires') . "
+                                    </p>
+                                ";
+                                $html = $mail->generarPlantilla(
+                                    $nombre,
+                                    t('auth.verify_email_heading'),
+                                    $contenido,
+                                    $code,
+                                    null,
+                                    null
+                                );
+                                $mail->send($correo, $nombre, t('auth.verify_email_subject') . ' - Ride4Study', $html);
+                            } catch (Exception $e) {
+                                error_log('Verification email error: ' . $e->getMessage());
+                            }
+
+                            // Guardar correo en sesión para la página de verificación
+                            $_SESSION['verify_email'] = $correo;
+                            $_SESSION['verify_name']  = $nombre;
+                            header('Location: ' . url('/verify-email'));
+                            exit;
+                        } else {
+                            $error = t('auth.register_error');
+                        }
                     }
                 } catch (PDOException $e) {
                     error_log('Register error: ' . $e->getMessage());
@@ -316,6 +350,117 @@ class AuthController {
         require __DIR__ . '/../../views/auth/admin-verify.view.php';
     }
 
+    // Verificación de email durante el registro
+    public function verifyEmail(): void
+    {
+        $error = '';
+
+        // Si no hay email pendiente de verificación, redirigir al registro
+        if (empty($_SESSION['verify_email'])) {
+            header('Location: ' . url('/register'));
+            exit;
+        }
+
+        $correo = $_SESSION['verify_email'];
+        $nombre = $_SESSION['verify_name'] ?? '';
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            // Acción de reenvío
+            if (isset($_POST['resend'])) {
+                // Rate limiting para reenvío
+                if (isset($_SESSION['last_verify_resend']) && time() - $_SESSION['last_verify_resend'] < 30) {
+                    $error = t('auth.verify_wait');
+                } else {
+                    $code = $this->user->createEmailVerification(
+                        $correo,
+                        $nombre,
+                        '', // No necesitamos el hash de nuevo, ya está guardado
+                        0
+                    );
+
+                    // Recargar los datos reales de la verificación pendiente
+                    $stmt = $this->db->prepare("SELECT * FROM email_verifications WHERE correo = ? ORDER BY created_at DESC LIMIT 1");
+                    $stmt->execute([$correo]);
+                    $pendingData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                    if ($pendingData) {
+                        $newCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                        $newExpires = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+                        $this->db->prepare("UPDATE email_verifications SET code = ?, expires_at = ? WHERE correo = ?")
+                            ->execute([$newCode, $newExpires, $correo]);
+
+                        try {
+                            $mail = new MailService();
+                            $contenido = "<p>" . t('auth.verify_email_body') . "</p>
+                                <p style=\"font-size:14px; color:#94a3b8; margin-top:10px;\">" . t('auth.verify_email_expires') . "</p>";
+                            $html = $mail->generarPlantilla($nombre, t('auth.verify_email_heading'), $contenido, $newCode, null, null);
+                            $mail->send($correo, $nombre, t('auth.verify_email_subject') . ' - Ride4Study', $html);
+                        } catch (Exception $e) {
+                            error_log('Resend verification email error: ' . $e->getMessage());
+                        }
+                    }
+
+                    $_SESSION['last_verify_resend'] = time();
+                }
+                require __DIR__ . '/../../views/auth/verify-email.view.php';
+                return;
+            }
+
+            $code = trim($_POST['code'] ?? '');
+
+            if (empty($code)) {
+                $error = t('auth.2fa_empty');
+            } elseif (!preg_match('/^\d{6}$/', $code)) {
+                $error = t('auth.2fa_invalid');
+            } else {
+                $_SESSION['verify_attempts'] = ($_SESSION['verify_attempts'] ?? 0) + 1;
+
+                if ($_SESSION['verify_attempts'] > 5) {
+                    unset($_SESSION['verify_email'], $_SESSION['verify_name'], $_SESSION['verify_attempts']);
+                    redirectWithFlash(url('/register'), 'error', t('auth.2fa_blocked'));
+                }
+
+                $result = $this->user->verifyEmailCode($correo, $code);
+
+                if ($result === true) {
+                    // Registro completado: limpiar sesión y enviar bienvenida
+                    unset($_SESSION['verify_email'], $_SESSION['verify_name'], $_SESSION['verify_attempts'], $_SESSION['last_verify_resend']);
+
+                    try {
+                        $mail = new MailService();
+                        $contenido = "
+                            <p>Tu cuenta ha sido verificada y creada correctamente. Ya puedes iniciar sesion y empezar a compartir trayectos con otros estudiantes.</p>
+                            <p style=\"font-size:14px; color:#94a3b8; margin-top:15px;\">
+                                Si tienes alguna duda, no dudes en contactarnos.
+                            </p>
+                        ";
+                        $html = $mail->generarPlantilla(
+                            $nombre,
+                            "Bienvenido a Ride4Study!",
+                            $contenido,
+                            null,
+                            fullUrl('/login'),
+                            'Iniciar sesion'
+                        );
+                        $mail->send($correo, $nombre, 'Bienvenido a Ride4Study!', $html);
+                    } catch (Exception $e) {
+                        error_log('Welcome email error: ' . $e->getMessage());
+                    }
+
+                    redirectWithFlash(url('/login'), 'success', t('auth.register_success'));
+                } elseif ($result === 'email_exists') {
+                    $error = t('auth.email_already_exists');
+                } else {
+                    $error = t('auth.verify_invalid_code');
+                }
+            }
+        }
+
+        $attemptsLeft = 5 - ($_SESSION['verify_attempts'] ?? 0);
+        require __DIR__ . '/../../views/auth/verify-email.view.php';
+    }
+
     // Solicitar código de reseteo
     public function forgotPassword(): void
     {
@@ -405,8 +550,8 @@ class AuthController {
                 $error = 'Completa todos los campos.';
             } elseif (!preg_match('/^\d{6}$/', $code)) {
                 $error = 'Código inválido.';
-            } elseif (strlen($pass) < 6) {
-                $error = 'La contraseña debe tener al menos 6 caracteres.';
+            } elseif (strlen($pass) < 8) {
+                $error = t('auth.password_min_8');
             } elseif ($pass !== $confirm) {
                 $error = 'Las contraseñas no coinciden.';
             } else {

@@ -32,9 +32,14 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                 <h2 class="text-3xl lg:text-4xl font-bold text-white"><?= $pageTitle ?></h2>
                 <p class="text-gray-400 mt-2 lg:text-lg"><?= $pageDesc ?></p>
             </div>
-            <a href="<?= url('/my-rides') ?>" class="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-800 transition-all font-medium">
-                <i class="fas fa-arrow-left"></i> <?= t('publish.cancel') ?>
-            </a>
+            <div class="hidden sm:flex items-center gap-3">
+                <a href="<?= url('/my-rides') ?>" class="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-800 transition-all font-medium">
+                    <i class="fas fa-arrow-left"></i> <?= t('publish.cancel') ?>
+                </a>
+                <button type="submit" form="publishForm" class="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-secondary font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5">
+                    <i class="fas fa-paper-plane"></i> <?= $submitText ?>
+                </button>
+            </div>
         </div>
 
         <!-- Alertas de error -->
@@ -57,10 +62,10 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
                 <!-- Columna izquierda: Tipo + Ruta + Horarios (7/12) -->
-                <div class="lg:col-span-7 space-y-6">
+                <div class="lg:col-span-7 flex flex-col gap-6">
 
                     <!-- Tipo de viaje -->
-                    <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                    <div class="bg-surface rounded-2xl border border-gray-700 p-6 lg:flex-1">
                         <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
                             <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center"><i class="fas fa-exchange-alt text-primary text-sm"></i></div>
                             <?= t('publish.driver_or_passenger') ?>
@@ -102,7 +107,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                     </div>
 
                     <!-- Ruta: Origen y Destino -->
-                    <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                    <div class="bg-surface rounded-2xl border border-gray-700 p-6 lg:flex-1">
                         <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
                             <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><i class="fas fa-route text-blue-400 text-sm"></i></div>
                             <?= t('publish.route_schedule') ?>
@@ -148,7 +153,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                     </div>
 
                     <!-- Horarios -->
-                    <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                    <div class="bg-surface rounded-2xl border border-gray-700 p-6 lg:flex-1">
                         <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
                             <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center"><i class="far fa-clock text-purple-400 text-sm"></i></div>
                             <?= t('publish.schedule') ?>
@@ -193,10 +198,10 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                 </div>
 
                 <!-- Columna derecha: Detalles + Acciones -->
-                <div class="lg:col-span-5 space-y-6">
+                <div class="lg:col-span-5 flex flex-col gap-6">
 
                     <!-- Plazas, Precio y Descripción -->
-                    <div class="bg-surface rounded-2xl border border-gray-700 p-5">
+                    <div class="bg-surface rounded-2xl border border-gray-700 p-5 lg:flex-1">
                         <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                             <div class="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center"><i class="fas fa-sliders-h text-green-400 text-xs"></i></div>
                             <?= t('publish.details') ?>
@@ -238,12 +243,12 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                     </div>
 
                     <!-- Vista previa del mapa -->
-                    <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                    <div class="bg-surface rounded-2xl border border-gray-700 p-6 flex-1 flex flex-col">
                         <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
                             <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><i class="fas fa-map-marked-alt text-blue-400 text-sm"></i></div>
                             <?= t('publish.route_preview') ?>
                         </h3>
-                        <div id="publish-map" class="w-full h-64 rounded-xl border border-gray-600 bg-gray-800 overflow-hidden" style="z-index: 1;"></div>
+                        <div id="publish-map" class="w-full min-h-[16rem] flex-1 rounded-xl border border-gray-600 bg-gray-800 overflow-hidden" style="z-index: 1;"></div>
                         <div id="route-info" class="hidden mt-3 flex items-center gap-4 text-sm">
                             <span class="flex items-center gap-1.5 text-gray-400">
                                 <i class="fas fa-road text-primary text-xs"></i>
@@ -260,8 +265,8 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                         <input type="hidden" name="ruta_polyline" id="ruta_polyline" value="<?= htmlspecialchars($isEdit ? ($ride['ruta_polyline'] ?? '') : '') ?>">
                     </div>
 
-                    <!-- Boton de envio -->
-                    <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                    <!-- Boton de envio (solo móvil, en desktop está en el header) -->
+                    <div class="bg-surface rounded-2xl border border-gray-700 p-6 sm:hidden">
                         <button type="submit" class="w-full px-8 py-4 rounded-xl bg-primary text-secondary font-bold text-lg hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5">
                             <i class="fas fa-paper-plane mr-2"></i> <?= $submitText ?>
                         </button>

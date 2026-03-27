@@ -4,14 +4,15 @@
     $success = ($flashData && $flashData['type'] === 'success') ? $flashData['message'] : null;
     $tab = ($flashData && isset($flashData['tab'])) ? $flashData['tab'] : 'profile';
     
-    // Calcular estadísticas del usuario
-    $userStats = [
+    // Valores por defecto para estadísticas
+    $userStats = array_merge([
         'total_viajes' => 0,
         'viajes_completados' => 0,
         'valoracion_promedio' => 0,
         'viajes_como_conductor' => 0,
         'viajes_como_pasajero' => 0,
-    ];
+        'co2_ahorrado' => 0,
+    ], $userStats ?? []);
 ?>
 
 <div class="w-full mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-8">
