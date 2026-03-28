@@ -154,7 +154,24 @@ $router->post('/report', function () {
         exit;
     }
 
-    $ok = $report->createReport($tipo, $idUsuarioReportado, $idAnuncio, $idChat, (int)$_SESSION['user_id'], $mensaje ?: $motivo, $motivo);
+    // Procesar evidencia (imagen)
+    $evidenciaImg = null;
+    if (!empty($_FILES['evidencia']) && $_FILES['evidencia']['error'] === UPLOAD_ERR_OK) {
+        $allowed = ['image/jpeg', 'image/png', 'image/webp'];
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $_FILES['evidencia']['tmp_name']);
+        finfo_close($finfo);
+        if (in_array($mimeType, $allowed) && $_FILES['evidencia']['size'] <= 5 * 1024 * 1024) {
+            $ext = match($mimeType) { 'image/jpeg' => '.jpg', 'image/png' => '.png', 'image/webp' => '.webp' };
+            $filename = uniqid('report_') . $ext;
+            $destPath = __DIR__ . '/public/uploads/reports/' . $filename;
+            if (move_uploaded_file($_FILES['evidencia']['tmp_name'], $destPath)) {
+                $evidenciaImg = $filename;
+            }
+        }
+    }
+
+    $ok = $report->createReport($tipo, $idUsuarioReportado, $idAnuncio, $idChat, (int)$_SESSION['user_id'], $mensaje ?: $motivo, $motivo, $evidenciaImg);
     echo json_encode(['success' => $ok, 'message' => $ok ? t('nav.report_sent') : t('nav.report_error')]);
     exit;
 });
@@ -253,15 +270,30 @@ $router->any('/admin/reports', function () { // Gestión de reportes
     $db = $database->connect();
     $controller = new ReportController($db);
     $tab = $_GET['tab'] ?? 'usuario';
+
+    // Historial de usuarios
+    if (isset($_GET['ajax']) && $_GET['ajax'] === 'history' && isset($_GET['userId'])) {
+        header('Content-Type: application/json');
+        echo json_encode($controller->getUserHistory((int)$_GET['userId']));
+        exit;
+    }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['idReporte'])) {
         switch ($_POST['action']) {
             case 'resolve': $controller->resolve($tab); exit;
             case 'delete':  $controller->delete($tab);  exit;
+            case 'take':    $controller->takeReport($tab); exit;
+            case 'release': $controller->releaseReport($tab); exit;
         }
     }
+
+    // Estadisticas
+    $stats = $controller->getStats();
+
     switch ($tab) {
         case 'anuncio': $reportes = $controller->getReportsByType('anuncio'); break;
         case 'chat':    $reportes = $controller->getReportsByType('chat');    break;
+        case 'stats':   $reportes = []; break;
         default:        $reportes = $controller->getReportsByType('usuario'); $tab = 'usuario'; break;
     }
     $flashData = getFlash();

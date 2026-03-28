@@ -8,20 +8,20 @@
     } catch (Exception $e) {}
 ?>
 
-<div class="sticky top-0 z-20 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 px-8 py-4 flex items-center justify-between">
+<div class="sticky top-0 z-20 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 px-8 py-5 flex items-center justify-between">
     <!-- Izquierda: Titulo de la pagina -->
     <div>
-        <h1 class="text-xl font-semibold text-white"><?= htmlspecialchars($pageTitle) ?></h1>
+        <h1 class="text-2xl font-bold text-white"><?= htmlspecialchars($pageTitle) ?></h1>
     </div>
 
     <!-- Derecha: Busqueda + Notificaciones + Usuario Admin -->
     <div class="flex items-center gap-4">
         <!-- Busqueda (por ahora no funcional) -->
-        <div class="hidden md:flex items-center bg-gray-800/60 border border-gray-700/50 rounded-lg px-3 py-1.5">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-gray-500">
+        <div class="hidden md:flex items-center bg-gray-800/60 border border-gray-700/50 rounded-lg px-3.5 py-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-500">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
             </svg>
-            <input type="text" placeholder="Buscar..." class="bg-transparent border-none outline-none text-sm text-gray-300 placeholder-gray-500 ml-2 w-40" readonly>
+            <input type="text" placeholder="Buscar..." class="bg-transparent border-none outline-none text-sm text-gray-300 placeholder-gray-500 ml-2.5 w-48" readonly>
         </div>
 
         <!-- Notificaciones de reportes pendientes -->
@@ -37,8 +37,8 @@
         <!-- Avatar de admin + desplegable -->
         <div class="relative pl-3 border-l border-gray-700/50">
             <button onclick="document.getElementById('admin-dropdown').classList.toggle('hidden')" class="flex items-center gap-2.5 hover:opacity-80 transition cursor-pointer">
-                <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                    <span class="text-primary text-xs font-bold"><?= mb_strtoupper(mb_substr($_SESSION['user_name'] ?? 'A', 0, 1)) ?></span>
+                <div class="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center">
+                    <span class="text-primary text-sm font-bold"><?= mb_strtoupper(mb_substr($_SESSION['user_name'] ?? 'A', 0, 1)) ?></span>
                 </div>
                 <span class="text-sm text-gray-300 font-medium hidden sm:inline"><?= htmlspecialchars($_SESSION['user_name'] ?? 'Admin') ?></span>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 text-gray-500 hidden sm:block">

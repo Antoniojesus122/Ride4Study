@@ -486,11 +486,31 @@
                     document.getElementById('report-idChat').value    = opts.idChat    ?? '';
                     document.getElementById('report-motivo').value    = '';
                     document.getElementById('report-mensaje').value   = '';
+                    clearEvidence();
 
                     const labels = { usuario: 'usuario', anuncio: 'anuncio', chat: 'mensaje de chat' };
                     document.getElementById('report-label').textContent = labels[tipo] || tipo;
                     document.getElementById('reportModal').classList.remove('hidden');
                     document.body.style.overflow = 'hidden';
+                }
+
+                function previewEvidence(input) {
+                    if (input.files && input.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            document.getElementById('report-evidencia-img').src = e.target.result;
+                            document.getElementById('report-evidencia-preview').classList.remove('hidden');
+                            document.getElementById('report-evidencia-text').textContent = input.files[0].name;
+                        };
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+
+                function clearEvidence() {
+                    const input = document.getElementById('report-evidencia');
+                    input.value = '';
+                    document.getElementById('report-evidencia-preview').classList.add('hidden');
+                    document.getElementById('report-evidencia-text').textContent = '<?= t('nav.report_evidence_upload') ?? 'Subir captura de pantalla' ?>';
                 }
 
                 function closeReportModal() {
@@ -512,6 +532,12 @@
                     if (reportData.idUsuario) body.append('idUsuarioReportado', reportData.idUsuario);
                     if (reportData.idAnuncio) body.append('idAnuncio', reportData.idAnuncio);
                     if (reportData.idChat)    body.append('idChat',    reportData.idChat);
+
+                    // Adjuntar evidencia si existe
+                    const evidenciaInput = document.getElementById('report-evidencia');
+                    if (evidenciaInput.files && evidenciaInput.files[0]) {
+                        body.append('evidencia', evidenciaInput.files[0]);
+                    }
 
                     fetch('<?= url("/report") ?>', { method: 'POST', body })
                     .then(r => r.json())
@@ -581,6 +607,22 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-300 mb-2"><?= t('nav.report_details') ?></label>
                             <textarea id="report-mensaje" rows="3" maxlength="500" placeholder="<?= t('nav.report_placeholder') ?>" class="w-full bg-gray-800 border border-gray-600 text-gray-100 text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-primary resize-none placeholder-gray-500"></textarea>
+                        </div>
+
+                        <!-- Evidencia (captura de pantalla) -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2"><?= t('nav.report_evidence') ?? 'Adjuntar evidencia (opcional)' ?></label>
+                            <label id="report-evidencia-label" class="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gray-800 border-2 border-dashed border-gray-600 rounded-xl cursor-pointer hover:border-primary/50 hover:bg-gray-800/80 transition group">
+                                <i class="fas fa-camera text-gray-500 group-hover:text-primary transition"></i>
+                                <span id="report-evidencia-text" class="text-sm text-gray-500 group-hover:text-gray-300 transition"><?= t('nav.report_evidence_upload') ?? 'Subir captura de pantalla' ?></span>
+                                <input type="file" id="report-evidencia" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="previewEvidence(this)">
+                            </label>
+                            <div id="report-evidencia-preview" class="hidden mt-2 relative">
+                                <img id="report-evidencia-img" class="w-full max-h-32 object-cover rounded-lg border border-gray-600" alt="Preview">
+                                <button type="button" onclick="clearEvidence()" class="absolute top-1 right-1 w-6 h-6 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-500 transition">
+                                    <i class="fas fa-times text-white text-xs"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 

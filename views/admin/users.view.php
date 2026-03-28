@@ -24,22 +24,22 @@
     <!-- Pestañas + boton exportar -->
     <div class="flex items-center justify-between mb-6">
         <div class="flex space-x-1 bg-gray-800/50 rounded-lg p-1 w-fit">
-            <button class="tab-btn px-4 py-2 text-sm font-medium rounded-md transition <?= $tab === 'todos' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>" data-tab="todos">
+            <a href="<?= url('/admin/users') ?>?tab=todos" class="px-4 py-2 text-sm font-medium rounded-md transition <?= $tab === 'todos' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">
                 Todos los usuarios
-                <span class="ml-1 text-[10px] px-1.5 py-0.5 rounded-full bg-gray-600/50"><?= count($allUsers) ?></span>
-            </button>
-            <button class="tab-btn px-4 py-2 text-sm font-medium rounded-md transition <?= $tab === 'verificaciones' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>" data-tab="verificaciones">
+                <span class="ml-1 text-xs px-1.5 py-0.5 rounded-full bg-gray-600/50"><?= count($allUsers) ?></span>
+            </a>
+            <a href="<?= url('/admin/users') ?>?tab=verificaciones" class="px-4 py-2 text-sm font-medium rounded-md transition <?= $tab === 'verificaciones' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">
                 Verificaciones
                 <?php if (!empty($pendingUsers)): ?>
-                <span class="ml-1 text-[10px] px-1.5 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400"><?= count($pendingUsers) ?></span>
+                <span class="ml-1 text-xs px-1.5 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400"><?= count($pendingUsers) ?></span>
                 <?php endif; ?>
-            </button>
-            <button class="tab-btn px-4 py-2 text-sm font-medium rounded-md transition <?= $tab === 'baneados' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>" data-tab="baneados">
+            </a>
+            <a href="<?= url('/admin/users') ?>?tab=baneados" class="px-4 py-2 text-sm font-medium rounded-md transition <?= $tab === 'baneados' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">
                 Suspendidos
                 <?php if (!empty($bannedUsers)): ?>
-                <span class="ml-1 text-[10px] px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-400"><?= count($bannedUsers) ?></span>
+                <span class="ml-1 text-xs px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-400"><?= count($bannedUsers) ?></span>
                 <?php endif; ?>
-            </button>
+            </a>
         </div>
         <a href="<?= url('/admin/users') ?>?action=export_csv" class="px-4 py-2 text-sm font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition flex items-center gap-2 border border-gray-600">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
@@ -48,7 +48,8 @@
     </div>
 
     <!-- Pestaña 1: Todos los usuarios -->
-    <div class="tab-panel <?= $tab !== 'todos' ? 'hidden' : '' ?>" id="tab-todos">
+    <?php if ($tab === 'todos'): ?>
+    <div id="tab-todos">
         <!-- Filtros -->
         <form method="GET" action="<?= url('/admin/users') ?>" class="flex flex-wrap items-center gap-3 mb-5">
             <input type="hidden" name="tab" value="todos">
@@ -72,13 +73,13 @@
             <div class="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden">
                 <table class="w-full text-sm">
                     <thead><tr class="border-b border-gray-700">
-                        <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Usuario</th>
-                        <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Correo</th>
-                        <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Rol</th>
-                        <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Verificacion</th>
-                        <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Premium</th>
-                        <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Registro</th>
-                        <th class="px-4 py-3 text-right text-xs text-gray-500 font-medium">Acciones</th>
+                        <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Usuario</th>
+                        <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Correo</th>
+                        <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Rol</th>
+                        <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Verificacion</th>
+                        <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Premium</th>
+                        <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Registro</th>
+                        <th class="px-4 py-3 text-right text-xs text-gray-500 font-semibold uppercase tracking-wider">Acciones</th>
                     </tr></thead>
                     <tbody>
                         <?php foreach ($allUsers as $u): ?>
@@ -93,7 +94,7 @@
                             </td>
                             <td class="px-4 py-3 text-gray-400 text-xs"><?= htmlspecialchars($u['correo']) ?></td>
                             <td class="px-4 py-3">
-                                <span class="px-2 py-0.5 text-[10px] rounded-full font-medium
+                                <span class="px-2 py-0.5 text-xs rounded-full font-medium
                                     <?php
                                     $roleName = $u['nombreRol'] ?? 'Usuario';
                                     if ($roleName === 'Usuario Premium') echo 'bg-yellow-500/10 text-yellow-400';
@@ -105,16 +106,16 @@
                             </td>
                             <td class="px-4 py-3">
                                 <?php if ((int)$u['estado_verificacion'] === 2): ?>
-                                    <span class="px-2 py-0.5 text-[10px] rounded-full bg-green-500/10 text-green-400">Verificado</span>
+                                    <span class="px-2 py-0.5 text-xs rounded-full bg-green-500/10 text-green-400">Verificado</span>
                                 <?php elseif ((int)$u['estado_verificacion'] === 1): ?>
-                                    <span class="px-2 py-0.5 text-[10px] rounded-full bg-yellow-500/10 text-yellow-400">Pendiente</span>
+                                    <span class="px-2 py-0.5 text-xs rounded-full bg-yellow-500/10 text-yellow-400">Pendiente</span>
                                 <?php else: ?>
-                                    <span class="px-2 py-0.5 text-[10px] rounded-full bg-gray-700 text-gray-400">No verif.</span>
+                                    <span class="px-2 py-0.5 text-xs rounded-full bg-gray-700 text-gray-400">No verif.</span>
                                 <?php endif; ?>
                             </td>
                             <td class="px-4 py-3">
                                 <?php if ($u['premium']): ?>
-                                    <span class="px-2 py-0.5 text-[10px] rounded-full bg-yellow-500/10 text-yellow-400 font-medium">Premium</span>
+                                    <span class="px-2 py-0.5 text-xs rounded-full bg-yellow-500/10 text-yellow-400 font-medium">Premium</span>
                                 <?php else: ?>
                                     <span class="text-gray-500 text-xs">-</span>
                                 <?php endif; ?>
@@ -125,15 +126,15 @@
                                     <form method="POST" action="<?= url('/admin/users') ?>" class="inline-flex items-center gap-1">
                                         <input type="hidden" name="action" value="update_role">
                                         <input type="hidden" name="user_id" value="<?= $u['idUsuario'] ?>">
-                                        <select name="new_role" class="px-2 py-1 bg-gray-900 border border-gray-600 rounded text-[11px] text-gray-300 focus:outline-none focus:border-primary">
+                                        <select name="new_role" class="px-2 py-1 bg-gray-900 border border-gray-600 rounded text-xs text-gray-300 focus:outline-none focus:border-primary">
                                             <option value="2" <?= (int)($u['idRol'] ?? 2) === 2 ? 'selected' : '' ?>>Usuario</option>
                                             <option value="3" <?= (int)($u['idRol'] ?? 2) === 3 ? 'selected' : '' ?>>Premium</option>
                                             <option value="4" <?= (int)($u['idRol'] ?? 2) === 4 ? 'selected' : '' ?>>Institucion</option>
                                         </select>
-                                        <button type="submit" class="px-2 py-1 text-[10px] font-medium bg-primary/10 text-primary rounded hover:bg-primary/20 transition">Cambiar</button>
+                                        <button type="submit" class="px-2 py-1 text-xs font-medium bg-primary/10 text-primary rounded hover:bg-primary/20 transition">Cambiar</button>
                                     </form>
                                     <button onclick="openBanModal(<?= $u['idUsuario'] ?>, '<?= htmlspecialchars(addslashes($u['nombre'])) ?>')"
-                                            class="px-2 py-1 text-[10px] font-medium bg-red-500/10 text-red-400 rounded hover:bg-red-500/20 transition" title="Suspender">
+                                            class="px-2 py-1 text-xs font-medium bg-red-500/10 text-red-400 rounded hover:bg-red-500/20 transition" title="Suspender">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" /></svg>
                                     </button>
                                 </div>
@@ -145,9 +146,11 @@
             </div>
         <?php endif; ?>
     </div>
+    <?php endif; ?>
 
     <!-- Pestaña 2: Verificaciones -->
-    <div class="tab-panel <?= $tab !== 'verificaciones' ? 'hidden' : '' ?>" id="tab-verificaciones">
+    <?php if ($tab === 'verificaciones'): ?>
+    <div id="tab-verificaciones">
         <?php if (empty($pendingUsers)): ?>
             <div class="text-center py-20">
                 <div class="w-14 h-14 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -171,7 +174,7 @@
                                 <p class="font-medium text-white truncate"><?= htmlspecialchars($u['nombre']) ?></p>
                                 <p class="text-xs text-gray-400 truncate"><?= htmlspecialchars($u['correo']) ?></p>
                             </div>
-                            <span class="px-2 py-0.5 text-[10px] rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 font-medium shrink-0">Pendiente</span>
+                            <span class="px-2 py-0.5 text-xs rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 font-medium shrink-0">Pendiente</span>
                         </div>
                         <p class="text-xs text-gray-500 shrink-0"><?= date('d/m/Y H:i', strtotime($u['creado_en'])) ?></p>
                         <div class="flex items-center gap-2 shrink-0">
@@ -216,9 +219,11 @@
             </p>
         <?php endif; ?>
     </div>
+    <?php endif; ?>
 
     <!-- Pestaña 3: Usuarios suspendidos -->
-    <div class="tab-panel <?= $tab !== 'baneados' ? 'hidden' : '' ?>" id="tab-baneados">
+    <?php if ($tab === 'baneados'): ?>
+    <div id="tab-baneados">
         <?php if (empty($bannedUsers)): ?>
             <div class="text-center py-20">
                 <div class="w-14 h-14 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -242,7 +247,7 @@
                                 <p class="font-medium text-white truncate"><?= htmlspecialchars($u['nombre']) ?></p>
                                 <p class="text-xs text-gray-400 truncate"><?= htmlspecialchars($u['correo']) ?></p>
                             </div>
-                            <span class="px-2 py-0.5 text-[10px] rounded-full bg-red-500/10 text-red-400 border border-red-500/20 font-medium shrink-0">Suspendido</span>
+                            <span class="px-2 py-0.5 text-xs rounded-full bg-red-500/10 text-red-400 border border-red-500/20 font-medium shrink-0">Suspendido</span>
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-xs text-gray-400"><span class="text-gray-500">Motivo:</span> <?= htmlspecialchars($u['ban_motivo'] ?? '-') ?></p>
@@ -267,6 +272,7 @@
             </div>
         <?php endif; ?>
     </div>
+    <?php endif; ?>
 
 </div>
 </main>
@@ -316,23 +322,6 @@
 <?php require_once __DIR__ . '/layout/footer.view.php'; ?>
 
 <script>
-    // Pestañas
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const tabPanels = document.querySelectorAll('.tab-panel');
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tab = btn.dataset.tab;
-            tabPanels.forEach(p => p.classList.add('hidden'));
-            document.getElementById('tab-' + tab).classList.remove('hidden');
-            tabBtns.forEach(b => {
-                b.classList.toggle('bg-gray-700', b === btn);
-                b.classList.toggle('text-white', b === btn);
-                b.classList.toggle('text-gray-400', b !== btn);
-            });
-            window.history.replaceState({}, '', `<?= url('/admin/users') ?>?tab=${tab}`);
-        });
-    });
-
     // Modal de ban
     function openBanModal(userId, userName) {
         document.getElementById('ban-user-id').value = userId;

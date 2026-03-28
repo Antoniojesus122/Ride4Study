@@ -33,10 +33,47 @@ class ReportController
     public function getReportsByType(string $tipo): array
     {
         $estado = $_GET['estado'] ?? null;
-        if ($estado && !in_array($estado, ['pendiente', 'resuelto'])) {
+        if ($estado && !in_array($estado, ['pendiente', 'en_revision', 'resuelto'])) {
             $estado = null;
         }
         return $this->report->getReportsByType($tipo, $estado);
+    }
+
+    // Obtener estadisticas
+    public function getStats(): array
+    {
+        return $this->report->getStats();
+    }
+
+    // Obtener historial de un usuario reportado
+    public function getUserHistory(int $userId): array
+    {
+        return [
+            'historial' => $this->report->getHistoryByUser($userId),
+            'sanciones' => $this->report->countSanctionsByUser($userId),
+        ];
+    }
+
+    // Tomar un reporte (asignar admin "en revision")
+    public function takeReport($tab = 'usuario')
+    {
+        $idReporte = $_POST['idReporte'] ?? null;
+        if ($idReporte) {
+            $this->report->assignAdmin((int)$idReporte, (int)$_SESSION['user_id']);
+            redirectWithFlash(url('/admin/reports'), 'success', 'assigned', $tab);
+        }
+        redirectWithFlash(url('/admin/reports'), 'error', 'missing_id', $tab);
+    }
+
+    // Liberar un reporte (volver a pendiente)
+    public function releaseReport($tab = 'usuario')
+    {
+        $idReporte = $_POST['idReporte'] ?? null;
+        if ($idReporte) {
+            $this->report->unassignAdmin((int)$idReporte);
+            redirectWithFlash(url('/admin/reports'), 'success', 'released', $tab);
+        }
+        redirectWithFlash(url('/admin/reports'), 'error', 'missing_id', $tab);
     }
 
     // Resolver reporte con accion y nota del admin
@@ -55,14 +92,30 @@ class ReportController
             redirectWithFlash(url('/admin/reports'), 'error', 'not_found', $tab);
         }
 
-        // Marcar como resuelto con nota
-        $this->report->markAsResolved((int)$idReporte, $notaAdmin);
+        // Marcar como resuelto con nota y accion
+        $this->report->markAsResolved((int)$idReporte, $notaAdmin, $accion);
 
         // Ejecutar accion sobre el reportado
-        if ($accion === 'advertir' && !empty($reporteInfo['idUsuarioReportado'])) {
-            $this->advertirUsuario((int)$reporteInfo['idUsuarioReportado'], $reporteInfo);
-        } elseif ($accion === 'eliminar_contenido') {
-            $this->eliminarContenido($reporteInfo);
+        switch ($accion) {
+            case 'advertir':
+                if (!empty($reporteInfo['idUsuarioReportado'])) {
+                    $this->advertirUsuario((int)$reporteInfo['idUsuarioReportado'], $reporteInfo);
+                }
+                break;
+            case 'eliminar_contenido':
+                $this->eliminarContenido($reporteInfo);
+                break;
+            case 'suspender':
+                if (!empty($reporteInfo['idUsuarioReportado'])) {
+                    $dias = (int)($_POST['dias_suspension'] ?? 7);
+                    $this->suspenderUsuario((int)$reporteInfo['idUsuarioReportado'], $dias, $reporteInfo);
+                }
+                break;
+            case 'banear':
+                if (!empty($reporteInfo['idUsuarioReportado'])) {
+                    $this->banearUsuario((int)$reporteInfo['idUsuarioReportado'], $reporteInfo);
+                }
+                break;
         }
 
         // Notificar al usuario que envio el reporte
@@ -120,6 +173,94 @@ class ReportController
         }
     }
 
+    // Suspender usuario temporalmente
+    private function suspenderUsuario(int $userId, int $dias, array $reporteInfo): void
+    {
+        try {
+            $hasta = date('Y-m-d H:i:s', strtotime("+{$dias} days"));
+            $motivo = 'Suspension por reporte #' . $reporteInfo['idReporte'] . ': ' . ($reporteInfo['motivo'] ?? $reporteInfo['tipo']);
+
+            $stmt = $this->db->prepare("UPDATE usuarios SET baneado = 1, ban_motivo = :motivo, ban_hasta = :hasta WHERE idUsuario = :id");
+            $stmt->execute([':id' => $userId, ':motivo' => $motivo, ':hasta' => $hasta]);
+
+            $this->notification->create(
+                $userId,
+                "Tu cuenta ha sido suspendida temporalmente ({$dias} dias) por incumplir las normas de la comunidad.",
+                'fas fa-ban',
+                url('/dashboard')
+            );
+
+            $userData = $this->user->getUserById($userId);
+            if ($userData && $this->mailService && (int)($userData['notificaciones_email'] ?? 0) === 1) {
+                $contenido = "
+                    <p>Tu cuenta ha sido <strong style=\"color:#ef4444;\">suspendida temporalmente</strong> por {$dias} dias.</p>
+
+                    <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#ef4444;\">Motivo:</strong> " . htmlspecialchars($reporteInfo['motivo'] ?? $reporteInfo['tipo']) . "</p>
+                        <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#ef4444;\">Hasta:</strong> " . date('d/m/Y H:i', strtotime($hasta)) . "</p>
+                    </div>
+
+                    <p style=\"color:#94a3b8;\">Podras volver a usar la plataforma tras la fecha indicada.</p>
+                ";
+
+                $html = $this->mailService->generarPlantilla(
+                    $userData['nombre'],
+                    'Cuenta suspendida',
+                    $contenido,
+                    null,
+                    fullUrl('/dashboard'),
+                    'Ir a Ride4Study'
+                );
+                $this->mailService->send($userData['correo'], $userData['nombre'], 'Cuenta suspendida - Ride4Study', $html);
+            }
+        } catch (Exception $e) {
+            error_log("Error suspension usuario: " . $e->getMessage());
+        }
+    }
+
+    // Banear usuario permanentemente
+    private function banearUsuario(int $userId, array $reporteInfo): void
+    {
+        try {
+            $motivo = 'Ban permanente por reporte #' . $reporteInfo['idReporte'] . ': ' . ($reporteInfo['motivo'] ?? $reporteInfo['tipo']);
+
+            $stmt = $this->db->prepare("UPDATE usuarios SET baneado = 1, ban_motivo = :motivo, ban_hasta = NULL WHERE idUsuario = :id");
+            $stmt->execute([':id' => $userId, ':motivo' => $motivo]);
+
+            $this->notification->create(
+                $userId,
+                'Tu cuenta ha sido suspendida permanentemente por incumplir gravemente las normas de la comunidad.',
+                'fas fa-ban',
+                url('/dashboard')
+            );
+
+            $userData = $this->user->getUserById($userId);
+            if ($userData && $this->mailService && (int)($userData['notificaciones_email'] ?? 0) === 1) {
+                $contenido = "
+                    <p>Tu cuenta ha sido <strong style=\"color:#ef4444;\">suspendida permanentemente</strong> por incumplir gravemente las normas de la comunidad.</p>
+
+                    <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
+                        <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#ef4444;\">Motivo:</strong> " . htmlspecialchars($reporteInfo['motivo'] ?? $reporteInfo['tipo']) . "</p>
+                    </div>
+
+                    <p style=\"color:#94a3b8;\">Si crees que se trata de un error, puedes contactarnos respondiendo a este email.</p>
+                ";
+
+                $html = $this->mailService->generarPlantilla(
+                    $userData['nombre'],
+                    'Cuenta suspendida permanentemente',
+                    $contenido,
+                    null,
+                    fullUrl('/dashboard'),
+                    'Ir a Ride4Study'
+                );
+                $this->mailService->send($userData['correo'], $userData['nombre'], 'Cuenta suspendida - Ride4Study', $html);
+            }
+        } catch (Exception $e) {
+            error_log("Error ban usuario: " . $e->getMessage());
+        }
+    }
+
     // Eliminar el contenido reportado (anuncio o mensaje)
     private function eliminarContenido(array $reporteInfo): void
     {
@@ -165,6 +306,8 @@ class ReportController
                 $accionTexto = match ($accion) {
                     'advertir'           => 'Se ha enviado una advertencia al usuario reportado.',
                     'eliminar_contenido' => 'El contenido reportado ha sido eliminado.',
+                    'suspender'          => 'El usuario reportado ha sido suspendido temporalmente.',
+                    'banear'             => 'El usuario reportado ha sido suspendido de la plataforma.',
                     default              => 'El reporte ha sido revisado.',
                 };
 

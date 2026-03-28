@@ -318,10 +318,15 @@ CREATE TABLE `reportes` (
   `idChat` int(11) DEFAULT NULL,
   `idUsuarioQueReporta` int(11) NOT NULL,
   `mensaje` text NOT NULL,
+  `evidencia_img` varchar(255) DEFAULT NULL,
   `motivo` varchar(50) DEFAULT NULL,
   `nota_admin` text DEFAULT NULL,
-  `estado` enum('pendiente','resuelto') DEFAULT 'pendiente',
-  `creado_en` datetime DEFAULT current_timestamp()
+  `admin_asignado` int(11) DEFAULT NULL,
+  `accion_tomada` varchar(50) DEFAULT NULL,
+  `estado` enum('pendiente','en_revision','resuelto') DEFAULT 'pendiente',
+  `prioridad` enum('baja','media','alta','urgente') DEFAULT 'media',
+  `creado_en` datetime DEFAULT current_timestamp(),
+  `resuelto_en` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

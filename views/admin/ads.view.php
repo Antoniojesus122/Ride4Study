@@ -43,15 +43,15 @@
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden">
             <table class="w-full text-sm">
                 <thead><tr class="border-b border-gray-700">
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">ID</th>
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Tipo</th>
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Origen</th>
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Destino</th>
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Fecha</th>
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Usuario</th>
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Precio</th>
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Plazas</th>
-                    <th class="px-4 py-3 text-right text-xs text-gray-500 font-medium">Acciones</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">ID</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Tipo</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Origen</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Destino</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Fecha</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Usuario</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Precio</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Plazas</th>
+                    <th class="px-4 py-3 text-right text-xs text-gray-500 font-semibold uppercase tracking-wider">Acciones</th>
                 </tr></thead>
                 <tbody>
                     <?php foreach ($ads as $ad): ?>
@@ -64,7 +64,7 @@
                         </td>
                         <td class="px-4 py-3 text-gray-300 max-w-[120px] truncate"><?= htmlspecialchars($ad['nombreOrigen']) ?></td>
                         <td class="px-4 py-3 text-gray-300 max-w-[120px] truncate"><?= htmlspecialchars($ad['nombreDestino']) ?></td>
-                        <td class="px-4 py-3 text-gray-400 text-xs"><?= date('d/m/Y', strtotime($ad['fechaSalida'])) ?></td>
+                        <td class="px-4 py-3.5 text-gray-400 text-sm"><?= date('d/m/Y', strtotime($ad['fechaSalida'])) ?></td>
                         <td class="px-4 py-3 text-gray-300"><?= htmlspecialchars($ad['usuario_nombre']) ?></td>
                         <td class="px-4 py-3 text-green-400 font-medium"><?= $ad['precio'] ? $ad['precio'] . '&euro;' : '-' ?></td>
                         <td class="px-4 py-3 text-gray-400"><?= $ad['plazasDisponibles'] ?? '-' ?></td>

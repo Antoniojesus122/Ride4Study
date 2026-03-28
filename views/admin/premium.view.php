@@ -24,26 +24,26 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
         <div class="bg-yellow-500/5 border border-yellow-500/20 rounded-xl p-5">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-yellow-400">
+                <div class="w-12 h-12 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-yellow-400">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
                     </svg>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold text-white"><?= $totalPremium ?></p>
+                    <p class="text-3xl font-bold text-white"><?= $totalPremium ?></p>
                     <p class="text-xs text-gray-400">Usuarios Premium activos</p>
                 </div>
             </div>
         </div>
         <div class="bg-red-500/5 border border-red-500/20 rounded-xl p-5">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-red-400">
+                <div class="w-12 h-12 rounded-lg bg-red-500/10 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold text-white"><?= $expiringCount ?></p>
+                    <p class="text-3xl font-bold text-white"><?= $expiringCount ?></p>
                     <p class="text-xs text-gray-400">Expiran en 7 dias</p>
                 </div>
             </div>
@@ -52,7 +52,7 @@
 
     <!-- Hacer a un usuario premium -->
     <div class="mb-6 bg-gray-800/50 border border-gray-700 rounded-xl p-5">
-        <h3 class="text-sm font-semibold text-white mb-3">Conceder Premium manualmente</h3>
+        <h3 class="text-base font-semibold text-white mb-3">Conceder Premium manualmente</h3>
         <form method="POST" action="<?= url('/admin/premium') ?>" class="flex flex-wrap items-end gap-3">
             <input type="hidden" name="action" value="grant">
             <div class="flex-1 min-w-[200px]">
@@ -74,12 +74,12 @@
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden">
             <table class="w-full text-sm">
                 <thead><tr class="border-b border-gray-700">
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">ID</th>
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Usuario</th>
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Correo</th>
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Expira</th>
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Estado</th>
-                    <th class="px-4 py-3 text-right text-xs text-gray-500 font-medium">Acciones</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">ID</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Usuario</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Correo</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Expira</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Estado</th>
+                    <th class="px-4 py-3 text-right text-xs text-gray-500 font-semibold uppercase tracking-wider">Acciones</th>
                 </tr></thead>
                 <tbody>
                     <?php foreach ($premiumUsers as $pu):
@@ -96,9 +96,9 @@
                         </td>
                         <td class="px-4 py-3">
                             <?php if ($isExpiring): ?>
-                                <span class="px-2 py-0.5 text-[10px] rounded-full bg-red-500/10 text-red-400 font-medium"><?= $daysLeft ?> dias</span>
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-red-500/10 text-red-400 font-medium"><?= $daysLeft ?> dias</span>
                             <?php else: ?>
-                                <span class="px-2 py-0.5 text-[10px] rounded-full bg-green-500/10 text-green-400 font-medium">Activo</span>
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-green-500/10 text-green-400 font-medium">Activo</span>
                             <?php endif; ?>
                         </td>
                         <td class="px-4 py-3 text-right">

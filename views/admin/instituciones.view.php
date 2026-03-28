@@ -27,7 +27,7 @@
 
     <!-- Formulario para crear institucion -->
     <div id="create-form" class="hidden mb-6 bg-gray-800/50 border border-gray-700 rounded-xl p-5">
-        <h3 class="text-sm font-semibold text-white mb-4">Nueva institucion</h3>
+        <h3 class="text-base font-semibold text-white mb-4">Nueva institucion</h3>
         <form method="POST" action="<?= url('/admin/instituciones') ?>" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input type="hidden" name="action" value="create">
             <input type="text" name="nombre" placeholder="Nombre *" required class="px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
@@ -48,12 +48,12 @@
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden">
             <table class="w-full text-sm">
                 <thead><tr class="border-b border-gray-700">
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Nombre</th>
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Correo</th>
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Telefono</th>
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Direccion</th>
-                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-medium">Fecha</th>
-                    <th class="px-4 py-3 text-right text-xs text-gray-500 font-medium">Acciones</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Nombre</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Correo</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Telefono</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Direccion</th>
+                    <th class="px-4 py-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Fecha</th>
+                    <th class="px-4 py-3 text-right text-xs text-gray-500 font-semibold uppercase tracking-wider">Acciones</th>
                 </tr></thead>
                 <tbody>
                     <?php foreach ($instituciones as $inst): ?>

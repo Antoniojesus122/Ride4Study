@@ -25,28 +25,28 @@
 
     <!-- Logo -->
     <div class="flex items-center h-16 px-4 border-b border-gray-800 shrink-0">
-        <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-            <span class="text-primary font-black text-sm">R4</span>
+        <div class="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+            <span class="text-primary font-black text-base">R4</span>
         </div>
-        <span class="nav-label ml-3 text-sm font-bold text-white">Ride4Study</span>
+        <span class="nav-label ml-3 text-base font-bold text-white">Ride4Study</span>
     </div>
 
     <!-- Navegacion -->
-    <nav class="flex-1 py-4 space-y-1 overflow-y-auto">
+    <nav class="flex-1 py-4 space-y-1.5 overflow-y-auto">
         <?php foreach ($navItems as $item):
             $active = adminIsActive($item['route'], $currentPath, $basePath);
         ?>
         <a href="<?= url($item['route']) ?><?= $item['route'] === '/admin/reports' ? '?tab=usuario' : '' ?>"
-           class="flex items-center h-11 px-0 relative transition-colors <?= $active ? 'text-primary bg-primary/5' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/30' ?>">
+           class="flex items-center h-12 px-0 relative transition-colors <?= $active ? 'text-primary bg-primary/5' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/30' ?>">
             <?php if ($active): ?>
                 <div class="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-primary rounded-r-full"></div>
             <?php endif; ?>
             <div class="w-16 flex items-center justify-center shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-[22px] h-[22px]">
                     <?= $item['icon'] ?>
                 </svg>
             </div>
-            <span class="nav-label text-sm font-medium"><?= $item['label'] ?></span>
+            <span class="nav-label text-[15px] font-medium"><?= $item['label'] ?></span>
         </a>
         <?php endforeach; ?>
     </nav>

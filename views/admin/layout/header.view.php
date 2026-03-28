@@ -39,12 +39,14 @@
             }
         </script>
         <style>
+            html { font-size: 16px; }
+
             .admin-sidebar {
                 width: 64px;
                 transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
             .admin-sidebar:hover {
-                width: 240px;
+                width: 260px;
             }
             .admin-sidebar .nav-label,
             .admin-sidebar .logo-text {
