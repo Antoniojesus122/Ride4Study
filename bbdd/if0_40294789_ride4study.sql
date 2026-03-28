@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 26-03-2026 a las 23:37:27
+-- Tiempo de generación: 27-03-2026 a las 16:12:46
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -110,6 +110,23 @@ INSERT INTO `conversations` (`idConversation`, `idAnuncio`, `user1_id`, `user2_i
 (16, 38, 9, 29, '2026-03-14 14:11:31'),
 (17, 43, 9, 29, '2026-03-23 17:59:49'),
 (18, 46, 9, 29, '2026-03-26 22:09:21');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `email_verifications`
+--
+
+CREATE TABLE `email_verifications` (
+  `id` int(11) NOT NULL,
+  `correo` varchar(255) NOT NULL,
+  `nombre` varchar(100) NOT NULL,
+  `contrasena` varchar(255) NOT NULL,
+  `telefono` varchar(15) DEFAULT NULL,
+  `code` varchar(6) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -409,7 +426,8 @@ INSERT INTO `usuarios` (`idUsuario`, `nombre`, `correo`, `telefono`, `ciudad`, `
 (26, 'fewrf', 'ibt_ag1320@yopmail.com', '0', NULL, NULL, NULL, NULL, NULL, '$2y$10$xVeedDxKL1eAjtBDjwqI0.o5LjBkzzBu8Q2V72P6105DtjfFT.gF2', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL, 0, NULL, NULL, NULL, 0.00),
 (27, 'González Domingo', 'ibt_ag4320@yopmail.com', '423432432', NULL, NULL, NULL, NULL, NULL, '$2y$10$KSlMQQzRQogMrWK2qEBLNePHIWt4SJWnsJiA76VDWIe4yB0hUN8we', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL, 0, NULL, NULL, NULL, 0.00),
 (28, 'Antonio', 'ag01@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$2nU1crqEcs0V4N6XHHj.JOzEa7UqzNiUi4kF1osr0TxUn7GJRV/Qq', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL, 0, NULL, NULL, NULL, 0.00),
-(29, 'Paco', 'paco@yopmail.com', '624897163', '', '', '', NULL, '', '$2y$10$ZlEV1PIn3YA7NGXc3KbJdujWumVnSSoYNkIX69jSVVxSkI2cK2nHK', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 1, '2026-04-17 00:15:49', NULL, 0, NULL, NULL, '[\"silencio\",\"charla\"]', 0.00);
+(29, 'Paco', 'paco@yopmail.com', '624897163', '', '', '', NULL, '', '$2y$10$ZlEV1PIn3YA7NGXc3KbJdujWumVnSSoYNkIX69jSVVxSkI2cK2nHK', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 1, '2026-04-17 00:15:49', NULL, 0, NULL, NULL, '[\"silencio\",\"charla\"]', 0.00),
+(30, 'Manuel Hernandez', 'manuel@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$BbKvPG3JLhWVncZYG1a6A.JA6zmxGeGrCQPv8jVZMErPJLIZ.Ex..', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-27 14:53:37', 0, NULL, NULL, 0, NULL, NULL, NULL, 0.00);
 
 -- --------------------------------------------------------
 
@@ -495,6 +513,14 @@ ALTER TABLE `conversations`
   ADD UNIQUE KEY `idAnuncio` (`idAnuncio`,`user1_id`,`user2_id`),
   ADD KEY `user1_id` (`user1_id`),
   ADD KEY `user2_id` (`user2_id`);
+
+--
+-- Indices de la tabla `email_verifications`
+--
+ALTER TABLE `email_verifications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_correo` (`correo`),
+  ADD KEY `idx_expires` (`expires_at`);
 
 --
 -- Indices de la tabla `instituciones`
@@ -601,6 +627,12 @@ ALTER TABLE `conversations`
   MODIFY `idConversation` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
+-- AUTO_INCREMENT de la tabla `email_verifications`
+--
+ALTER TABLE `email_verifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT de la tabla `instituciones`
 --
 ALTER TABLE `instituciones`
@@ -652,7 +684,7 @@ ALTER TABLE `sesiones`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT de la tabla `viajes`
