@@ -41,6 +41,10 @@ class AdminDashboardController
         $recentAds = $this->getRecentAds();
         $usersByRole = $this->getUsersByRole();
 
+        $registrationsByMonth = $this->getRegistrationsByMonth();
+        $ridesByMonth = $this->getRidesByMonth();
+        $reportsByMonth = $this->getReportsByMonth();
+
         require_once __DIR__ . '/../../../views/admin/dashboard.view.php';
     }
 
@@ -127,5 +131,38 @@ class AdminDashboardController
             GROUP BY u.idRol, rol.nombreRol
         ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?? [];
+    }
+
+    private function getRegistrationsByMonth(): array
+    {
+        $stmt = $this->db->query("
+            SELECT DATE_FORMAT(creado_en, '%Y-%m') as mes, COUNT(*) as total
+            FROM usuarios WHERE idRol != 1
+            GROUP BY mes ORDER BY mes DESC LIMIT 12
+        ");
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_reverse($data);
+    }
+
+    private function getRidesByMonth(): array
+    {
+        $stmt = $this->db->query("
+            SELECT DATE_FORMAT(fechaPublicacion, '%Y-%m') as mes, COUNT(*) as total
+            FROM anuncios
+            GROUP BY mes ORDER BY mes DESC LIMIT 12
+        ");
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_reverse($data);
+    }
+
+    private function getReportsByMonth(): array
+    {
+        $stmt = $this->db->query("
+            SELECT DATE_FORMAT(creado_en, '%Y-%m') as mes, COUNT(*) as total
+            FROM reportes
+            GROUP BY mes ORDER BY mes DESC LIMIT 12
+        ");
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_reverse($data);
     }
 }

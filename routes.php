@@ -278,6 +278,18 @@ $router->any('/admin/reports', function () { // Gestión de reportes
         exit;
     }
 
+    // Vista previa del contenido reportado
+    if (isset($_GET['ajax']) && $_GET['ajax'] === 'preview' && isset($_GET['tipo'], $_GET['id'])) {
+        $controller->previewContent();
+        exit;
+    }
+
+    // Exportar CSV
+    if (($_GET['action'] ?? '') === 'export_csv' && $tab !== 'stats') {
+        $controller->exportCsv($tab);
+        exit;
+    }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['idReporte'])) {
         switch ($_POST['action']) {
             case 'resolve': $controller->resolve($tab); exit;
@@ -312,10 +324,11 @@ $router->any('/admin/instituciones', function () {
     $controller = new AdminInstitucionController();
     $action = $_POST['action'] ?? $_GET['action'] ?? 'list';
     match ($action) {
-        'create' => $controller->create(),
-        'edit'   => $controller->edit(),
-        'delete' => $controller->delete(),
-        default  => $controller->listAll(),
+        'create'     => $controller->create(),
+        'edit'       => $controller->edit(),
+        'delete'     => $controller->delete(),
+        'export_csv' => $controller->exportCsv(),
+        default      => $controller->listAll(),
     };
 });
 
@@ -329,8 +342,9 @@ $router->any('/admin/ads', function () {
     $controller = new AdminAdController();
     $action = $_POST['action'] ?? $_GET['action'] ?? 'list';
     match ($action) {
-        'delete' => $controller->deleteAd(),
-        default  => $controller->listAll(),
+        'delete'     => $controller->deleteAd(),
+        'export_csv' => $controller->exportCsv(),
+        default      => $controller->listAll(),
     };
 });
 
@@ -347,6 +361,65 @@ $router->any('/admin/profile', function () {
         'update_info'     => $controller->updateInfo(),
         'change_password' => $controller->changePassword(),
         default           => $controller->index(),
+    };
+});
+
+$router->any('/admin/messages', function () {
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
+        header('Location: ' . url('/login'));
+        exit;
+    }
+    require_once __DIR__ . '/app/controllers/admin/AdminMessageController.php';
+    $controller = new AdminMessageController();
+    $action = $_POST['action'] ?? $_GET['action'] ?? null;
+    match ($action) {
+        'view'                => $controller->viewConversation(),
+        'delete_message'      => $controller->deleteMessage(),
+        'delete_conversation' => $controller->deleteConversation(),
+        default               => $controller->index(),
+    };
+});
+
+$router->any('/admin/notifications', function () {
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
+        header('Location: ' . url('/login'));
+        exit;
+    }
+    require_once __DIR__ . '/app/controllers/admin/AdminNotificationController.php';
+    $controller = new AdminNotificationController();
+    $action = $_POST['action'] ?? $_GET['action'] ?? null;
+    match ($action) {
+        'send'    => $controller->send(),
+        'preview' => $controller->preview(),
+        default   => $controller->index(),
+    };
+});
+
+$router->any('/admin/logs', function () {
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
+        header('Location: ' . url('/login'));
+        exit;
+    }
+    require_once __DIR__ . '/app/controllers/admin/AdminLogController.php';
+    $controller = new AdminLogController();
+    $controller->index();
+});
+
+$router->any('/admin/config', function () {
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
+        header('Location: ' . url('/login'));
+        exit;
+    }
+    require_once __DIR__ . '/app/controllers/admin/AdminConfigController.php';
+    $controller = new AdminConfigController();
+    $action = $_POST['action'] ?? $_GET['action'] ?? null;
+    match ($action) {
+        'update' => $controller->update(),
+        default  => $controller->index(),
     };
 });
 

@@ -2,24 +2,45 @@
 require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../models/User.php';
 require_once __DIR__ . '/../../models/Notification.php';
+require_once __DIR__ . '/../../models/AdminLog.php';
+require_once __DIR__ . '/../../models/Payment.php';
 
 class AdminPremiumController {
     private PDO $db;
     private User $user;
+    private AdminLog $adminLog;
+    private Payment $payment;
 
     public function __construct() {
+        if (session_status() === PHP_SESSION_NONE) session_start();
         $database = new Database();
         $this->db = $database->connect();
         $this->user = new User($this->db);
+        $this->adminLog = new AdminLog($this->db);
+        $this->payment = new Payment($this->db);
     }
 
     public function listAll(): void {
+        $tab = $_GET['tab'] ?? 'usuarios';
         $premiumUsers = $this->getPremiumUsers();
         $totalPremium = count($premiumUsers);
         $expiringSoon = array_filter($premiumUsers, function($u) {
             return $u['premium_hasta'] && strtotime($u['premium_hasta']) <= strtotime('+7 days');
         });
         $expiringCount = count($expiringSoon);
+
+        // Historial de pagos con filtros
+        $paymentPage = max(1, (int)($_GET['ppage'] ?? 1));
+        $paymentFilters = [
+            'search'    => trim($_GET['psearch'] ?? ''),
+            'date_from' => $_GET['pdate_from'] ?? '',
+            'date_to'   => $_GET['pdate_to'] ?? '',
+            'origen'    => $_GET['porigen'] ?? '',
+        ];
+        $payments = $this->payment->getAll($paymentFilters, $paymentPage, 20);
+        $totalPayments = $this->payment->countAll($paymentFilters);
+        $totalPaymentPages = max(1, ceil($totalPayments / 20));
+        $paymentStats = $this->payment->getStats();
 
         require_once __DIR__ . '/../../../views/admin/premium.view.php';
     }
@@ -42,6 +63,9 @@ class AdminPremiumController {
         );
         $stmt->execute([':days' => $days, ':id' => $userId]);
 
+        // Registrar en historial de pagos como concesion manual
+        $this->payment->create($userId, null, null, 0.00, 'eur', 'completado', 'admin');
+
         // Notificacion in-app
         $notification = new Notification($this->db);
         $notification->create(
@@ -51,6 +75,7 @@ class AdminPremiumController {
             url('/premium')
         );
 
+        $this->adminLog->log((int)$_SESSION['user_id'], 'conceder_premium', 'usuario', $userId, "$days dias");
         redirectWithFlash(url('/admin/premium'), 'success', 'granted');
     }
 
@@ -79,6 +104,7 @@ class AdminPremiumController {
             url('/premium')
         );
 
+        $this->adminLog->log((int)$_SESSION['user_id'], 'revocar_premium', 'usuario', $userId, '');
         redirectWithFlash(url('/admin/premium'), 'success', 'revoked');
     }
 

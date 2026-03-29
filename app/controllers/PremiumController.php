@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/Payment.php';
 require_once __DIR__ . '/../../services/StripeService.php';
 require_once __DIR__ . '/../../services/MailService.php';
 require_once __DIR__ . '/../models/Notification.php';
@@ -109,6 +110,12 @@ class PremiumController {
         if ($current && $current['premium'] && $current['premium_hasta'] && $current['premium_hasta'] > date('Y-m-d H:i:s')) {
             redirectWithFlash(url('/premium'), 'success', 'activated');
         }
+
+        // Registrar pago en historial
+        $payment = new Payment($this->db);
+        $paymentIntent = $session['payment_intent'] ?? null;
+        $amount = isset($session['amount_total']) ? $session['amount_total'] / 100 : 4.99;
+        $payment->create((int)$_SESSION['user_id'], $sessionId, $paymentIntent, $amount, 'eur', 'completado', 'stripe');
 
         // Activar premium durante 30 días
         $this->activatePremium((int)$_SESSION['user_id']);

@@ -119,7 +119,7 @@ class Report
     }
 
     // Obtener reportes filtrados por tipo y opcionalmente por estado
-    public function getReportsByType(string $tipo, ?string $estado = null): array
+    public function getReportsByType(string $tipo, ?string $estado = null, ?string $motivo = null, ?string $dateFrom = null, ?string $dateTo = null): array
     {
         $sql = "SELECT r.*, u1.nombre AS reportado_nombre, u1.correo AS reportado_correo,
                        u2.nombre AS reporta_nombre, a.tipo AS anuncio_tipo,
@@ -138,6 +138,18 @@ class Report
         if ($estado) {
             $sql .= " AND r.estado = :estado";
             $params[':estado'] = $estado;
+        }
+        if ($motivo) {
+            $sql .= " AND r.motivo = :motivo";
+            $params[':motivo'] = $motivo;
+        }
+        if ($dateFrom) {
+            $sql .= " AND r.creado_en >= :date_from";
+            $params[':date_from'] = $dateFrom;
+        }
+        if ($dateTo) {
+            $sql .= " AND r.creado_en <= :date_to";
+            $params[':date_to'] = $dateTo . ' 23:59:59';
         }
 
         $sql .= " ORDER BY FIELD(r.estado, 'pendiente', 'en_revision', 'resuelto'), FIELD(r.prioridad, 'urgente', 'alta', 'media', 'baja'), r.creado_en DESC";

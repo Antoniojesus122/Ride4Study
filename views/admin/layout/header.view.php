@@ -39,24 +39,22 @@
             }
         </script>
         <style>
-            html { font-size: 16px; }
+            html { font-size: 18px; }
 
             .admin-sidebar {
-                width: 64px;
+                width: 72px;
                 transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
             .admin-sidebar:hover {
-                width: 260px;
+                width: 280px;
             }
-            .admin-sidebar .nav-label,
-            .admin-sidebar .logo-text {
+            .admin-sidebar .nav-label {
                 opacity: 0;
                 white-space: nowrap;
                 transition: opacity 0.15s ease;
                 pointer-events: none;
             }
-            .admin-sidebar:hover .nav-label,
-            .admin-sidebar:hover .logo-text {
+            .admin-sidebar:hover .nav-label {
                 opacity: 1;
                 pointer-events: auto;
             }
@@ -64,7 +62,9 @@
             ::-webkit-scrollbar-track { background: transparent; }
             ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
             ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+            .admin-sidebar nav::-webkit-scrollbar { display: none; }
         </style>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     </head>
 
     <body class="bg-gray-900 text-gray-100 font-sans" style="font-family: 'Inter', sans-serif;">

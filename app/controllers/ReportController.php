@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../models/Report.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Notification.php';
+require_once __DIR__ . '/../models/AdminLog.php';
 require_once __DIR__ . '/../../services/MailService.php';
 
 class ReportController
@@ -10,6 +11,7 @@ class ReportController
     private Report $report;
     private User $user;
     private Notification $notification;
+    private AdminLog $adminLog;
     private ?MailService $mailService = null;
 
     public function __construct(PDO $db)
@@ -21,6 +23,7 @@ class ReportController
         $this->report = new Report($db);
         $this->user = new User($db);
         $this->notification = new Notification($db);
+        $this->adminLog = new AdminLog($db);
         try { $this->mailService = new MailService(); } catch (Exception $e) { error_log('MailService: ' . $e->getMessage()); }
 
         if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
@@ -36,7 +39,42 @@ class ReportController
         if ($estado && !in_array($estado, ['pendiente', 'en_revision', 'resuelto'])) {
             $estado = null;
         }
-        return $this->report->getReportsByType($tipo, $estado);
+        $motivo = $_GET['motivo'] ?? null;
+        $dateFrom = $_GET['date_from'] ?? null;
+        $dateTo = $_GET['date_to'] ?? null;
+        return $this->report->getReportsByType($tipo, $estado, $motivo ?: null, $dateFrom ?: null, $dateTo ?: null);
+    }
+
+    // Exportar reportes a CSV
+    public function exportCsv(string $tipo): void
+    {
+        $reportes = $this->getReportsByType($tipo);
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="reportes_' . $tipo . '_' . date('Y-m-d') . '.csv"');
+
+        $output = fopen('php://output', 'w');
+        fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+        fputcsv($output, ['ID', 'Tipo', 'Estado', 'Prioridad', 'Motivo', 'Mensaje', 'Reportado', 'Reporta', 'Admin', 'Accion', 'Nota Admin', 'Fecha'], ';');
+
+        foreach ($reportes as $r) {
+            fputcsv($output, [
+                $r['idReporte'],
+                $r['tipo'],
+                $r['estado'],
+                $r['prioridad'] ?? '',
+                $r['motivo'] ?? '',
+                $r['mensaje'] ?? '',
+                $r['reportado_nombre'] ?? '',
+                $r['reporta_nombre'] ?? '',
+                $r['admin_nombre'] ?? '',
+                $r['accion_tomada'] ?? '',
+                $r['nota_admin'] ?? '',
+                $r['creado_en'],
+            ], ';');
+        }
+        fclose($output);
+        exit;
     }
 
     // Obtener estadisticas
@@ -60,6 +98,7 @@ class ReportController
         $idReporte = $_POST['idReporte'] ?? null;
         if ($idReporte) {
             $this->report->assignAdmin((int)$idReporte, (int)$_SESSION['user_id']);
+            $this->adminLog->log((int)$_SESSION['user_id'], 'tomar_reporte', 'reporte', (int)$idReporte, '');
             redirectWithFlash(url('/admin/reports'), 'success', 'assigned', $tab);
         }
         redirectWithFlash(url('/admin/reports'), 'error', 'missing_id', $tab);
@@ -121,6 +160,7 @@ class ReportController
         // Notificar al usuario que envio el reporte
         $this->notificarReportante($reporteInfo, $accion, $notaAdmin);
 
+        $this->adminLog->log((int)$_SESSION['user_id'], 'resolver_reporte', 'reporte', (int)$idReporte, "Accion: $accion" . ($notaAdmin ? " - $notaAdmin" : ''));
         redirectWithFlash(url('/admin/reports'), 'success', 'resolved', $tab);
     }
 
@@ -130,6 +170,7 @@ class ReportController
         $idReporte = $_POST['idReporte'] ?? null;
         if ($idReporte) {
             $this->report->deleteReport((int)$idReporte);
+            $this->adminLog->log((int)$_SESSION['user_id'], 'eliminar', 'reporte', (int)$idReporte, '');
             redirectWithFlash(url('/admin/reports'), 'success', 'deleted', $tab);
         }
         redirectWithFlash(url('/admin/reports'), 'error', 'missing_id', $tab);
@@ -282,6 +323,74 @@ class ReportController
         } catch (Exception $e) {
             error_log("Error eliminar contenido reportado: " . $e->getMessage());
         }
+    }
+
+    // Vista previa AJAX del contenido reportado
+    public function previewContent(): void
+    {
+        header('Content-Type: application/json');
+        $tipo = $_GET['tipo'] ?? '';
+        $id = (int)($_GET['id'] ?? 0);
+
+        if (!$id) {
+            echo json_encode(['error' => 'ID invalido']);
+            exit;
+        }
+
+        $data = [];
+
+        if ($tipo === 'usuario' && $id) {
+            $stmt = $this->db->prepare(
+                "SELECT u.idUsuario, u.nombre, u.correo, u.telefono, u.ciudad, u.institucion,
+                        u.estado_verificacion, u.premium, u.baneado, u.creado_en, u.fotoPerfil,
+                        r.nombreRol
+                 FROM usuarios u
+                 LEFT JOIN roles r ON u.idRol = r.idRol
+                 WHERE u.idUsuario = :id"
+            );
+            $stmt->execute([':id' => $id]);
+            $data = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+            $data['_tipo'] = 'usuario';
+        } elseif ($tipo === 'anuncio' && $id) {
+            $stmt = $this->db->prepare(
+                "SELECT a.*, u.nombre as usuario_nombre, u.correo as usuario_correo,
+                        lo.nombreLocalidad as nombreOrigen, ld.nombreLocalidad as nombreDestino
+                 FROM anuncios a
+                 JOIN usuarios u ON a.idUsuario = u.idUsuario
+                 JOIN localidades lo ON a.origen = lo.idLocalidad
+                 JOIN localidades ld ON a.destino = ld.idLocalidad
+                 WHERE a.idAnuncio = :id"
+            );
+            $stmt->execute([':id' => $id]);
+            $data = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+            $data['_tipo'] = 'anuncio';
+        } elseif ($tipo === 'chat' && $id) {
+            $stmt = $this->db->prepare(
+                "SELECT c.*, u1.nombre as user1_nombre, u2.nombre as user2_nombre
+                 FROM conversations c
+                 JOIN usuarios u1 ON c.user1_id = u1.idUsuario
+                 JOIN usuarios u2 ON c.user2_id = u2.idUsuario
+                 WHERE c.idConversation = :id"
+            );
+            $stmt->execute([':id' => $id]);
+            $conv = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+            // Recoger ultimos 10 mensajes
+            $msgStmt = $this->db->prepare(
+                "SELECT m.mensaje, m.fechaCreacion, u.nombre as emisor_nombre
+                 FROM mensajes m
+                 JOIN usuarios u ON m.idEmisor = u.idUsuario
+                 WHERE m.idConversation = :id
+                 ORDER BY m.fechaCreacion DESC LIMIT 10"
+            );
+            $msgStmt->execute([':id' => $id]);
+            $conv['mensajes'] = array_reverse($msgStmt->fetchAll(PDO::FETCH_ASSOC));
+            $conv['_tipo'] = 'chat';
+            $data = $conv;
+        }
+
+        echo json_encode($data);
+        exit;
     }
 
     // Notificar al usuario que envio el reporte

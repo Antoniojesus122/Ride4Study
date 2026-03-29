@@ -2,11 +2,13 @@
 require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../models/User.php';
 require_once __DIR__ . '/../../models/Notification.php';
+require_once __DIR__ . '/../../models/AdminLog.php';
 require_once __DIR__ . '/../../../services/MailService.php';
 
 class AdminUserController {
     private $db;
     private User $user;
+    private AdminLog $adminLog;
     private ?MailService $mailService = null;
 
     public function __construct() {
@@ -16,6 +18,7 @@ class AdminUserController {
         $database = new Database();
         $this->db = $database->connect();
         $this->user = new User($this->db);
+        $this->adminLog = new AdminLog($this->db);
         try { $this->mailService = new MailService(); } catch (Exception $e) { error_log('MailService: ' . $e->getMessage()); }
     }
 
@@ -46,6 +49,8 @@ class AdminUserController {
     private function getAllUsers(): array {
         $search = trim($_GET['search'] ?? '');
         $roleFilter = $_GET['rol'] ?? '';
+        $verificacionFilter = $_GET['verificacion'] ?? '';
+        $premiumFilter = $_GET['premium_filter'] ?? '';
 
         $query = "SELECT u.idUsuario, u.nombre, u.correo, u.telefono, u.ciudad, u.institucion,
                          u.estado_verificacion, u.premium, u.premium_hasta, u.creado_en,
@@ -63,6 +68,14 @@ class AdminUserController {
         if ($roleFilter !== '') {
             $query .= " AND u.idRol = :rol";
             $params[':rol'] = (int)$roleFilter;
+        }
+        if ($verificacionFilter !== '') {
+            $query .= " AND u.estado_verificacion = :verif";
+            $params[':verif'] = (int)$verificacionFilter;
+        }
+        if ($premiumFilter !== '') {
+            $query .= " AND u.premium = :prem";
+            $params[':prem'] = (int)$premiumFilter;
         }
 
         $query .= " ORDER BY u.idUsuario DESC";
@@ -83,6 +96,7 @@ class AdminUserController {
         if ($userId > 0 && in_array($newRole, [2, 3, 4])) {
             $stmt = $this->db->prepare("UPDATE usuarios SET idRol = :rol WHERE idUsuario = :id AND idRol != 1");
             $stmt->execute([':rol' => $newRole, ':id' => $userId]);
+            $this->adminLog->log((int)$_SESSION['user_id'], 'cambiar_rol', 'usuario', $userId, "Nuevo rol: $newRole");
         }
         redirectWithFlash(url('/admin/users'), 'success', 'role_updated', 'todos');
     }
@@ -105,6 +119,7 @@ class AdminUserController {
         }
 
         $this->user->setVerificationStatus($userId, 2);
+        $this->adminLog->log((int)$_SESSION['user_id'], 'aprobar_verificacion', 'usuario', $userId, $userData['nombre']);
 
         // Email de verificación aprobada
         if ($this->mailService && !empty($userData['notificaciones_email'])) {
@@ -144,6 +159,7 @@ class AdminUserController {
         }
 
         $this->user->setVerificationStatus($userId, 0);
+        $this->adminLog->log((int)$_SESSION['user_id'], 'rechazar_verificacion', 'usuario', $userId, $userData['nombre'] . ($reason ? ": $reason" : ''));
 
         // Email de verificación rechazada
         if ($this->mailService && !empty($userData['notificaciones_email'])) {
@@ -197,6 +213,7 @@ class AdminUserController {
         }
 
         $this->user->banUser($userId, $motivo, $hasta);
+        $this->adminLog->log((int)$_SESSION['user_id'], 'banear', 'usuario', $userId, $userData['nombre'] . " - $motivo ($duracion)");
 
         // Notificación in-app
         $notification = new Notification($this->db);
@@ -241,6 +258,7 @@ class AdminUserController {
 
         $userData = $this->user->getUserById($userId);
         $this->user->unbanUser($userId);
+        $this->adminLog->log((int)$_SESSION['user_id'], 'desbanear', 'usuario', $userId, $userData['nombre'] ?? '');
 
         // Notificación in-app
         $notification = new Notification($this->db);

@@ -3,27 +3,27 @@
 <?php require_once __DIR__ . '/layout/sidebar.view.php'; ?>
 
 <?php
-$motivoLabels = [
-    'spam' => 'Spam', 'ofensivo' => 'Contenido ofensivo', 'suplantacion' => 'Suplantacion',
-    'inapropiado' => 'Comportamiento inapropiado', 'fraude' => 'Fraude', 'otro' => 'Otro',
-];
-$prioridadConfig = [
-    'urgente' => ['color' => 'red',    'icon' => 'fas fa-fire',           'label' => 'Urgente'],
-    'alta'    => ['color' => 'orange', 'icon' => 'fas fa-arrow-up',       'label' => 'Alta'],
-    'media'   => ['color' => 'yellow', 'icon' => 'fas fa-minus',          'label' => 'Media'],
-    'baja'    => ['color' => 'blue',   'icon' => 'fas fa-arrow-down',     'label' => 'Baja'],
-];
-$estadoFilter = $_GET['estado'] ?? '';
-$adminId = $_SESSION['user_id'] ?? 0;
+    $motivoLabels = [
+        'spam' => 'Spam', 'ofensivo' => 'Contenido ofensivo', 'suplantacion' => 'Suplantacion',
+        'inapropiado' => 'Comportamiento inapropiado', 'fraude' => 'Fraude', 'otro' => 'Otro',
+    ];
+    $prioridadConfig = [
+        'urgente' => ['color' => 'red',    'icon' => 'fas fa-fire',           'label' => 'Urgente'],
+        'alta'    => ['color' => 'orange', 'icon' => 'fas fa-arrow-up',       'label' => 'Alta'],
+        'media'   => ['color' => 'yellow', 'icon' => 'fas fa-minus',          'label' => 'Media'],
+        'baja'    => ['color' => 'blue',   'icon' => 'fas fa-arrow-down',     'label' => 'Baja'],
+    ];
+    $estadoFilter = $_GET['estado'] ?? '';
+    $adminId = $_SESSION['user_id'] ?? 0;
 ?>
 
-<main class="ml-16 flex-1 min-h-screen flex flex-col">
+<main class="ml-[72px] flex-1 min-h-screen flex flex-col">
     <?php require_once __DIR__ . '/layout/topbar.view.php'; ?>
-    <div class="flex-1 p-8">
+    <div class="flex-1 p-10">
 
     <!-- Mensajes -->
     <?php if ($successMsg): ?>
-        <div class="mb-5 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-sm flex items-center gap-2">
+        <div class="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-base flex items-center gap-2">
             <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
             <?php
             echo match($successMsg) {
@@ -37,95 +37,121 @@ $adminId = $_SESSION['user_id'] ?? 0;
         </div>
     <?php endif; ?>
     <?php if ($errorMsg): ?>
-        <div class="mb-5 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">Error: <?= htmlspecialchars($errorMsg) ?></div>
+        <div class="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-base">Error: <?= htmlspecialchars($errorMsg) ?></div>
     <?php endif; ?>
 
-    <!-- Pestanas de tipo -->
-    <div class="flex flex-wrap items-center gap-3 mb-6">
-        <div class="flex space-x-1 bg-gray-800/50 rounded-lg p-1">
+    <!-- Pestañas + acciones -->
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex space-x-1.5 bg-gray-800/50 rounded-lg p-1.5">
             <?php foreach (['usuario' => 'Usuarios', 'anuncio' => 'Anuncios', 'chat' => 'Chats', 'stats' => 'Estadisticas'] as $key => $label): ?>
-            <a href="<?= url('/admin/reports') ?>?tab=<?= $key ?>" class="px-4 py-2 text-sm font-medium rounded-md transition flex items-center gap-1.5
+            <a href="<?= url('/admin/reports') ?>?tab=<?= $key ?>" class="px-5 py-2.5 text-base font-medium rounded-md transition flex items-center gap-2
                 <?= $tab === $key ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">
-                <?php if ($key === 'stats'): ?><i class="fas fa-chart-bar text-xs"></i><?php endif; ?>
+                <?php if ($key === 'stats'): ?><i class="fas fa-chart-bar text-sm"></i><?php endif; ?>
                 <?= $label ?>
             </a>
             <?php endforeach; ?>
         </div>
-
-        <!-- Filtro de estado -->
         <?php if ($tab !== 'stats'): ?>
-        <div class="flex space-x-1 bg-gray-800/50 rounded-lg p-1 ml-auto">
-            <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>" class="px-3 py-1.5 text-xs font-medium rounded-md transition <?= !$estadoFilter ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">Todos</a>
-            <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>&estado=pendiente" class="px-3 py-1.5 text-xs font-medium rounded-md transition <?= $estadoFilter === 'pendiente' ? 'bg-yellow-500/20 text-yellow-400' : 'text-gray-400 hover:text-gray-200' ?>">Pendientes</a>
-            <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>&estado=en_revision" class="px-3 py-1.5 text-xs font-medium rounded-md transition <?= $estadoFilter === 'en_revision' ? 'bg-blue-500/20 text-blue-400' : 'text-gray-400 hover:text-gray-200' ?>">En revision</a>
-            <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>&estado=resuelto" class="px-3 py-1.5 text-xs font-medium rounded-md transition <?= $estadoFilter === 'resuelto' ? 'bg-green-500/20 text-green-400' : 'text-gray-400 hover:text-gray-200' ?>">Resueltos</a>
+        <div class="flex items-center gap-3">
+            <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>&action=export_csv&estado=<?= urlencode($estadoFilter) ?>&motivo=<?= urlencode($_GET['motivo'] ?? '') ?>&date_from=<?= urlencode($_GET['date_from'] ?? '') ?>&date_to=<?= urlencode($_GET['date_to'] ?? '') ?>"
+               class="px-4 py-2.5 text-base font-medium bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/20 transition border border-emerald-500/20">Exportar CSV</a>
         </div>
         <?php endif; ?>
     </div>
 
-    <!-- Contenido del tab activo -->
+    <!-- Filtro de estado -->
+    <?php if ($tab !== 'stats'): ?>
+    <div class="flex space-x-1.5 bg-gray-800/50 rounded-lg p-1.5 w-fit mb-6">
+        <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>" class="px-4 py-2 text-sm font-medium rounded-md transition <?= !$estadoFilter ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">Todos</a>
+        <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>&estado=pendiente" class="px-4 py-2 text-sm font-medium rounded-md transition <?= $estadoFilter === 'pendiente' ? 'bg-yellow-500/20 text-yellow-400' : 'text-gray-400 hover:text-gray-200' ?>">Pendientes</a>
+        <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>&estado=en_revision" class="px-4 py-2 text-sm font-medium rounded-md transition <?= $estadoFilter === 'en_revision' ? 'bg-blue-500/20 text-blue-400' : 'text-gray-400 hover:text-gray-200' ?>">En revision</a>
+        <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>&estado=resuelto" class="px-4 py-2 text-sm font-medium rounded-md transition <?= $estadoFilter === 'resuelto' ? 'bg-green-500/20 text-green-400' : 'text-gray-400 hover:text-gray-200' ?>">Resueltos</a>
+    </div>
+
+    <!-- Filtros -->
+    <form method="GET" action="<?= url('/admin/reports') ?>" class="flex flex-wrap items-center gap-4 mb-6">
+        <input type="hidden" name="tab" value="<?= $tab ?>">
+        <?php if ($estadoFilter): ?><input type="hidden" name="estado" value="<?= htmlspecialchars($estadoFilter) ?>"><?php endif; ?>
+        <select name="motivo" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
+            <option value="">Todos los motivos</option>
+            <?php foreach ($motivoLabels as $key => $label): ?>
+            <option value="<?= $key ?>" <?= ($_GET['motivo'] ?? '') === $key ? 'selected' : '' ?>><?= $label ?></option>
+            <?php endforeach; ?>
+        </select>
+        <input type="date" name="date_from" value="<?= htmlspecialchars($_GET['date_from'] ?? '') ?>"
+               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
+        <input type="date" name="date_to" value="<?= htmlspecialchars($_GET['date_to'] ?? '') ?>"
+               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
+        <button type="submit" class="px-5 py-2.5 text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
+        <?php if (!empty($_GET['motivo']) || !empty($_GET['date_from']) || !empty($_GET['date_to'])): ?>
+        <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?><?= $estadoFilter ? '&estado=' . urlencode($estadoFilter) : '' ?>" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
+        <?php endif; ?>
+    </form>
+    <?php endif; ?>
+
+    <!-- Contenido de la pestaña activa -->
     <div>
         <?php if ($tab === 'stats'): ?>
-        <!-- Tab Estadisticas -->
+        <!-- Pestaña Estadísticas -->
         <div>
             <!-- Cards resumen -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-5">
-                    <p class="text-3xl font-bold text-white"><?= $stats['total'] ?? 0 ?></p>
-                    <p class="text-xs text-gray-400 mt-1">Total reportes</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
+                <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-7">
+                    <p class="text-4xl font-bold text-white"><?= $stats['total'] ?? 0 ?></p>
+                    <p class="text-sm text-gray-400 mt-2">Total reportes</p>
                 </div>
-                <div class="bg-yellow-500/5 border border-yellow-500/20 rounded-xl p-5">
-                    <p class="text-3xl font-bold text-yellow-400"><?= $stats['pendientes'] ?? 0 ?></p>
-                    <p class="text-xs text-gray-400 mt-1">Pendientes</p>
+                <div class="bg-yellow-500/5 border border-yellow-500/20 rounded-xl p-7">
+                    <p class="text-4xl font-bold text-yellow-400"><?= $stats['pendientes'] ?? 0 ?></p>
+                    <p class="text-sm text-gray-400 mt-2">Pendientes</p>
                 </div>
-                <div class="bg-blue-500/5 border border-blue-500/20 rounded-xl p-5">
-                    <p class="text-3xl font-bold text-blue-400"><?= $stats['en_revision'] ?? 0 ?></p>
-                    <p class="text-xs text-gray-400 mt-1">En revision</p>
+                <div class="bg-blue-500/5 border border-blue-500/20 rounded-xl p-7">
+                    <p class="text-4xl font-bold text-blue-400"><?= $stats['en_revision'] ?? 0 ?></p>
+                    <p class="text-sm text-gray-400 mt-2">En revision</p>
                 </div>
-                <div class="bg-green-500/5 border border-green-500/20 rounded-xl p-5">
-                    <p class="text-3xl font-bold text-green-400"><?= $stats['resueltos'] ?? 0 ?></p>
-                    <p class="text-xs text-gray-400 mt-1">Resueltos</p>
+                <div class="bg-green-500/5 border border-green-500/20 rounded-xl p-7">
+                    <p class="text-4xl font-bold text-green-400"><?= $stats['resueltos'] ?? 0 ?></p>
+                    <p class="text-sm text-gray-400 mt-2">Resueltos</p>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Tiempo medio -->
-                <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-5">
-                    <h4 class="text-base font-semibold text-white mb-3 flex items-center gap-2"><i class="fas fa-clock text-purple-400 text-xs"></i> Tiempo medio de resolucion</h4>
-                    <p class="text-3xl font-bold text-purple-400"><?= $stats['tiempo_medio_horas'] ?? 0 ?> <span class="text-sm font-normal text-gray-400">horas</span></p>
+                <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-7">
+                    <h4 class="text-lg font-semibold text-white mb-4 flex items-center gap-2"><i class="fas fa-clock text-purple-400 text-sm"></i> Tiempo medio de resolucion</h4>
+                    <p class="text-4xl font-bold text-purple-400"><?= $stats['tiempo_medio_horas'] ?? 0 ?> <span class="text-base font-normal text-gray-400">horas</span></p>
                 </div>
 
                 <!-- Por prioridad -->
-                <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-5">
-                    <h4 class="text-base font-semibold text-white mb-3 flex items-center gap-2"><i class="fas fa-layer-group text-orange-400 text-xs"></i> Pendientes por prioridad</h4>
-                    <div class="space-y-2">
+                <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-7">
+                    <h4 class="text-lg font-semibold text-white mb-4 flex items-center gap-2"><i class="fas fa-layer-group text-orange-400 text-sm"></i> Pendientes por prioridad</h4>
+                    <div class="space-y-3">
                         <?php foreach (['urgente', 'alta', 'media', 'baja'] as $p):
                             $count = $stats['por_prioridad'][$p] ?? 0;
                             $cfg = $prioridadConfig[$p];
                         ?>
                         <div class="flex items-center justify-between">
-                            <span class="text-xs text-<?= $cfg['color'] ?>-400 flex items-center gap-1.5"><i class="<?= $cfg['icon'] ?> text-xs"></i> <?= $cfg['label'] ?></span>
-                            <span class="text-sm font-bold text-gray-200"><?= $count ?></span>
+                            <span class="text-sm text-<?= $cfg['color'] ?>-400 flex items-center gap-2"><i class="<?= $cfg['icon'] ?> text-sm"></i> <?= $cfg['label'] ?></span>
+                            <span class="text-base font-bold text-gray-200"><?= $count ?></span>
                         </div>
                         <?php endforeach; ?>
                     </div>
                 </div>
 
                 <!-- Por motivo -->
-                <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-5">
-                    <h4 class="text-base font-semibold text-white mb-3 flex items-center gap-2"><i class="fas fa-tags text-cyan-400 text-xs"></i> Motivos mas frecuentes</h4>
-                    <div class="space-y-2">
+                <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-7">
+                    <h4 class="text-lg font-semibold text-white mb-4 flex items-center gap-2"><i class="fas fa-tags text-cyan-400 text-sm"></i> Motivos mas frecuentes</h4>
+                    <div class="space-y-3">
                         <?php
                         $totalMotivos = array_sum(array_column($stats['por_motivo'] ?? [], 'total'));
                         foreach (($stats['por_motivo'] ?? []) as $m):
                             $pct = $totalMotivos > 0 ? round(($m['total'] / $totalMotivos) * 100) : 0;
                         ?>
                         <div>
-                            <div class="flex items-center justify-between mb-0.5">
-                                <span class="text-xs text-gray-300"><?= htmlspecialchars($motivoLabels[$m['motivo']] ?? $m['motivo']) ?></span>
-                                <span class="text-xs text-gray-500"><?= $m['total'] ?> (<?= $pct ?>%)</span>
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sm text-gray-300"><?= htmlspecialchars($motivoLabels[$m['motivo']] ?? $m['motivo']) ?></span>
+                                <span class="text-sm text-gray-500"><?= $m['total'] ?> (<?= $pct ?>%)</span>
                             </div>
-                            <div class="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                            <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
                                 <div class="h-full bg-cyan-500/60 rounded-full" style="width: <?= $pct ?>%"></div>
                             </div>
                         </div>
@@ -136,30 +162,30 @@ $adminId = $_SESSION['user_id'] ?? 0;
 
             <!-- Usuarios mas reportados -->
             <?php if (!empty($stats['usuarios_mas_reportados'])): ?>
-            <div class="mt-6 bg-gray-800/50 border border-gray-700 rounded-xl p-5">
-                <h4 class="text-base font-semibold text-white mb-4 flex items-center gap-2"><i class="fas fa-user-shield text-red-400 text-xs"></i> Usuarios mas reportados</h4>
+            <div class="mt-8 bg-gray-800/50 border border-gray-700 rounded-xl p-7">
+                <h4 class="text-lg font-semibold text-white mb-5 flex items-center gap-2"><i class="fas fa-user-shield text-red-400 text-sm"></i> Usuarios mas reportados</h4>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead><tr class="text-gray-500 text-xs uppercase tracking-wider border-b border-gray-700">
-                            <th class="pb-2 text-left">Usuario</th>
-                            <th class="pb-2 text-center">Total reportes</th>
-                            <th class="pb-2 text-center">Pendientes</th>
-                            <th class="pb-2 text-right">Acciones</th>
+                    <table class="w-full text-base">
+                        <thead><tr class="text-gray-500 text-sm uppercase tracking-wider border-b border-gray-700">
+                            <th class="pb-3 text-left">Usuario</th>
+                            <th class="pb-3 text-center">Total reportes</th>
+                            <th class="pb-3 text-center">Pendientes</th>
+                            <th class="pb-3 text-right">Acciones</th>
                         </tr></thead>
                         <tbody>
                         <?php foreach ($stats['usuarios_mas_reportados'] as $u): ?>
                         <tr class="border-b border-gray-700/30">
-                            <td class="py-2.5 text-gray-200 font-medium"><?= htmlspecialchars($u['nombre'] ?? 'N/A') ?></td>
-                            <td class="py-2.5 text-center text-gray-300"><?= $u['total_reportes'] ?></td>
-                            <td class="py-2.5 text-center">
+                            <td class="py-3.5 text-gray-200 font-medium"><?= htmlspecialchars($u['nombre'] ?? 'N/A') ?></td>
+                            <td class="py-3.5 text-center text-gray-300"><?= $u['total_reportes'] ?></td>
+                            <td class="py-3.5 text-center">
                                 <?php if ($u['pendientes'] > 0): ?>
-                                <span class="px-2 py-0.5 text-xs rounded-full bg-yellow-500/10 text-yellow-400"><?= $u['pendientes'] ?></span>
+                                <span class="px-2.5 py-1 text-sm rounded-full bg-yellow-500/10 text-yellow-400"><?= $u['pendientes'] ?></span>
                                 <?php else: ?>
                                 <span class="text-gray-500">0</span>
                                 <?php endif; ?>
                             </td>
-                            <td class="py-2.5 text-right">
-                                <a href="<?= url('/profile/' . $u['idUsuarioReportado']) ?>" target="_blank" class="text-xs text-primary hover:underline">Ver perfil</a>
+                            <td class="py-3.5 text-right">
+                                <button onclick="previewContent('usuario', <?= $u['idUsuarioReportado'] ?>)" class="text-sm text-primary hover:text-primary-light underline">Ver perfil</button>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -171,18 +197,18 @@ $adminId = $_SESSION['user_id'] ?? 0;
 
             <!-- Reportes por semana -->
             <?php if (!empty($stats['por_semana'])): ?>
-            <div class="mt-6 bg-gray-800/50 border border-gray-700 rounded-xl p-5">
-                <h4 class="text-base font-semibold text-white mb-4 flex items-center gap-2"><i class="fas fa-chart-line text-green-400 text-xs"></i> Reportes por semana (ultimas 8 semanas)</h4>
-                <div class="flex items-end gap-2 h-32">
+            <div class="mt-8 bg-gray-800/50 border border-gray-700 rounded-xl p-7">
+                <h4 class="text-lg font-semibold text-white mb-5 flex items-center gap-2"><i class="fas fa-chart-line text-green-400 text-sm"></i> Reportes por semana (ultimas 8 semanas)</h4>
+                <div class="flex items-end gap-3 h-40">
                     <?php
                     $maxWeek = max(array_column($stats['por_semana'], 'total'));
                     foreach ($stats['por_semana'] as $w):
                         $height = $maxWeek > 0 ? round(($w['total'] / $maxWeek) * 100) : 0;
                     ?>
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <span class="text-xs text-gray-400"><?= $w['total'] ?></span>
+                    <div class="flex-1 flex flex-col items-center gap-1.5">
+                        <span class="text-sm text-gray-400"><?= $w['total'] ?></span>
                         <div class="w-full bg-primary/30 rounded-t-md transition-all" style="height: <?= max($height, 4) ?>%"></div>
-                        <span class="text-xs text-gray-500"><?= date('d/m', strtotime($w['fecha_inicio'])) ?></span>
+                        <span class="text-sm text-gray-500"><?= date('d/m', strtotime($w['fecha_inicio'])) ?></span>
                     </div>
                     <?php endforeach; ?>
                 </div>
@@ -191,7 +217,7 @@ $adminId = $_SESSION['user_id'] ?? 0;
         </div>
 
         <?php else: ?>
-        <!-- Tab de reportes activo -->
+        <!-- Pestaña de reportes activa -->
         <?php
         $label = match($tab) { 'anuncio' => 'Anuncios', 'chat' => 'Chats', default => 'Usuarios' };
         $reportesFiltrados = $reportes;
@@ -199,14 +225,17 @@ $adminId = $_SESSION['user_id'] ?? 0;
         <div>
 
             <?php if (empty($reportesFiltrados)): ?>
-                <div class="text-center py-16 text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 mx-auto mb-3 opacity-40">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                    <p class="text-sm">No hay reportes de <?= strtolower($label) ?></p>
+                <div class="text-center py-20">
+                    <div class="w-14 h-14 bg-gray-700/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-gray-500">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                    </div>
+                    <p class="text-gray-400 font-medium">Sin reportes</p>
+                    <p class="text-gray-500 text-sm mt-1">No hay reportes de <?= strtolower($label) ?></p>
                 </div>
             <?php else: ?>
-                <div class="space-y-3">
+                <div class="space-y-4">
                     <?php foreach ($reportesFiltrados as $r):
                         $pCfg = $prioridadConfig[$r['prioridad'] ?? 'media'] ?? $prioridadConfig['media'];
                     ?>
@@ -214,53 +243,53 @@ $adminId = $_SESSION['user_id'] ?? 0;
                         <!-- Fila principal -->
                         <div class="flex flex-col lg:flex-row lg:items-center gap-3 px-5 py-4 cursor-pointer hover:bg-gray-800/70 transition" onclick="toggleDetail(<?= $r['idReporte'] ?>)">
                             <!-- ID + Estado + Prioridad -->
-                            <div class="flex items-center gap-2 shrink-0">
-                                <span class="text-xs text-gray-500">#<?= $r['idReporte'] ?></span>
+                            <div class="flex items-center gap-2.5 shrink-0">
+                                <span class="text-sm text-gray-500">#<?= $r['idReporte'] ?></span>
 
                                 <!-- Prioridad -->
-                                <span class="px-1.5 py-0.5 text-xs rounded-full bg-<?= $pCfg['color'] ?>-500/10 text-<?= $pCfg['color'] ?>-400 font-medium flex items-center gap-1" title="Prioridad: <?= $pCfg['label'] ?>">
-                                    <i class="<?= $pCfg['icon'] ?> text-xs"></i> <?= $pCfg['label'] ?>
+                                <span class="px-2.5 py-1 text-sm rounded-full bg-<?= $pCfg['color'] ?>-500/10 text-<?= $pCfg['color'] ?>-400 font-medium flex items-center gap-1.5" title="Prioridad: <?= $pCfg['label'] ?>">
+                                    <i class="<?= $pCfg['icon'] ?> text-sm"></i> <?= $pCfg['label'] ?>
                                 </span>
 
                                 <!-- Estado -->
                                 <?php if ($r['estado'] === 'pendiente'): ?>
-                                    <span class="px-2 py-0.5 text-xs rounded-full bg-yellow-500/10 text-yellow-400 font-medium">Pendiente</span>
+                                    <span class="px-2.5 py-1 text-sm rounded-full bg-yellow-500/10 text-yellow-400 font-medium">Pendiente</span>
                                 <?php elseif ($r['estado'] === 'en_revision'): ?>
-                                    <span class="px-2 py-0.5 text-xs rounded-full bg-blue-500/10 text-blue-400 font-medium flex items-center gap-1">
-                                        <i class="fas fa-eye text-xs"></i> En revision<?= !empty($r['admin_nombre']) ? ' (' . htmlspecialchars($r['admin_nombre']) . ')' : '' ?>
+                                    <span class="px-2.5 py-1 text-sm rounded-full bg-blue-500/10 text-blue-400 font-medium flex items-center gap-1.5">
+                                        <i class="fas fa-eye text-sm"></i> En revision<?= !empty($r['admin_nombre']) ? ' (' . htmlspecialchars($r['admin_nombre']) . ')' : '' ?>
                                     </span>
                                 <?php else: ?>
-                                    <span class="px-2 py-0.5 text-xs rounded-full bg-green-500/10 text-green-400 font-medium">Resuelto</span>
+                                    <span class="px-2.5 py-1 text-sm rounded-full bg-green-500/10 text-green-400 font-medium">Resuelto</span>
                                 <?php endif; ?>
 
                                 <!-- Evidencia indicator -->
                                 <?php if (!empty($r['evidencia_img'])): ?>
-                                <span class="text-xs text-gray-500" title="Tiene evidencia adjunta"><i class="fas fa-image"></i></span>
+                                <span class="text-sm text-gray-500" title="Tiene evidencia adjunta"><i class="fas fa-image"></i></span>
                                 <?php endif; ?>
                             </div>
 
                             <!-- Motivo -->
                             <?php if (!empty($r['motivo'])): ?>
-                            <span class="px-2 py-0.5 text-xs rounded-full bg-red-500/10 text-red-400 font-medium shrink-0">
+                            <span class="px-2.5 py-1 text-sm rounded-full bg-red-500/10 text-red-400 font-medium shrink-0">
                                 <?= htmlspecialchars($motivoLabels[$r['motivo']] ?? $r['motivo']) ?>
                             </span>
                             <?php endif; ?>
 
                             <!-- Usuario reportado -->
                             <div class="flex-1 min-w-0">
-                                <span class="text-sm text-gray-300">
+                                <span class="text-base text-gray-300">
                                     <?= htmlspecialchars($r['reportado_nombre'] ?? 'N/A') ?>
                                     <?php if ($r['tipo'] === 'anuncio' && !empty($r['anuncio_origen'])): ?>
-                                        <span class="text-gray-500 text-xs ml-1">(<?= htmlspecialchars($r['anuncio_origen']) ?> &rarr; <?= htmlspecialchars($r['anuncio_destino'] ?? '') ?>)</span>
+                                        <span class="text-gray-500 text-sm ml-1">(<?= htmlspecialchars($r['anuncio_origen']) ?> &rarr; <?= htmlspecialchars($r['anuncio_destino'] ?? '') ?>)</span>
                                     <?php endif; ?>
                                 </span>
                             </div>
 
                             <!-- Usuario que reporta -->
-                            <span class="text-xs text-gray-500 shrink-0">por <?= htmlspecialchars($r['reporta_nombre'] ?? 'N/A') ?></span>
+                            <span class="text-sm text-gray-500 shrink-0">por <?= htmlspecialchars($r['reporta_nombre'] ?? 'N/A') ?></span>
 
                             <!-- Fecha -->
-                            <span class="text-xs text-gray-500 shrink-0"><?= date('d/m/Y H:i', strtotime($r['creado_en'])) ?></span>
+                            <span class="text-sm text-gray-500 shrink-0"><?= date('d/m/Y H:i', strtotime($r['creado_en'])) ?></span>
 
                             <!-- Flechita -->
                             <svg id="chevron-<?= $r['idReporte'] ?>" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-gray-500 shrink-0 transition-transform">
@@ -270,50 +299,54 @@ $adminId = $_SESSION['user_id'] ?? 0;
 
                         <!-- Detalle expandible -->
                         <div id="detail-<?= $r['idReporte'] ?>" class="hidden border-t border-gray-700/50 px-5 py-4 bg-gray-900/30">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                                 <!-- Info reportado con link directo -->
                                 <div>
-                                    <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Reportado</p>
-                                    <p class="text-sm text-gray-200 font-medium">
+                                    <p class="text-sm text-gray-500 uppercase tracking-wider mb-1.5">Reportado</p>
+                                    <p class="text-base text-gray-200 font-medium">
                                         <?= htmlspecialchars($r['reportado_nombre'] ?? 'N/A') ?>
                                         <?php if (!empty($r['idUsuarioReportado'])): ?>
-                                        <a href="<?= url('/profile/' . $r['idUsuarioReportado']) ?>" target="_blank" class="ml-1.5 text-primary hover:underline text-xs"><i class="fas fa-external-link-alt text-xs"></i> Ver perfil</a>
+                                        <button onclick="previewContent('usuario', <?= $r['idUsuarioReportado'] ?>)" class="ml-1.5 text-primary hover:text-primary-light underline text-xs"><i class="fas fa-external-link-alt text-xs"></i> Ver perfil</button>
                                         <?php endif; ?>
                                     </p>
                                     <?php if (!empty($r['reportado_correo'])): ?>
                                     <p class="text-xs text-gray-400"><?= htmlspecialchars($r['reportado_correo']) ?></p>
                                     <?php endif; ?>
 
-                                    <!-- Link directo al contenido reportado -->
+                                    <!-- Ver contenido reportado -->
                                     <?php if ($r['tipo'] === 'anuncio' && !empty($r['idAnuncio'])): ?>
-                                    <a href="<?= url('/ride/' . $r['idAnuncio']) ?>" target="_blank" class="inline-flex items-center gap-1 mt-1 text-xs text-blue-400 hover:underline">
+                                    <button onclick="previewContent('anuncio', <?= $r['idAnuncio'] ?>)" class="inline-flex items-center gap-1 mt-1 text-xs text-blue-400 hover:text-blue-300 underline">
                                         <i class="fas fa-car text-xs"></i> Ver anuncio #<?= $r['idAnuncio'] ?>
-                                    </a>
+                                    </button>
+                                    <?php elseif ($r['tipo'] === 'chat' && !empty($r['idEntidad'])): ?>
+                                    <button onclick="previewContent('chat', <?= $r['idEntidad'] ?>)" class="inline-flex items-center gap-1 mt-1 text-xs text-blue-400 hover:text-blue-300 underline">
+                                        <i class="fas fa-comments text-xs"></i> Ver conversacion
+                                    </button>
                                     <?php endif; ?>
                                 </div>
 
                                 <!-- Info reportante -->
                                 <div>
-                                    <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Reportado por</p>
-                                    <p class="text-sm text-gray-200 font-medium">
+                                    <p class="text-sm text-gray-500 uppercase tracking-wider mb-1.5">Reportado por</p>
+                                    <p class="text-base text-gray-200 font-medium">
                                         <?= htmlspecialchars($r['reporta_nombre'] ?? 'N/A') ?>
                                         <?php if (!empty($r['idUsuarioQueReporta'])): ?>
-                                        <a href="<?= url('/profile/' . $r['idUsuarioQueReporta']) ?>" target="_blank" class="ml-1.5 text-primary hover:underline text-xs"><i class="fas fa-external-link-alt text-xs"></i> Ver perfil</a>
+                                        <button onclick="previewContent('usuario', <?= $r['idUsuarioQueReporta'] ?>)" class="ml-1.5 text-primary hover:text-primary-light underline text-xs"><i class="fas fa-external-link-alt text-xs"></i> Ver perfil</button>
                                         <?php endif; ?>
                                     </p>
                                 </div>
                             </div>
 
                             <!-- Mensaje completo -->
-                            <div class="mb-4">
-                                <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Mensaje</p>
-                                <p class="text-sm text-gray-300 bg-gray-800/60 rounded-lg px-3 py-2 border border-gray-700/30"><?= nl2br(htmlspecialchars($r['mensaje'])) ?></p>
+                            <div class="mb-5">
+                                <p class="text-sm text-gray-500 uppercase tracking-wider mb-1.5">Mensaje</p>
+                                <p class="text-base text-gray-300 bg-gray-800/60 rounded-lg px-4 py-3 border border-gray-700/30"><?= nl2br(htmlspecialchars($r['mensaje'])) ?></p>
                             </div>
 
                             <!-- Evidencia adjunta -->
                             <?php if (!empty($r['evidencia_img'])): ?>
-                            <div class="mb-4">
-                                <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Evidencia adjunta</p>
+                            <div class="mb-5">
+                                <p class="text-sm text-gray-500 uppercase tracking-wider mb-1.5">Evidencia adjunta</p>
                                 <a href="<?= url('/public/uploads/reports/' . $r['evidencia_img']) ?>" target="_blank" class="inline-block">
                                     <img src="<?= url('/public/uploads/reports/' . $r['evidencia_img']) ?>" alt="Evidencia" class="max-w-sm max-h-48 rounded-lg border border-gray-700 hover:border-primary transition cursor-pointer">
                                 </a>
@@ -322,9 +355,9 @@ $adminId = $_SESSION['user_id'] ?? 0;
 
                             <!-- Boton historial del usuario reportado -->
                             <?php if (!empty($r['idUsuarioReportado'])): ?>
-                            <div class="mb-4">
-                                <button onclick="loadHistory(<?= $r['idUsuarioReportado'] ?>, <?= $r['idReporte'] ?>)" class="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1.5 transition">
-                                    <i class="fas fa-history text-xs"></i> Ver historial de sanciones del usuario
+                            <div class="mb-5">
+                                <button onclick="loadHistory(<?= $r['idUsuarioReportado'] ?>, <?= $r['idReporte'] ?>)" class="text-sm text-purple-400 hover:text-purple-300 flex items-center gap-2 transition">
+                                    <i class="fas fa-history text-sm"></i> Ver historial de sanciones del usuario
                                 </button>
                                 <div id="history-<?= $r['idReporte'] ?>" class="hidden mt-3"></div>
                             </div>
@@ -359,8 +392,8 @@ $adminId = $_SESSION['user_id'] ?? 0;
                                     <input type="hidden" name="action" value="take">
                                     <input type="hidden" name="tab" value="<?= $tab ?>">
                                     <input type="hidden" name="idReporte" value="<?= $r['idReporte'] ?>">
-                                    <button type="submit" class="px-4 py-2 text-xs font-medium bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition border border-blue-500/20 flex items-center gap-1.5">
-                                        <i class="fas fa-hand-paper text-xs"></i> Tomar reporte (asignarme)
+                                    <button type="submit" class="text-sm px-4 py-2 font-medium bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition border border-blue-500/20 flex items-center gap-2">
+                                        <i class="fas fa-hand-paper text-sm"></i> Tomar reporte (asignarme)
                                     </button>
                                 </form>
                             </div>
@@ -375,23 +408,23 @@ $adminId = $_SESSION['user_id'] ?? 0;
 
                                     <!-- Accion a tomar -->
                                     <div>
-                                        <span class="text-xs text-gray-400 block mb-2">Accion a tomar:</span>
-                                        <div class="flex flex-wrap gap-2">
-                                            <label class="flex items-center gap-1.5 text-xs text-gray-300 cursor-pointer px-3 py-1.5 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition has-[:checked]:border-emerald-500/50 has-[:checked]:bg-emerald-500/5">
+                                        <span class="text-sm text-gray-400 block mb-2.5">Accion a tomar:</span>
+                                        <div class="flex flex-wrap gap-2.5">
+                                            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition has-[:checked]:border-emerald-500/50 has-[:checked]:bg-emerald-500/5">
                                                 <input type="radio" name="accion" value="resolver" checked class="accent-emerald-500"> Solo resolver
                                             </label>
-                                            <label class="flex items-center gap-1.5 text-xs text-gray-300 cursor-pointer px-3 py-1.5 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition has-[:checked]:border-yellow-500/50 has-[:checked]:bg-yellow-500/5">
+                                            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition has-[:checked]:border-yellow-500/50 has-[:checked]:bg-yellow-500/5">
                                                 <input type="radio" name="accion" value="advertir" class="accent-yellow-500"> Advertir
                                             </label>
                                             <?php if ($r['tipo'] === 'anuncio' && !empty($r['idAnuncio'])): ?>
-                                            <label class="flex items-center gap-1.5 text-xs text-gray-300 cursor-pointer px-3 py-1.5 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition has-[:checked]:border-orange-500/50 has-[:checked]:bg-orange-500/5">
+                                            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition has-[:checked]:border-orange-500/50 has-[:checked]:bg-orange-500/5">
                                                 <input type="radio" name="accion" value="eliminar_contenido" class="accent-orange-500"> Eliminar contenido
                                             </label>
                                             <?php endif; ?>
-                                            <label class="flex items-center gap-1.5 text-xs text-gray-300 cursor-pointer px-3 py-1.5 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition has-[:checked]:border-red-500/50 has-[:checked]:bg-red-500/5" onclick="toggleSuspension(<?= $r['idReporte'] ?>, true)">
+                                            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition has-[:checked]:border-red-500/50 has-[:checked]:bg-red-500/5" onclick="toggleSuspension(<?= $r['idReporte'] ?>, true)">
                                                 <input type="radio" name="accion" value="suspender" class="accent-red-500"> Suspender temporal
                                             </label>
-                                            <label class="flex items-center gap-1.5 text-xs text-gray-300 cursor-pointer px-3 py-1.5 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition has-[:checked]:border-red-500/50 has-[:checked]:bg-red-500/5">
+                                            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition has-[:checked]:border-red-500/50 has-[:checked]:bg-red-500/5">
                                                 <input type="radio" name="accion" value="banear" class="accent-red-500"> Ban permanente
                                             </label>
                                         </div>
@@ -399,10 +432,10 @@ $adminId = $_SESSION['user_id'] ?? 0;
 
                                     <!-- Dias de suspension (solo visible si se selecciona suspender) -->
                                     <div id="suspension-days-<?= $r['idReporte'] ?>" class="hidden">
-                                        <label class="text-xs text-gray-400 block mb-1">Dias de suspension:</label>
-                                        <div class="flex items-center gap-2">
+                                        <label class="text-sm text-gray-400 block mb-1.5">Dias de suspension:</label>
+                                        <div class="flex items-center gap-2.5">
                                             <?php foreach ([3, 7, 15, 30] as $d): ?>
-                                            <label class="flex items-center gap-1 text-xs text-gray-300 cursor-pointer px-2.5 py-1 bg-gray-800 rounded-md border border-gray-700 hover:border-gray-600 transition has-[:checked]:border-red-500/50 has-[:checked]:bg-red-500/5">
+                                            <label class="flex items-center gap-1.5 text-sm text-gray-300 cursor-pointer px-3 py-1.5 bg-gray-800 rounded-md border border-gray-700 hover:border-gray-600 transition has-[:checked]:border-red-500/50 has-[:checked]:bg-red-500/5">
                                                 <input type="radio" name="dias_suspension" value="<?= $d ?>" <?= $d === 7 ? 'checked' : '' ?> class="accent-red-500"> <?= $d ?>d
                                             </label>
                                             <?php endforeach; ?>
@@ -411,10 +444,10 @@ $adminId = $_SESSION['user_id'] ?? 0;
 
                                     <!-- Nota admin -->
                                     <input type="text" name="nota_admin" placeholder="Nota para el reportante (opcional)"
-                                           class="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+                                           class="w-full px-4 py-2.5 bg-gray-900 border border-gray-600 rounded-lg text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
 
-                                    <div class="flex items-center gap-2">
-                                        <button type="submit" class="px-4 py-2 text-xs font-medium bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/20 transition border border-emerald-500/20">
+                                    <div class="flex items-center gap-3">
+                                        <button type="submit" class="text-sm px-4 py-2 font-medium bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/20 transition border border-emerald-500/20">
                                             Resolver reporte
                                         </button>
                                 </form>
@@ -423,7 +456,7 @@ $adminId = $_SESSION['user_id'] ?? 0;
                                             <input type="hidden" name="action" value="release">
                                             <input type="hidden" name="tab" value="<?= $tab ?>">
                                             <input type="hidden" name="idReporte" value="<?= $r['idReporte'] ?>">
-                                            <button type="submit" class="px-4 py-2 text-xs font-medium bg-gray-700/50 text-gray-400 rounded-lg hover:bg-gray-700 transition border border-gray-600">
+                                            <button type="submit" class="text-sm px-4 py-2 font-medium bg-gray-700/50 text-gray-400 rounded-lg hover:bg-gray-700 transition border border-gray-600">
                                                 Liberar
                                             </button>
                                         </form>
@@ -432,7 +465,7 @@ $adminId = $_SESSION['user_id'] ?? 0;
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="tab" value="<?= $tab ?>">
                                             <input type="hidden" name="idReporte" value="<?= $r['idReporte'] ?>">
-                                            <button type="submit" class="px-4 py-2 text-xs font-medium bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition border border-red-500/20">
+                                            <button type="submit" class="text-sm px-4 py-2 font-medium bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition border border-red-500/20">
                                                 Descartar
                                             </button>
                                         </form>
@@ -451,14 +484,27 @@ $adminId = $_SESSION['user_id'] ?? 0;
 </div>
 </main>
 
+<!-- Modal de vista previa -->
+<div id="preview-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60" onclick="if(event.target===this)closePreview()">
+    <div class="bg-gray-800 border border-gray-700 rounded-xl p-7 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-white" id="preview-title">Vista previa</h3>
+            <button onclick="closePreview()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+        </div>
+        <div id="preview-body" class="text-gray-300">
+            <p class="text-gray-500">Cargando...</p>
+        </div>
+    </div>
+</div>
+
 <!-- Modal de historial -->
 <div id="historyModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" onclick="if(event.target===this)closeHistoryModal()">
-    <div class="bg-[#1a1b26] border border-gray-700 rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-hidden flex flex-col">
-        <div class="p-4 border-b border-gray-700 flex items-center justify-between">
-            <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fas fa-history text-purple-400"></i> Historial de sanciones</h3>
-            <button onclick="closeHistoryModal()" class="text-gray-500 hover:text-gray-300"><i class="fas fa-times"></i></button>
+    <div class="bg-[#1a1b26] border border-gray-700 rounded-2xl shadow-2xl max-w-xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+        <div class="p-5 border-b border-gray-700 flex items-center justify-between">
+            <h3 class="text-base font-bold text-white flex items-center gap-2"><i class="fas fa-history text-purple-400"></i> Historial de sanciones</h3>
+            <button onclick="closeHistoryModal()" class="text-gray-500 hover:text-gray-300 text-lg"><i class="fas fa-times"></i></button>
         </div>
-        <div id="historyModalContent" class="p-4 overflow-y-auto flex-1">
+        <div id="historyModalContent" class="p-5 overflow-y-auto flex-1">
             <div class="text-center text-gray-500 py-8"><i class="fas fa-spinner fa-spin"></i></div>
         </div>
     </div>
@@ -567,6 +613,92 @@ $adminId = $_SESSION['user_id'] ?? 0;
     function closeHistoryModal() {
         document.getElementById('historyModal').classList.add('hidden');
         document.body.style.overflow = '';
+    }
+
+    // Vista previa del contenido reportado
+    function previewContent(tipo, id) {
+        const modal = document.getElementById('preview-modal');
+        const body = document.getElementById('preview-body');
+        const title = document.getElementById('preview-title');
+        body.innerHTML = '<p class="text-gray-500">Cargando...</p>';
+        modal.classList.remove('hidden');
+
+        fetch('<?= url("/admin/reports") ?>?ajax=preview&tipo=' + tipo + '&id=' + id)
+            .then(r => r.json())
+            .then(data => {
+                if (data.error || !data._tipo) {
+                    body.innerHTML = '<p class="text-red-400">No se pudo cargar el contenido. Es posible que haya sido eliminado.</p>';
+                    return;
+                }
+                if (data._tipo === 'usuario') {
+                    title.textContent = 'Perfil de usuario';
+                    const verificado = data.estado_verificacion == 2 ? '<span class="px-2 py-0.5 text-xs rounded-full bg-green-500/10 text-green-400">Verificado</span>' : '<span class="px-2 py-0.5 text-xs rounded-full bg-gray-500/10 text-gray-400">No verificado</span>';
+                    const premium = data.premium == 1 ? '<span class="px-2 py-0.5 text-xs rounded-full bg-yellow-500/10 text-yellow-400 ml-1">Premium</span>' : '';
+                    const baneado = data.baneado == 1 ? '<span class="px-2 py-0.5 text-xs rounded-full bg-red-500/10 text-red-400 ml-1">Baneado</span>' : '';
+                    body.innerHTML = `
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center text-lg font-bold text-primary">${(data.nombre||'?')[0].toUpperCase()}</div>
+                                <div>
+                                    <p class="text-white font-semibold text-base">${data.nombre || 'Sin nombre'}</p>
+                                    <p class="text-gray-400 text-sm">${data.correo || ''}</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1">${verificado}${premium}${baneado}</div>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <p><span class="text-gray-500">ID:</span> <span class="text-gray-300">#${data.idUsuario}</span></p>
+                                <p><span class="text-gray-500">Rol:</span> <span class="text-gray-300">${data.nombreRol || 'Usuario'}</span></p>
+                                <p><span class="text-gray-500">Ciudad:</span> <span class="text-gray-300">${data.ciudad || '-'}</span></p>
+                                <p><span class="text-gray-500">Telefono:</span> <span class="text-gray-300">${data.telefono || '-'}</span></p>
+                                <p><span class="text-gray-500">Institucion:</span> <span class="text-gray-300">${data.institucion || '-'}</span></p>
+                                <p><span class="text-gray-500">Registro:</span> <span class="text-gray-300">${data.creado_en || '-'}</span></p>
+                            </div>
+                        </div>`;
+                } else if (data._tipo === 'anuncio') {
+                    title.textContent = 'Detalle del anuncio';
+                    body.innerHTML = `
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 text-sm rounded-full ${data.tipo === 'ofrezco' ? 'bg-green-500/10 text-green-400' : 'bg-emerald-500/10 text-emerald-400'}">${data.tipo}</span>
+                                <span class="text-gray-500 text-sm">#${data.idAnuncio}</span>
+                            </div>
+                            <div class="bg-gray-900 rounded-lg p-4">
+                                <p class="text-white font-medium">${data.nombreOrigen} &rarr; ${data.nombreDestino}</p>
+                                <p class="text-gray-400 text-sm mt-1">${data.descripcion || 'Sin descripcion'}</p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <p><span class="text-gray-500">Usuario:</span> <span class="text-gray-300">${data.usuario_nombre}</span></p>
+                                <p><span class="text-gray-500">Precio:</span> <span class="text-green-400">${data.precio ? data.precio + '\u20ac' : 'Gratis'}</span></p>
+                                <p><span class="text-gray-500">Plazas:</span> <span class="text-gray-300">${data.plazasDisponibles ?? '-'}</span></p>
+                                <p><span class="text-gray-500">Fecha:</span> <span class="text-gray-300">${data.fechaSalida || '-'}</span></p>
+                            </div>
+                        </div>`;
+                } else if (data._tipo === 'chat') {
+                    title.textContent = 'Conversacion';
+                    let msgsHtml = '';
+                    if (data.mensajes && data.mensajes.length) {
+                        msgsHtml = data.mensajes.map(m => `
+                            <div class="bg-gray-900 rounded-lg px-3 py-2 mb-2">
+                                <p class="text-xs text-primary font-medium">${m.emisor_nombre} <span class="text-gray-600 font-normal">${m.fechaCreacion}</span></p>
+                                <p class="text-gray-300 text-sm mt-1">${m.mensaje}</p>
+                            </div>`).join('');
+                    } else {
+                        msgsHtml = '<p class="text-gray-500 text-sm">No hay mensajes</p>';
+                    }
+                    body.innerHTML = `
+                        <div class="space-y-3">
+                            <p class="text-sm text-gray-400">${data.user1_nombre || '?'} &harr; ${data.user2_nombre || '?'}</p>
+                            <div class="max-h-64 overflow-y-auto">${msgsHtml}</div>
+                        </div>`;
+                }
+            })
+            .catch(() => {
+                body.innerHTML = '<p class="text-red-400">Error al cargar la vista previa.</p>';
+            });
+    }
+
+    function closePreview() {
+        document.getElementById('preview-modal').classList.add('hidden');
     }
 
 </script>
