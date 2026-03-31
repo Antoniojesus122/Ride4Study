@@ -40,6 +40,59 @@ $router->any('/reset-password', [AuthController::class, 'resetPassword']);
 $router->any('/verify-email', [AuthController::class, 'verifyEmail']);  // Verificación email registro
 $router->any('/admin-verify', [AuthController::class, 'adminVerify']); // 2FA admin
 
+// Login y verificación de instituciones
+$router->any('/institution-login', function () {
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    require_once __DIR__ . '/app/controllers/InstitutionAuthController.php';
+    $controller = new InstitutionAuthController();
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller->login();
+    } else {
+        $controller->showLogin();
+    }
+});
+
+$router->any('/institution-verify', function () {
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    require_once __DIR__ . '/app/controllers/InstitutionAuthController.php';
+    $controller = new InstitutionAuthController();
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller->verify();
+    } else {
+        $controller->showVerify();
+    }
+});
+
+$router->get('/institution-logout', function () {
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    require_once __DIR__ . '/app/controllers/InstitutionAuthController.php';
+    $controller = new InstitutionAuthController();
+    $controller->logout();
+});
+
+// Panel de instituciones
+$router->get('/institution/dashboard', function () {
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    if (!isset($_SESSION['institution_id'])) {
+        header('Location: ' . url('/institution-login'));
+        exit;
+    }
+    require_once __DIR__ . '/app/controllers/InstitucionController.php';
+    $controller = new InstitucionController();
+    $controller->dashboard();
+});
+
+$router->get('/institution/students', function () {
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    if (!isset($_SESSION['institution_id'])) {
+        header('Location: ' . url('/institution-login'));
+        exit;
+    }
+    require_once __DIR__ . '/app/controllers/InstitucionController.php';
+    $controller = new InstitucionController();
+    $controller->students();
+});
+
 // Dashboard, para usuarios logeados
 $router->any('/dashboard', [RideController::class, 'index']);
 
@@ -371,11 +424,13 @@ $router->any('/admin/instituciones', function () {
     $controller = new AdminInstitucionController();
     $action = $_POST['action'] ?? $_GET['action'] ?? 'list';
     match ($action) {
-        'create'     => $controller->create(),
-        'edit'       => $controller->edit(),
-        'delete'     => $controller->delete(),
-        'export_csv' => $controller->exportCsv(),
-        default      => $controller->listAll(),
+        'create'         => $controller->create(),
+        'edit'           => $controller->edit(),
+        'delete'         => $controller->delete(),
+        'reset_password' => $controller->resetPassword(),
+        'toggle_active'  => $controller->toggleActive(),
+        'export_csv'     => $controller->exportCsv(),
+        default          => $controller->listAll(),
     };
 });
 
@@ -496,6 +551,25 @@ $router->any('/support', function () {
     } else {
         $controller->index();
     }
+});
+
+// Página pública de instituciones (info + formulario de contacto)
+$router->any('/instituciones', function () {
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    require_once __DIR__ . '/app/controllers/InstitutionContactController.php';
+    $controller = new InstitutionContactController();
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'contact') {
+        $controller->sendContactEmail();
+    } else {
+        $controller->index();
+    }
+});
+
+// API de búsqueda de instituciones educativas (autocompletado)
+$router->get('/api/instituciones-search', function () {
+    require_once __DIR__ . '/app/controllers/ApiInstitucionesController.php';
+    $controller = new ApiInstitucionesController();
+    $controller->search();
 });
 
 // Otras páginas públicas

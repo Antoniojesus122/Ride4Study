@@ -24,18 +24,61 @@ class Institution {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function create(array $data): bool {
-        $sql = "INSERT INTO {$this->table} (nombre, correo, telefono, direccion, logo, descripcion)
-                VALUES (:nombre, :correo, :telefono, :direccion, :logo, :descripcion)";
+    public function create(array $data): int|false {
+        $sql = "INSERT INTO {$this->table} (nombre, correo, telefono, direccion, logo, descripcion, contrasena, activo)
+                VALUES (:nombre, :correo, :telefono, :direccion, :logo, :descripcion, :contrasena, :activo)";
         $stmt = $this->conn->prepare($sql);
-        return $stmt->execute([
+        $result = $stmt->execute([
             ':nombre' => $data['nombre'],
             ':correo' => $data['correo'],
             ':telefono' => $data['telefono'] ?? null,
             ':direccion' => $data['direccion'] ?? null,
             ':logo' => $data['logo'] ?? null,
             ':descripcion' => $data['descripcion'] ?? null,
+            ':contrasena' => $data['contrasena'] ?? null,
+            ':activo' => $data['activo'] ?? 1,
         ]);
+        return $result ? (int)$this->conn->lastInsertId() : false;
+    }
+
+    // Buscar institucion por correo (para login)
+    public function getByEmail(string $email): array|false {
+        $stmt = $this->conn->prepare("SELECT * FROM {$this->table} WHERE correo = :correo LIMIT 1");
+        $stmt->execute([':correo' => $email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Actualizar ultimo acceso
+    public function updateLastAccess(int $id): bool {
+        $stmt = $this->conn->prepare("UPDATE {$this->table} SET ultimo_acceso = NOW() WHERE idInstitucion = :id");
+        return $stmt->execute([':id' => $id]);
+    }
+
+    // Guardar codigo 2FA
+    public function save2FACode(int $id, string $hashedCode): bool {
+        $stmt = $this->conn->prepare(
+            "UPDATE {$this->table} SET codigo_2fa = :code, expiracion_2fa = DATE_ADD(NOW(), INTERVAL 10 MINUTE), intentos_2fa = 0 WHERE idInstitucion = :id"
+        );
+        return $stmt->execute([':code' => $hashedCode, ':id' => $id]);
+    }
+
+    // Incrementar intentos 2FA
+    public function increment2FAAttempts(int $id): bool {
+        $stmt = $this->conn->prepare("UPDATE {$this->table} SET intentos_2fa = intentos_2fa + 1 WHERE idInstitucion = :id");
+        return $stmt->execute([':id' => $id]);
+    }
+
+    // Limpiar 2FA
+    public function clear2FA(int $id): bool {
+        $stmt = $this->conn->prepare("UPDATE {$this->table} SET codigo_2fa = NULL, expiracion_2fa = NULL, intentos_2fa = 0 WHERE idInstitucion = :id");
+        return $stmt->execute([':id' => $id]);
+    }
+
+    // Contar estudiantes vinculados a una institucion
+    public function countStudents(string $nombre): int {
+        $stmt = $this->conn->prepare("SELECT COUNT(*) as total FROM usuarios WHERE institucion = :nombre");
+        $stmt->execute([':nombre' => $nombre]);
+        return (int)$stmt->fetch(PDO::FETCH_ASSOC)['total'];
     }
 
     public function update(int $id, array $data): bool {

@@ -45,7 +45,7 @@ class AdminDashboardController
         $ridesByMonth = $this->getRidesByMonth();
         $reportsByMonth = $this->getReportsByMonth();
 
-        require_once __DIR__ . '/../../../views/admin/dashboard.view.php';
+        require __DIR__ . '/../../../views/admin/dashboard.view.php';
     }
 
     private function getStats(): array

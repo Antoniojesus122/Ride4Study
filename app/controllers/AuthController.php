@@ -190,14 +190,15 @@ class AuthController {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            $nombre   = trim($_POST['nombre'] ?? '');
-            $correo   = trim($_POST['correo'] ?? '');
-            $telefono = (int)($_POST['telefono'] ?? 0);
-            $password = $_POST['contrasena'] ?? '';
-            $confirm  = $_POST['confirmar_contrasena'] ?? '';
-            $poliza   = isset($_POST['acepta_politicas']) ? 1 : 0;
+            $nombre      = trim($_POST['nombre'] ?? '');
+            $correo      = trim($_POST['correo'] ?? '');
+            $telefono    = (int)($_POST['telefono'] ?? 0);
+            $institucion = trim($_POST['institucion'] ?? '');
+            $password    = $_POST['contrasena'] ?? '';
+            $confirm     = $_POST['confirmar_contrasena'] ?? '';
+            $poliza      = isset($_POST['acepta_politicas']) ? 1 : 0;
 
-            if (empty($nombre) || empty($correo) || empty($password) || empty($confirm)) {
+            if (empty($nombre) || empty($correo) || empty($password) || empty($confirm) || empty($institucion)) {
                 $error = 'Todos los campos son obligatorios.';
             } elseif (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
                 $error = 'El correo no tiene un formato válido.';
@@ -219,7 +220,7 @@ class AuthController {
                     } else {
                         // Generar hash de contraseña y código de verificación
                         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-                        $code = $this->user->createEmailVerification($correo, $nombre, $hashedPassword, $telefono);
+                        $code = $this->user->createEmailVerification($correo, $nombre, $hashedPassword, $telefono, $institucion);
 
                         if ($code) {
                             // Enviar email con código de verificación

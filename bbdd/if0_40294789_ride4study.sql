@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 31-03-2026 a las 22:54:51
+-- Tiempo de generación: 01-04-2026 a las 00:35:41
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -62,7 +62,9 @@ INSERT INTO `admin_logs` (`idLog`, `idAdmin`, `accion`, `entidad`, `idEntidad`, 
 (17, 1, 'eliminar_usuario', 'usuario', 25, 'Prueba (ag12@yopmail.com)', '::1', '2026-03-31 16:38:42'),
 (18, 1, 'tomar_reporte', 'reporte', 8, '', '::1', '2026-03-31 21:01:12'),
 (19, 1, 'resolver_reporte', 'reporte', 8, 'Accion: resolver', '::1', '2026-03-31 21:01:19'),
-(20, 1, 'aprobar_verificacion', 'usuario', 1, 'Antonio Jesús', '::1', '2026-03-31 21:03:33');
+(20, 1, 'aprobar_verificacion', 'usuario', 1, 'Antonio Jesús', '::1', '2026-03-31 21:03:33'),
+(21, 1, 'eliminar', 'institucion', 1, '', '::1', '2026-03-31 23:46:39'),
+(22, 1, 'crear', 'institucion', 2, 'IES La Arboleda', '::1', '2026-04-01 00:11:25');
 
 -- --------------------------------------------------------
 
@@ -196,6 +198,7 @@ CREATE TABLE `email_verifications` (
   `nombre` varchar(100) NOT NULL,
   `contrasena` varchar(255) NOT NULL,
   `telefono` varchar(15) DEFAULT NULL,
+  `institucion` varchar(255) DEFAULT '',
   `code` varchar(6) NOT NULL,
   `expires_at` datetime NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -215,6 +218,12 @@ CREATE TABLE `instituciones` (
   `direccion` varchar(255) DEFAULT NULL,
   `logo` varchar(255) DEFAULT NULL,
   `descripcion` text DEFAULT NULL,
+  `contrasena` varchar(255) DEFAULT NULL,
+  `activo` tinyint(1) NOT NULL DEFAULT 1,
+  `ultimo_acceso` datetime DEFAULT NULL,
+  `codigo_2fa` varchar(255) DEFAULT NULL,
+  `expiracion_2fa` datetime DEFAULT NULL,
+  `intentos_2fa` int(11) NOT NULL DEFAULT 0,
   `creado_en` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -222,8 +231,8 @@ CREATE TABLE `instituciones` (
 -- Volcado de datos para la tabla `instituciones`
 --
 
-INSERT INTO `instituciones` (`idInstitucion`, `nombre`, `correo`, `telefono`, `direccion`, `logo`, `descripcion`, `creado_en`) VALUES
-(1, 'IES La Arboleda', 'antonio.jesus.gonzalez.domingo@ieslaarboleda.es', '624897163', 'Avenida Arboleda', '', 'I', '2026-03-21 14:11:31');
+INSERT INTO `instituciones` (`idInstitucion`, `nombre`, `correo`, `telefono`, `direccion`, `logo`, `descripcion`, `contrasena`, `activo`, `ultimo_acceso`, `codigo_2fa`, `expiracion_2fa`, `intentos_2fa`, `creado_en`) VALUES
+(2, 'IES La Arboleda', 'antonio.jesus.gonzalez.domingo@ieslaarboleda.es', '624897163', 'Avenida Arboleda', '', 'Instituto IES La Arboleda de Lepe', '$2y$10$0zDjvQQQcrpkoPufGy8CSu8lisFhsUCNe5vHva4t/SkOIGrC1Hr.y', 1, '2026-04-01 00:15:11', NULL, NULL, 0, '2026-04-01 00:11:25');
 
 -- --------------------------------------------------------
 
@@ -302,6 +311,23 @@ INSERT INTO `mensajes` (`idMensaje`, `idConversation`, `idEmisor`, `idReceptor`,
 (57, 17, 9, 29, 'bhjkl', 'normal', '2026-03-31 13:56:30', 1),
 (58, 17, 9, 29, 'gr', 'normal', '2026-03-31 14:05:28', 1),
 (59, 17, 9, 29, 'fe', 'normal', '2026-03-31 14:05:37', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `mensajes_instituciones`
+--
+
+CREATE TABLE `mensajes_instituciones` (
+  `idMensaje` int(11) NOT NULL,
+  `idInstitucion` int(11) NOT NULL,
+  `idAdmin` int(11) NOT NULL,
+  `asunto` varchar(255) NOT NULL,
+  `mensaje` text NOT NULL,
+  `emisor` enum('admin','institucion') NOT NULL,
+  `leido` tinyint(1) NOT NULL DEFAULT 0,
+  `creado_en` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -546,8 +572,9 @@ INSERT INTO `usuarios` (`idUsuario`, `nombre`, `correo`, `telefono`, `ciudad`, `
 (10, '', 'ibt_ag12@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, 'Antonio122', 1, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL, 0, NULL, NULL, NULL, 0.00),
 (12, 'admin', 'ibt_ag14@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, 'Antonio122', 1, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL, 0, NULL, NULL, NULL, 0.00),
 (24, 'Pedro', 'ag@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$7gJYR2mJHdvRaRBOmrX/SO9bu3/hArQwm1HiIgHy4BOg3yfXDnXm2', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL, 0, NULL, NULL, NULL, 0.00),
-(29, 'Paco', 'paco@yopmail.com', '624897163', '', '', '', NULL, '', '$2y$10$ZlEV1PIn3YA7NGXc3KbJdujWumVnSSoYNkIX69jSVVxSkI2cK2nHK', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 1, '2026-04-17 00:15:49', NULL, 0, NULL, NULL, '[\"silencio\",\"charla\"]', 0.00),
-(30, 'Manuel Hernandez', 'manuel@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$BbKvPG3JLhWVncZYG1a6A.JA6zmxGeGrCQPv8jVZMErPJLIZ.Ex..', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-27 14:53:37', 1, '2026-04-30 16:33:58', NULL, 0, NULL, NULL, NULL, 0.00);
+(29, 'Paco', 'paco@yopmail.com', '624897163', '', '', '', NULL, '', '$2y$10$ZlEV1PIn3YA7NGXc3KbJdujWumVnSSoYNkIX69jSVVxSkI2cK2nHK', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 1, '2026-04-17 00:15:49', NULL, 0, NULL, NULL, '[\"silencio\",\"charla\"]', 3.59),
+(30, 'Manuel Hernandez', 'manuel@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$BbKvPG3JLhWVncZYG1a6A.JA6zmxGeGrCQPv8jVZMErPJLIZ.Ex..', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-27 14:53:37', 1, '2026-04-30 16:33:58', NULL, 0, NULL, NULL, NULL, 3.59),
+(31, 'Rafael Rodriguez', 'rafael@yopmail.com', '624897163', NULL, NULL, 'IES La Arboleda', NULL, NULL, '$2y$10$oCpNOe7i632oq2gGxeQfy.oiWPC0k/qAHO1Pt0s/skNNY24hTdnuW', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-31 22:09:50', 0, NULL, NULL, 0, NULL, NULL, NULL, 0.00);
 
 -- --------------------------------------------------------
 
@@ -604,7 +631,7 @@ INSERT INTO `viajes` (`idViaje`, `idAnuncio`, `idConductor`, `idPasajero`, `esta
 (1, 10, 1, 9, '', '2026-01-23 03:02:00', NULL, NULL),
 (21, 38, 29, 9, 'pendiente', NULL, NULL, NULL),
 (23, 48, 29, 9, 'pendiente', NULL, NULL, NULL),
-(24, 52, 29, 30, 'aceptado', NULL, NULL, NULL);
+(24, 52, 29, 30, 'aceptado', NULL, NULL, '2026-04-01 00:09:51');
 
 --
 -- Índices para tablas volcadas
@@ -677,6 +704,15 @@ ALTER TABLE `mensajes`
   ADD KEY `idx_mensajes_conversacion` (`idConversation`);
 
 --
+-- Indices de la tabla `mensajes_instituciones`
+--
+ALTER TABLE `mensajes_instituciones`
+  ADD PRIMARY KEY (`idMensaje`),
+  ADD KEY `idx_mensajes_inst_institucion` (`idInstitucion`),
+  ADD KEY `idx_mensajes_inst_admin` (`idAdmin`),
+  ADD KEY `idx_mensajes_inst_leido` (`leido`);
+
+--
 -- Indices de la tabla `notificaciones`
 --
 ALTER TABLE `notificaciones`
@@ -735,7 +771,8 @@ ALTER TABLE `sesiones`
 ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`idUsuario`),
   ADD UNIQUE KEY `correo` (`correo`),
-  ADD KEY `idRol` (`idRol`);
+  ADD KEY `idRol` (`idRol`),
+  ADD KEY `idx_usuarios_institucion` (`institucion`);
 
 --
 -- Indices de la tabla `valoraciones`
@@ -764,7 +801,7 @@ ALTER TABLE `viajes`
 -- AUTO_INCREMENT de la tabla `admin_logs`
 --
 ALTER TABLE `admin_logs`
-  MODIFY `idLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `idLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT de la tabla `anuncios`
@@ -782,13 +819,13 @@ ALTER TABLE `conversations`
 -- AUTO_INCREMENT de la tabla `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `instituciones`
 --
 ALTER TABLE `instituciones`
-  MODIFY `idInstitucion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `idInstitucion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `localidades`
@@ -801,6 +838,12 @@ ALTER TABLE `localidades`
 --
 ALTER TABLE `mensajes`
   MODIFY `idMensaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+
+--
+-- AUTO_INCREMENT de la tabla `mensajes_instituciones`
+--
+ALTER TABLE `mensajes_instituciones`
+  MODIFY `idMensaje` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
@@ -848,7 +891,7 @@ ALTER TABLE `sesiones`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT de la tabla `viajes`
@@ -880,6 +923,13 @@ ALTER TABLE `conversations`
 ALTER TABLE `mensajes`
   ADD CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`idEmisor`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE,
   ADD CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`idReceptor`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `mensajes_instituciones`
+--
+ALTER TABLE `mensajes_instituciones`
+  ADD CONSTRAINT `fk_mensajes_inst_admin` FOREIGN KEY (`idAdmin`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_mensajes_inst_institucion` FOREIGN KEY (`idInstitucion`) REFERENCES `instituciones` (`idInstitucion`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `notificaciones_masivas`

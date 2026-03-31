@@ -293,7 +293,7 @@ class User {
     }
 
     // Crear código de verificación de email para registro
-    public function createEmailVerification(string $correo, string $nombre, string $hashedPassword, int $telefono): string|false {
+    public function createEmailVerification(string $correo, string $nombre, string $hashedPassword, int $telefono, string $institucion = ''): string|false {
         try {
             // Eliminar verificaciones anteriores del mismo correo
             $this->conn->prepare("DELETE FROM email_verifications WHERE correo = ?")->execute([$correo]);
@@ -302,10 +302,10 @@ class User {
             $expiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
 
             $stmt = $this->conn->prepare("
-                INSERT INTO email_verifications (correo, nombre, contrasena, telefono, code, expires_at)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO email_verifications (correo, nombre, contrasena, telefono, institucion, code, expires_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             ");
-            $stmt->execute([$correo, $nombre, $hashedPassword, $telefono, $code, $expiresAt]);
+            $stmt->execute([$correo, $nombre, $hashedPassword, $telefono, $institucion, $code, $expiresAt]);
 
             return $code;
         } catch (Exception $e) {
@@ -336,15 +336,16 @@ class User {
         }
 
         // Registrar usuario con los datos guardados
-        $sql = "INSERT INTO {$this->table} (nombre, correo, contrasena, idRol, telefono)
-                VALUES (:nombre, :correo, :contrasena, :idRol, :telefono)";
+        $sql = "INSERT INTO {$this->table} (nombre, correo, contrasena, idRol, telefono, institucion)
+                VALUES (:nombre, :correo, :contrasena, :idRol, :telefono, :institucion)";
         $stmt = $this->conn->prepare($sql);
         $result = $stmt->execute([
-            ':nombre'     => htmlspecialchars(strip_tags($data['nombre'])),
-            ':correo'     => $data['correo'],
-            ':contrasena' => $data['contrasena'],
-            ':idRol'      => 2,
-            ':telefono'   => $data['telefono'] ?: null
+            ':nombre'      => htmlspecialchars(strip_tags($data['nombre'])),
+            ':correo'      => $data['correo'],
+            ':contrasena'  => $data['contrasena'],
+            ':idRol'       => 2,
+            ':telefono'    => $data['telefono'] ?: null,
+            ':institucion' => $data['institucion'] ?? ''
         ]);
 
         if ($result) {

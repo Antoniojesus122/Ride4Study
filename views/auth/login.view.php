@@ -100,6 +100,13 @@
                     </button>
                   </div>
                 </form>
+
+                <div class="mt-6 text-center">
+                  <a href="<?= url('/institution-login') ?>" class="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-blue-400 transition-colors">
+                    <i class="fas fa-university"></i>
+                    <?= t('login.institution_access') ?>
+                  </a>
+                </div>
               </div>
             </div>
           </div>

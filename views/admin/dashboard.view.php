@@ -120,6 +120,7 @@
                 <h3 class="text-lg font-semibold text-white">Reportes Pendientes</h3>
                 <a href="<?= url('/admin/reports') ?>?tab=usuario" class="text-primary text-base hover:underline">Ver todos &rarr;</a>
             </div>
+            <?php $pendingReports = is_array($pendingReports) ? $pendingReports : []; ?>
             <?php if (!empty($pendingReports)): ?>
             <div class="overflow-x-auto">
                 <table class="w-full">
@@ -222,68 +223,104 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+        function formatLabels(labels) {
+            return labels.map(label => {
+                const parts = label.split('-');
+                if (parts.length === 2) {
+                    const monthIdx = parseInt(parts[1], 10) - 1;
+                    return monthNames[monthIdx] + ' ' + parts[0].slice(2);
+                }
+                return label;
+            });
+        }
+
         const chartDefaults = {
             responsive: true,
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
-                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af', beginAtZero: true } }
+                x: {
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    ticks: { color: '#9ca3af', font: { size: 12 } }
+                },
+                y: {
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    ticks: { color: '#9ca3af', font: { size: 12 }, beginAtZero: true, precision: 0 }
+                }
             }
         };
 
-        const regLabels = <?= json_encode(array_column($registrationsByMonth, 'mes')) ?>;
-        const regData = <?= json_encode(array_map('intval', array_column($registrationsByMonth, 'total'))) ?>;
-        new Chart(document.getElementById('chartRegistros'), {
-            type: 'bar',
-            data: {
-                labels: regLabels,
-                datasets: [{
-                    data: regData,
-                    backgroundColor: 'rgba(99, 102, 241, 0.5)',
-                    borderColor: 'rgb(99, 102, 241)',
-                    borderWidth: 1,
-                    borderRadius: 4
-                }]
-            },
-            options: chartDefaults
-        });
+        <?php
+            $regLabels = is_array($registrationsByMonth) ? array_column($registrationsByMonth, 'mes') : [];
+            $regData = is_array($registrationsByMonth) ? array_map('intval', array_column($registrationsByMonth, 'total')) : [];
+            $rideLabels = is_array($ridesByMonth) ? array_column($ridesByMonth, 'mes') : [];
+            $rideData = is_array($ridesByMonth) ? array_map('intval', array_column($ridesByMonth, 'total')) : [];
+            $repLabels = is_array($reportsByMonth) ? array_column($reportsByMonth, 'mes') : [];
+            $repData = is_array($reportsByMonth) ? array_map('intval', array_column($reportsByMonth, 'total')) : [];
+        ?>
 
-        const rideLabels = <?= json_encode(array_column($ridesByMonth, 'mes')) ?>;
-        const rideData = <?= json_encode(array_map('intval', array_column($ridesByMonth, 'total'))) ?>;
-        new Chart(document.getElementById('chartAnuncios'), {
-            type: 'line',
-            data: {
-                labels: rideLabels,
-                datasets: [{
-                    data: rideData,
-                    borderColor: 'rgb(52, 211, 153)',
-                    backgroundColor: 'rgba(52, 211, 153, 0.1)',
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 4,
-                    pointBackgroundColor: 'rgb(52, 211, 153)'
-                }]
-            },
-            options: chartDefaults
-        });
+        const regLabels = formatLabels(<?= json_encode($regLabels) ?>);
+        const regData = <?= json_encode($regData) ?>;
+        if (regLabels.length > 0) {
+            new Chart(document.getElementById('chartRegistros'), {
+                type: 'bar',
+                data: {
+                    labels: regLabels,
+                    datasets: [{
+                        data: regData,
+                        backgroundColor: 'rgba(99, 102, 241, 0.5)',
+                        borderColor: 'rgb(99, 102, 241)',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: chartDefaults
+            });
+        }
 
-        const repLabels = <?= json_encode(array_column($reportsByMonth, 'mes')) ?>;
-        const repData = <?= json_encode(array_map('intval', array_column($reportsByMonth, 'total'))) ?>;
-        new Chart(document.getElementById('chartReportes'), {
-            type: 'bar',
-            data: {
-                labels: repLabels,
-                datasets: [{
-                    data: repData,
-                    backgroundColor: 'rgba(239, 68, 68, 0.5)',
-                    borderColor: 'rgb(239, 68, 68)',
-                    borderWidth: 1,
-                    borderRadius: 4
-                }]
-            },
-            options: chartDefaults
-        });
+        const rideLabels = formatLabels(<?= json_encode($rideLabels) ?>);
+        const rideData = <?= json_encode($rideData) ?>;
+        if (rideLabels.length > 0) {
+            new Chart(document.getElementById('chartAnuncios'), {
+                type: 'line',
+                data: {
+                    labels: rideLabels,
+                    datasets: [{
+                        data: rideData,
+                        borderColor: 'rgb(52, 211, 153)',
+                        backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointBackgroundColor: 'rgb(52, 211, 153)',
+                        pointBorderColor: 'rgb(52, 211, 153)',
+                        borderWidth: 2
+                    }]
+                },
+                options: chartDefaults
+            });
+        }
+
+        const repLabels = formatLabels(<?= json_encode($repLabels) ?>);
+        const repData = <?= json_encode($repData) ?>;
+        if (repLabels.length > 0) {
+            new Chart(document.getElementById('chartReportes'), {
+                type: 'bar',
+                data: {
+                    labels: repLabels,
+                    datasets: [{
+                        data: repData,
+                        backgroundColor: 'rgba(239, 68, 68, 0.5)',
+                        borderColor: 'rgb(239, 68, 68)',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: chartDefaults
+            });
+        }
     });
 </script>
 

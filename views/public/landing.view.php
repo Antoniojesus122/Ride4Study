@@ -34,6 +34,9 @@
                     <a href="#ventajas" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">
                         <?= t('landing.benefits') ?>
                     </a>
+                    <a href="<?= url('/instituciones') ?>" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                        <?= t('landing.institutions') ?>
+                    </a>
                 </div>
 
                 <div class="flex items-center gap-2 sm:gap-4">

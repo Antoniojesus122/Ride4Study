@@ -81,6 +81,18 @@
                     </div>
                   </div>
 
+                  <!-- Institución (obligatorio, con autocompletado) -->
+                  <div class="relative">
+                    <label for="institucion" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.institution') ?></label>
+                    <div class="mt-2">
+                      <input id="institucion" name="institucion" type="text" required autocomplete="off"
+                        value="<?= htmlspecialchars($_POST['institucion'] ?? '') ?>"
+                        placeholder="<?= t('register.institution_placeholder') ?>"
+                        class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition-all">
+                    </div>
+                    <ul id="inst-autocomplete-list" class="hidden absolute z-30 w-full bg-gray-800 border border-gray-600 rounded-lg mt-1 shadow-xl max-h-48 overflow-y-auto"></ul>
+                  </div>
+
                   <div>
                     <label for="contrasena" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.password') ?></label>
                     <div class="mt-2 relative">
@@ -218,6 +230,44 @@
               submitBtn.disabled = true;
               submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
             }
+          });
+
+          // Autocompletado de instituciones
+          const instInput = document.getElementById('institucion');
+          const instList = document.getElementById('inst-autocomplete-list');
+          let instDebounce;
+
+          instInput.addEventListener('input', function() {
+              clearTimeout(instDebounce);
+              const q = this.value.trim();
+              if (q.length < 2) { instList.classList.add('hidden'); instList.innerHTML = ''; return; }
+
+              instDebounce = setTimeout(() => {
+                  fetch('<?= url('/api/instituciones-search') ?>?q=' + encodeURIComponent(q))
+                      .then(r => r.json())
+                      .then(data => {
+                          instList.innerHTML = '';
+                          if (!data.length) { instList.classList.add('hidden'); return; }
+                          data.forEach(item => {
+                              const li = document.createElement('li');
+                              li.textContent = item.nombre;
+                              li.className = 'px-4 py-2.5 text-sm text-gray-300 cursor-pointer border-b border-gray-700/50 last:border-0 hover:bg-primary/10 transition-colors';
+                              li.addEventListener('click', () => {
+                                  instInput.value = item.nombre;
+                                  instList.classList.add('hidden');
+                              });
+                              instList.appendChild(li);
+                          });
+                          instList.classList.remove('hidden');
+                      })
+                      .catch(() => instList.classList.add('hidden'));
+              }, 300);
+          });
+
+          document.addEventListener('click', function(e) {
+              if (!instInput.contains(e.target) && !instList.contains(e.target)) {
+                  instList.classList.add('hidden');
+              }
           });
       </script>
     </body>
