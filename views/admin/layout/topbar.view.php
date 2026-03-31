@@ -1,11 +1,43 @@
 <?php
-    // Recuento de reportes pendientes
-    $pendingBadge = 0;
+    // Recuento de reportes pendientes y verificaciones pendientes
+    $pendingReports = 0;
+    $pendingVerifications = 0;
+    $recentNotifs = [];
     try {
         $dbTopbar = (new Database())->connect();
-        $stmtPending = $dbTopbar->query("SELECT COUNT(*) FROM reportes WHERE estado = 'pendiente'");
-        $pendingBadge = (int)$stmtPending->fetchColumn();
-    } catch (Exception $e) {}
+
+        $stmtR = $dbTopbar->query("SELECT COUNT(*) FROM reportes WHERE estado = 'pendiente'");
+        $pendingReports = (int)$stmtR->fetchColumn();
+
+        $stmtV = $dbTopbar->query("SELECT COUNT(*) FROM usuarios WHERE estado_verificacion = 1");
+        $pendingVerifications = (int)$stmtV->fetchColumn();
+
+        // Ultimos reportes pendientes (max 5)
+        $stmtRecent = $dbTopbar->query(
+            "SELECT r.tipo, r.motivo, r.creado_en, u.nombre AS reporta_nombre
+             FROM reportes r
+             LEFT JOIN usuarios u ON r.idUsuarioQueReporta = u.idUsuario
+             WHERE r.estado = 'pendiente'
+             ORDER BY r.creado_en DESC LIMIT 5"
+        );
+        $recentNotifs = $stmtRecent->fetchAll(PDO::FETCH_ASSOC);
+
+        // Ultimas verificaciones pendientes (max 3)
+        $stmtVerif = $dbTopbar->query(
+            "SELECT nombre, correo, creado_en FROM usuarios WHERE estado_verificacion = 1 ORDER BY creado_en DESC LIMIT 3"
+        );
+        $recentVerifs = $stmtVerif->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        $recentVerifs = [];
+    }
+
+    $totalPending = $pendingReports + $pendingVerifications;
+
+    $motivoLabelsTopbar = [
+        'spam' => 'Spam', 'ofensivo' => 'Ofensivo', 'suplantacion' => 'Suplantacion',
+        'inapropiado' => 'Inapropiado', 'fraude' => 'Fraude', 'otro' => 'Otro',
+    ];
+    $tipoLabelsTopbar = ['usuario' => 'Usuario', 'anuncio' => 'Anuncio', 'chat' => 'Chat'];
 ?>
 
 <div class="sticky top-0 z-20 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 px-10 py-6 flex items-center justify-between">
@@ -14,25 +46,95 @@
         <h1 class="text-3xl font-bold text-white"><?= htmlspecialchars($pageTitle) ?></h1>
     </div>
 
-    <!-- Derecha: Busqueda + Notificaciones + Usuario Admin -->
+    <!-- Derecha: Notificaciones + Usuario Admin -->
     <div class="flex items-center gap-5">
-        <!-- Busqueda (por ahora no funcional) -->
-        <div class="hidden md:flex items-center bg-gray-800/60 border border-gray-700/50 rounded-lg px-4 py-2.5">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-500">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-            </svg>
-            <input type="text" placeholder="Buscar..." class="bg-transparent border-none outline-none text-base text-gray-300 placeholder-gray-500 ml-3 w-52" readonly>
-        </div>
 
-        <!-- Notificaciones de reportes pendientes -->
-        <?php if ($pendingBadge > 0): ?>
-        <a href="<?= url('/admin/reports') ?>?tab=usuario" class="relative p-2.5 text-gray-400 hover:text-white transition-colors" title="Reportes pendientes">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-            </svg>
-            <span class="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[11px] font-bold rounded-full flex items-center justify-center"><?= $pendingBadge > 99 ? '99+' : $pendingBadge ?></span>
-        </a>
-        <?php endif; ?>
+        <!-- Notificaciones admin -->
+        <div class="relative">
+            <button onclick="document.getElementById('admin-notif-dropdown').classList.toggle('hidden')" class="relative p-2.5 text-gray-400 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                </svg>
+                <?php if ($totalPending > 0): ?>
+                <span class="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[11px] font-bold rounded-full flex items-center justify-center"><?= $totalPending > 99 ? '99+' : $totalPending ?></span>
+                <?php endif; ?>
+            </button>
+
+            <!-- Dropdown de notificaciones -->
+            <div id="admin-notif-dropdown" class="hidden absolute right-0 top-full mt-2 w-96 bg-gray-800 border border-gray-700 rounded-xl shadow-2xl z-30 overflow-hidden">
+                <div class="px-5 py-3.5 border-b border-gray-700 flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-white">Notificaciones</h3>
+                    <?php if ($totalPending > 0): ?>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 font-medium"><?= $totalPending ?> pendiente<?= $totalPending !== 1 ? 's' : '' ?></span>
+                    <?php endif; ?>
+                </div>
+
+                <div class="max-h-96 overflow-y-auto">
+                    <?php if ($totalPending === 0): ?>
+                    <div class="px-5 py-8 text-center">
+                        <i class="fas fa-check-circle text-2xl text-green-400/50 mb-2"></i>
+                        <p class="text-sm text-gray-500">Todo al dia, sin pendientes</p>
+                    </div>
+                    <?php else: ?>
+
+                        <!-- Reportes pendientes -->
+                        <?php if ($pendingReports > 0): ?>
+                        <div class="px-5 py-2.5 bg-gray-900/50">
+                            <p class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Reportes pendientes (<?= $pendingReports ?>)</p>
+                        </div>
+                        <?php foreach ($recentNotifs as $n): ?>
+                        <a href="<?= url('/admin/reports') ?>?tab=<?= htmlspecialchars($n['tipo']) ?>" class="flex items-start gap-3 px-5 py-3 hover:bg-gray-700/40 transition border-b border-gray-700/30">
+                            <div class="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                                <i class="fas fa-flag text-xs text-red-400"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-gray-200 leading-snug">
+                                    <span class="font-medium"><?= htmlspecialchars($n['reporta_nombre'] ?? 'Usuario') ?></span>
+                                    reporto un <span class="text-red-400 font-medium"><?= $tipoLabelsTopbar[$n['tipo']] ?? $n['tipo'] ?></span>
+                                </p>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-[11px] px-1.5 py-0.5 rounded bg-gray-700 text-gray-400"><?= $motivoLabelsTopbar[$n['motivo']] ?? $n['motivo'] ?></span>
+                                    <span class="text-[11px] text-gray-600"><?= date('d/m H:i', strtotime($n['creado_en'])) ?></span>
+                                </div>
+                            </div>
+                        </a>
+                        <?php endforeach; ?>
+                        <?php if ($pendingReports > 5): ?>
+                        <a href="<?= url('/admin/reports') ?>" class="block px-5 py-2 text-xs text-primary hover:text-primary-dark text-center">Ver todos los reportes</a>
+                        <?php endif; ?>
+                        <?php endif; ?>
+
+                        <!-- Verificaciones pendientes -->
+                        <?php if ($pendingVerifications > 0): ?>
+                        <div class="px-5 py-2.5 bg-gray-900/50">
+                            <p class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Verificaciones pendientes (<?= $pendingVerifications ?>)</p>
+                        </div>
+                        <?php foreach ($recentVerifs as $v): ?>
+                        <a href="<?= url('/admin/users') ?>?tab=verificaciones" class="flex items-start gap-3 px-5 py-3 hover:bg-gray-700/40 transition border-b border-gray-700/30">
+                            <div class="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                                <i class="fas fa-id-card text-xs text-yellow-400"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-gray-200 leading-snug">
+                                    <span class="font-medium"><?= htmlspecialchars($v['nombre']) ?></span>
+                                    solicito verificacion
+                                </p>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-[11px] text-gray-500"><?= htmlspecialchars($v['correo']) ?></span>
+                                    <span class="text-[11px] text-gray-600"><?= date('d/m H:i', strtotime($v['creado_en'])) ?></span>
+                                </div>
+                            </div>
+                        </a>
+                        <?php endforeach; ?>
+                        <?php if ($pendingVerifications > 3): ?>
+                        <a href="<?= url('/admin/users') ?>?tab=verificaciones" class="block px-5 py-2 text-xs text-primary hover:text-primary-dark text-center">Ver todas las verificaciones</a>
+                        <?php endif; ?>
+                        <?php endif; ?>
+
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
 
         <!-- Avatar de admin + desplegable -->
         <div class="relative pl-4 border-l border-gray-700/50">
@@ -64,12 +166,16 @@
     </div>
 </div>
 
-<!-- Cerrar desplegable si se hace click fuera de este -->
+<!-- Cerrar desplegables si se hace click fuera -->
 <script>
     document.addEventListener('click', function(e) {
         const dd = document.getElementById('admin-dropdown');
         if (dd && !dd.parentElement.contains(e.target)) {
             dd.classList.add('hidden');
+        }
+        const nd = document.getElementById('admin-notif-dropdown');
+        if (nd && !nd.parentElement.contains(e.target)) {
+            nd.classList.add('hidden');
         }
     });
 </script>

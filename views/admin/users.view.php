@@ -195,7 +195,7 @@
                         </div>
                         <p class="text-xs text-gray-500 shrink-0"><?= date('d/m/Y H:i', strtotime($u['creado_en'])) ?></p>
                         <div class="flex items-center gap-2 shrink-0">
-                            <a href="<?= url('/') ?>public/uploads/verification/<?= urlencode($u['documento_verificacion']) ?>"
+                            <a href="<?= url('/public/uploads/verification/') . rawurlencode($u['documento_verificacion']) ?>"
                                target="_blank"
                                class="px-3 py-1.5 text-xs font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition border border-gray-600">
                                 Ver documento

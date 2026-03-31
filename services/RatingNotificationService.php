@@ -22,7 +22,8 @@ class RatingNotificationService {
         ];
 
         try {
-            // Buscar viajes completados en las últimas 24-48 horas que no hayan sido notificados
+            // Buscar viajes cuya fecha de salida fue ayer (al dia siguiente del viaje)
+            // y que no hayan sido notificados. Ventana de 7 dias para no perder viajes.
             $query = "
                 SELECT DISTINCT
                     v.idViaje,
@@ -47,8 +48,8 @@ class RatingNotificationService {
                 INNER JOIN localidades origen ON a.origen = origen.idLocalidad
                 INNER JOIN localidades destino ON a.destino = destino.idLocalidad
                 WHERE v.estado = 'aceptado'
-                  AND CONCAT(a.fechaSalida, ' ', COALESCE(a.horaRegreso, a.horaSalida)) < NOW()
-                  AND CONCAT(a.fechaSalida, ' ', COALESCE(a.horaRegreso, a.horaSalida)) >= DATE_SUB(NOW(), INTERVAL 48 HOUR)
+                  AND a.fechaSalida < CURDATE()
+                  AND a.fechaSalida >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
                   AND v.notificacion_valoracion_enviada IS NULL
             ";
 

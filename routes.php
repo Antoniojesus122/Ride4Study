@@ -172,6 +172,34 @@ $router->post('/report', function () {
     }
 
     $ok = $report->createReport($tipo, $idUsuarioReportado, $idAnuncio, $idChat, (int)$_SESSION['user_id'], $mensaje ?: $motivo, $motivo, $evidenciaImg);
+
+    // Notificar a admins por email
+    if ($ok) {
+        try {
+            require_once __DIR__ . '/services/MailService.php';
+            $mail = new MailService();
+            $tipoLabel = match($tipo) { 'usuario' => 'usuario', 'anuncio' => 'anuncio', 'chat' => 'chat', default => $tipo };
+            $motivoLabel = match($motivo) { 'spam' => 'Spam', 'ofensivo' => 'Contenido ofensivo', 'suplantacion' => 'Suplantacion', 'inapropiado' => 'Comportamiento inapropiado', 'fraude' => 'Fraude', default => 'Otro' };
+            $reporterName = $_SESSION['user_name'] ?? 'Usuario';
+            $admins = $db->query("SELECT nombre, correo FROM usuarios WHERE idRol = 1")->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($admins as $admin) {
+                $html = $mail->generarPlantilla(
+                    $admin['nombre'],
+                    'Nuevo reporte recibido',
+                    'Se ha recibido un nuevo reporte en Ride4Study.<br><br>
+                    <strong>Tipo:</strong> ' . htmlspecialchars(ucfirst($tipoLabel)) . '<br>
+                    <strong>Motivo:</strong> ' . htmlspecialchars($motivoLabel) . '<br>
+                    <strong>Reportado por:</strong> ' . htmlspecialchars($reporterName) . '<br>
+                    <strong>Mensaje:</strong> ' . htmlspecialchars($mensaje ?: $motivo),
+                    null,
+                    fullUrl('/admin/reports') . '?tab=' . urlencode($tipo),
+                    'Ver reportes'
+                );
+                $mail->send($admin['correo'], $admin['nombre'], 'Nuevo reporte · Ride4Study', $html);
+            }
+        } catch (Exception $e) { error_log('Admin email notify: ' . $e->getMessage()); }
+    }
+
     echo json_encode(['success' => $ok, 'message' => $ok ? t('nav.report_sent') : t('nav.report_error')]);
     exit;
 });

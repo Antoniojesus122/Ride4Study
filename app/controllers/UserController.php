@@ -239,6 +239,30 @@ class UserController {
                        $this->mailService->send($userData['correo'], $userData['nombre'], 'Verificación recibida · Ride4Study', $html);
                    }
 
+                   // Notificar a admins por email
+                   if ($this->mailService) {
+                       try {
+                           require_once __DIR__ . '/../../config/database.php';
+                           $adminDb = (new Database())->connect();
+                           $admins = $adminDb->query("SELECT nombre, correo FROM usuarios WHERE idRol = 1")->fetchAll(PDO::FETCH_ASSOC);
+                           $userName = $userData['nombre'] ?? $_SESSION['user_name'] ?? 'Usuario';
+                           $userEmail = $userData['correo'] ?? '';
+                           foreach ($admins as $admin) {
+                               $adminHtml = $this->mailService->generarPlantilla(
+                                   $admin['nombre'],
+                                   'Nueva solicitud de verificacion',
+                                   'Un usuario ha enviado una solicitud de verificacion de estudiante.<br><br>
+                                   <strong>Usuario:</strong> ' . htmlspecialchars($userName) . '<br>
+                                   <strong>Correo:</strong> ' . htmlspecialchars($userEmail),
+                                   null,
+                                   fullUrl('/admin/users') . '?tab=verificaciones',
+                                   'Ver verificaciones'
+                               );
+                               $this->mailService->send($admin['correo'], $admin['nombre'], 'Nueva verificacion pendiente · Ride4Study', $adminHtml);
+                           }
+                       } catch (Exception $e) { error_log('Admin verification email: ' . $e->getMessage()); }
+                   }
+
                    redirectWithFlash(url('/profile'), 'success', 'verification_sent', 'verification');
               } else {
                    redirectWithFlash(url('/profile'), 'error', 'upload_failed', 'verification');
