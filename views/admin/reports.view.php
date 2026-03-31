@@ -281,6 +281,8 @@
                                     <?= htmlspecialchars($r['reportado_nombre'] ?? 'N/A') ?>
                                     <?php if ($r['tipo'] === 'anuncio' && !empty($r['anuncio_origen'])): ?>
                                         <span class="text-gray-500 text-sm ml-1">(<?= htmlspecialchars($r['anuncio_origen']) ?> &rarr; <?= htmlspecialchars($r['anuncio_destino'] ?? '') ?>)</span>
+                                    <?php elseif ($r['tipo'] === 'chat'): ?>
+                                        <span class="text-gray-500 text-sm ml-1"><?= empty($r['idChat']) ? '(Conversacion)' : '(Mensaje)' ?></span>
                                     <?php endif; ?>
                                 </span>
                             </div>
@@ -318,9 +320,13 @@
                                     <button onclick="previewContent('anuncio', <?= $r['idAnuncio'] ?>)" class="inline-flex items-center gap-1 mt-1 text-xs text-blue-400 hover:text-blue-300 underline">
                                         <i class="fas fa-car text-xs"></i> Ver anuncio #<?= $r['idAnuncio'] ?>
                                     </button>
-                                    <?php elseif ($r['tipo'] === 'chat' && !empty($r['idEntidad'])): ?>
-                                    <button onclick="previewContent('chat', <?= $r['idEntidad'] ?>)" class="inline-flex items-center gap-1 mt-1 text-xs text-blue-400 hover:text-blue-300 underline">
-                                        <i class="fas fa-comments text-xs"></i> Ver conversacion
+                                    <?php elseif ($r['tipo'] === 'chat' && !empty($r['idChat'])): ?>
+                                    <button onclick="previewContent('chat_msg', <?= $r['idChat'] ?>)" class="inline-flex items-center gap-1 mt-1 text-xs text-blue-400 hover:text-blue-300 underline">
+                                        <i class="fas fa-comment text-xs"></i> Ver mensaje reportado
+                                    </button>
+                                    <?php elseif ($r['tipo'] === 'chat' && empty($r['idChat']) && !empty($r['idAnuncio'])): ?>
+                                    <button onclick="previewContent('chat_conv', <?= $r['idAnuncio'] ?>, <?= (int)$r['idUsuarioReportado'] ?>)" class="inline-flex items-center gap-1 mt-1 text-xs text-blue-400 hover:text-blue-300 underline">
+                                        <i class="fas fa-comments text-xs"></i> Ver conversacion reportada
                                     </button>
                                     <?php endif; ?>
                                 </div>
@@ -486,7 +492,7 @@
 
 <!-- Modal de vista previa -->
 <div id="preview-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60" onclick="if(event.target===this)closePreview()">
-    <div class="bg-gray-800 border border-gray-700 rounded-xl p-7 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto">
+    <div class="bg-gray-800 border border-gray-700 rounded-xl p-7 max-w-xl w-full mx-4 max-h-[80vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-white" id="preview-title">Vista previa</h3>
             <button onclick="closePreview()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
@@ -616,14 +622,16 @@
     }
 
     // Vista previa del contenido reportado
-    function previewContent(tipo, id) {
+    function previewContent(tipo, id, extraId) {
         const modal = document.getElementById('preview-modal');
         const body = document.getElementById('preview-body');
         const title = document.getElementById('preview-title');
-        body.innerHTML = '<p class="text-gray-500">Cargando...</p>';
+        body.innerHTML = '<div class="flex items-center justify-center py-8 text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i> Cargando...</div>';
         modal.classList.remove('hidden');
 
-        fetch('<?= url("/admin/reports") ?>?ajax=preview&tipo=' + tipo + '&id=' + id)
+        let url = '<?= url("/admin/reports") ?>?ajax=preview&tipo=' + tipo + '&id=' + id;
+        if (extraId) url += '&extraId=' + extraId;
+        fetch(url)
             .then(r => r.json())
             .then(data => {
                 if (data.error || !data._tipo) {
@@ -632,63 +640,92 @@
                 }
                 if (data._tipo === 'usuario') {
                     title.textContent = 'Perfil de usuario';
-                    const verificado = data.estado_verificacion == 2 ? '<span class="px-2 py-0.5 text-xs rounded-full bg-green-500/10 text-green-400">Verificado</span>' : '<span class="px-2 py-0.5 text-xs rounded-full bg-gray-500/10 text-gray-400">No verificado</span>';
-                    const premium = data.premium == 1 ? '<span class="px-2 py-0.5 text-xs rounded-full bg-yellow-500/10 text-yellow-400 ml-1">Premium</span>' : '';
-                    const baneado = data.baneado == 1 ? '<span class="px-2 py-0.5 text-xs rounded-full bg-red-500/10 text-red-400 ml-1">Baneado</span>' : '';
+                    const verificado = data.estado_verificacion == 2
+                        ? '<span class="px-2.5 py-1 text-xs rounded-full bg-green-500/10 text-green-400 font-medium">Verificado</span>'
+                        : data.estado_verificacion == 1
+                            ? '<span class="px-2.5 py-1 text-xs rounded-full bg-yellow-500/10 text-yellow-400 font-medium">Pendiente</span>'
+                            : '<span class="px-2.5 py-1 text-xs rounded-full bg-gray-600/30 text-gray-400 font-medium">No verificado</span>';
+                    const premium = data.premium == 1 ? '<span class="px-2.5 py-1 text-xs rounded-full bg-yellow-500/10 text-yellow-400 font-medium">Premium</span>' : '';
+                    const baneado = data.baneado == 1 ? '<span class="px-2.5 py-1 text-xs rounded-full bg-red-500/10 text-red-400 font-medium">Baneado</span>' : '';
+                    const fotoHtml = data.fotoPerfil
+                        ? `<img src="<?= url('/') ?>public/uploads/profile/${data.fotoPerfil}" class="w-14 h-14 rounded-full object-cover border-2 border-gray-700">`
+                        : `<div class="w-14 h-14 rounded-full bg-gray-700 flex items-center justify-center text-xl font-bold text-primary">${(data.nombre||'?')[0].toUpperCase()}</div>`;
                     body.innerHTML = `
-                        <div class="space-y-3">
-                            <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center text-lg font-bold text-primary">${(data.nombre||'?')[0].toUpperCase()}</div>
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4">
+                                ${fotoHtml}
                                 <div>
-                                    <p class="text-white font-semibold text-base">${data.nombre || 'Sin nombre'}</p>
+                                    <p class="text-white font-semibold text-lg">${data.nombre || 'Sin nombre'}</p>
                                     <p class="text-gray-400 text-sm">${data.correo || ''}</p>
                                 </div>
                             </div>
-                            <div class="flex flex-wrap gap-1">${verificado}${premium}${baneado}</div>
-                            <div class="grid grid-cols-2 gap-2 text-sm">
-                                <p><span class="text-gray-500">ID:</span> <span class="text-gray-300">#${data.idUsuario}</span></p>
-                                <p><span class="text-gray-500">Rol:</span> <span class="text-gray-300">${data.nombreRol || 'Usuario'}</span></p>
-                                <p><span class="text-gray-500">Ciudad:</span> <span class="text-gray-300">${data.ciudad || '-'}</span></p>
-                                <p><span class="text-gray-500">Telefono:</span> <span class="text-gray-300">${data.telefono || '-'}</span></p>
-                                <p><span class="text-gray-500">Institucion:</span> <span class="text-gray-300">${data.institucion || '-'}</span></p>
-                                <p><span class="text-gray-500">Registro:</span> <span class="text-gray-300">${data.creado_en || '-'}</span></p>
+                            <div class="flex flex-wrap gap-1.5">${verificado}${premium}${baneado}</div>
+                            <div class="bg-gray-900/60 rounded-xl p-4 grid grid-cols-2 gap-3 text-sm">
+                                <div><p class="text-gray-500 text-xs mb-0.5">ID</p><p class="text-gray-300 font-medium">#${data.idUsuario}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">Rol</p><p class="text-gray-300 font-medium">${data.nombreRol || 'Usuario'}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">Ciudad</p><p class="text-gray-300 font-medium">${data.ciudad || '-'}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">Telefono</p><p class="text-gray-300 font-medium">${data.telefono || '-'}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">Institucion</p><p class="text-gray-300 font-medium">${data.institucion || '-'}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">Registro</p><p class="text-gray-300 font-medium">${data.creado_en ? new Date(data.creado_en).toLocaleDateString('es-ES') : '-'}</p></div>
                             </div>
                         </div>`;
                 } else if (data._tipo === 'anuncio') {
                     title.textContent = 'Detalle del anuncio';
                     body.innerHTML = `
-                        <div class="space-y-3">
-                            <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 text-sm rounded-full ${data.tipo === 'ofrezco' ? 'bg-green-500/10 text-green-400' : 'bg-emerald-500/10 text-emerald-400'}">${data.tipo}</span>
-                                <span class="text-gray-500 text-sm">#${data.idAnuncio}</span>
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg ${data.tipo === 'ofrezco' ? 'bg-green-500/10' : 'bg-emerald-500/10'} flex items-center justify-center">
+                                    <i class="fas fa-car ${data.tipo === 'ofrezco' ? 'text-green-400' : 'text-emerald-400'}"></i>
+                                </div>
+                                <div>
+                                    <span class="px-2.5 py-1 text-xs rounded-full font-medium ${data.tipo === 'ofrezco' ? 'bg-green-500/10 text-green-400' : 'bg-emerald-500/10 text-emerald-400'}">${data.tipo}</span>
+                                    <span class="text-gray-500 text-sm ml-1">#${data.idAnuncio}</span>
+                                </div>
                             </div>
-                            <div class="bg-gray-900 rounded-lg p-4">
-                                <p class="text-white font-medium">${data.nombreOrigen} &rarr; ${data.nombreDestino}</p>
-                                <p class="text-gray-400 text-sm mt-1">${data.descripcion || 'Sin descripcion'}</p>
+                            <div class="bg-gray-900/60 rounded-xl p-4">
+                                <p class="text-white font-semibold text-base flex items-center gap-2">${data.nombreOrigen} <i class="fas fa-arrow-right text-xs text-gray-500"></i> ${data.nombreDestino}</p>
+                                <p class="text-gray-400 text-sm mt-2">${data.descripcion || 'Sin descripcion'}</p>
                             </div>
-                            <div class="grid grid-cols-2 gap-2 text-sm">
-                                <p><span class="text-gray-500">Usuario:</span> <span class="text-gray-300">${data.usuario_nombre}</span></p>
-                                <p><span class="text-gray-500">Precio:</span> <span class="text-green-400">${data.precio ? data.precio + '\u20ac' : 'Gratis'}</span></p>
-                                <p><span class="text-gray-500">Plazas:</span> <span class="text-gray-300">${data.plazasDisponibles ?? '-'}</span></p>
-                                <p><span class="text-gray-500">Fecha:</span> <span class="text-gray-300">${data.fechaSalida || '-'}</span></p>
+                            <div class="bg-gray-900/60 rounded-xl p-4 grid grid-cols-2 gap-3 text-sm">
+                                <div><p class="text-gray-500 text-xs mb-0.5">Publicado por</p><p class="text-gray-300 font-medium">${data.usuario_nombre}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">Precio</p><p class="text-green-400 font-semibold">${data.precio ? data.precio + '\u20ac' : 'Gratis'}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">Plazas</p><p class="text-gray-300 font-medium">${data.plazasDisponibles ?? '-'}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">Fecha salida</p><p class="text-gray-300 font-medium">${data.fechaSalida ? new Date(data.fechaSalida).toLocaleDateString('es-ES') : '-'}</p></div>
+                                ${data.horaSalida ? `<div><p class="text-gray-500 text-xs mb-0.5">Hora</p><p class="text-gray-300 font-medium">${data.horaSalida.substring(0,5)}</p></div>` : ''}
                             </div>
                         </div>`;
                 } else if (data._tipo === 'chat') {
-                    title.textContent = 'Conversacion';
+                    const isConvReport = !data.reported_message_id;
+                    title.textContent = isConvReport ? 'Conversacion reportada' : 'Mensaje reportado';
                     let msgsHtml = '';
+                    const reportedMsgId = data.reported_message_id || null;
                     if (data.mensajes && data.mensajes.length) {
-                        msgsHtml = data.mensajes.map(m => `
-                            <div class="bg-gray-900 rounded-lg px-3 py-2 mb-2">
-                                <p class="text-xs text-primary font-medium">${m.emisor_nombre} <span class="text-gray-600 font-normal">${m.fechaCreacion}</span></p>
-                                <p class="text-gray-300 text-sm mt-1">${m.mensaje}</p>
-                            </div>`).join('');
+                        msgsHtml = data.mensajes.map(m => {
+                            const isReported = reportedMsgId && m.idMensaje == reportedMsgId;
+                            const borderClass = isReported ? 'border-l-2 border-l-red-500 bg-red-500/5' : 'bg-gray-900/60';
+                            return `
+                            <div class="rounded-lg px-3 py-2.5 ${borderClass}">
+                                ${isReported ? '<p class="text-[10px] text-red-400 font-semibold uppercase tracking-wider mb-1">Mensaje reportado</p>' : ''}
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-xs font-semibold text-primary">${m.emisor_nombre}</span>
+                                    <span class="text-[10px] text-gray-600">${m.fechaCreacion}</span>
+                                </div>
+                                <p class="text-gray-300 text-sm leading-relaxed">${m.mensaje}</p>
+                            </div>`;
+                        }).join('');
                     } else {
-                        msgsHtml = '<p class="text-gray-500 text-sm">No hay mensajes</p>';
+                        msgsHtml = '<p class="text-gray-500 text-sm text-center py-4">No hay mensajes</p>';
                     }
                     body.innerHTML = `
                         <div class="space-y-3">
-                            <p class="text-sm text-gray-400">${data.user1_nombre || '?'} &harr; ${data.user2_nombre || '?'}</p>
-                            <div class="max-h-64 overflow-y-auto">${msgsHtml}</div>
+                            <div class="flex items-center gap-2 text-sm text-gray-400">
+                                <i class="fas fa-comments text-gray-500"></i>
+                                <span class="font-medium text-gray-300">${data.user1_nombre || '?'}</span>
+                                <span>&harr;</span>
+                                <span class="font-medium text-gray-300">${data.user2_nombre || '?'}</span>
+                            </div>
+                            <p class="text-xs text-gray-500">${isConvReport ? 'Mostrando mensajes recientes de la conversacion' : 'Mostrando mensajes alrededor del mensaje reportado'}</p>
+                            <div class="max-h-72 overflow-y-auto space-y-2 pr-1">${msgsHtml}</div>
                         </div>`;
                 }
             })

@@ -2,30 +2,28 @@
     <?php $isMe = $msg['idEmisor'] == $_SESSION['user_id']; ?>
 
     <div class="flex w-full <?= $isMe ? 'justify-end' : 'justify-start' ?> group" id="msg-<?= $msg['idMensaje'] ?>">
-        <div class="max-w-[80%] md:max-w-[65%] lg:max-w-[55%]">
-            <div class="relative px-4 py-3 rounded-2xl text-sm lg:text-base shadow-md <?= $isMe
-                ? 'bg-gradient-to-br from-primary to-primary-dark text-secondary rounded-br-md'
-                : 'bg-surface text-gray-200 rounded-bl-md border border-gray-700/50' ?>">
-                <p class="whitespace-pre-wrap message-content leading-relaxed"><?= htmlspecialchars($msg['mensaje']) ?></p>
-
-                <div class="flex items-center justify-end gap-1.5 mt-1.5 <?= $isMe ? 'opacity-70' : 'opacity-50' ?> text-[10px]">
-                    <span><?= date('H:i', strtotime($msg['fechaCreacion'])) ?></span>
+        <div class="max-w-[75%] md:max-w-[60%]">
+            <div class="px-3.5 py-2 rounded-xl text-[15px] <?= $isMe
+                ? 'bg-primary/15 text-gray-100 rounded-br-none'
+                : 'bg-surface-light/60 text-gray-200 rounded-bl-none' ?>">
+                <p class="whitespace-pre-wrap message-content leading-snug"><?= htmlspecialchars($msg['mensaje']) ?></p>
+                <p class="text-[10px] mt-0.5 <?= $isMe ? 'text-primary/50 text-right' : 'text-gray-500 text-right' ?>">
+                    <?= date('H:i', strtotime($msg['fechaCreacion'])) ?>
                     <?php if ($isMe): ?>
-                        <i class="fas fa-check<?= $msg['leido'] ? '-double' : '' ?>"></i>
+                        <i class="fas fa-check<?= $msg['leido'] ? '-double text-primary/70' : '' ?> ml-0.5"></i>
                     <?php endif; ?>
-
-                    <?php if ($isMe && (time() - strtotime($msg['fechaCreacion']) < 3600)): ?>
-                        <div class="hidden group-hover:flex gap-2 ml-2 border-l <?= $isMe ? 'border-black/20' : 'border-white/10' ?> pl-2">
-                            <button onclick="editMessage(<?= $msg['idMensaje'] ?>)" class="hover:text-white transition-colors" title="<?= t('chat.edit_message') ?>"><i class="fas fa-pen"></i></button>
-                            <button onclick="deleteMessage(<?= $msg['idMensaje'] ?>)" class="hover:text-red-300 transition-colors" title="<?= t('chat.delete_message') ?>"><i class="fas fa-trash"></i></button>
-                        </div>
-                    <?php elseif (!$isMe): ?>
-                        <div class="hidden group-hover:flex gap-2 ml-2 border-l border-white/10 pl-2">
-                            <button onclick="openReportModal('chat', {idChat: <?= (int)$msg['idMensaje'] ?>, idUsuario: <?= (int)$msg['idEmisor'] ?>})" class="hover:text-red-400 transition-colors" title="<?= t('chat.report_message') ?>"><i class="fas fa-flag text-[9px]"></i></button>
-                        </div>
-                    <?php endif; ?>
-                </div>
+                </p>
             </div>
+            <?php if ($isMe && (time() - strtotime($msg['fechaCreacion']) < 3600)): ?>
+            <div class="hidden group-hover:flex items-center gap-2.5 mt-0.5 justify-end pr-1">
+                <button onclick="editMessage(<?= $msg['idMensaje'] ?>)" class="text-[10px] text-gray-600 hover:text-gray-300 transition"><i class="fas fa-pen"></i></button>
+                <button onclick="deleteMessage(<?= $msg['idMensaje'] ?>)" class="text-[10px] text-gray-600 hover:text-red-400 transition"><i class="fas fa-trash"></i></button>
+            </div>
+            <?php elseif (!$isMe): ?>
+            <div class="hidden group-hover:flex items-center mt-0.5 pl-1">
+                <button onclick="openReportModal('chat', {idChat: <?= (int)$msg['idMensaje'] ?>, idUsuario: <?= (int)$msg['idEmisor'] ?>})" class="text-[10px] text-gray-600 hover:text-red-400 transition"><i class="fas fa-flag"></i></button>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 <?php endforeach; ?>

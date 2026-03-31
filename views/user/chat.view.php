@@ -93,9 +93,14 @@
                 </div>
 
                 <!-- Opciones -->
-                <button onclick="confirmDeleteConversation(<?= $selectedConversationId ?>)" class="w-9 h-9 flex items-center justify-center rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all" title="<?= t('chat.delete_conversation') ?>">
-                    <i class="fas fa-trash-alt text-sm"></i>
-                </button>
+                <div class="flex items-center gap-1">
+                    <button onclick="openReportModal('chat_conv', {idUsuario: <?= (int)$otherUser['idUsuario'] ?>, idAnuncio: <?= (int)($contextRide['idAnuncio'] ?? 0) ?>})" class="w-9 h-9 flex items-center justify-center rounded-lg text-gray-500 hover:text-yellow-400 hover:bg-yellow-500/10 transition-all" title="Reportar conversacion">
+                        <i class="fas fa-flag text-sm"></i>
+                    </button>
+                    <button onclick="confirmDeleteConversation(<?= $selectedConversationId ?>)" class="w-9 h-9 flex items-center justify-center rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all" title="<?= t('chat.delete_conversation') ?>">
+                        <i class="fas fa-trash-alt text-sm"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Tarjeta de contexto del anuncio (desde conversations JOIN anuncios) -->
@@ -303,7 +308,7 @@
             <?php endif; ?>
 
             <!-- Area de mensajes -->
-            <div class="flex-1 overflow-y-auto px-4 lg:px-8 py-5 space-y-3" id="messages-container">
+            <div class="flex-1 overflow-y-auto px-4 lg:px-8 py-4 space-y-3" id="messages-container">
                 <?php if (!empty($hasMore)): ?>
                 <div id="load-more-wrap" class="text-center py-3">
                     <button onclick="loadOlderMessages()" id="load-more-btn" class="px-5 py-2 text-xs font-medium bg-white/5 text-gray-400 rounded-full hover:bg-white/10 hover:text-gray-200 transition border border-gray-700/50">
@@ -439,13 +444,14 @@
         const tempId = 'msg-temp-' + Date.now();
         const msgHtml = `
             <div class="flex w-full justify-end group" id="${tempId}">
-                <div class="max-w-[80%] md:max-w-[65%] lg:max-w-[55%]">
-                    <div class="relative px-4 py-3 rounded-2xl text-sm lg:text-base shadow-md bg-gradient-to-br from-primary to-primary-dark text-secondary rounded-br-md">
-                        <p class="whitespace-pre-wrap message-content leading-relaxed">${escapeHtml(msg)}</p>
-                        <div class="flex items-center justify-end gap-1.5 mt-1.5 opacity-70 text-[10px]">
-                            <span>${timeStr}</span>
-                            <i class="fas fa-check"></i>
-                        </div>
+                <div class="max-w-[75%] md:max-w-[60%]">
+                    <div class="px-3.5 py-2 rounded-xl text-[15px] bg-primary/15 text-gray-100 rounded-br-none">
+                        <p class="whitespace-pre-wrap message-content leading-snug">${escapeHtml(msg)}</p>
+                        <p class="text-[10px] mt-0.5 text-primary/50 text-right">${timeStr} <i class="fas fa-check ml-0.5"></i></p>
+                    </div>
+                    <div class="hidden group-hover:flex items-center gap-2.5 mt-0.5 justify-end pr-1">
+                        <button onclick="editMessage(this.closest('[id^=msg-]').id.replace('msg-','').replace('temp-',''))" class="text-[10px] text-gray-600 hover:text-gray-300 transition"><i class="fas fa-pen"></i></button>
+                        <button onclick="deleteMessage(this.closest('[id^=msg-]').id.replace('msg-','').replace('temp-',''))" class="text-[10px] text-gray-600 hover:text-red-400 transition"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
             </div>`;

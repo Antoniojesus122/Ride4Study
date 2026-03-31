@@ -342,8 +342,8 @@ class ReportController
         if ($tipo === 'usuario' && $id) {
             $stmt = $this->db->prepare(
                 "SELECT u.idUsuario, u.nombre, u.correo, u.telefono, u.ciudad, u.institucion,
-                        u.estado_verificacion, u.premium, u.baneado, u.creado_en, u.fotoPerfil,
-                        r.nombreRol
+                        u.estado_verificacion, u.premium, u.baneado, u.creado_en,
+                        u.foto_perfil AS fotoPerfil, r.nombreRol
                  FROM usuarios u
                  LEFT JOIN roles r ON u.idRol = r.idRol
                  WHERE u.idUsuario = :id"
@@ -365,6 +365,7 @@ class ReportController
             $data = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
             $data['_tipo'] = 'anuncio';
         } elseif ($tipo === 'chat' && $id) {
+            // $id is a conversation ID
             $stmt = $this->db->prepare(
                 "SELECT c.*, u1.nombre as user1_nombre, u2.nombre as user2_nombre
                  FROM conversations c
@@ -375,9 +376,8 @@ class ReportController
             $stmt->execute([':id' => $id]);
             $conv = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
-            // Recoger ultimos 10 mensajes
             $msgStmt = $this->db->prepare(
-                "SELECT m.mensaje, m.fechaCreacion, u.nombre as emisor_nombre
+                "SELECT m.idMensaje, m.mensaje, m.fechaCreacion, u.nombre as emisor_nombre
                  FROM mensajes m
                  JOIN usuarios u ON m.idEmisor = u.idUsuario
                  WHERE m.idConversation = :id
@@ -387,6 +387,72 @@ class ReportController
             $conv['mensajes'] = array_reverse($msgStmt->fetchAll(PDO::FETCH_ASSOC));
             $conv['_tipo'] = 'chat';
             $data = $conv;
+        } elseif ($tipo === 'chat_msg' && $id) {
+            // $id es el idMensaje reportado, mostrar contexto de la conversacion
+            $msgStmt = $this->db->prepare(
+                "SELECT m.idConversation FROM mensajes m WHERE m.idMensaje = :id"
+            );
+            $msgStmt->execute([':id' => $id]);
+            $msgRow = $msgStmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($msgRow) {
+                $convId = (int)$msgRow['idConversation'];
+                $stmt = $this->db->prepare(
+                    "SELECT c.*, u1.nombre as user1_nombre, u2.nombre as user2_nombre
+                     FROM conversations c
+                     JOIN usuarios u1 ON c.user1_id = u1.idUsuario
+                     JOIN usuarios u2 ON c.user2_id = u2.idUsuario
+                     WHERE c.idConversation = :id"
+                );
+                $stmt->execute([':id' => $convId]);
+                $conv = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+                // Obtener mensajes anteriores y posteriores al mensaje reportado para contexto
+                $contextStmt = $this->db->prepare(
+                    "(SELECT m.idMensaje, m.mensaje, m.fechaCreacion, u.nombre as emisor_nombre
+                      FROM mensajes m JOIN usuarios u ON m.idEmisor = u.idUsuario
+                      WHERE m.idConversation = :cid AND m.idMensaje <= :mid
+                      ORDER BY m.idMensaje DESC LIMIT 6)
+                     UNION
+                     (SELECT m.idMensaje, m.mensaje, m.fechaCreacion, u.nombre as emisor_nombre
+                      FROM mensajes m JOIN usuarios u ON m.idEmisor = u.idUsuario
+                      WHERE m.idConversation = :cid2 AND m.idMensaje > :mid2
+                      ORDER BY m.idMensaje ASC LIMIT 5)
+                     ORDER BY idMensaje ASC"
+                );
+                $contextStmt->execute([':cid' => $convId, ':mid' => $id, ':cid2' => $convId, ':mid2' => $id]);
+                $conv['mensajes'] = $contextStmt->fetchAll(PDO::FETCH_ASSOC);
+                $conv['reported_message_id'] = $id;
+                $conv['_tipo'] = 'chat';
+                $data = $conv;
+            }
+        } elseif ($tipo === 'chat_conv' && $id) {
+            // $id es el idAnuncio reportado, mostrar la conversacion relacionada (si existe) para contexto
+            $extraId = (int)($_GET['extraId'] ?? 0);
+            $convStmt = $this->db->prepare(
+                "SELECT c.*, u1.nombre as user1_nombre, u2.nombre as user2_nombre
+                 FROM conversations c
+                 JOIN usuarios u1 ON c.user1_id = u1.idUsuario
+                 JOIN usuarios u2 ON c.user2_id = u2.idUsuario
+                 WHERE c.idAnuncio = :idAnuncio AND (c.user1_id = :uid OR c.user2_id = :uid2)
+                 LIMIT 1"
+            );
+            $convStmt->execute([':idAnuncio' => $id, ':uid' => $extraId, ':uid2' => $extraId]);
+            $conv = $convStmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($conv) {
+                $msgStmt = $this->db->prepare(
+                    "SELECT m.idMensaje, m.mensaje, m.fechaCreacion, u.nombre as emisor_nombre
+                     FROM mensajes m
+                     JOIN usuarios u ON m.idEmisor = u.idUsuario
+                     WHERE m.idConversation = :cid
+                     ORDER BY m.fechaCreacion DESC LIMIT 15"
+                );
+                $msgStmt->execute([':cid' => $conv['idConversation']]);
+                $conv['mensajes'] = array_reverse($msgStmt->fetchAll(PDO::FETCH_ASSOC));
+                $conv['_tipo'] = 'chat';
+                $data = $conv;
+            }
         }
 
         echo json_encode($data);

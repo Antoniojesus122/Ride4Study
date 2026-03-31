@@ -479,8 +479,10 @@
                 let reportData = {};
 
                 function openReportModal(tipo, opts = {}) {
-                    reportData = { tipo, ...opts };
-                    document.getElementById('report-tipo').value      = tipo;
+                    // Para 'chat_conv' usamos 'chat' internamente pero mostramos 'conversación' al usuario
+                    const realTipo = tipo === 'chat_conv' ? 'chat' : tipo;
+                    reportData = { tipo: realTipo, isConversation: tipo === 'chat_conv', ...opts };
+                    document.getElementById('report-tipo').value      = realTipo;
                     document.getElementById('report-idUsuario').value = opts.idUsuario ?? '';
                     document.getElementById('report-idAnuncio').value = opts.idAnuncio ?? '';
                     document.getElementById('report-idChat').value    = opts.idChat    ?? '';
@@ -489,7 +491,8 @@
                     clearEvidence();
 
                     const labels = { usuario: 'usuario', anuncio: 'anuncio', chat: 'mensaje de chat' };
-                    document.getElementById('report-label').textContent = labels[tipo] || tipo;
+                    const label = tipo === 'chat_conv' ? 'conversación' : (labels[tipo] || tipo);
+                    document.getElementById('report-label').textContent = label;
                     document.getElementById('reportModal').classList.remove('hidden');
                     document.body.style.overflow = 'hidden';
                 }
@@ -531,7 +534,7 @@
 
                     if (reportData.idUsuario) body.append('idUsuarioReportado', reportData.idUsuario);
                     if (reportData.idAnuncio) body.append('idAnuncio', reportData.idAnuncio);
-                    if (reportData.idChat)    body.append('idChat',    reportData.idChat);
+                    if (!reportData.isConversation && reportData.idChat) body.append('idChat', reportData.idChat);
 
                     // Adjuntar evidencia si existe
                     const evidenciaInput = document.getElementById('report-evidencia');

@@ -75,15 +75,19 @@ class Report
                 WHERE tipo = :tipo AND idUsuarioQueReporta = :reporter AND estado IN ('pendiente', 'en_revision')";
         $params = [':tipo' => $tipo, ':reporter' => $idUsuarioQueReporta];
 
-        if ($idUsuarioReportado) {
-            $sql .= " AND idUsuarioReportado = :target";
-            $params[':target'] = $idUsuarioReportado;
-        } elseif ($idAnuncio) {
-            $sql .= " AND idAnuncio = :target";
-            $params[':target'] = $idAnuncio;
-        } elseif ($idChat) {
-            $sql .= " AND idChat = :target";
-            $params[':target'] = $idChat;
+        // Para chats: mensaje concreto (idChat set) o conversación completa (idChat null, idAnuncio set)
+        if ($tipo === 'chat' && $idChat) {
+            $sql .= " AND idChat = :idChat";
+            $params[':idChat'] = $idChat;
+        } elseif ($tipo === 'chat' && !$idChat && $idAnuncio) {
+            $sql .= " AND idAnuncio = :idAnuncio AND idChat IS NULL";
+            $params[':idAnuncio'] = $idAnuncio;
+        } elseif ($tipo === 'anuncio' && $idAnuncio) {
+            $sql .= " AND idAnuncio = :idAnuncio";
+            $params[':idAnuncio'] = $idAnuncio;
+        } elseif ($idUsuarioReportado) {
+            $sql .= " AND idUsuarioReportado = :idUsuario";
+            $params[':idUsuario'] = $idUsuarioReportado;
         }
 
         $stmt = $this->conn->prepare($sql);
