@@ -280,6 +280,32 @@ class AdminUserController {
         redirectWithFlash(url('/admin/users'), 'success', 'unbanned', 'baneados');
     }
 
+    // Eliminar usuario
+    public function deleteUser(): void {
+        $this->requireAdmin();
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . url('/admin/users'));
+            exit;
+        }
+
+        $userId = (int)($_POST['user_id'] ?? 0);
+        if ($userId <= 0 || $userId === (int)$_SESSION['user_id']) {
+            redirectWithFlash(url('/admin/users'), 'error', 'No puedes eliminarte a ti mismo');
+        }
+
+        $userData = $this->user->getUserById($userId);
+        if (!$userData || (int)($userData['idRol'] ?? 0) === 1) {
+            redirectWithFlash(url('/admin/users'), 'error', 'Usuario no encontrado o es administrador');
+        }
+
+        $stmt = $this->db->prepare("DELETE FROM usuarios WHERE idUsuario = :id AND idRol != 1");
+        $stmt->execute([':id' => $userId]);
+
+        $this->adminLog->log((int)$_SESSION['user_id'], 'eliminar_usuario', 'usuario', $userId, $userData['nombre'] . ' (' . $userData['correo'] . ')');
+
+        redirectWithFlash(url('/admin/users'), 'success', 'deleted');
+    }
+
     // Exportar usuarios en CSV
     public function exportCsv(): void {
         $this->requireAdmin();

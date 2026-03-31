@@ -252,6 +252,7 @@ $router->any('/admin/users', function () { // Gestión de verificaciones de estu
         'approve'     => $controller->approveVerification(),
         'reject'      => $controller->rejectVerification(),
         'update_role' => $controller->updateRole(),
+        'delete'      => $controller->deleteUser(),
         'ban'         => $controller->banUser(),
         'unban'       => $controller->unbanUser(),
         'export_csv'  => $controller->exportCsv(),
