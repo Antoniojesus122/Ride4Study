@@ -200,6 +200,55 @@ class RatingNotificationService {
         }
     }
 
+    // Envía emails de valoración para un viaje concreto (pasajero y conductor)
+    public function sendRatingEmailsForTrip($idViaje) {
+        $trip = $this->getTripData($idViaje);
+        if (!$trip) return false;
+
+        $results = ['passenger' => false, 'driver' => false];
+
+        // Email al pasajero para que valore al conductor
+        if ((int)$trip['notificaciones_email'] === 1) {
+            $results['passenger'] = $this->sendRatingRequestEmail($trip, 'passenger');
+        }
+
+        // Email al conductor para que valore al pasajero
+        if ($this->getUserEmailPreference($trip['idConductor'])) {
+            $results['driver'] = $this->sendRatingRequestEmail($trip, 'driver');
+        }
+
+        // Marcar como notificado
+        $this->markTripAsNotified($idViaje);
+
+        return $results;
+    }
+
+    // Obtiene los datos de un viaje para enviar emails
+    private function getTripData($idViaje) {
+        $query = "
+            SELECT
+                v.idViaje, v.idAnuncio, v.idConductor, v.idPasajero,
+                a.fechaSalida, a.horaSalida, a.horaRegreso, a.tipo,
+                conductor.nombre as conductorNombre,
+                conductor.correo as conductorCorreo,
+                pasajero.nombre as pasajeroNombre,
+                pasajero.correo as pasajeroCorreo,
+                pasajero.notificaciones_email,
+                origen.nombreLocalidad as origenNombre,
+                destino.nombreLocalidad as destinoNombre
+            FROM viajes v
+            INNER JOIN anuncios a ON v.idAnuncio = a.idAnuncio
+            INNER JOIN usuarios conductor ON v.idConductor = conductor.idUsuario
+            INNER JOIN usuarios pasajero ON v.idPasajero = pasajero.idUsuario
+            INNER JOIN localidades origen ON a.origen = origen.idLocalidad
+            INNER JOIN localidades destino ON a.destino = destino.idLocalidad
+            WHERE v.idViaje = :idViaje
+        ";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([':idViaje' => $idViaje]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     // Test para probar los emails
     public function sendTestEmail($idViaje) {
         $query = "

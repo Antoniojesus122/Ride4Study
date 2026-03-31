@@ -263,6 +263,24 @@ class UserController {
                        } catch (Exception $e) { error_log('Admin verification email: ' . $e->getMessage()); }
                    }
 
+                   // Notificación in-app para admins
+                   try {
+                       require_once __DIR__ . '/../../config/database.php';
+                       require_once __DIR__ . '/../models/Notification.php';
+                       $notifDb = (new Database())->connect();
+                       $notif = new Notification($notifDb);
+                       $adminIds = $notifDb->query("SELECT idUsuario FROM usuarios WHERE idRol = 1")->fetchAll(PDO::FETCH_COLUMN);
+                       $userName = $userData['nombre'] ?? $_SESSION['user_name'] ?? 'Usuario';
+                       foreach ($adminIds as $adminId) {
+                           $notif->create(
+                               (int)$adminId,
+                               'Nueva solicitud de verificacion de ' . htmlspecialchars($userName),
+                               'fas fa-id-card',
+                               url('/admin/users') . '?tab=verificaciones'
+                           );
+                       }
+                   } catch (Exception $e) { error_log('Admin verif notif: ' . $e->getMessage()); }
+
                    redirectWithFlash(url('/profile'), 'success', 'verification_sent', 'verification');
               } else {
                    redirectWithFlash(url('/profile'), 'error', 'upload_failed', 'verification');

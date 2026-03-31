@@ -159,25 +159,25 @@ class RideController {
         // Validaciones básicas
         if (empty($tipo) || empty($origenNombre) || empty($destinoNombre) ||
             empty($data['fechaSalida']) || empty($data['horaSalida'])) {
-            $errors[] = 'Todos los campos obligatorios deben ser completados.';
+            $errors[] = t('publish.err_required');
         }
 
         // Validar que se hayan seleccionado ciudades del autocompletado (con coordenadas)
         if (!empty($origenNombre) && ($origenLat == 0 && $origenLng == 0)) {
-            $errors[] = 'Selecciona una ciudad de origen de la lista de sugerencias.';
+            $errors[] = t('publish.err_origin');
         }
         if (!empty($destinoNombre) && ($destinoLat == 0 && $destinoLng == 0)) {
-            $errors[] = 'Selecciona una ciudad de destino de la lista de sugerencias.';
+            $errors[] = t('publish.err_destination');
         }
 
         // Validar plazas solo si NO es tipo "busco"
         if ($data['tipo'] !== 'busco' && empty($data['plazasDisponibles'])) {
-            $errors[] = 'Debes especificar las plazas disponibles.';
+            $errors[] = t('publish.err_seats');
         }
 
         // Validar longitud de descripción
         if (!empty($data['descripcion']) && mb_strlen($data['descripcion']) > 500) {
-            $errors[] = 'La descripción no puede superar los 500 caracteres.';
+            $errors[] = t('publish.err_desc_long');
         }
 
         // Validar tipo de anuncio
@@ -203,11 +203,11 @@ class RideController {
 
         // Validaciones lógicas
         if ($origenNombre && $destinoNombre && strtolower($origenNombre) === strtolower($destinoNombre)) {
-             $errors[] = 'El origen y el destino no pueden ser el mismo.';
+             $errors[] = t('publish.err_same');
         }
 
         if ($data['fechaSalida'] < date('Y-m-d')) {
-             $errors[] = 'La fecha de salida no puede ser en el pasado.';
+             $errors[] = t('publish.err_past_date');
         }
 
         // No permitir fechas con más de 1 año de antelación
@@ -219,13 +219,13 @@ class RideController {
         if ($data['fechaSalida'] === date('Y-m-d')) {
             $horaActual = date('H:i');
             if ($data['horaSalida'] <= $horaActual) {
-                $errors[] = 'Para viajes del mismo día, la hora de salida debe ser posterior a la hora actual.';
+                $errors[] = t('publish.err_past_time');
             }
         }
 
         if ($data['horaRegreso']) {
              if ($data['horaRegreso'] <= $data['horaSalida']) {
-                  $errors[] = 'La hora de regreso debe ser posterior a la hora de salida.';
+                  $errors[] = t('publish.err_return_before');
              }
         }
 
@@ -254,7 +254,7 @@ class RideController {
 
         if (!$isPremium && $this->ride->getActiveCount((int)$_SESSION['user_id']) >= 4) {
             $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
-            $errors[]    = 'Has alcanzado el límite de 4 anuncios activos del plan gratuito. ¡Hazte Premium para publicar ilimitados!';
+            $errors[]    = t('publish.err_limit_free');
             require_once __DIR__ . '/../../views/user/publish.view.php';
             return;
         }
@@ -263,7 +263,7 @@ class RideController {
         if ($this->ride->createRide($data)) {
             redirectWithFlash(url('/my-rides'), 'success', 'created');
         } else {
-             $errors[] = 'Error al publicar el viaje. Inténtalo de nuevo.';
+             $errors[] = t('publish.err_create');
              $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
              require_once __DIR__ . '/../../views/user/publish.view.php';
         }
@@ -402,6 +402,68 @@ class RideController {
         }
     }
 
+    // Marcar viaje como completado (solo el dueño del anuncio, solo si la fecha ya pasó)
+    public function completeTrip() {
+        if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            exit;
+        }
+
+        $rideId = (int)($_POST['ride_id'] ?? 0);
+        if (!$rideId) {
+            redirectWithFlash(url('/my-rides'), 'error', 'missing_params');
+        }
+
+        $ride = $this->ride->getRideById($rideId);
+        if (!$ride || (int)$ride['idUsuario'] !== (int)$_SESSION['user_id']) {
+            redirectWithFlash(url('/my-rides'), 'error', 'unauthorized');
+        }
+
+        // Solo se puede completar si la fecha de salida ya ha pasado
+        if ($ride['fechaSalida'] >= date('Y-m-d')) {
+            redirectWithFlash(url('/my-rides'), 'error', 'trip_not_past');
+        }
+
+        // Actualizar todos los viajes aceptados de este anuncio a completado
+        $stmt = $this->db->prepare(
+            "UPDATE viajes SET estado = 'completado' WHERE idAnuncio = :rideId AND estado = 'aceptado'"
+        );
+        $stmt->execute([':rideId' => $rideId]);
+
+        // Notificar a los pasajeros y enviar emails de valoración
+        $passengers = $this->db->prepare(
+            "SELECT v.idViaje, v.idPasajero, v.idConductor, u.nombre, u.correo, u.notificaciones_email
+             FROM viajes v
+             JOIN usuarios u ON v.idPasajero = u.idUsuario
+             WHERE v.idAnuncio = :rideId AND v.estado = 'completado'"
+        );
+        $passengers->execute([':rideId' => $rideId]);
+        $origen  = $ride['nombreOrigen']  ?? 'origen';
+        $destino = $ride['nombreDestino'] ?? 'destino';
+
+        // Enviar emails de valoración usando el servicio
+        require_once __DIR__ . '/../../services/RatingNotificationService.php';
+        $ratingService = new RatingNotificationService();
+
+        foreach ($passengers->fetchAll(PDO::FETCH_ASSOC) as $p) {
+            // Notificación in-app al pasajero
+            $this->notification->create(
+                (int)$p['idPasajero'],
+                'Tu viaje ' . htmlspecialchars($origen) . ' → ' . htmlspecialchars($destino) . ' se ha completado. ¡Valora tu experiencia!',
+                'fas fa-check-double',
+                url('/rate') . '?viaje=' . $p['idViaje']
+            );
+
+            // Enviar emails de valoración al pasajero y al conductor
+            try {
+                $ratingService->sendRatingEmailsForTrip($p['idViaje']);
+            } catch (Exception $e) {
+                error_log("Error enviando email de valoración para viaje {$p['idViaje']}: " . $e->getMessage());
+            }
+        }
+
+        redirectWithFlash(url('/my-rides'), 'success', 'trip_completed');
+    }
+
     // Cancelar una reserva
     public function cancelReservation() {
         if (!isset($_SESSION['user_id'])) {
@@ -489,11 +551,11 @@ class RideController {
                 $subject = 'Nueva solicitud de reserva - Ride4Study';
                 
                 $contenido = "
-                    <p><strong>{$user['nombre']}</strong> ha solicitado una plaza en tu viaje.</p>
-                    
+                    <p><strong>" . htmlspecialchars($user['nombre']) . "</strong> ha solicitado una plaza en tu viaje.</p>
+
                     <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
-                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Origen:</strong> {$ride['nombreOrigen']}</p>
-                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Destino:</strong> {$ride['nombreDestino']}</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Origen:</strong> " . htmlspecialchars($ride['nombreOrigen']) . "</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Destino:</strong> " . htmlspecialchars($ride['nombreDestino']) . "</p>
                         <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Fecha:</strong> " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</p>
                         <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Hora:</strong> " . substr($ride['horaSalida'], 0, 5) . "</p>
                     </div>
@@ -502,8 +564,8 @@ class RideController {
                 ";
                 
                 $message = $this->mailService->generarPlantilla(
-                    $conductor['nombre'],
-                    "Hola {$conductor['nombre']},",
+                    htmlspecialchars($conductor['nombre']),
+                    "Hola " . htmlspecialchars($conductor['nombre']) . ",",
                     $contenido,
                     null,
                     fullUrl('/my-rides'),
@@ -520,18 +582,18 @@ class RideController {
                     <p>¡Buenas noticias! Tu solicitud de reserva ha sido <strong style=\"color:#34d399;\">aceptada</strong>.</p>
                     
                     <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
-                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Origen:</strong> {$ride['nombreOrigen']}</p>
-                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Destino:</strong> {$ride['nombreDestino']}</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Origen:</strong> " . htmlspecialchars($ride['nombreOrigen']) . "</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Destino:</strong> " . htmlspecialchars($ride['nombreDestino']) . "</p>
                         <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Fecha:</strong> " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</p>
                         <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Hora:</strong> " . substr($ride['horaSalida'], 0, 5) . "</p>
                     </div>
-                    
+
                     <p style=\"color:#94a3b8;\">Ponte en contacto con el conductor para coordinar los detalles del viaje.</p>
                     <p style=\"color:#34d399; font-weight:bold;\">¡Buen viaje!</p>
                 ";
                 
                 $message = $this->mailService->generarPlantilla(
-                    $user['nombre'],
+                    htmlspecialchars($user['nombre']),
                     "¡Reserva confirmada!",
                     $contenido,
                     null,
@@ -549,16 +611,16 @@ class RideController {
                     <p>Lamentamos informarte que tu solicitud de reserva no ha sido aceptada para el siguiente viaje:</p>
                     
                     <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
-                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📍 Origen:</strong> {$ride['nombreOrigen']}</p>
-                        <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">📍 Destino:</strong> {$ride['nombreDestino']}</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Origen:</strong> " . htmlspecialchars($ride['nombreOrigen']) . "</p>
+                        <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Destino:</strong> " . htmlspecialchars($ride['nombreDestino'] ?? '') . "</p>
                     </div>
                     
                     <p style=\"color:#94a3b8;\">No te preocupes, hay muchos otros viajes disponibles. Sigue buscando en la plataforma para encontrar el viaje perfecto para ti.</p>
                 ";
                 
                 $message = $this->mailService->generarPlantilla(
-                    $user['nombre'],
-                    "Hola {$user['nombre']},",
+                    htmlspecialchars($user['nombre']),
+                    "Hola " . htmlspecialchars($user['nombre']) . ",",
                     $contenido,
                     null,
                     fullUrl('/dashboard'),
@@ -578,11 +640,11 @@ class RideController {
                 $subject = '¡Alguien puede llevarte! - Ride4Study';
                 
                 $contenido = "
-                    <p>¡Buenas noticias! <strong>{$user['nombre']}</strong> ha ofrecido llevarte en tu viaje.</p>
-                    
+                    <p>¡Buenas noticias! <strong>" . htmlspecialchars($user['nombre']) . "</strong> ha ofrecido llevarte en tu viaje.</p>
+
                     <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
-                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Origen:</strong> {$ride['nombreOrigen']}</p>
-                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Destino:</strong> {$ride['nombreDestino']}</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Origen:</strong> " . htmlspecialchars($ride['nombreOrigen']) . "</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Destino:</strong> " . htmlspecialchars($ride['nombreDestino']) . "</p>
                         <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Fecha:</strong> " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</p>
                         <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Hora:</strong> " . substr($ride['horaSalida'], 0, 5) . "</p>
                     </div>
@@ -591,8 +653,8 @@ class RideController {
                 ";
                 
                 $message = $this->mailService->generarPlantilla(
-                    $pasajero['nombre'],
-                    "Hola {$pasajero['nombre']},",
+                    htmlspecialchars($pasajero['nombre']),
+                    "Hola " . htmlspecialchars($pasajero['nombre']) . ",",
                     $contenido,
                     null,
                     fullUrl('/my-rides'),
@@ -610,11 +672,11 @@ class RideController {
                 $subject = 'Reserva cancelada - Ride4Study';
                 
                 $contenido = "
-                    <p><strong>{$user['nombre']}</strong> ha cancelado su reserva para tu viaje.</p>
-                    
+                    <p><strong>" . htmlspecialchars($user['nombre']) . "</strong> ha cancelado su reserva para tu viaje.</p>
+
                     <div style=\"background-color:#0f172a; padding:20px; border-radius:12px; margin:20px 0;\">
-                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Origen:</strong> {$ride['nombreOrigen']}</p>
-                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Destino:</strong> {$ride['nombreDestino']}</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Origen:</strong> " . htmlspecialchars($ride['nombreOrigen']) . "</p>
+                        <p style=\"margin:0 0 10px 0; color:#cbd5e1;\"><strong style=\"color:#34d399;\">Destino:</strong> " . htmlspecialchars($ride['nombreDestino']) . "</p>
                         <p style=\"margin:0; color:#cbd5e1;\"><strong style=\"color:#22d3ee;\">Fecha:</strong> " . date('d/m/Y', strtotime($ride['fechaSalida'])) . "</p>
                     </div>
                     
@@ -622,8 +684,8 @@ class RideController {
                 ";
                 
                 $message = $this->mailService->generarPlantilla(
-                    $conductor['nombre'],
-                    "Hola {$conductor['nombre']},",
+                    htmlspecialchars($conductor['nombre']),
+                    "Hola " . htmlspecialchars($conductor['nombre']) . ",",
                     $contenido,
                     null,
                     fullUrl('/my-rides'),
@@ -763,46 +825,46 @@ class RideController {
         // Validaciones básicas
         if (empty($origenNombre) || empty($destinoNombre) ||
             empty($data['fechaSalida']) || empty($data['horaSalida'])) {
-            $errors[] = 'Todos los campos obligatorios deben ser completados.';
+            $errors[] = t('publish.err_required');
         }
 
         // Validar que se hayan seleccionado ciudades del autocompletado
         if (!empty($origenNombre) && ($origenLat == 0 && $origenLng == 0)) {
-            $errors[] = 'Selecciona una ciudad de origen de la lista de sugerencias.';
+            $errors[] = t('publish.err_origin');
         }
         if (!empty($destinoNombre) && ($destinoLat == 0 && $destinoLng == 0)) {
-            $errors[] = 'Selecciona una ciudad de destino de la lista de sugerencias.';
+            $errors[] = t('publish.err_destination');
         }
 
         // Validar plazas solo si NO es tipo "busco"
         if ($tipo !== 'busco' && empty($data['plazasDisponibles'])) {
-            $errors[] = 'Debes especificar las plazas disponibles.';
+            $errors[] = t('publish.err_seats');
         }
 
         // Validar longitud de descripción
         if (!empty($data['descripcion']) && mb_strlen($data['descripcion']) > 500) {
-            $errors[] = 'La descripción no puede superar los 500 caracteres.';
+            $errors[] = t('publish.err_desc_long');
         }
 
         if ($origenNombre && $destinoNombre && strtolower($origenNombre) === strtolower($destinoNombre)) {
-             $errors[] = 'El origen y el destino no pueden ser el mismo.';
+             $errors[] = t('publish.err_same');
         }
 
         if ($data['fechaSalida'] < date('Y-m-d')) {
-             $errors[] = 'La fecha de salida no puede ser en el pasado.';
+             $errors[] = t('publish.err_past_date');
         }
 
         // Validar hora de salida si el viaje es para el mismo día
         if ($data['fechaSalida'] === date('Y-m-d')) {
             $horaActual = date('H:i');
             if ($data['horaSalida'] <= $horaActual) {
-                $errors[] = 'Para viajes del mismo día, la hora de salida debe ser posterior a la hora actual.';
+                $errors[] = t('publish.err_past_time');
             }
         }
 
         if ($data['horaRegreso']) {
              if ($data['horaRegreso'] <= $data['horaSalida']) {
-                  $errors[] = 'La hora de regreso debe ser posterior a la hora de salida.';
+                  $errors[] = t('publish.err_return_before');
              }
         }
 
@@ -895,12 +957,6 @@ class RideController {
         }
 
         return $result;
-    }
-
-    // Mantener compatibilidad con la función anterior
-    private function calculateArrivalTime(float $origenLat, float $origenLng, float $destinoLat, float $destinoLng, string $fechaSalida, string $horaSalida): ?string {
-        $data = $this->calculateRouteData($origenLat, $origenLng, $destinoLat, $destinoLng, $fechaSalida, $horaSalida);
-        return $data['horaLlegada'];
     }
 
     public function delete() {

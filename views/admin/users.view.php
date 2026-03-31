@@ -57,7 +57,6 @@
             <select name="rol" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
                 <option value="">Todos los roles</option>
                 <option value="2" <?= ($_GET['rol'] ?? '') === '2' ? 'selected' : '' ?>>Usuario</option>
-                <option value="3" <?= ($_GET['rol'] ?? '') === '3' ? 'selected' : '' ?>>Premium</option>
                 <option value="4" <?= ($_GET['rol'] ?? '') === '4' ? 'selected' : '' ?>>Institucion</option>
             </select>
             <select name="verificacion" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
@@ -117,8 +116,7 @@
                                 <span class="px-2.5 py-1 text-sm rounded-full font-medium
                                     <?php
                                     $roleName = $u['nombreRol'] ?? 'Usuario';
-                                    if ($roleName === 'Usuario Premium') echo 'bg-yellow-500/10 text-yellow-400';
-                                    elseif ($roleName === 'Institucion' || $roleName === 'Institución') echo 'bg-purple-500/10 text-purple-400';
+                                    if ($roleName === 'Institucion' || $roleName === 'Institución') echo 'bg-purple-500/10 text-purple-400';
                                     else echo 'bg-gray-700 text-gray-300';
                                     ?>">
                                     <?= htmlspecialchars($roleName) ?>

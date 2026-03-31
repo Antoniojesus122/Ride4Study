@@ -329,6 +329,11 @@ return [
     'myrides.page' => 'Pagina',
     'myrides.of' => 'de',
     'myrides.total_items' => 'elementos',
+    'myrides.complete_trip' => 'Completar viaje',
+    'myrides.complete_confirm' => '¿Marcar este viaje como completado? Los pasajeros aceptados recibirán una notificación.',
+    'myrides.completed' => 'Completado',
+    'myrides.success_completed' => '¡Viaje marcado como completado! Los pasajeros han sido notificados.',
+    'myrides.err_trip_not_past' => 'No puedes completar un viaje cuya fecha de salida aún no ha pasado.',
 
     // PUBLISH
     'publish.save' => 'Guardar Cambios',
@@ -876,4 +881,14 @@ return [
     'publish.error_invalid_price' => 'El precio debe estar entre 0 y 999.',
     'publish.error_invalid_seats' => 'Las plazas deben estar entre 1 y 8.',
     'publish.error_date_too_far' => 'La fecha no puede ser superior a 1 ano.',
+
+    // Validaciones de publicación/edición de viajes
+    'publish.err_required' => 'Todos los campos obligatorios deben ser completados.',
+    'publish.err_seats' => 'Debes especificar las plazas disponibles.',
+    'publish.err_desc_long' => 'La descripcion no puede superar los 500 caracteres.',
+    'publish.err_limit_free' => 'Has alcanzado el limite de 4 anuncios activos del plan gratuito. ¡Hazte Premium para publicar ilimitados!',
+    'publish.err_create' => 'Error al publicar el viaje. Intentalo de nuevo.',
+
+    // Chat
+    'chatlist.search_placeholder' => 'Buscar conversacion...',
 ];

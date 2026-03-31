@@ -329,6 +329,11 @@ return [
     'myrides.page' => 'Page',
     'myrides.of' => 'of',
     'myrides.total_items' => 'items',
+    'myrides.complete_trip' => 'Complete trip',
+    'myrides.complete_confirm' => 'Mark this trip as completed? Accepted passengers will be notified.',
+    'myrides.completed' => 'Completed',
+    'myrides.success_completed' => 'Trip marked as completed! Passengers have been notified.',
+    'myrides.err_trip_not_past' => 'You cannot complete a trip whose departure date has not passed yet.',
 
     // PUBLISH 
     'publish.save' => 'Save Changes',
@@ -876,4 +881,14 @@ return [
     'publish.error_invalid_price' => 'Price must be between 0 and 999.',
     'publish.error_invalid_seats' => 'Seats must be between 1 and 8.',
     'publish.error_date_too_far' => 'Date cannot be more than 1 year ahead.',
+
+    // Publish/edit ride validations
+    'publish.err_required' => 'All required fields must be filled in.',
+    'publish.err_seats' => 'You must specify the available seats.',
+    'publish.err_desc_long' => 'Description cannot exceed 500 characters.',
+    'publish.err_limit_free' => 'You have reached the limit of 4 active rides on the free plan. Go Premium for unlimited!',
+    'publish.err_create' => 'Error publishing the ride. Please try again.',
+
+    // Chat
+    'chatlist.search_placeholder' => 'Search conversation...',
 ];

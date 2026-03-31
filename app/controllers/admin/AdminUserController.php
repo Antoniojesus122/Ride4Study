@@ -93,7 +93,7 @@ class AdminUserController {
         }
         $userId = (int)($_POST['user_id'] ?? 0);
         $newRole = (int)($_POST['new_role'] ?? 0);
-        if ($userId > 0 && in_array($newRole, [2, 3, 4])) {
+        if ($userId > 0 && in_array($newRole, [2, 4])) {
             $stmt = $this->db->prepare("UPDATE usuarios SET idRol = :rol WHERE idUsuario = :id AND idRol != 1");
             $stmt->execute([':rol' => $newRole, ':id' => $userId]);
             $this->adminLog->log((int)$_SESSION['user_id'], 'cambiar_rol', 'usuario', $userId, "Nuevo rol: $newRole");

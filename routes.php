@@ -66,6 +66,7 @@ $router->post('/delete-ride', [RideController::class, 'delete']); // Eliminar vi
 $router->get('/my-rides', [RideController::class, 'myRides']); // Ver viajes propios
 $router->post('/reserve', [RideController::class, 'reserve']); // Reservar
 $router->post('/manage-reservation', [RideController::class, 'manageRequest']); // Aceptar/rechazar reservas
+$router->post('/complete-trip', [RideController::class, 'completeTrip']); // Marcar viaje como completado
 $router->any('/cancel-reservation', [RideController::class, 'cancelReservation']); // Cancelar reserva
 $router->post('/toggle-featured', [RideController::class, 'toggleFeatured']); // Destacar anuncio (premium)
 $router->get('/ranking', [RideController::class, 'ranking']); // Ranking CO2
@@ -198,6 +199,23 @@ $router->post('/report', function () {
                 $mail->send($admin['correo'], $admin['nombre'], 'Nuevo reporte · Ride4Study', $html);
             }
         } catch (Exception $e) { error_log('Admin email notify: ' . $e->getMessage()); }
+
+        // Notificación in-app para admins
+        try {
+            require_once __DIR__ . '/app/models/Notification.php';
+            $notif = new Notification($db);
+            $adminIds = $db->query("SELECT idUsuario FROM usuarios WHERE idRol = 1")->fetchAll(PDO::FETCH_COLUMN);
+            $reporterName = $_SESSION['user_name'] ?? 'Usuario';
+            $tipoLabel = match($tipo) { 'usuario' => 'usuario', 'anuncio' => 'anuncio', 'chat' => 'chat', default => $tipo };
+            foreach ($adminIds as $adminId) {
+                $notif->create(
+                    (int)$adminId,
+                    'Nuevo reporte de ' . htmlspecialchars($tipoLabel) . ' por ' . htmlspecialchars($reporterName),
+                    'fas fa-flag',
+                    url('/admin/reports') . '?tab=' . urlencode($tipo)
+                );
+            }
+        } catch (Exception $e) { error_log('Admin notif: ' . $e->getMessage()); }
     }
 
     echo json_encode(['success' => $ok, 'message' => $ok ? t('nav.report_sent') : t('nav.report_error')]);

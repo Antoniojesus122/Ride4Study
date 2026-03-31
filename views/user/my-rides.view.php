@@ -29,6 +29,8 @@
                     <?= t('myrides.success_deleted') ?>
                 <?php elseif ($flashData['message'] == 'reservation_cancelled'): ?>
                     <?= t('myrides.success_cancelled') ?>
+                <?php elseif ($flashData['message'] == 'trip_completed'): ?>
+                    <?= t('myrides.success_completed') ?>
                 <?php endif; ?>
             </div>
         </div>
@@ -48,6 +50,8 @@
                     <?= t('myrides.err_no_booking') ?>
                 <?php elseif ($flashData['message'] == 'cancel_failed'): ?>
                     <?= t('myrides.err_cancel_failed') ?>
+                <?php elseif ($flashData['message'] == 'trip_not_past'): ?>
+                    <?= t('myrides.err_trip_not_past') ?>
                 <?php else: ?>
                     <?= t('myrides.err_generic') ?>
                 <?php endif; ?>
@@ -260,6 +264,8 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
                                         <div class="text-center py-1 bg-green-500/10 text-green-500 rounded-lg text-xs font-bold border border-green-500/20"><i class="fas fa-check mr-1"></i><?= t('myrides.confirmed') ?></div>
                                     <?php elseif ($passenger['estado'] === 'rechazado'): ?>
                                         <div class="text-center py-1 bg-red-500/10 text-red-500 rounded-lg text-xs font-bold border border-red-500/20"><i class="fas fa-times mr-1"></i><?= t('myrides.rejected') ?></div>
+                                    <?php elseif ($passenger['estado'] === 'completado'): ?>
+                                        <div class="text-center py-1 bg-primary/10 text-primary rounded-lg text-xs font-bold border border-primary/20"><i class="fas fa-check-double mr-1"></i><?= t('myrides.completed') ?></div>
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
@@ -288,9 +294,31 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
                             </button>
                         </div>
                     <?php else: ?>
-                        <button disabled class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-800/50 text-gray-500 rounded-xl text-sm font-medium border border-gray-700 cursor-not-allowed">
-                            <i class="fas fa-archive"></i> <?= t('myrides.archived') ?>
-                        </button>
+                        <?php
+                            // Comprobar si hay pasajeros aceptados para poder completar el viaje
+                            $hasAccepted = false;
+                            $allCompleted = true;
+                            foreach ($ride['passengers'] as $p) {
+                                if ($p['estado'] === 'aceptado') { $hasAccepted = true; }
+                                if ($p['estado'] !== 'completado') { $allCompleted = false; }
+                            }
+                        ?>
+                        <?php if ($allCompleted && !empty($ride['passengers'])): ?>
+                            <div class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-green-500/10 text-green-500 rounded-xl text-sm font-medium border border-green-500/20">
+                                <i class="fas fa-check-double"></i> <?= t('myrides.completed') ?>
+                            </div>
+                        <?php elseif ($hasAccepted): ?>
+                            <form action="<?= url('/complete-trip') ?>" method="POST" onsubmit="return confirm('<?= t('myrides.complete_confirm') ?>')">
+                                <input type="hidden" name="ride_id" value="<?= $ride['idAnuncio'] ?>">
+                                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl text-sm font-medium border border-primary/30 transition-colors">
+                                    <i class="fas fa-check-circle"></i> <?= t('myrides.complete_trip') ?>
+                                </button>
+                            </form>
+                        <?php else: ?>
+                            <button disabled class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-800/50 text-gray-500 rounded-xl text-sm font-medium border border-gray-700 cursor-not-allowed">
+                                <i class="fas fa-archive"></i> <?= t('myrides.archived') ?>
+                            </button>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </div>

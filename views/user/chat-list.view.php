@@ -6,6 +6,15 @@
         <p class="text-gray-400 mt-2 lg:text-lg"><?= t('chatlist.subtitle') ?></p>
     </div>
 
+    <?php if (!empty($chats)): ?>
+        <div class="mb-6 relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i class="fas fa-search text-gray-500"></i>
+            </div>
+            <input type="text" id="chat-search" placeholder="<?= t('chatlist.search_placeholder') ?>" class="w-full pl-11 pr-4 py-3 bg-surface border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-colors">
+        </div>
+    <?php endif; ?>
+
     <div class="bg-surface rounded-2xl border border-gray-700 overflow-hidden shadow-lg">
         <?php if (empty($chats)): ?>
             <div class="p-12 text-center">
@@ -55,12 +64,29 @@
 </form>
 
 <script>
-function confirmDeleteChat(userId) {
-    if(confirm('<?= t('chatlist.delete_confirm') ?>')) {
-        document.getElementById('delete-user-id').value = userId;
-        document.getElementById('delete-chat-form').submit();
+    function confirmDeleteChat(userId) {
+        if(confirm('<?= t('chatlist.delete_confirm') ?>')) {
+            document.getElementById('delete-user-id').value = userId;
+            document.getElementById('delete-chat-form').submit();
+        }
     }
-}
+
+    // Buscador de conversaciones
+    const searchInput = document.getElementById('chat-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            const items = document.querySelectorAll('.bg-surface ul li');
+            let visibleCount = 0;
+            items.forEach(item => {
+                const name = item.querySelector('h4')?.textContent.toLowerCase() || '';
+                const msg = item.querySelector('p')?.textContent.toLowerCase() || '';
+                const match = name.includes(query) || msg.includes(query);
+                item.style.display = match ? '' : 'none';
+                if (match) visibleCount++;
+            });
+        });
+    }
 </script>
 
 </body>
