@@ -127,9 +127,68 @@
                          <p class="text-xl font-bold text-green-400"><?= number_format($userStats['co2_ahorrado'] ?? 0, 1) ?> kg</p>
                      </div>
                  </div>
+
+                 <!-- Badges / Logros -->
+                 <?php if (!empty($userBadges) || !empty($allBadges)): ?>
+                 <div class="mt-5">
+                     <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-2 mb-3">
+                         <i class="fas fa-award text-amber-400"></i> <?= t('badges.title') ?>
+                         <span class="text-xs font-normal text-gray-500">(<?= count($userBadges) ?>/<?= count($allBadges) ?>)</span>
+                     </h3>
+
+                     <?php if (!empty($userBadges)): ?>
+                     <div class="flex flex-wrap items-center gap-2">
+                         <?php
+                         $badgeColors = [
+                             'blue' => 'from-blue-500/20 to-blue-600/10 border-blue-500/30 text-blue-400',
+                             'indigo' => 'from-indigo-500/20 to-indigo-600/10 border-indigo-500/30 text-indigo-400',
+                             'purple' => 'from-purple-500/20 to-purple-600/10 border-purple-500/30 text-purple-400',
+                             'yellow' => 'from-yellow-500/20 to-yellow-600/10 border-yellow-500/30 text-yellow-400',
+                             'amber' => 'from-amber-500/20 to-amber-600/10 border-amber-500/30 text-amber-400',
+                             'cyan' => 'from-cyan-500/20 to-cyan-600/10 border-cyan-500/30 text-cyan-400',
+                             'teal' => 'from-teal-500/20 to-teal-600/10 border-teal-500/30 text-teal-400',
+                             'sky' => 'from-sky-500/20 to-sky-600/10 border-sky-500/30 text-sky-400',
+                             'green' => 'from-green-500/20 to-green-600/10 border-green-500/30 text-green-400',
+                             'emerald' => 'from-emerald-500/20 to-emerald-600/10 border-emerald-500/30 text-emerald-400',
+                             'pink' => 'from-pink-500/20 to-pink-600/10 border-pink-500/30 text-pink-400',
+                             'rose' => 'from-rose-500/20 to-rose-600/10 border-rose-500/30 text-rose-400',
+                             'orange' => 'from-orange-500/20 to-orange-600/10 border-orange-500/30 text-orange-400',
+                             'gray' => 'from-gray-500/20 to-gray-600/10 border-gray-500/30 text-gray-400',
+                         ];
+                         ?>
+                         <?php foreach ($userBadges as $b):
+                             $colorClass = $badgeColors[$b['color']] ?? $badgeColors['gray'];
+                         ?>
+                             <div class="group relative inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-br <?= $colorClass ?> border text-sm font-medium cursor-default transition-all hover:scale-105 hover:shadow-lg">
+                                 <i class="fas <?= htmlspecialchars($b['icono']) ?>"></i>
+                                 <span><?= t('badge.' . $b['clave']) ?></span>
+                                 <!-- Tooltip -->
+                                 <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50">
+                                     <div class="bg-gray-900 border border-gray-600 text-white text-xs rounded-lg px-3 py-2 shadow-xl whitespace-nowrap">
+                                         <?= t('badge.' . $b['clave'] . '_desc') ?>
+                                         <div class="text-gray-500 mt-0.5"><?= date('d/m/Y', strtotime($b['obtenido_en'])) ?></div>
+                                         <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-px">
+                                             <div class="border-4 border-transparent border-t-gray-900"></div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+                         <?php endforeach; ?>
+                         <button onclick="document.getElementById('badges-modal').classList.remove('hidden')" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-600 border-dashed text-xs text-gray-400 hover:text-primary hover:border-primary/50 transition-colors font-medium">
+                             <?= t('badges.view_all') ?> <i class="fas fa-chevron-right text-[10px]"></i>
+                         </button>
+                     </div>
+                     <?php else: ?>
+                     <p class="text-sm text-gray-500 italic">
+                         <i class="fas fa-lock text-xs mr-1"></i> <?= t('badges.none_yet') ?>
+                     </p>
+                     <?php endif; ?>
+                 </div>
+                 <?php endif; ?>
+
              </div>
         </div>
-        
+
         <!-- Navegación de pestañas -->
         <?php if ($isOwnProfile): ?>
         <div class="px-4 sm:px-8 pb-6">
@@ -389,15 +448,17 @@
                                      'musica'   => ['icon' => 'fa-music',       'color' => 'pink'],
                                  ];
                                  ?>
-                                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                                 <div class="flex flex-wrap gap-3">
                                      <?php foreach ($allPrefs as $key => $pref):
                                          $isActive = in_array($key, $userPrefs);
+                                         $activeClasses = 'bg-' . $pref['color'] . '-500/10 border-' . $pref['color'] . '-500/30';
+                                         $inactiveClasses = 'bg-gray-800/50 border-gray-700 hover:border-gray-600';
                                      ?>
-                                     <label class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all <?= $isActive ? 'bg-' . $pref['color'] . '-500/10 border-' . $pref['color'] . '-500/30' : 'bg-gray-800/50 border-gray-700 hover:border-gray-600' ?>">
-                                         <input type="checkbox" name="preferencias_viaje[]" value="<?= $key ?>" <?= $isActive ? 'checked' : '' ?>
-                                                class="hidden" onchange="this.closest('label').classList.toggle('bg-gray-800/50'); this.closest('label').classList.toggle('border-gray-700');">
-                                         <i class="fas <?= $pref['icon'] ?> text-<?= $pref['color'] ?>-400 w-5 text-center"></i>
-                                         <span class="text-sm text-gray-300"><?= t('pref.' . $key) ?></span>
+                                     <label class="pref-toggle flex items-center gap-2.5 px-4 py-2.5 rounded-xl border cursor-pointer transition-all select-none <?= $isActive ? $activeClasses : $inactiveClasses ?>"
+                                            data-color="<?= $pref['color'] ?>">
+                                         <input type="checkbox" name="preferencias_viaje[]" value="<?= $key ?>" <?= $isActive ? 'checked' : '' ?> class="hidden">
+                                         <i class="fas <?= $pref['icon'] ?> text-<?= $pref['color'] ?>-400"></i>
+                                         <span class="text-sm text-gray-300 whitespace-nowrap"><?= t('pref.' . $key) ?></span>
                                      </label>
                                      <?php endforeach; ?>
                                  </div>
@@ -763,6 +824,21 @@
     if (tab) {
         switchTab(tab);
     }
+
+    // Toggle preferencias de viaje
+    document.querySelectorAll('.pref-toggle').forEach(label => {
+        const checkbox = label.querySelector('input[type="checkbox"]');
+        const color = label.dataset.color;
+        checkbox.addEventListener('change', () => {
+            if (checkbox.checked) {
+                label.classList.remove('bg-gray-800/50', 'border-gray-700', 'hover:border-gray-600');
+                label.classList.add('bg-' + color + '-500/10', 'border-' + color + '-500/30');
+            } else {
+                label.classList.remove('bg-' + color + '-500/10', 'border-' + color + '-500/30');
+                label.classList.add('bg-gray-800/50', 'border-gray-700', 'hover:border-gray-600');
+            }
+        });
+    });
 
     function toggleReplyForm(id) {
         const form = document.getElementById('reply-form-' + id);
@@ -1231,6 +1307,90 @@
         });
     });
 </script>
+<?php endif; ?>
+
+<!-- Modal: Todos los badges -->
+<?php if (!empty($allBadges)): ?>
+<div id="badges-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" onclick="if(event.target===this)this.classList.add('hidden')">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <div class="relative bg-surface border border-gray-700 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+        <!-- Header -->
+        <div class="flex items-center justify-between p-5 border-b border-gray-700">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                    <i class="fas fa-trophy text-amber-400"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white"><?= t('badges.all_title') ?></h3>
+                    <p class="text-xs text-gray-400"><?= count($userBadges) ?> / <?= count($allBadges) ?> <?= t('badges.unlocked') ?></p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('badges-modal').classList.add('hidden')" class="text-gray-400 hover:text-white transition-colors p-2">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="px-5 pt-4">
+            <div class="w-full bg-gray-800 rounded-full h-2.5 overflow-hidden">
+                <div class="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 transition-all duration-500" style="width: <?= count($allBadges) > 0 ? round(count($userBadges) / count($allBadges) * 100) : 0 ?>%"></div>
+            </div>
+        </div>
+
+        <!-- Badge grid -->
+        <div class="p-5 overflow-y-auto max-h-[70vh]">
+            <?php
+            $categories = ['viajes' => 'fa-road', 'eco' => 'fa-leaf', 'social' => 'fa-users', 'especial' => 'fa-star'];
+            $earnedKeys = array_column($userBadges, 'clave');
+            $groupedBadges = [];
+            foreach ($allBadges as $badge) {
+                $groupedBadges[$badge['categoria']][] = $badge;
+            }
+            ?>
+
+            <?php foreach ($categories as $cat => $catIcon): ?>
+                <?php if (!empty($groupedBadges[$cat])): ?>
+                <div class="mb-6 last:mb-0">
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="fas <?= $catIcon ?> text-gray-500"></i> <?= t('badges.cat_' . $cat) ?>
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <?php foreach ($groupedBadges[$cat] as $badge):
+                            $earned = in_array($badge['clave'], $earnedKeys, true);
+                            $colorClass = $badgeColors[$badge['color']] ?? $badgeColors['gray'];
+                        ?>
+                        <div class="flex items-center gap-3 p-3.5 rounded-xl border transition-all <?= $earned
+                            ? 'bg-gradient-to-br ' . $colorClass . ' border shadow-lg shadow-black/10'
+                            : 'bg-gray-800/50 border-gray-700/50' ?>">
+                            <div class="w-11 h-11 rounded-xl flex items-center justify-center text-lg flex-shrink-0 <?= $earned ? '' : 'bg-gray-700/50' ?>">
+                                <?php if ($earned): ?>
+                                    <i class="fas <?= htmlspecialchars($badge['icono']) ?>"></i>
+                                <?php else: ?>
+                                    <i class="fas <?= htmlspecialchars($badge['icono']) ?> text-gray-600"></i>
+                                <?php endif; ?>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold <?= $earned ? 'text-white' : 'text-gray-400' ?>">
+                                    <?= t('badge.' . $badge['clave']) ?>
+                                </p>
+                                <p class="text-xs <?= $earned ? 'text-gray-300' : 'text-gray-500' ?> mt-0.5">
+                                    <?= t('badge.' . $badge['clave'] . '_desc') ?>
+                                </p>
+                            </div>
+                            <?php if ($earned): ?>
+                                <i class="fas fa-check-circle text-green-400 flex-shrink-0"></i>
+                            <?php else: ?>
+                                <i class="fas fa-lock text-gray-600/80 text-xs flex-shrink-0"></i>
+                            <?php endif; ?>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>
 <?php endif; ?>
 
 </body>
