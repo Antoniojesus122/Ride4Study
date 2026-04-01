@@ -37,6 +37,10 @@
                     <a href="<?= url('/instituciones') ?>" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">
                         <?= t('landing.institutions') ?>
                     </a>
+                    <a href="<?= SURVEY_URL ?>" target="_blank" rel="noopener" class="text-sm font-medium text-primary hover:text-green-300 transition-colors flex items-center gap-1.5">
+                        <i class="fas fa-poll"></i>
+                        <?= t('landing.survey') ?>
+                    </a>
                 </div>
 
                 <div class="flex items-center gap-2 sm:gap-4">
