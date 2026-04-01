@@ -198,7 +198,12 @@ class AuthController {
             $confirm     = $_POST['confirmar_contrasena'] ?? '';
             $poliza      = isset($_POST['acepta_politicas']) ? 1 : 0;
 
-            if (empty($nombre) || empty($correo) || empty($password) || empty($confirm) || empty($institucion)) {
+            // Rate limiting: máximo 5 registros en 15 minutos por IP
+            $rateCheck = checkRateLimit('register', 5, 900);
+            if ($rateCheck['limited']) {
+                $mins = ceil($rateCheck['remaining_seconds'] / 60);
+                $error = t('auth.too_many_attempts') . ' ' . $mins . ' min.';
+            } elseif (empty($nombre) || empty($correo) || empty($password) || empty($confirm) || empty($institucion)) {
                 $error = 'Todos los campos son obligatorios.';
             } elseif (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
                 $error = 'El correo no tiene un formato válido.';
@@ -370,7 +375,8 @@ class AuthController {
             // Acción de reenvío
             if (isset($_POST['resend'])) {
                 // Rate limiting para reenvío
-                if (isset($_SESSION['last_verify_resend']) && time() - $_SESSION['last_verify_resend'] < 30) {
+                $resendRate = checkRateLimit('verify_resend', 3, 300);
+                if ($resendRate['limited']) {
                     $error = t('auth.verify_wait');
                 } else {
                     $code = $this->user->createEmailVerification(
@@ -473,19 +479,20 @@ class AuthController {
 
             $correo = trim($_POST['correo'] ?? '');
 
-            // Validaciones básicas
-            if (!$correo) {
+            // Rate limiting: máximo 5 solicitudes en 15 minutos por IP
+            $rateCheck = checkRateLimit('forgot_password', 5, 900);
+
+            if ($rateCheck['limited']) {
+                $mins = ceil($rateCheck['remaining_seconds'] / 60);
+                $error = t('auth.too_many_attempts') . ' ' . $mins . ' min.';
+            } elseif (!$correo) {
                 $error = 'Introduce tu correo.';
             }
             elseif (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
                 $error = 'Correo inválido.';
             }
             else {
-                // Evitar spam de solicitudes de codigos
-                if (isset($_SESSION['last_reset']) && time() - $_SESSION['last_reset'] < 30) {
-                    $error = 'Espera unos segundos antes de volver a solicitarlo.';
-                }
-                else {
+                {
                     $userData = $this->user->getUserByEmail($correo);
 
                     //Importante, no revelar el correo evidentemente pero si existe el usuario, generar código y enviarlo

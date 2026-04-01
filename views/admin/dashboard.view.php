@@ -16,10 +16,10 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
                     </svg>
                 </div>
-                <span class="text-base text-gray-500 group-hover:text-primary transition"><?= $stats['verified_users'] ?? 0 ?> verificados</span>
+                <span class="text-base text-gray-500 group-hover:text-primary transition"><?= $stats['verified_users'] ?? 0 ?> <?= t('admin.verified') ?></span>
             </div>
             <p class="text-4xl font-bold text-white"><?= $stats['users'] ?></p>
-            <p class="text-base text-gray-400 mt-1">Usuarios totales</p>
+            <p class="text-base text-gray-400 mt-1"><?= t('admin.total_users') ?></p>
         </a>
 
         <!-- Anuncios -->
@@ -30,10 +30,10 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
                     </svg>
                 </div>
-                <span class="text-base text-gray-500 group-hover:text-primary transition">Activos</span>
+                <span class="text-base text-gray-500 group-hover:text-primary transition"><?= t('admin.active') ?></span>
             </div>
             <p class="text-4xl font-bold text-white"><?= $stats['ads'] ?></p>
-            <p class="text-base text-gray-400 mt-1">Anuncios publicados</p>
+            <p class="text-base text-gray-400 mt-1"><?= t('admin.total_ads') ?></p>
         </a>
 
         <!-- Reportes -->
@@ -45,13 +45,13 @@
                     </svg>
                 </div>
                 <?php if (($stats['pending_reports'] ?? 0) > 0): ?>
-                <span class="text-base bg-red-500/20 text-red-400 px-3 py-1 rounded-full font-medium"><?= $stats['pending_reports'] ?> pendientes</span>
+                <span class="text-base bg-red-500/20 text-red-400 px-3 py-1 rounded-full font-medium"><?= $stats['pending_reports'] ?> <?= t('admin.pending') ?></span>
                 <?php else: ?>
-                <span class="text-base text-gray-500">Sin pendientes</span>
+                <span class="text-base text-gray-500"><?= t('admin.no_pending') ?></span>
                 <?php endif; ?>
             </div>
             <p class="text-4xl font-bold text-white"><?= $stats['reports'] ?></p>
-            <p class="text-base text-gray-400 mt-1">Reportes totales</p>
+            <p class="text-base text-gray-400 mt-1"><?= t('admin.total_reports') ?></p>
         </a>
 
         <!-- Instituciones -->
@@ -62,29 +62,29 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
                     </svg>
                 </div>
-                <span class="text-base text-gray-500 group-hover:text-primary transition">Registradas</span>
+                <span class="text-base text-gray-500 group-hover:text-primary transition"><?= t('admin.registered') ?></span>
             </div>
             <p class="text-4xl font-bold text-white"><?= $stats['institutions'] ?></p>
-            <p class="text-base text-gray-400 mt-1">Instituciones</p>
+            <p class="text-base text-gray-400 mt-1"><?= t('admin.institutions') ?></p>
         </a>
     </section>
 
     <!-- Graficas de tendencias -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-7">
-            <h3 class="text-lg font-semibold text-white mb-4">Registros por mes</h3>
+            <h3 class="text-lg font-semibold text-white mb-4"><?= t('admin.registrations_month') ?></h3>
             <div style="position: relative; height: 280px;">
                 <canvas id="chartRegistros"></canvas>
             </div>
         </div>
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-7">
-            <h3 class="text-lg font-semibold text-white mb-4">Anuncios por mes</h3>
+            <h3 class="text-lg font-semibold text-white mb-4"><?= t('admin.ads_month') ?></h3>
             <div style="position: relative; height: 280px;">
                 <canvas id="chartAnuncios"></canvas>
             </div>
         </div>
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-7 lg:col-span-2">
-            <h3 class="text-lg font-semibold text-white mb-4">Reportes por mes</h3>
+            <h3 class="text-lg font-semibold text-white mb-4"><?= t('admin.reports_month') ?></h3>
             <div style="position: relative; height: 220px;">
                 <canvas id="chartReportes"></canvas>
             </div>
@@ -94,31 +94,31 @@
     <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
         <!-- Verificacion -->
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-7">
-            <h3 class="text-lg font-semibold text-white mb-6">Estado de Verificacion</h3>
+            <h3 class="text-lg font-semibold text-white mb-6"><?= t('admin.verification_status') ?></h3>
             <div class="space-y-5">
                 <div class="flex items-center justify-between">
-                    <span class="text-base text-gray-400">Verificados</span>
+                    <span class="text-base text-gray-400"><?= t('admin.verified_users') ?></span>
                     <span class="text-lg font-semibold text-green-400"><?= $stats['verified_users'] ?? 0 ?></span>
                 </div>
                 <div class="w-full bg-gray-700 rounded-full h-2.5">
                     <div class="bg-green-500 h-2.5 rounded-full" style="width: <?= $stats['users'] > 0 ? min(100, round(($stats['verified_users'] / $stats['users']) * 100)) : 0 ?>%"></div>
                 </div>
                 <div class="flex items-center justify-between">
-                    <span class="text-base text-gray-400">Pendientes</span>
+                    <span class="text-base text-gray-400"><?= t('admin.pending_users') ?></span>
                     <span class="text-lg font-semibold text-yellow-400"><?= $stats['pending_verification'] ?? 0 ?></span>
                 </div>
                 <div class="w-full bg-gray-700 rounded-full h-2.5">
                     <div class="bg-yellow-500 h-2.5 rounded-full" style="width: <?= $stats['users'] > 0 ? min(100, round(($stats['pending_verification'] / $stats['users']) * 100)) : 0 ?>%"></div>
                 </div>
             </div>
-            <a href="<?= url('/admin/users') ?>?tab=verificaciones" class="text-primary text-base hover:underline mt-6 inline-block">Gestionar verificaciones &rarr;</a>
+            <a href="<?= url('/admin/users') ?>?tab=verificaciones" class="text-primary text-base hover:underline mt-6 inline-block"><?= t('admin.manage_verifications') ?> &rarr;</a>
         </div>
 
         <!-- Reportes pendientes -->
         <div class="lg:col-span-2 bg-gray-800/50 border border-gray-700 rounded-xl p-7">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-semibold text-white">Reportes Pendientes</h3>
-                <a href="<?= url('/admin/reports') ?>?tab=usuario" class="text-primary text-base hover:underline">Ver todos &rarr;</a>
+                <h3 class="text-lg font-semibold text-white"><?= t('admin.pending_reports') ?></h3>
+                <a href="<?= url('/admin/reports') ?>?tab=usuario" class="text-primary text-base hover:underline"><?= t('admin.view_all') ?> &rarr;</a>
             </div>
             <?php $pendingReports = is_array($pendingReports) ? $pendingReports : []; ?>
             <?php if (!empty($pendingReports)): ?>
@@ -126,10 +126,10 @@
                 <table class="w-full">
                     <thead>
                         <tr class="border-b border-gray-700">
-                            <th class="px-5 py-3.5 text-left text-sm text-gray-500 font-semibold uppercase tracking-wider">ID</th>
-                            <th class="px-5 py-3.5 text-left text-sm text-gray-500 font-semibold uppercase tracking-wider">Tipo</th>
-                            <th class="px-5 py-3.5 text-left text-sm text-gray-500 font-semibold uppercase tracking-wider">Reportado</th>
-                            <th class="px-5 py-3.5 text-left text-sm text-gray-500 font-semibold uppercase tracking-wider">Fecha</th>
+                            <th class="px-5 py-3.5 text-left text-sm text-gray-400 font-semibold uppercase tracking-wider">ID</th>
+                            <th class="px-5 py-3.5 text-left text-sm text-gray-400 font-semibold uppercase tracking-wider">Tipo</th>
+                            <th class="px-5 py-3.5 text-left text-sm text-gray-400 font-semibold uppercase tracking-wider">Reportado</th>
+                            <th class="px-5 py-3.5 text-left text-sm text-gray-400 font-semibold uppercase tracking-wider">Fecha</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -150,7 +150,7 @@
                 </table>
             </div>
             <?php else: ?>
-            <div class="text-center py-10 text-gray-500 text-base">Sin reportes pendientes</div>
+            <div class="text-center py-10 text-gray-500 text-base"><?= t('admin.no_pending_reports') ?></div>
             <?php endif; ?>
         </div>
     </section>
@@ -159,8 +159,8 @@
         <!-- Ultimos anuncios -->
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-7">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-semibold text-white">Ultimos Anuncios</h3>
-                <a href="<?= url('/admin/ads') ?>" class="text-primary text-base hover:underline">Ver todos &rarr;</a>
+                <h3 class="text-lg font-semibold text-white"><?= t('admin.latest_ads') ?></h3>
+                <a href="<?= url('/admin/ads') ?>" class="text-primary text-base hover:underline"><?= t('admin.view_all') ?> &rarr;</a>
             </div>
             <?php if (!empty($recentAds)): ?>
             <div class="space-y-3">
@@ -182,15 +182,15 @@
                 <?php endforeach; ?>
             </div>
             <?php else: ?>
-            <div class="text-center py-10 text-gray-500 text-base">No hay anuncios recientes</div>
+            <div class="text-center py-10 text-gray-500 text-base"><?= t('admin.no_recent_ads') ?></div>
             <?php endif; ?>
         </div>
 
         <!-- Ultimos usuarios -->
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-7">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-semibold text-white">Usuarios Recientes</h3>
-                <a href="<?= url('/admin/users') ?>" class="text-primary text-base hover:underline">Ver todos &rarr;</a>
+                <h3 class="text-lg font-semibold text-white"><?= t('admin.recent_users') ?></h3>
+                <a href="<?= url('/admin/users') ?>" class="text-primary text-base hover:underline"><?= t('admin.view_all') ?> &rarr;</a>
             </div>
             <?php if (!empty($recentUsers)): ?>
             <div class="space-y-3">
@@ -207,13 +207,13 @@
                         <?php if ($user['estado_verificacion'] == 2): ?>bg-green-500/10 text-green-400
                         <?php elseif ($user['estado_verificacion'] == 1): ?>bg-yellow-500/10 text-yellow-400
                         <?php else: ?>bg-gray-700 text-gray-400<?php endif; ?>">
-                        <?= $user['estado_verificacion'] == 2 ? 'Verificado' : ($user['estado_verificacion'] == 1 ? 'Pendiente' : 'No verif.') ?>
+                        <?= $user['estado_verificacion'] == 2 ? t('admin.verified_badge') : ($user['estado_verificacion'] == 1 ? t('admin.pending_badge') : t('admin.not_verified_badge')) ?>
                     </span>
                 </div>
                 <?php endforeach; ?>
             </div>
             <?php else: ?>
-            <div class="text-center py-10 text-gray-500 text-base">No hay usuarios registrados</div>
+            <div class="text-center py-10 text-gray-500 text-base"><?= t('admin.no_registered_users') ?></div>
             <?php endif; ?>
         </div>
     </section>

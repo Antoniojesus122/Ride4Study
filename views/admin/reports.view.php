@@ -648,7 +648,7 @@
                     const premium = data.premium == 1 ? '<span class="px-2.5 py-1 text-xs rounded-full bg-yellow-500/10 text-yellow-400 font-medium">Premium</span>' : '';
                     const baneado = data.baneado == 1 ? '<span class="px-2.5 py-1 text-xs rounded-full bg-red-500/10 text-red-400 font-medium">Baneado</span>' : '';
                     const fotoHtml = data.fotoPerfil
-                        ? `<img src="<?= url('/') ?>public/uploads/profile/${data.fotoPerfil}" class="w-14 h-14 rounded-full object-cover border-2 border-gray-700">`
+                        ? `<img src="<?= url('/') ?>public/uploads/profile/${encodeURIComponent(data.fotoPerfil)}" alt="${(data.nombre||'Usuario').replace(/"/g,'&quot;')}" class="w-14 h-14 rounded-full object-cover border-2 border-gray-700">`
                         : `<div class="w-14 h-14 rounded-full bg-gray-700 flex items-center justify-center text-xl font-bold text-primary">${(data.nombre||'?')[0].toUpperCase()}</div>`;
                     body.innerHTML = `
                         <div class="space-y-4">

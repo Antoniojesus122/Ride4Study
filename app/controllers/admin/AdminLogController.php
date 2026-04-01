@@ -13,6 +13,12 @@ class AdminLogController {
     }
 
     public function index(): void {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+        if (!isset($_SESSION['user_id']) || (int)($_SESSION['user_role'] ?? 0) !== 1) {
+            header('Location: ' . url('/login'));
+            exit;
+        }
+
         $page = max(1, (int)($_GET['page'] ?? 1));
         $limit = 30;
 

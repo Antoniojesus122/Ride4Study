@@ -21,7 +21,9 @@ class Database {
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         } catch(PDOException $e) {
-            echo "Connection Error: " . $e->getMessage();
+            error_log("Database Connection Error: " . $e->getMessage());
+            http_response_code(500);
+            die("Error interno del servidor. Contacta con el administrador.");
         }
 
         return $this->conn;

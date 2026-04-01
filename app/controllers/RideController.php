@@ -293,7 +293,7 @@ class RideController {
         $tipoAnuncio = strtolower($ride['tipo']);
 
         // Evitar reservar/ofrecer en anuncio propio
-        if ($ride['idUsuario'] == $_SESSION['user_id']) {
+        if ((int)$ride['idUsuario'] === (int)$_SESSION['user_id']) {
             redirectWithFlash(url('/dashboard'), 'error', 'own_ride');
         }
 
@@ -367,7 +367,7 @@ class RideController {
         }
 
         $ride = $this->ride->getRideById($rideId);
-        if (!$ride || $ride['idUsuario'] != $_SESSION['user_id']) {
+        if (!$ride || (int)$ride['idUsuario'] !== (int)$_SESSION['user_id']) {
              redirectWithFlash(url('/my-rides'), 'error', 'unauthorized');
         }
 
@@ -749,7 +749,7 @@ class RideController {
 
         $ride = $this->ride->getRideById($rideId);
 
-        if (!$ride || $ride['idUsuario'] != $_SESSION['user_id']) {
+        if (!$ride || (int)$ride['idUsuario'] !== (int)$_SESSION['user_id']) {
             redirectWithFlash(url('/my-rides'), 'error', 'unauthorized');
         }
 
@@ -784,7 +784,7 @@ class RideController {
         }
 
         $ride = $this->ride->getRideById($rideId);
-        if (!$ride || $ride['idUsuario'] != $_SESSION['user_id']) {
+        if (!$ride || (int)$ride['idUsuario'] !== (int)$_SESSION['user_id']) {
             redirectWithFlash(url('/my-rides'), 'error', 'unauthorized');
         }
 

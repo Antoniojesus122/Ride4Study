@@ -176,7 +176,7 @@
                                         <div class="w-10 h-10 rounded-md overflow-hidden bg-gray-800 flex-shrink-0">
                                             <?php if (!empty($rv['valoradorFoto']) && file_exists(__DIR__ . '/../../public/uploads/profiles/' . $rv['valoradorFoto'])): ?>
                                                 <?php $vpf = htmlspecialchars($rv['valoradorFoto']); $vver = filemtime(__DIR__ . '/../../public/uploads/profiles/' . $rv['valoradorFoto']); ?>
-                                                <img src="public/uploads/profiles/<?= $vpf ?>?v=<?= $vver ?>" class="w-full h-full object-cover" alt="">
+                                                <img src="public/uploads/profiles/<?= $vpf ?>?v=<?= $vver ?>" class="w-full h-full object-cover" alt="<?= htmlspecialchars($rv['valoradorNombre'] ?? 'Usuario') ?>">
                                             <?php else: ?>
                                                 <div class="w-full h-full flex items-center justify-center text-xs text-white font-bold bg-gradient-to-tr from-gray-700 to-gray-600"><?= strtoupper(substr($rv['valoradorNombre'], 0, 2)) ?></div>
                                             <?php endif; ?>
@@ -1089,11 +1089,16 @@
 
         // Avatar
         const avatarEl = document.getElementById('prm-avatar');
+        avatarEl.textContent = '';
         if (ride.foto_perfil) {
-            avatarEl.innerHTML = `<img src="public/uploads/profiles/${encodeURIComponent(ride.foto_perfil)}" alt="avatar" class="w-full h-full object-cover">`;
+            const img = document.createElement('img');
+            img.src = 'public/uploads/profiles/' + encodeURIComponent(ride.foto_perfil);
+            img.alt = ride.nombreUsuario || 'avatar';
+            img.className = 'w-full h-full object-cover';
+            avatarEl.appendChild(img);
             avatarEl.className = 'w-20 h-20 rounded-xl mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 ring-2 ring-gray-700/50';
         } else {
-            avatarEl.innerHTML = ride.nombreUsuario.substring(0, 2).toUpperCase();
+            avatarEl.textContent = ride.nombreUsuario.substring(0, 2).toUpperCase();
             avatarEl.className = 'w-20 h-20 rounded-xl mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg bg-gradient-to-br from-primary to-primary-dark ring-2 ring-primary/20';
         }
 

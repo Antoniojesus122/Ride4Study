@@ -9,6 +9,15 @@ class ApiInstitucionesController {
         header('Content-Type: application/json; charset=utf-8');
         header('Cache-Control: public, max-age=3600');
 
+        // Rate limiting: máximo 30 peticiones por minuto por IP
+        if (session_status() === PHP_SESSION_NONE) session_start();
+        $rateCheck = checkRateLimit('api_instituciones', 30, 60);
+        if ($rateCheck['limited']) {
+            http_response_code(429);
+            echo json_encode(['error' => 'Too many requests']);
+            return;
+        }
+
         $query = trim($_GET['q'] ?? '');
         if (mb_strlen($query) < 2) {
             echo json_encode([]);

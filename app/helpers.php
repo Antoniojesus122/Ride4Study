@@ -112,6 +112,34 @@ function validateUploadedFile(array $file, array $allowedMimes, int $maxSizeMB =
     return $result;
 }
 
+// Rate limiting genérico por IP (basado en sesión)
+function checkRateLimit(string $action, int $maxAttempts = 5, int $windowSeconds = 900): array
+{
+    if (session_status() === PHP_SESSION_NONE) session_start();
+
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    $key = 'rate_' . $action . '_' . md5($ip);
+
+    if (!isset($_SESSION[$key])) {
+        $_SESSION[$key] = ['count' => 0, 'first_attempt' => time()];
+    }
+
+    $data = &$_SESSION[$key];
+
+    // Resetear si la ventana ha expirado
+    if (time() - $data['first_attempt'] > $windowSeconds) {
+        $data = ['count' => 0, 'first_attempt' => time()];
+    }
+
+    if ($data['count'] >= $maxAttempts) {
+        $remaining = $windowSeconds - (time() - $data['first_attempt']);
+        return ['limited' => true, 'remaining_seconds' => max(0, $remaining)];
+    }
+
+    $data['count']++;
+    return ['limited' => false, 'remaining_seconds' => 0];
+}
+
 // Flash messages en sesión (esto para que no puedan manipular los GET params)
 function flash(string $type, string $message, ?string $tab = null): void
 {

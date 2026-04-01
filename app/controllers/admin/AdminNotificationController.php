@@ -43,11 +43,27 @@ class AdminNotificationController {
             exit;
         }
 
-        $mensaje = trim($_POST['mensaje'] ?? '');
+        $mensaje = htmlspecialchars(trim($_POST['mensaje'] ?? ''), ENT_QUOTES, 'UTF-8');
         $icono = trim($_POST['icono'] ?? 'fas fa-bell');
         $urlNotif = trim($_POST['url'] ?? '');
         $filtroTipo = $_POST['filtro_tipo'] ?? 'todos';
         $filtroValor = $_POST['filtro_valor'] ?? '';
+
+        // Validar icono: solo permitir clases Font Awesome válidas
+        if (!preg_match('/^(fas|far|fab|fal|fad)\s+fa-[a-z0-9-]+$/', $icono)) {
+            $icono = 'fas fa-bell';
+        }
+
+        // Validar URL: solo rutas internas relativas
+        if (!empty($urlNotif) && !str_starts_with($urlNotif, '/')) {
+            $urlNotif = '';
+        }
+
+        // Validar filtro contra whitelist
+        $allowedFilters = ['todos', 'premium', 'verificados', 'no_verificados'];
+        if (!in_array($filtroTipo, $allowedFilters, true)) {
+            $filtroTipo = 'todos';
+        }
 
         if (empty($mensaje)) {
             redirectWithFlash(url('/admin/notifications'), 'error', 'El mensaje no puede estar vacio');

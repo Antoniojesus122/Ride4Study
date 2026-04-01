@@ -106,8 +106,8 @@
 
                                 <!-- Campana de notificaciones -->
                                 <div class="relative" id="notif-wrapper">
-                                    <button onclick="toggleNotifPanel()" class="relative p-2.5 rounded-full hover:bg-white/10 transition-all text-gray-300 hover:text-white">
-                                        <i class="fas fa-bell text-lg"></i>
+                                    <button onclick="toggleNotifPanel()" class="relative p-2.5 rounded-full hover:bg-white/10 transition-all text-gray-300 hover:text-white" aria-label="<?= t('nav.notifications') ?>" aria-expanded="false" aria-haspopup="true">
+                                        <i class="fas fa-bell text-lg" aria-hidden="true"></i>
                                         
                                         <?php if ($unreadNotifCount > 0): ?>
                                             <span class="absolute top-0.5 right-0.5 min-w-[16px] h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-0.5" id="notif-badge"><?= $unreadNotifCount ?></span>
@@ -117,7 +117,7 @@
                                     </button>
 
                                     <!-- Panel de notificaciones -->
-                                    <div id="notif-panel" class="hidden absolute right-0 top-full mt-3 w-80 max-w-[calc(100vw-2rem)] origin-top-right rounded-2xl bg-[#1a1b26]/95 backdrop-blur-xl border border-white/10 shadow-2xl z-50">
+                                    <div id="notif-panel" class="hidden absolute right-0 top-full mt-3 w-80 max-w-[calc(100vw-2rem)] origin-top-right rounded-2xl bg-[#1a1b26]/95 backdrop-blur-xl border border-white/10 shadow-2xl z-50" role="menu" aria-label="<?= t('nav.notifications') ?>">
                                         <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
                                             <span class="text-sm font-semibold text-white"><?= t('nav.notifications') ?></span>
                                             <button onclick="markAllRead()" class="text-xs text-primary hover:underline"><?= t('nav.mark_all_read') ?></button>
@@ -576,7 +576,7 @@
             </script>
 
             <!-- Modal global de reporte -->
-            <div id="reportModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+            <div id="reportModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="<?= t('report.title') ?>">
                 <div class="bg-[#1a1b26] border border-gray-700 rounded-2xl shadow-2xl max-w-md w-full mx-4">
                     <div class="p-6 border-b border-gray-700 flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0">

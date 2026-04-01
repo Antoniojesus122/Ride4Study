@@ -82,12 +82,20 @@ class Institution {
     }
 
     public function update(int $id, array $data): bool {
+        $allowedFields = ['nombre', 'correo', 'telefono', 'direccion', 'logo', 'descripcion', 'contrasena', 'activo', 'ultimo_acceso', 'codigo_2fa', 'expiracion_2fa', 'intentos_2fa'];
         $fields = [];
         $params = [':id' => $id];
 
         foreach ($data as $key => $value) {
-            $fields[] = "$key = :$key";
+            if (!in_array($key, $allowedFields, true)) {
+                continue;
+            }
+            $fields[] = "`$key` = :$key";
             $params[":$key"] = $value;
+        }
+
+        if (empty($fields)) {
+            return false;
         }
 
         $sql = "UPDATE {$this->table} SET " . implode(', ', $fields) . " WHERE idInstitucion = :id";
