@@ -242,13 +242,36 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                         </div>
                     </div>
 
-                    <!-- Vista previa del mapa -->
+                    <!-- Mapa interactivo -->
                     <div class="bg-surface rounded-2xl border border-gray-700 p-6 flex-1 flex flex-col">
                         <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
                             <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><i class="fas fa-map-marked-alt text-blue-400 text-sm"></i></div>
-                            <?= t('publish.route_preview') ?>
+                            <?= t('publish.map_interactive') ?>
                         </h3>
-                        <div id="publish-map" class="w-full min-h-[16rem] flex-1 rounded-xl border border-gray-600 bg-gray-800 overflow-hidden" style="z-index: 1;"></div>
+
+                        <!-- Botones de selección en mapa -->
+                        <div class="flex gap-2 mb-3">
+                            <button type="button" id="btn-set-origin"
+                                class="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border-2 border-gray-600 text-gray-400 text-sm font-medium transition-all hover:border-green-500/50 hover:text-green-400"
+                                onclick="setMapMode('origin')">
+                                <span class="w-3 h-3 rounded-full bg-green-400 border-2 border-white shadow-sm"></span>
+                                <?= t('publish.map_set_origin') ?>
+                            </button>
+                            <button type="button" id="btn-set-destination"
+                                class="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border-2 border-gray-600 text-gray-400 text-sm font-medium transition-all hover:border-red-500/50 hover:text-red-400"
+                                onclick="setMapMode('destination')">
+                                <span class="w-3 h-3 rounded-full bg-red-400 border-2 border-white shadow-sm"></span>
+                                <?= t('publish.map_set_destination') ?>
+                            </button>
+                        </div>
+
+                        <!-- Indicador de modo activo -->
+                        <div id="map-mode-indicator" class="hidden mb-3 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs text-center font-medium">
+                            <i class="fas fa-mouse-pointer mr-1"></i>
+                            <span id="map-mode-text"></span>
+                        </div>
+
+                        <div id="publish-map" class="w-full min-h-[20rem] flex-1 rounded-xl border border-gray-600 bg-gray-800 overflow-hidden cursor-crosshair" style="z-index: 1;"></div>
                         <div id="route-info" class="hidden mt-3 flex items-center gap-4 text-sm">
                             <span class="flex items-center gap-1.5 text-gray-400">
                                 <i class="fas fa-road text-primary text-xs"></i>
@@ -261,6 +284,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                         </div>
                         <p id="map-placeholder" class="text-xs text-gray-500 mt-3 text-center">
                             <i class="fas fa-info-circle mr-1"></i> <?= t('publish.map_hint') ?>
+                            <br><span class="text-gray-600"><?= t('publish.map_or_type') ?></span>
                         </p>
                         <input type="hidden" name="ruta_polyline" id="ruta_polyline" value="<?= htmlspecialchars($isEdit ? ($ride['ruta_polyline'] ?? '') : '') ?>">
                     </div>
@@ -574,11 +598,23 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
             }
         });
 
-        // Vista previa del mapa con ruta
+        // Vista previa del mapa con ruta + selección interactiva
         const ORS_API_KEY = '<?= $_ENV['ORS_API_KEY'] ?? '' ?>';
         let publishMap = null;
         let routeLayer = null;
         let markersLayer = null;
+        let mapClickMode = null; // 'origin' | 'destination' | null
+        let reverseGeocodeTimer = null;
+
+        // Iconos reutilizables
+        const greenIcon = L.divIcon({
+            html: '<div style="background:#34d399;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>',
+            iconSize: [14, 14], iconAnchor: [7, 7], className: ''
+        });
+        const redIcon = L.divIcon({
+            html: '<div style="background:#f87171;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>',
+            iconSize: [14, 14], iconAnchor: [7, 7], className: ''
+        });
 
         // Inicializar mapa
         function initPublishMap() {
@@ -594,6 +630,144 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
 
             routeLayer = L.layerGroup().addTo(publishMap);
             markersLayer = L.layerGroup().addTo(publishMap);
+
+            // Click en el mapa para seleccionar ubicación
+            publishMap.on('click', function(e) {
+                if (!mapClickMode) return;
+                handleMapClick(e.latlng.lat, e.latlng.lng);
+            });
+        }
+
+        // Activar modo de selección en mapa
+        function setMapMode(mode) {
+            const btnOrigin = document.getElementById('btn-set-origin');
+            const btnDest = document.getElementById('btn-set-destination');
+            const indicator = document.getElementById('map-mode-indicator');
+            const modeText = document.getElementById('map-mode-text');
+            const mapEl = document.getElementById('publish-map');
+
+            // Si ya está activo el mismo modo, desactivar
+            if (mapClickMode === mode) {
+                mapClickMode = null;
+                btnOrigin.classList.remove('border-green-500', 'text-green-400', 'bg-green-500/10');
+                btnDest.classList.remove('border-red-500', 'text-red-400', 'bg-red-500/10');
+                btnOrigin.classList.add('border-gray-600', 'text-gray-400');
+                btnDest.classList.add('border-gray-600', 'text-gray-400');
+                indicator.classList.add('hidden');
+                mapEl.style.cursor = 'crosshair';
+                return;
+            }
+
+            mapClickMode = mode;
+            initPublishMap();
+
+            // Resetear estilos
+            btnOrigin.classList.remove('border-green-500', 'text-green-400', 'bg-green-500/10');
+            btnDest.classList.remove('border-red-500', 'text-red-400', 'bg-red-500/10');
+            btnOrigin.classList.add('border-gray-600', 'text-gray-400');
+            btnDest.classList.add('border-gray-600', 'text-gray-400');
+
+            if (mode === 'origin') {
+                btnOrigin.classList.remove('border-gray-600', 'text-gray-400');
+                btnOrigin.classList.add('border-green-500', 'text-green-400', 'bg-green-500/10');
+                modeText.textContent = '<?= t('publish.map_click_origin') ?>';
+                indicator.classList.remove('hidden', 'border-red-500/30', 'bg-red-500/10', 'text-red-400');
+                indicator.classList.add('border-green-500/30', 'bg-green-500/10', 'text-green-400');
+            } else {
+                btnDest.classList.remove('border-gray-600', 'text-gray-400');
+                btnDest.classList.add('border-red-500', 'text-red-400', 'bg-red-500/10');
+                modeText.textContent = '<?= t('publish.map_click_destination') ?>';
+                indicator.classList.remove('hidden', 'border-green-500/30', 'bg-green-500/10', 'text-green-400');
+                indicator.classList.add('border-red-500/30', 'bg-red-500/10', 'text-red-400');
+            }
+
+            mapEl.style.cursor = 'crosshair';
+        }
+
+        // Manejar click en el mapa
+        function handleMapClick(lat, lng) {
+            const isOrigin = mapClickMode === 'origin';
+            const prefix = isOrigin ? 'origen' : 'destino';
+
+            // Actualizar campos hidden de coordenadas
+            document.getElementById(prefix + '_lat').value = lat;
+            document.getElementById(prefix + '_lng').value = lng;
+
+            // Reverse geocoding con Nominatim
+            clearTimeout(reverseGeocodeTimer);
+            reverseGeocodeTimer = setTimeout(() => {
+                const url = 'https://nominatim.openstreetmap.org/reverse?' + new URLSearchParams({
+                    format: 'json',
+                    lat: lat,
+                    lon: lng,
+                    zoom: 14,
+                    addressdetails: '1',
+                    'accept-language': 'es'
+                });
+
+                fetch(url, { headers: { 'User-Agent': 'Ride4Study/1.0' } })
+                    .then(r => r.json())
+                    .then(data => {
+                        const addr = data.address || {};
+                        const cityName = addr.city || addr.town || addr.village || addr.municipality || addr.hamlet || data.display_name.split(',')[0];
+
+                        // Rellenar los campos de texto e hidden
+                        document.getElementById(prefix).value = cityName;
+                        document.getElementById(prefix + '_nombre').value = cityName;
+
+                        // Mostrar check verde
+                        document.getElementById(prefix + '-check').classList.remove('hidden');
+
+                        // Actualizar vista previa de ruta
+                        updateRoutePreview();
+                    })
+                    .catch(err => {
+                        console.error('Reverse geocode error:', err);
+                        // Aun sin nombre, las coordenadas ya están puestas
+                        document.getElementById(prefix).value = lat.toFixed(4) + ', ' + lng.toFixed(4);
+                        document.getElementById(prefix + '_nombre').value = lat.toFixed(4) + ', ' + lng.toFixed(4);
+                        updateRoutePreview();
+                    });
+            }, 100);
+
+            // Cambiar automáticamente al siguiente modo
+            if (mapClickMode === 'origin') {
+                // Si no hay destino aún, pasar a modo destino
+                const dLat = parseFloat(document.getElementById('destino_lat').value || 0);
+                if (!dLat) {
+                    setMapMode('destination');
+                } else {
+                    setMapMode(null); // Desactivar
+                    mapClickMode = null;
+                }
+            } else {
+                setMapMode(null); // Desactivar tras poner destino
+                mapClickMode = null;
+            }
+
+            // Actualizar marcadores inmediatamente
+            updateMapMarkers();
+        }
+
+        // Actualizar marcadores en el mapa (sin ruta, solo puntos)
+        function updateMapMarkers() {
+            if (!publishMap) return;
+            markersLayer.clearLayers();
+
+            const oLat = parseFloat(document.getElementById('origen_lat').value || 0);
+            const oLng = parseFloat(document.getElementById('origen_lng').value || 0);
+            const dLat = parseFloat(document.getElementById('destino_lat').value || 0);
+            const dLng = parseFloat(document.getElementById('destino_lng').value || 0);
+
+            if (oLat && oLng) L.marker([oLat, oLng], { icon: greenIcon }).addTo(markersLayer);
+            if (dLat && dLng) L.marker([dLat, dLng], { icon: redIcon }).addTo(markersLayer);
+
+            // Ajustar vista si hay al menos un punto
+            const bounds = [];
+            if (oLat && oLng) bounds.push([oLat, oLng]);
+            if (dLat && dLng) bounds.push([dLat, dLng]);
+            if (bounds.length === 1) publishMap.setView(bounds[0], 10);
+            if (bounds.length === 2) publishMap.fitBounds(bounds, { padding: [40, 40] });
         }
 
         // Actualizar ruta cuando se seleccionan origen y destino
@@ -608,16 +782,6 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
             initPublishMap();
             routeLayer.clearLayers();
             markersLayer.clearLayers();
-
-            // Marcadores de origen y destino
-            const greenIcon = L.divIcon({
-                html: '<div style="background:#34d399;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>',
-                iconSize: [14, 14], iconAnchor: [7, 7], className: ''
-            });
-            const redIcon = L.divIcon({
-                html: '<div style="background:#f87171;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>',
-                iconSize: [14, 14], iconAnchor: [7, 7], className: ''
-            });
 
             L.marker([oLat, oLng], { icon: greenIcon }).addTo(markersLayer);
             L.marker([dLat, dLng], { icon: redIcon }).addTo(markersLayer);
@@ -691,14 +855,6 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                 }).addTo(routeLayer);
                 publishMap.fitBounds(polyline.getBounds(), { padding: [30, 30] });
 
-                const greenIcon = L.divIcon({
-                    html: '<div style="background:#34d399;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>',
-                    iconSize: [14, 14], iconAnchor: [7, 7], className: ''
-                });
-                const redIcon = L.divIcon({
-                    html: '<div style="background:#f87171;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>',
-                    iconSize: [14, 14], iconAnchor: [7, 7], className: ''
-                });
                 L.marker(latLngs[0], { icon: greenIcon }).addTo(markersLayer);
                 L.marker(latLngs[latLngs.length - 1], { icon: redIcon }).addTo(markersLayer);
                 document.getElementById('map-placeholder').classList.add('hidden');
