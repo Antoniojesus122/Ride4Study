@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Rating.php';
 require_once __DIR__ . '/../models/Ride.php';
+require_once __DIR__ . '/../models/Badge.php';
 require_once __DIR__ . '/../../services/MailService.php';
 
 class UserController {
@@ -63,6 +64,14 @@ class UserController {
         $activeRides = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
+
+        // Badges: comprobar y otorgar nuevos, luego cargar todos
+        $badgeModel = new Badge($this->db);
+        if ($isOwnProfile) {
+            $badgeModel->checkAndAward($viewUserId);
+        }
+        $userBadges = $badgeModel->getUserBadges($viewUserId);
+        $allBadges = $badgeModel->getAllBadges();
 
         require_once __DIR__ . '/../../views/user/profile.view.php';
     }

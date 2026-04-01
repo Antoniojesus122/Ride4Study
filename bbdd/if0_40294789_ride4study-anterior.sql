@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 31-03-2026 a las 23:44:52
+-- Tiempo de generación: 01-04-2026 a las 00:35:41
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -62,7 +62,9 @@ INSERT INTO `admin_logs` (`idLog`, `idAdmin`, `accion`, `entidad`, `idEntidad`, 
 (17, 1, 'eliminar_usuario', 'usuario', 25, 'Prueba (ag12@yopmail.com)', '::1', '2026-03-31 16:38:42'),
 (18, 1, 'tomar_reporte', 'reporte', 8, '', '::1', '2026-03-31 21:01:12'),
 (19, 1, 'resolver_reporte', 'reporte', 8, 'Accion: resolver', '::1', '2026-03-31 21:01:19'),
-(20, 1, 'aprobar_verificacion', 'usuario', 1, 'Antonio Jesús', '::1', '2026-03-31 21:03:33');
+(20, 1, 'aprobar_verificacion', 'usuario', 1, 'Antonio Jesús', '::1', '2026-03-31 21:03:33'),
+(21, 1, 'eliminar', 'institucion', 1, '', '::1', '2026-03-31 23:46:39'),
+(22, 1, 'crear', 'institucion', 2, 'IES La Arboleda', '::1', '2026-04-01 00:11:25');
 
 -- --------------------------------------------------------
 
@@ -196,6 +198,7 @@ CREATE TABLE `email_verifications` (
   `nombre` varchar(100) NOT NULL,
   `contrasena` varchar(255) NOT NULL,
   `telefono` varchar(15) DEFAULT NULL,
+  `institucion` varchar(255) DEFAULT '',
   `code` varchar(6) NOT NULL,
   `expires_at` datetime NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -229,7 +232,7 @@ CREATE TABLE `instituciones` (
 --
 
 INSERT INTO `instituciones` (`idInstitucion`, `nombre`, `correo`, `telefono`, `direccion`, `logo`, `descripcion`, `contrasena`, `activo`, `ultimo_acceso`, `codigo_2fa`, `expiracion_2fa`, `intentos_2fa`, `creado_en`) VALUES
-(1, 'IES La Arboleda', 'antonio.jesus.gonzalez.domingo@ieslaarboleda.es', '624897163', 'Avenida Arboleda', '', 'I', NULL, 1, NULL, NULL, NULL, 0, '2026-03-21 14:11:31');
+(2, 'IES La Arboleda', 'antonio.jesus.gonzalez.domingo@ieslaarboleda.es', '624897163', 'Avenida Arboleda', '', 'Instituto IES La Arboleda de Lepe', '$2y$10$0zDjvQQQcrpkoPufGy8CSu8lisFhsUCNe5vHva4t/SkOIGrC1Hr.y', 1, '2026-04-01 00:15:11', NULL, NULL, 0, '2026-04-01 00:11:25');
 
 -- --------------------------------------------------------
 
@@ -569,8 +572,9 @@ INSERT INTO `usuarios` (`idUsuario`, `nombre`, `correo`, `telefono`, `ciudad`, `
 (10, '', 'ibt_ag12@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, 'Antonio122', 1, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL, 0, NULL, NULL, NULL, 0.00),
 (12, 'admin', 'ibt_ag14@yopmail.com', NULL, NULL, NULL, NULL, NULL, NULL, 'Antonio122', 1, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL, 0, NULL, NULL, NULL, 0.00),
 (24, 'Pedro', 'ag@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$7gJYR2mJHdvRaRBOmrX/SO9bu3/hArQwm1HiIgHy4BOg3yfXDnXm2', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 0, NULL, NULL, 0, NULL, NULL, NULL, 0.00),
-(29, 'Paco', 'paco@yopmail.com', '624897163', '', '', '', NULL, '', '$2y$10$ZlEV1PIn3YA7NGXc3KbJdujWumVnSSoYNkIX69jSVVxSkI2cK2nHK', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 1, '2026-04-17 00:15:49', NULL, 0, NULL, NULL, '[\"silencio\",\"charla\"]', 0.00),
-(30, 'Manuel Hernandez', 'manuel@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$BbKvPG3JLhWVncZYG1a6A.JA6zmxGeGrCQPv8jVZMErPJLIZ.Ex..', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-27 14:53:37', 1, '2026-04-30 16:33:58', NULL, 0, NULL, NULL, NULL, 0.00);
+(29, 'Paco', 'paco@yopmail.com', '624897163', '', '', '', NULL, '', '$2y$10$ZlEV1PIn3YA7NGXc3KbJdujWumVnSSoYNkIX69jSVVxSkI2cK2nHK', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-08 15:19:45', 1, '2026-04-17 00:15:49', NULL, 0, NULL, NULL, '[\"silencio\",\"charla\"]', 3.59),
+(30, 'Manuel Hernandez', 'manuel@yopmail.com', '624897163', NULL, NULL, NULL, NULL, NULL, '$2y$10$BbKvPG3JLhWVncZYG1a6A.JA6zmxGeGrCQPv8jVZMErPJLIZ.Ex..', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-27 14:53:37', 1, '2026-04-30 16:33:58', NULL, 0, NULL, NULL, NULL, 3.59),
+(31, 'Rafael Rodriguez', 'rafael@yopmail.com', '624897163', NULL, NULL, 'IES La Arboleda', NULL, NULL, '$2y$10$oCpNOe7i632oq2gGxeQfy.oiWPC0k/qAHO1Pt0s/skNNY24hTdnuW', 2, 0, NULL, NULL, 'public', 'rides_only', 1, '2026-03-31 22:09:50', 0, NULL, NULL, 0, NULL, NULL, NULL, 0.00);
 
 -- --------------------------------------------------------
 
@@ -627,7 +631,7 @@ INSERT INTO `viajes` (`idViaje`, `idAnuncio`, `idConductor`, `idPasajero`, `esta
 (1, 10, 1, 9, '', '2026-01-23 03:02:00', NULL, NULL),
 (21, 38, 29, 9, 'pendiente', NULL, NULL, NULL),
 (23, 48, 29, 9, 'pendiente', NULL, NULL, NULL),
-(24, 52, 29, 30, 'aceptado', NULL, NULL, NULL);
+(24, 52, 29, 30, 'aceptado', NULL, NULL, '2026-04-01 00:09:51');
 
 --
 -- Índices para tablas volcadas
@@ -797,7 +801,7 @@ ALTER TABLE `viajes`
 -- AUTO_INCREMENT de la tabla `admin_logs`
 --
 ALTER TABLE `admin_logs`
-  MODIFY `idLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `idLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT de la tabla `anuncios`
@@ -815,13 +819,13 @@ ALTER TABLE `conversations`
 -- AUTO_INCREMENT de la tabla `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `instituciones`
 --
 ALTER TABLE `instituciones`
-  MODIFY `idInstitucion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `idInstitucion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `localidades`
@@ -887,7 +891,7 @@ ALTER TABLE `sesiones`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT de la tabla `viajes`
