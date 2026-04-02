@@ -13,17 +13,29 @@ class RatingNotificationService {
         $this->mailService = new MailService();
     }
 
-    // Procesa viajes completados y envía emails de solicitud de valoración
+    // Procesa viajes completados y envía emails de solicitud de valoración.
+    // También auto-completa viajes aceptados cuya fecha pasó hace más de 24 horas.
     public function processCompletedTrips() {
         $stats = [
             'trips_processed' => 0,
             'emails_sent' => 0,
+            'auto_completed' => 0,
             'errors' => []
         ];
 
         try {
-            // Buscar viajes cuya fecha de salida fue ayer (al dia siguiente del viaje)
-            // y que no hayan sido notificados. Ventana de 7 dias para no perder viajes.
+            // Auto-completar viajes aceptados cuya fecha+hora pasó hace más de 24h
+            $autoComplete = $this->conn->prepare("
+                UPDATE viajes v
+                INNER JOIN anuncios a ON v.idAnuncio = a.idAnuncio
+                SET v.estado = 'completado'
+                WHERE v.estado = 'aceptado'
+                  AND CONCAT(a.fechaSalida, ' ', COALESCE(a.horaRegreso, a.horaLlegada, a.horaSalida)) < DATE_SUB(NOW(), INTERVAL 24 HOUR)
+            ");
+            $autoComplete->execute();
+            $stats['auto_completed'] = $autoComplete->rowCount();
+
+            // Buscar viajes completados (manual o auto) que aún no han sido notificados
             $query = "
                 SELECT DISTINCT
                     v.idViaje,
@@ -47,7 +59,7 @@ class RatingNotificationService {
                 INNER JOIN usuarios pasajero ON v.idPasajero = pasajero.idUsuario
                 INNER JOIN localidades origen ON a.origen = origen.idLocalidad
                 INNER JOIN localidades destino ON a.destino = destino.idLocalidad
-                WHERE v.estado = 'aceptado'
+                WHERE v.estado IN ('aceptado', 'completado')
                   AND a.fechaSalida < CURDATE()
                   AND a.fechaSalida >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
                   AND v.notificacion_valoracion_enviada IS NULL
@@ -183,7 +195,7 @@ class RatingNotificationService {
                 '¡Valora tu experiencia de viaje!',
                 $contenido,
                 null,
-                fullUrl('/rate') . '?viaje=' . $trip['idViaje'],
+                fullUrl('/rating') . '?viaje=' . $trip['idViaje'],
                 'Valorar ahora'
             );
 

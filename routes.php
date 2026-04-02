@@ -162,6 +162,11 @@ $router->any('/chat', function () {
 });
 
 // Valoraciones
+$router->any('/rate', function () {
+    header('Location: ' . url('/rating') . '?' . http_build_query($_GET));
+    exit;
+});
+
 $router->any('/rating', function () {
     $controller = new RatingController();
     $action = $_GET['action'] ?? null;

@@ -101,22 +101,53 @@ class Ride {
     // Comprobar si el usuario tiene una reserva para un viaje específico
     // Busca tanto como pasajero (ofrezco) como conductor (busco)
     public function hasBooking($rideId, $userId) {
-        $query = "SELECT v.estado FROM viajes v
+        // Buscar reserva activa (pendiente, aceptada o completada)
+        $query = "SELECT v.estado, v.fecha_actualizacion FROM viajes v
                   WHERE v.idAnuncio = :rideId
-                  AND (v.idPasajero = :userId1 OR v.idConductor = :userId2)";
+                  AND (v.idPasajero = :userId1 OR v.idConductor = :userId2)
+                  AND v.estado NOT IN ('rechazado')";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':rideId', $rideId);
         $stmt->bindParam(':userId1', $userId);
         $stmt->bindParam(':userId2', $userId);
         $stmt->execute();
+        $active = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($active) return $active;
 
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        // Si fue rechazado, comprobar cooldown de 1 hora
+        $query = "SELECT v.estado, v.fecha_actualizacion FROM viajes v
+                  WHERE v.idAnuncio = :rideId
+                  AND (v.idPasajero = :userId1 OR v.idConductor = :userId2)
+                  AND v.estado = 'rechazado'
+                  ORDER BY v.fecha_actualizacion DESC
+                  LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':rideId', $rideId);
+        $stmt->bindParam(':userId1', $userId);
+        $stmt->bindParam(':userId2', $userId);
+        $stmt->execute();
+        $rejected = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($rejected) {
+            $rejectedAt = strtotime($rejected['fecha_actualizacion']);
+            $cooldownEnd = $rejectedAt + 3600; // 1 hora
+            if (time() < $cooldownEnd) {
+                $rejected['cooldown_until'] = date('Y-m-d H:i:s', $cooldownEnd);
+                return $rejected;
+            }
+            // Cooldown pasado: eliminar registro rechazado para permitir re-solicitud
+            $del = $this->conn->prepare("DELETE FROM viajes WHERE idAnuncio = :rideId AND (idPasajero = :uid1 OR idConductor = :uid2) AND estado = 'rechazado'");
+            $del->execute([':rideId' => $rideId, ':uid1' => $userId, ':uid2' => $userId]);
+            return null;
+        }
+
+        return null;
     }
 
     // Obtener todas las reservas de un usuario (para el dashboard)
     // Incluye reservas como pasajero en "ofrezco" y ofertas como conductor en "busco"
     public function getUserBookings($userId) {
-        $query = "SELECT v.idAnuncio, v.estado FROM viajes v
+        $query = "SELECT v.idAnuncio, v.estado, v.fecha_actualizacion FROM viajes v
                   JOIN " . $this->table . " a ON v.idAnuncio = a.idAnuncio
                   WHERE (v.idPasajero = :userId1 AND LOWER(a.tipo) = 'ofrezco')
                      OR (v.idConductor = :userId2 AND LOWER(a.tipo) = 'busco')";
@@ -127,7 +158,20 @@ class Ride {
 
         $bookings = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $bookings[$row['idAnuncio']] = $row['estado'];
+            if ($row['estado'] === 'rechazado') {
+                $rejectedAt = strtotime($row['fecha_actualizacion'] ?? 'now');
+                $cooldownEnd = $rejectedAt + 3600;
+                if (time() >= $cooldownEnd) {
+                    // Cooldown pasado, no mostrar como rechazado
+                    continue;
+                }
+                $bookings[$row['idAnuncio']] = [
+                    'estado' => 'rechazado',
+                    'cooldown_until' => date('Y-m-d\TH:i:s', $cooldownEnd)
+                ];
+            } else {
+                $bookings[$row['idAnuncio']] = $row['estado'];
+            }
         }
         return $bookings;
     }
@@ -212,7 +256,7 @@ class Ride {
         // Para "ofrezco": el usuario reservó plaza como pasajero (v.idPasajero = userId)
         // Para "busco": el usuario ofreció llevar como conductor (v.idConductor = userId)
         // En ambos casos mostramos la info del publicador del anuncio (a.idUsuario)
-        $query = "SELECT a.*, u.nombre as nombreUsuario, u.foto_perfil, v.estado as estadoReserva,
+        $query = "SELECT a.*, v.idViaje, u.nombre as nombreUsuario, u.foto_perfil, v.estado as estadoReserva,
                   lo.nombreLocalidad as nombreOrigen, ld.nombreLocalidad as nombreDestino
                   FROM viajes v
                   JOIN " . $this->table . " a ON v.idAnuncio = a.idAnuncio

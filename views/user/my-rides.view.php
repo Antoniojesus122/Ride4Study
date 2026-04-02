@@ -74,6 +74,10 @@
                 <i class="fas fa-ticket-alt"></i> <?= t('myrides.tab_bookings') ?>
                 <span class="bg-gray-800 text-gray-500 py-0.5 px-2 rounded-full text-xs ml-1"><?= count($activeBookings) ?></span>
             </button>
+            <button onclick="switchTab('past-bookings')" id="tab-past-bookings" class="border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm lg:text-base transition-colors flex items-center gap-2">
+                <i class="fas fa-clipboard-check"></i> <?= t('myrides.tab_past_bookings') ?>
+                <span class="bg-gray-800 text-gray-500 py-0.5 px-2 rounded-full text-xs ml-1"><?= count($pastBookings) ?></span>
+            </button>
         </nav>
     </div>
 
@@ -139,6 +143,26 @@
         <?php endif; ?>
     </div>
 
+    <!-- Sección de historial de reservas (viajes pasados como pasajero/conductor respondedor) -->
+    <div id="content-past-bookings" class="hidden space-y-6">
+        <?php if (empty($pastBookings)): ?>
+            <div class="text-center py-12 sm:py-20 bg-surface/30 rounded-2xl sm:rounded-3xl border border-dashed border-gray-700">
+                <div class="w-16 h-16 sm:w-24 sm:h-24 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                    <i class="fas fa-clipboard-check text-4xl text-gray-600"></i>
+                </div>
+                <h3 class="text-xl font-medium text-white mb-2"><?= t('myrides.no_past_bookings') ?></h3>
+                <p class="text-gray-400"><?= t('myrides.no_past_bookings_desc') ?></p>
+            </div>
+        <?php else: ?>
+            <div class="grid grid-cols-1 gap-6" id="grid-past-bookings">
+                <?php foreach ($pastBookings as $booking): ?>
+                    <div class="paginated-item-past-bookings"><?= renderPastBookingCard($booking) ?></div>
+                <?php endforeach; ?>
+            </div>
+            <div id="pagination-past-bookings" class="mt-6"></div>
+        <?php endif; ?>
+    </div>
+
 </div>
 
 <!-- Función auxiliar para las tarjetas de viaje -->
@@ -149,7 +173,28 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
     $passengerCount = count($ride['passengers']);
     $totalSeats = $ride['plazasDisponibles'] + $passengerCount;
     ?>
-    <div class="bg-surface rounded-2xl border <?= $isFeatured ? 'border-yellow-500/40' : 'border-gray-700' ?> overflow-hidden hover:border-gray-600 transition-colors shadow-lg relative">
+    <?php $tripEnded = !empty($ride['trip_ended']); ?>
+    <div class="bg-surface rounded-2xl border <?= $tripEnded ? 'border-emerald-500/50 shadow-emerald-500/10' : ($isFeatured ? 'border-yellow-500/40' : 'border-gray-700') ?> overflow-hidden hover:border-gray-600 transition-colors shadow-lg relative">
+        <?php if ($tripEnded): ?>
+            <div class="relative overflow-hidden bg-gradient-to-r from-emerald-600/30 via-emerald-500/20 to-teal-600/30 border-b border-emerald-500/40 px-6 py-4 flex items-center justify-between">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(16,185,129,0.15),transparent_70%)]"></div>
+                <div class="flex items-center gap-4 relative z-10">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/25 border border-emerald-500/30 flex items-center justify-center">
+                        <i class="fas fa-flag-checkered text-emerald-400 text-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-base font-bold text-emerald-300"><?= t('myrides.trip_ended_title') ?></p>
+                        <p class="text-sm text-emerald-400/80"><?= t('myrides.trip_ended_desc') ?></p>
+                    </div>
+                </div>
+                <form action="<?= url('/complete-trip') ?>" method="POST" onsubmit="return confirm('<?= t('myrides.complete_confirm') ?>')" class="relative z-10">
+                    <input type="hidden" name="ride_id" value="<?= $ride['idAnuncio'] ?>">
+                    <button type="submit" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-gray-900 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-500/30 hover:shadow-emerald-400/40 flex items-center gap-2 hover:-translate-y-0.5">
+                        <i class="fas fa-check-circle"></i> <?= t('myrides.complete_trip') ?>
+                    </button>
+                </form>
+            </div>
+        <?php endif; ?>
         <?php if ($isFeatured): ?>
             <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500"></div>
         <?php endif; ?>
@@ -251,13 +296,13 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
                                                 <input type="hidden" name="ride_id" value="<?= $ride['idAnuncio'] ?>">
                                                 <input type="hidden" name="passenger_id" value="<?= $passenger['idUsuario'] ?>">
                                                 <input type="hidden" name="action" value="accept">
-                                                <button type="submit" class="w-full py-1.5 bg-green-500/10 hover:bg-green-500/20 text-green-500 rounded-lg text-xs font-bold border border-green-500/20 transition-colors"><i class="fas fa-check mr-1"></i><?= t('myrides.accept') ?></button>
+                                                <button type="submit" class="w-full py-1.5 bg-green-500/10 hover:bg-green-500/20 text-green-500 rounded-lg text-xs font-bold border border-green-500/20 transition-colors"><i class="fas fa-check mr-1"></i><?= $ride['tipo'] === 'ofrezco' ? t('myrides.accept') : t('myrides.accept_driver') ?></button>
                                             </form>
                                             <form action="<?= url('/manage-reservation') ?>" method="POST" class="flex-1">
                                                 <input type="hidden" name="ride_id" value="<?= $ride['idAnuncio'] ?>">
                                                 <input type="hidden" name="passenger_id" value="<?= $passenger['idUsuario'] ?>">
                                                 <input type="hidden" name="action" value="reject">
-                                                <button type="submit" class="w-full py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg text-xs font-bold border border-red-500/20 transition-colors"><i class="fas fa-times mr-1"></i><?= t('myrides.reject') ?></button>
+                                                <button type="submit" class="w-full py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg text-xs font-bold border border-red-500/20 transition-colors"><i class="fas fa-times mr-1"></i><?= $ride['tipo'] === 'ofrezco' ? t('myrides.reject') : t('myrides.reject_driver') ?></button>
                                             </form>
                                         </div>
                                     <?php elseif ($passenger['estado'] === 'aceptado'): ?>
@@ -275,7 +320,7 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
 
                 <!-- Col 3: Acciones (3/12) -->
                 <div class="lg:col-span-3 lg:border-l lg:border-gray-700/40 lg:pl-6 flex flex-col justify-between">
-                    <?php if ($isActive): ?>
+                    <?php if ($isActive && !$tripEnded): ?>
                         <div class="space-y-2.5">
                             <?php if ($isPremium): ?>
                                 <button onclick="toggleFeatured(<?= $ride['idAnuncio'] ?>, this)" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 <?= $isFeatured ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/40' : 'bg-gray-800/50 text-gray-400 border-gray-700' ?> rounded-xl text-sm font-medium transition-colors border" data-featured="<?= $isFeatured ? '1' : '0' ?>">
@@ -292,6 +337,15 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
                             <button onclick="confirmDelete(<?= $ride['idAnuncio'] ?>)" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-400 rounded-xl text-sm font-medium transition-colors border border-red-500/20">
                                 <i class="fas fa-trash-alt"></i> <?= t('myrides.delete') ?>
                             </button>
+                        </div>
+                    <?php elseif ($isActive && $tripEnded): ?>
+                        <div class="space-y-2.5">
+                            <div class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl text-sm font-medium border border-emerald-500/20">
+                                <i class="fas fa-hourglass-half"></i> <?= t('myrides.awaiting_completion') ?>
+                            </div>
+                            <a href="<?= url('/chat') ?>?anuncio_id=<?= $ride['idAnuncio'] ?>" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-sm font-medium transition-colors border border-gray-600">
+                                <i class="fas fa-comment"></i> <?= t('myrides.contact') ?>
+                            </a>
                         </div>
                     <?php else: ?>
                         <?php
@@ -438,160 +492,255 @@ function renderBookingCard($booking) {
     <?php
     return ob_get_clean();
 }
+
+function renderPastBookingCard($booking) {
+    ob_start();
+    $isCompleted = $booking['estadoReserva'] === 'completado';
+    $isAccepted = $booking['estadoReserva'] === 'aceptado';
+    ?>
+    <div class="bg-surface rounded-2xl border border-gray-700 overflow-hidden hover:border-gray-600 transition-colors shadow-lg">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-gray-700/50 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <?php if ($booking['tipo'] === 'ofrezco'): ?>
+                    <div class="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-xs font-bold border border-blue-500/20 uppercase tracking-wide">
+                        <i class="fas fa-user-friends mr-1"></i> <?= t('common.passenger') ?>
+                    </div>
+                <?php else: ?>
+                    <div class="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full text-xs font-bold border border-purple-500/20 uppercase tracking-wide">
+                        <i class="fas fa-car mr-1"></i> <?= t('common.driver') ?>
+                    </div>
+                <?php endif; ?>
+                <span class="text-sm text-gray-400 flex items-center gap-2">
+                    <i class="far fa-calendar"></i> <?= date('d M, Y', strtotime($booking['fechaSalida'])) ?>
+                </span>
+            </div>
+            <div class="flex items-center gap-3">
+                <?php if ($isCompleted): ?>
+                    <span class="px-3 py-1.5 bg-green-500/10 text-green-500 rounded-full text-xs font-bold border border-green-500/20"><i class="fas fa-check-double mr-1"></i> <?= t('myrides.completed') ?></span>
+                <?php elseif ($isAccepted): ?>
+                    <span class="px-3 py-1.5 bg-green-500/10 text-green-500 rounded-full text-xs font-bold border border-green-500/20"><i class="fas fa-check mr-1"></i> <?= t('myrides.status_confirmed') ?></span>
+                <?php else: ?>
+                    <span class="px-3 py-1.5 bg-gray-500/10 text-gray-400 rounded-full text-xs font-bold border border-gray-500/20"><i class="fas fa-archive mr-1"></i> <?= t('myrides.archived') ?></span>
+                <?php endif; ?>
+                <?php if ($booking['tipo'] === 'ofrezco' && $booking['precio']): ?>
+                    <span class="text-xl font-bold text-primary"><?= number_format($booking['precio'], 2) ?>€</span>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Contenido -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Columna 1: Ruta) -->
+                <div class="lg:col-span-5">
+                    <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/40 mb-4">
+                        <div class="flex items-stretch gap-4">
+                            <div class="flex flex-col items-center pt-1 pb-1">
+                                <div class="w-3.5 h-3.5 rounded-full border-[3px] border-primary bg-surface shadow-md shadow-primary/20 shrink-0"></div>
+                                <div class="w-0.5 flex-1 bg-gradient-to-b from-primary/60 to-gray-600 my-1"></div>
+                                <div class="w-3.5 h-3.5 rounded-full border-[3px] border-gray-500 bg-surface shrink-0"></div>
+                            </div>
+                            <div class="flex-1 flex flex-col justify-between gap-4">
+                                <div>
+                                    <h4 class="text-lg font-bold text-white"><?= htmlspecialchars($booking['nombreOrigen']) ?></h4>
+                                    <p class="text-sm text-primary font-semibold mt-0.5"><i class="far fa-clock text-xs mr-1"></i><?= t('dashboard.departure') ?>: <?= substr($booking['horaSalida'], 0, 5) ?></p>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-white"><?= htmlspecialchars($booking['nombreDestino']) ?></h4>
+                                    <?php if ($booking['horaRegreso']): ?>
+                                        <p class="text-xs text-purple-400 font-medium mt-1"><i class="fas fa-undo text-[10px] mr-1"></i><?= t('myrides.return_time') ?> <?= substr($booking['horaRegreso'], 0, 5) ?></p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna 2: Info del conductor/pasajero -->
+                <div class="lg:col-span-4 lg:border-l lg:border-gray-700/40 lg:pl-6">
+                    <h5 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                        <?= $booking['tipo'] === 'ofrezco' ? t('common.driver') : t('common.passenger') ?>
+                    </h5>
+                    <div class="flex items-center gap-4 bg-gray-800/30 p-4 rounded-xl border border-gray-700/40">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-base font-bold text-secondary shrink-0">
+                            <?= strtoupper(substr($booking['nombreUsuario'], 0, 2)) ?>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-base font-bold text-white"><?= htmlspecialchars($booking['nombreUsuario']) ?></p>
+                            <p class="text-xs text-gray-400 mt-0.5"><?= $booking['tipo'] === 'ofrezco' ? t('common.driver') : t('common.passenger') ?></p>
+                        </div>
+                        <a href="<?= url('/profile') ?>?id=<?= $booking['idUsuario'] ?>" class="text-primary hover:text-primary-dark transition-colors">
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Columna 3: Acciones -->
+                <div class="lg:col-span-3 lg:border-l lg:border-gray-700/40 lg:pl-6 flex flex-col justify-between">
+                    <div class="space-y-2.5">
+                        <?php if ($isCompleted || $isAccepted): ?>
+                            <?php
+                            // Obtener idViaje para el enlace de valoración
+                            $viajeId = $booking['idViaje'] ?? null;
+                            ?>
+                            <?php if ($viajeId): ?>
+                                <a href="<?= url('/rating') ?>?viaje=<?= $viajeId ?>" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-dark text-secondary rounded-xl text-sm font-bold transition-all shadow-lg shadow-primary/20">
+                                    <i class="fas fa-star"></i> <?= t('myrides.rate_trip') ?>
+                                </a>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                        <a href="<?= url('/profile') ?>?id=<?= $booking['idUsuario'] ?>" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-sm font-medium transition-colors border border-gray-600">
+                            <i class="fas fa-user"></i> <?= t('myrides.view_profile') ?>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php
+    return ob_get_clean();
+}
 ?>
 
 <script>
-function switchTab(tab) {
-    const activeTabBtn = document.getElementById('tab-active');
-    const pastTabBtn = document.getElementById('tab-past');
-    const bookingsTabBtn = document.getElementById('tab-bookings');
-    const activeContent = document.getElementById('content-active');
-    const pastContent = document.getElementById('content-past');
-    const bookingsContent = document.getElementById('content-bookings');
+    function switchTab(tab) {
+        const tabs = ['active', 'past', 'bookings', 'past-bookings'];
 
-    // Restablecer todas las pestañas
-    [activeTabBtn, pastTabBtn, bookingsTabBtn].forEach(btn => {
-        btn.classList.remove('border-primary', 'text-primary');
-        btn.classList.add('border-transparent', 'text-gray-400');
-    });
-    
-    // Esconder el contenido
-    [activeContent, pastContent, bookingsContent].forEach(content => {
-        content.classList.add('hidden');
-    });
-
-    // Mostrar la pestaña seleccionada
-    if (tab === 'active') {
-        activeTabBtn.classList.replace('border-transparent', 'border-primary');
-        activeTabBtn.classList.replace('text-gray-400', 'text-primary');
-        activeContent.classList.remove('hidden');
-    } else if (tab === 'past') {
-        pastTabBtn.classList.replace('border-transparent', 'border-primary');
-        pastTabBtn.classList.replace('text-gray-400', 'text-primary');
-        pastContent.classList.remove('hidden');
-    } else if (tab === 'bookings') {
-        bookingsTabBtn.classList.replace('border-transparent', 'border-primary');
-        bookingsTabBtn.classList.replace('text-gray-400', 'text-primary');
-        bookingsContent.classList.remove('hidden');
-    }
-}
-
-let rideToCancelReservation = null;
-
-function confirmCancelReservation(rideId, estado) {
-    rideToCancelReservation = rideId;
-    const warningEl = document.getElementById('cancelReservationWarning');
-    if (estado === 'aceptado') {
-        warningEl.textContent = '<?= t('myrides.cancel_accepted_warning') ?>';
-    } else {
-        warningEl.textContent = '<?= t('myrides.cancel_pending_info') ?>';
-    }
-    document.getElementById('cancelReservationModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeCancelReservationModal() {
-    document.getElementById('cancelReservationModal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
-    rideToCancelReservation = null;
-}
-
-function executeCancelReservation() {
-    if (rideToCancelReservation) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '<?= url("/cancel-reservation") ?>';
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'ride_id';
-        input.value = rideToCancelReservation;
-        form.appendChild(input);
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
-
-let rideToDelete = null;
-
-function confirmDelete(rideId) {
-    rideToDelete = rideId;
-    document.getElementById('deleteModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeDeleteModal() {
-    document.getElementById('deleteModal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
-    rideToDelete = null;
-}
-
-function executeDelete() {
-    if (rideToDelete) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '<?= url("/delete-ride") ?>';
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'id';
-        input.value = rideToDelete;
-        form.appendChild(input);
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
-
-function toggleFeatured(rideId, btn) {
-    const body = new FormData();
-    body.append('ride_id', rideId);
-    fetch('<?= url("/toggle-featured") ?>', { method: 'POST', body })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                // Recargar la página para reflejar el cambio
-                window.location.reload();
-            } else if (typeof showToast === 'function') {
-                showToast(data.message || '<?= t('myrides.err_featured') ?>', false);
+        // Restablecer todas las pestañas
+        tabs.forEach(t => {
+            const btn = document.getElementById('tab-' + t);
+            const content = document.getElementById('content-' + t);
+            if (btn) {
+                btn.classList.remove('border-primary', 'text-primary');
+                btn.classList.add('border-transparent', 'text-gray-400');
             }
-        })
-        .catch(() => {
-            if (typeof showToast === 'function') showToast('<?= t('myrides.err_connection') ?>', false);
+            if (content) content.classList.add('hidden');
         });
-}
 
-// Detectar parámetro 'tab' en la URL al cargar la página
-document.addEventListener('DOMContentLoaded', function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const tabParam = urlParams.get('tab');
-    
-    if (tabParam === 'bookings') {
-        switchTab('bookings');
-    } else if (tabParam === 'past') {
-        switchTab('past');
-    } else {
-        // Por defecto mostrar viajes activos
-        switchTab('active');
+        // Mostrar la pestaña seleccionada
+        const selectedBtn = document.getElementById('tab-' + tab);
+        const selectedContent = document.getElementById('content-' + tab);
+        if (selectedBtn) {
+            selectedBtn.classList.replace('border-transparent', 'border-primary');
+            selectedBtn.classList.replace('text-gray-400', 'text-primary');
+        }
+        if (selectedContent) selectedContent.classList.remove('hidden');
     }
-    
-    // Cerrar modales al hacer clic fuera
-    document.getElementById('deleteModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeDeleteModal();
-        }
-    });
-    document.getElementById('cancelReservationModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeCancelReservationModal();
-        }
-    });
 
-    // Cerrar modales con tecla ESC
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeDeleteModal();
-            closeCancelReservationModal();
+    let rideToCancelReservation = null;
+
+    function confirmCancelReservation(rideId, estado) {
+        rideToCancelReservation = rideId;
+        const warningEl = document.getElementById('cancelReservationWarning');
+        if (estado === 'aceptado') {
+            warningEl.textContent = '<?= t('myrides.cancel_accepted_warning') ?>';
+        } else {
+            warningEl.textContent = '<?= t('myrides.cancel_pending_info') ?>';
         }
+        document.getElementById('cancelReservationModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeCancelReservationModal() {
+        document.getElementById('cancelReservationModal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        rideToCancelReservation = null;
+    }
+
+    function executeCancelReservation() {
+        if (rideToCancelReservation) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '<?= url("/cancel-reservation") ?>';
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'ride_id';
+            input.value = rideToCancelReservation;
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    let rideToDelete = null;
+
+    function confirmDelete(rideId) {
+        rideToDelete = rideId;
+        document.getElementById('deleteModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        rideToDelete = null;
+    }
+
+    function executeDelete() {
+        if (rideToDelete) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '<?= url("/delete-ride") ?>';
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'id';
+            input.value = rideToDelete;
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    function toggleFeatured(rideId, btn) {
+        const body = new FormData();
+        body.append('ride_id', rideId);
+        fetch('<?= url("/toggle-featured") ?>', { method: 'POST', body })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    // Recargar la página para reflejar el cambio
+                    window.location.reload();
+                } else if (typeof showToast === 'function') {
+                    showToast(data.message || '<?= t('myrides.err_featured') ?>', false);
+                }
+            })
+            .catch(() => {
+                if (typeof showToast === 'function') showToast('<?= t('myrides.err_connection') ?>', false);
+            });
+    }
+
+    // Detectar parámetro 'tab' en la URL al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+        
+        if (['bookings', 'past', 'past-bookings'].includes(tabParam)) {
+            switchTab(tabParam);
+        } else {
+            switchTab('active');
+        }
+        
+        // Cerrar modales al hacer clic fuera
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeleteModal();
+            }
+        });
+        document.getElementById('cancelReservationModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCancelReservationModal();
+            }
+        });
+
+        // Cerrar modales con tecla ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDeleteModal();
+                closeCancelReservationModal();
+            }
+        });
     });
-});
 </script>
 
 <!-- Modal de confirmación para eliminar viaje -->
@@ -755,6 +904,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initPagination('active', 'paginated-item-active', 'pagination-active');
     initPagination('past', 'paginated-item-past', 'pagination-past');
     initPagination('bookings', 'paginated-item-bookings', 'pagination-bookings');
+    initPagination('past-bookings', 'paginated-item-past-bookings', 'pagination-past-bookings');
 });
 </script>
 

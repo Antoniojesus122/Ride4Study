@@ -31,7 +31,7 @@ class Rating {
 			return 'Ya has valorado este viaje';
 		}
 
-		// Verificar que el viaje haya finalizado hace al menos 24 horas
+		// Verificar que el viaje haya finalizado
 		$tripDate = $this->getTripEndDate($idViaje);
 		if ($tripDate === false) {
 			return 'No se pudo obtener la fecha del viaje';
@@ -40,15 +40,10 @@ class Rating {
 		$now = new DateTime();
 		$tripEnd = new DateTime($tripDate);
 		$diff = $now->diff($tripEnd);
-		
-		// Debe haber pasado al menos 24 horas desde el fin del viaje
+
+		// El viaje debe haber terminado (fecha/hora de fin ya pasó)
 		if ($diff->invert === 0) {
 			return 'El viaje aún no ha finalizado';
-		}
-		
-		$hoursPassed = ($diff->days * 24) + $diff->h;
-		if ($hoursPassed < 24) {
-			return 'Debes esperar al menos 24 horas después del viaje para valorar';
 		}
 
 		// Verificar que no hayan pasado más de 30 días
@@ -108,8 +103,8 @@ class Rating {
 			return 'El viaje no existe';
 		}
 
-		if ($trip['estado'] !== 'aceptado') {
-			return 'Solo puedes valorar viajes aceptados';
+		if ($trip['estado'] !== 'aceptado' && $trip['estado'] !== 'completado') {
+			return 'Solo puedes valorar viajes aceptados o completados';
 		}
 
 		// Verificar que fromUserId sea conductor o pasajero, y toUserId sea el otro
@@ -126,7 +121,7 @@ class Rating {
 
 	// Obtiene la fecha de finalización del viaje (fechaSalida + horaRegreso o horaSalida)
 	private function getTripEndDate(int $idViaje): string|false {
-		$sql = "SELECT CONCAT(a.fechaSalida, ' ', COALESCE(a.horaRegreso, a.horaSalida)) as fecha_fin
+		$sql = "SELECT CONCAT(a.fechaSalida, ' ', COALESCE(a.horaRegreso, a.horaLlegada, a.horaSalida)) as fecha_fin
 				FROM viajes v
 				INNER JOIN anuncios a ON v.idAnuncio = a.idAnuncio
 				WHERE v.idViaje = :idViaje";
@@ -217,7 +212,7 @@ class Rating {
 			INNER JOIN usuarios pasajero ON v.idPasajero = pasajero.idUsuario
 			INNER JOIN localidades origen ON a.origen = origen.idLocalidad
 			INNER JOIN localidades destino ON a.destino = destino.idLocalidad
-			WHERE v.estado = 'aceptado'
+			WHERE v.estado IN ('aceptado', 'completado')
 			  AND (v.idConductor = :userId OR v.idPasajero = :userId)
 			  AND CONCAT(a.fechaSalida, ' ', COALESCE(a.horaRegreso, a.horaSalida)) < NOW()
 			  AND CONCAT(a.fechaSalida, ' ', COALESCE(a.horaRegreso, a.horaSalida)) >= DATE_SUB(NOW(), INTERVAL 30 DAY)

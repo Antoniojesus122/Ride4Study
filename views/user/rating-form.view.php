@@ -1,362 +1,424 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ' . url('/login'));
-    exit;
-}
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: ' . url('/login'));
+        exit;
+    }
 
-if (!isset($tripDetails) || !isset($userToRate)) {
-    $_SESSION['error'] = 'No se han proporcionado los datos necesarios para valorar el viaje.';
-    header('Location: ' . url('/dashboard'));
-    exit;
-}
+    if (!isset($tripDetails) || !isset($userToRate)) {
+        $_SESSION['error'] = 'No se han proporcionado los datos necesarios para valorar el viaje.';
+        header('Location: ' . url('/dashboard'));
+        exit;
+    }
+
+    require_once __DIR__ . '/../layouts/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="<?= currentLang() ?>" class="h-full bg-gray-900">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title><?= t('rating.page_title') ?></title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script src="public/js/tailwind-config.js"></script>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+        gap: 12px;
+    }
+    .star-rating input { display: none; }
+    .star-rating label {
+        cursor: pointer;
+        font-size: 2.8rem;
+        color: #4B5563;
+        transition: all 0.2s ease;
+    }
+    .star-rating label:hover {
+        transform: scale(1.2);
+    }
+    .star-rating input:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: #FBBF24;
+        filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.4));
+    }
+</style>
 
-        <style>
-            body { font-family: 'Inter', sans-serif; }
+<div class="w-full mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-10">
 
-            .star-rating {
-                display: flex;
-                flex-direction: row-reverse;
-                justify-content: center;
-                gap: 10px;
-            }
-            .star-rating input { display: none; }
-            .star-rating label {
-                cursor: pointer;
-                font-size: 2.5rem;
-                color: #374151;
-                transition: color 0.2s, transform 0.2s;
-            }
-            .star-rating input:checked ~ label,
-            .star-rating label:hover,
-            .star-rating label:hover ~ label {
-                color: #6EE7B7;
-                transform: scale(1.1);
-            }
-        </style>
-    </head>
-    <body class="h-full text-gray-100 flex flex-col pt-28 bg-cover bg-center">
-        <div class="fixed inset-0 bg-gray-900/90 z-[-1]"></div>
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h2 class="text-3xl lg:text-4xl font-bold text-white"><?= t('rating.title') ?></h2>
+            <p class="text-gray-400 mt-2 lg:text-lg"><?= t('rating.subtitle') ?></p>
+        </div>
+        <div class="hidden sm:flex items-center gap-3">
+            <a href="<?= url('/my-rides') ?>?tab=past-bookings" class="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-800 transition-all font-medium">
+                <i class="fas fa-arrow-left"></i> <?= t('rating.cancel') ?>
+            </a>
+            <button type="submit" form="ratingForm" class="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-secondary font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5">
+                <i class="fas fa-paper-plane"></i> <?= t('rating.submit') ?>
+            </button>
+        </div>
+    </div>
 
-        <?php require_once __DIR__ . '/../layouts/header.php'; ?>
+    <!-- Mensaje de respuesta -->
+    <div id="responseMessage" class="hidden mb-6"></div>
 
-        <div class="max-w-3xl mx-auto w-full px-4 sm:px-6 py-8">
+    <form id="ratingForm">
+        <input type="hidden" name="idViaje" value="<?= $tripDetails['idViaje'] ?>">
+        <input type="hidden" name="idValorado" value="<?= $userToRate['id'] ?>">
 
-            <!-- Título -->
-            <div class="mb-8">
-                <h2 class="text-3xl font-bold text-white"><?= t('rating.title') ?></h2>
-                <p class="mt-1 text-gray-400"><?= t('rating.subtitle') ?></p>
-            </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-            <!-- Detalles del viaje -->
-            <div class="bg-surface rounded-2xl border border-gray-700 p-5 mb-5 shadow-lg">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-semibold text-gray-300 flex items-center gap-2">
-                        <i class="fas fa-route text-primary"></i> <?= t('rating.ride_details') ?>
-                    </h3>
-                    <span class="px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full text-xs font-semibold">
-                        <?php echo ucfirst($tripDetails['tipo']); ?>
-                    </span>
-                </div>
-                <p class="text-xs text-gray-500 mb-3">
-                    <i class="far fa-calendar-alt mr-1"></i>
-                    <?php echo date('d/m/Y', strtotime($tripDetails['fechaSalida'])); ?>
-                    <i class="far fa-clock ml-3 mr-1"></i>
-                    <?php echo date('H:i', strtotime($tripDetails['horaSalida'])); ?>
-                </p>
-                <div class="flex items-center gap-3 bg-gray-800 rounded-xl p-4 text-sm">
-                    <div class="flex items-center gap-2 flex-1">
-                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
-                        <span class="text-gray-200 font-medium"><?php echo htmlspecialchars($tripDetails['origenNombre']); ?></span>
-                    </div>
-                    <i class="fas fa-arrow-right text-gray-500 text-xs"></i>
-                    <div class="flex items-center gap-2 flex-1 justify-end">
-                        <span class="text-gray-200 font-medium"><?php echo htmlspecialchars($tripDetails['destinoNombre']); ?></span>
-                        <div class="w-2.5 h-2.5 rounded-full bg-cyan-400"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Usuario a valorar -->
-            <div class="bg-surface rounded-2xl border border-gray-700 p-5 mb-5 shadow-lg">
-                <div class="flex items-center gap-4">
-                    <img src="<?php echo $userToRate['foto'] ? '/Ride4Study/public/uploads/profiles/' . $userToRate['foto'] : '/Ride4Study/public/img/default-avatar.png'; ?>"
-                         alt="<?php echo htmlspecialchars($userToRate['nombre']); ?>"
-                         class="w-16 h-16 rounded-full object-cover ring-2 ring-primary/40">
-                    <div>
-                        <h3 class="text-xl font-bold text-white"><?php echo htmlspecialchars($userToRate['nombre']); ?></h3>
-                        <p class="text-sm text-gray-400 mt-0.5 flex items-center gap-1.5">
-                            <i class="fas fa-user-tag text-primary text-xs"></i>
-                            <span class="capitalize"><?php echo $userRole; ?></span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Formulario -->
-            <form id="ratingForm" class="bg-surface rounded-2xl border border-gray-700 p-6 shadow-lg space-y-8">
-                <input type="hidden" name="idViaje" value="<?php echo $tripDetails['idViaje']; ?>">
-                <input type="hidden" name="idValorado" value="<?php echo $userToRate['id']; ?>">
+            <!-- Columna izquierda: Puntuación + Detallada -->
+            <div class="lg:col-span-7 flex flex-col gap-6">
 
                 <!-- Puntuación general -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-300 mb-1">
-                        <?= t('rating.general') ?> <span class="text-red-400">*</span>
-                    </label>
-                    <p class="text-xs text-gray-500 mb-4"><?= t('rating.select_stars') ?></p>
-                    <div class="star-rating" id="generalRating">
-                        <input type="radio" name="puntuacion" id="star5" value="5" required>
-                        <label for="star5"><i class="fas fa-star"></i></label>
-                        <input type="radio" name="puntuacion" id="star4" value="4">
-                        <label for="star4"><i class="fas fa-star"></i></label>
-                        <input type="radio" name="puntuacion" id="star3" value="3">
-                        <label for="star3"><i class="fas fa-star"></i></label>
-                        <input type="radio" name="puntuacion" id="star2" value="2">
-                        <label for="star2"><i class="fas fa-star"></i></label>
-                        <input type="radio" name="puntuacion" id="star1" value="1">
-                        <label for="star1"><i class="fas fa-star"></i></label>
-                    </div>
-                    <p id="ratingText" class="text-center text-sm font-medium text-primary mt-3 opacity-0 transition-opacity"></p>
-                </div>
-
-                <div class="h-px bg-gray-700"></div>
-
-                <!-- Valoración detallada -->
-                <div>
-                    <h3 class="text-sm font-semibold text-gray-300 mb-1 flex items-center gap-2">
-                        <i class="fas fa-sliders-h text-primary"></i> <?= t('rating.detailed') ?>
-                        <span class="text-gray-500 font-normal text-xs"><?= t('rating.optional') ?></span>
+                <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                    <h3 class="text-base lg:text-lg font-semibold text-white mb-5 flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center"><i class="fas fa-star text-primary text-sm"></i></div>
+                        <?= t('rating.general') ?> <span class="text-red-400 text-sm">*</span>
                     </h3>
 
-                    <div class="grid md:grid-cols-2 gap-4 mt-4">
+                    <p class="text-sm text-gray-400 mb-5"><?= t('rating.select_stars') ?></p>
 
+                    <div class="bg-gray-800/40 rounded-xl p-6 border border-gray-700/40">
+                        <div class="star-rating" id="generalRating">
+                            <input type="radio" name="puntuacion" id="star5" value="5" required>
+                            <label for="star5"><i class="fas fa-star"></i></label>
+                            <input type="radio" name="puntuacion" id="star4" value="4">
+                            <label for="star4"><i class="fas fa-star"></i></label>
+                            <input type="radio" name="puntuacion" id="star3" value="3">
+                            <label for="star3"><i class="fas fa-star"></i></label>
+                            <input type="radio" name="puntuacion" id="star2" value="2">
+                            <label for="star2"><i class="fas fa-star"></i></label>
+                            <input type="radio" name="puntuacion" id="star1" value="1">
+                            <label for="star1"><i class="fas fa-star"></i></label>
+                        </div>
+                        <p id="ratingText" class="text-center text-sm font-semibold text-primary mt-4 h-5 opacity-0 transition-all"></p>
+                    </div>
+                </div>
+
+                <!-- Valoración detallada -->
+                <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                    <h3 class="text-base lg:text-lg font-semibold text-white mb-1 flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center"><i class="fas fa-sliders-h text-cyan-400 text-sm"></i></div>
+                        <?= t('rating.detailed') ?>
+                        <span class="text-gray-500 font-normal text-xs ml-1"><?= t('rating.optional') ?></span>
+                    </h3>
+                    <p class="text-sm text-gray-400 mb-5 ml-10"><?= t('rating.detailed_desc') ?></p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <!-- Puntualidad -->
-                        <div class="space-y-2">
-                            <label class="block text-xs font-medium text-gray-400 flex items-center gap-1.5">
-                                <i class="fas fa-clock text-primary"></i> <?= t('rating.punctuality') ?>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1.5 flex items-center gap-2">
+                                <i class="fas fa-clock text-primary text-xs"></i> <?= t('rating.punctuality') ?>
                             </label>
                             <div class="relative">
-                                <select name="puntualidad" class="appearance-none w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm cursor-pointer">
+                                <select name="puntualidad" class="appearance-none w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-primary focus:border-primary transition-all text-sm cursor-pointer hover:border-gray-500 outline-none">
                                     <option value=""><?= t('rating.no_rate') ?></option>
-                                    <option value="5">⭐⭐⭐⭐⭐ <?= t('rating.excellent') ?></option>
-                                    <option value="4">⭐⭐⭐⭐ <?= t('rating.very_good') ?></option>
-                                    <option value="3">⭐⭐⭐ <?= t('rating.good') ?></option>
-                                    <option value="2">⭐⭐ <?= t('rating.fair') ?></option>
-                                    <option value="1">⭐ <?= t('rating.bad') ?></option>
+                                    <option value="5">&#11088;&#11088;&#11088;&#11088;&#11088; <?= t('rating.excellent') ?></option>
+                                    <option value="4">&#11088;&#11088;&#11088;&#11088; <?= t('rating.very_good') ?></option>
+                                    <option value="3">&#11088;&#11088;&#11088; <?= t('rating.good') ?></option>
+                                    <option value="2">&#11088;&#11088; <?= t('rating.fair') ?></option>
+                                    <option value="1">&#11088; <?= t('rating.bad') ?></option>
                                 </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                    <i class="fas fa-chevron-down text-xs"></i>
-                                </div>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fas fa-chevron-down text-xs"></i></div>
                             </div>
                         </div>
 
                         <!-- Comunicación -->
-                        <div class="space-y-2">
-                            <label class="block text-xs font-medium text-gray-400 flex items-center gap-1.5">
-                                <i class="fas fa-comments text-cyan-400"></i> <?= t('rating.communication') ?>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1.5 flex items-center gap-2">
+                                <i class="fas fa-comments text-cyan-400 text-xs"></i> <?= t('rating.communication') ?>
                             </label>
                             <div class="relative">
-                                <select name="comunicacion" class="appearance-none w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm cursor-pointer">
+                                <select name="comunicacion" class="appearance-none w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-primary focus:border-primary transition-all text-sm cursor-pointer hover:border-gray-500 outline-none">
                                     <option value=""><?= t('rating.no_rate') ?></option>
-                                    <option value="5">⭐⭐⭐⭐⭐ <?= t('rating.excellent') ?></option>
-                                    <option value="4">⭐⭐⭐⭐ <?= t('rating.very_good') ?></option>
-                                    <option value="3">⭐⭐⭐ <?= t('rating.good') ?></option>
-                                    <option value="2">⭐⭐ <?= t('rating.fair') ?></option>
-                                    <option value="1">⭐ <?= t('rating.bad') ?></option>
+                                    <option value="5">&#11088;&#11088;&#11088;&#11088;&#11088; <?= t('rating.excellent') ?></option>
+                                    <option value="4">&#11088;&#11088;&#11088;&#11088; <?= t('rating.very_good') ?></option>
+                                    <option value="3">&#11088;&#11088;&#11088; <?= t('rating.good') ?></option>
+                                    <option value="2">&#11088;&#11088; <?= t('rating.fair') ?></option>
+                                    <option value="1">&#11088; <?= t('rating.bad') ?></option>
                                 </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                    <i class="fas fa-chevron-down text-xs"></i>
-                                </div>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fas fa-chevron-down text-xs"></i></div>
                             </div>
                         </div>
 
                         <?php if ($userRole === 'conductor'): ?>
                         <!-- Vehículo -->
-                        <div class="space-y-2">
-                            <label class="block text-xs font-medium text-gray-400 flex items-center gap-1.5">
-                                <i class="fas fa-car text-green-400"></i> <?= t('rating.vehicle') ?>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1.5 flex items-center gap-2">
+                                <i class="fas fa-car text-green-400 text-xs"></i> <?= t('rating.vehicle') ?>
                             </label>
                             <div class="relative">
-                                <select name="vehiculo" class="appearance-none w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm cursor-pointer">
+                                <select name="vehiculo" class="appearance-none w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-primary focus:border-primary transition-all text-sm cursor-pointer hover:border-gray-500 outline-none">
                                     <option value=""><?= t('rating.no_rate') ?></option>
-                                    <option value="5">⭐⭐⭐⭐⭐ <?= t('rating.excellent') ?></option>
-                                    <option value="4">⭐⭐⭐⭐ <?= t('rating.very_good') ?></option>
-                                    <option value="3">⭐⭐⭐ <?= t('rating.good') ?></option>
-                                    <option value="2">⭐⭐ <?= t('rating.fair') ?></option>
-                                    <option value="1">⭐ <?= t('rating.bad') ?></option>
+                                    <option value="5">&#11088;&#11088;&#11088;&#11088;&#11088; <?= t('rating.excellent') ?></option>
+                                    <option value="4">&#11088;&#11088;&#11088;&#11088; <?= t('rating.very_good') ?></option>
+                                    <option value="3">&#11088;&#11088;&#11088; <?= t('rating.good') ?></option>
+                                    <option value="2">&#11088;&#11088; <?= t('rating.fair') ?></option>
+                                    <option value="1">&#11088; <?= t('rating.bad') ?></option>
                                 </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                    <i class="fas fa-chevron-down text-xs"></i>
-                                </div>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fas fa-chevron-down text-xs"></i></div>
                             </div>
                         </div>
 
                         <!-- Conducción -->
-                        <div class="space-y-2">
-                            <label class="block text-xs font-medium text-gray-400 flex items-center gap-1.5">
-                                <i class="fas fa-steering-wheel text-yellow-400"></i> <?= t('rating.driving') ?>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1.5 flex items-center gap-2">
+                                <i class="fas fa-road text-yellow-400 text-xs"></i> <?= t('rating.driving') ?>
                             </label>
                             <div class="relative">
-                                <select name="conduccion" class="appearance-none w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm cursor-pointer">
+                                <select name="conduccion" class="appearance-none w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-primary focus:border-primary transition-all text-sm cursor-pointer hover:border-gray-500 outline-none">
                                     <option value=""><?= t('rating.no_rate') ?></option>
-                                    <option value="5">⭐⭐⭐⭐⭐ <?= t('rating.excellent') ?></option>
-                                    <option value="4">⭐⭐⭐⭐ <?= t('rating.very_good') ?></option>
-                                    <option value="3">⭐⭐⭐ <?= t('rating.good') ?></option>
-                                    <option value="2">⭐⭐ <?= t('rating.fair') ?></option>
-                                    <option value="1">⭐ <?= t('rating.bad') ?></option>
+                                    <option value="5">&#11088;&#11088;&#11088;&#11088;&#11088; <?= t('rating.excellent') ?></option>
+                                    <option value="4">&#11088;&#11088;&#11088;&#11088; <?= t('rating.very_good') ?></option>
+                                    <option value="3">&#11088;&#11088;&#11088; <?= t('rating.good') ?></option>
+                                    <option value="2">&#11088;&#11088; <?= t('rating.fair') ?></option>
+                                    <option value="1">&#11088; <?= t('rating.bad') ?></option>
                                 </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                    <i class="fas fa-chevron-down text-xs"></i>
-                                </div>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fas fa-chevron-down text-xs"></i></div>
                             </div>
                         </div>
                         <?php endif; ?>
 
                         <!-- Comportamiento -->
-                        <div class="space-y-2">
-                            <label class="block text-xs font-medium text-gray-400 flex items-center gap-1.5">
-                                <i class="fas fa-smile text-pink-400"></i> <?= t('rating.behavior') ?>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1.5 flex items-center gap-2">
+                                <i class="fas fa-smile text-pink-400 text-xs"></i> <?= t('rating.behavior') ?>
                             </label>
                             <div class="relative">
-                                <select name="comportamiento" class="appearance-none w-full bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm cursor-pointer">
+                                <select name="comportamiento" class="appearance-none w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-primary focus:border-primary transition-all text-sm cursor-pointer hover:border-gray-500 outline-none">
                                     <option value=""><?= t('rating.no_rate') ?></option>
-                                    <option value="5">⭐⭐⭐⭐⭐ <?= t('rating.excellent') ?></option>
-                                    <option value="4">⭐⭐⭐⭐ <?= t('rating.very_good') ?></option>
-                                    <option value="3">⭐⭐⭐ <?= t('rating.good') ?></option>
-                                    <option value="2">⭐⭐ <?= t('rating.fair') ?></option>
-                                    <option value="1">⭐ <?= t('rating.bad') ?></option>
+                                    <option value="5">&#11088;&#11088;&#11088;&#11088;&#11088; <?= t('rating.excellent') ?></option>
+                                    <option value="4">&#11088;&#11088;&#11088;&#11088; <?= t('rating.very_good') ?></option>
+                                    <option value="3">&#11088;&#11088;&#11088; <?= t('rating.good') ?></option>
+                                    <option value="2">&#11088;&#11088; <?= t('rating.fair') ?></option>
+                                    <option value="1">&#11088; <?= t('rating.bad') ?></option>
                                 </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                    <i class="fas fa-chevron-down text-xs"></i>
-                                </div>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fas fa-chevron-down text-xs"></i></div>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
-                <div class="h-px bg-gray-700"></div>
-
                 <!-- Comentario -->
-                <div class="space-y-2">
-                    <label class="block text-xs font-medium text-gray-400 flex items-center gap-1.5">
-                        <i class="fas fa-comment-dots text-primary"></i>
+                <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                    <h3 class="text-base lg:text-lg font-semibold text-white mb-1 flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center"><i class="fas fa-comment-dots text-purple-400 text-sm"></i></div>
                         <?= t('rating.share_experience') ?>
-                        <span class="text-gray-600 font-normal"><?= t('rating.max_chars') ?></span>
-                    </label>
+                        <span class="text-gray-500 font-normal text-xs ml-1"><?= t('rating.max_chars') ?></span>
+                    </h3>
+                    <p class="text-sm text-gray-400 mb-4 ml-10"><?= t('rating.comment_public') ?></p>
+
                     <textarea name="comentario"
                               id="comentario"
-                              rows="4"
+                              rows="5"
                               maxlength="500"
                               placeholder="<?= t('rating.comment_placeholder') ?>"
-                              class="w-full bg-gray-800 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none transition-all text-sm"></textarea>
-                    <div class="flex justify-between items-center">
-                        <p class="text-xs text-gray-600"><?= t('rating.comment_public') ?></p>
+                              class="w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-primary focus:border-primary resize-none transition-all text-sm outline-none hover:border-gray-500"></textarea>
+                    <div class="flex justify-end mt-2">
                         <p class="text-xs text-gray-400"><span id="charCount" class="text-primary font-semibold">0</span>/500</p>
                     </div>
                 </div>
 
-                <!-- Botones -->
-                <div class="flex gap-3 pt-2">
-                    <button type="button"
-                            onclick="window.location.href='<?= url("/dashboard") ?>'"
-                            class="flex-1 px-5 py-3 bg-gray-800 border border-gray-700 text-gray-300 rounded-xl text-sm font-semibold hover:bg-gray-700 hover:border-gray-600 transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-times"></i> <?= t('rating.cancel') ?>
-                    </button>
-                    <button type="submit"
-                            id="submitBtn"
-                            class="flex-1 px-5 py-3 bg-primary text-secondary rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:bg-primary-dark transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                <!-- Botones móvil -->
+                <div class="sm:hidden flex gap-3">
+                    <a href="<?= url('/my-rides') ?>?tab=past-bookings" class="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-gray-600 text-gray-300 hover:bg-gray-800 transition-all font-medium text-sm">
+                        <i class="fas fa-arrow-left"></i> <?= t('rating.cancel') ?>
+                    </a>
+                    <button type="submit" class="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-secondary font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 transition-all text-sm">
                         <i class="fas fa-paper-plane"></i> <?= t('rating.submit') ?>
                     </button>
                 </div>
-            </form>
+            </div>
 
-            <!-- Mensaje de respuesta -->
-            <div id="responseMessage" class="hidden mt-4"></div>
+            <!-- Columna derecha: Info del viaje + usuario -->
+            <div class="lg:col-span-5 flex flex-col gap-6">
 
-        </div>
+                <!-- Datos del viaje -->
+                <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                    <h3 class="text-base lg:text-lg font-semibold text-white mb-5 flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><i class="fas fa-route text-blue-400 text-sm"></i></div>
+                        <?= t('rating.ride_details') ?>
+                    </h3>
 
-        <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
+                    <div class="space-y-4">
+                        <!-- Tipo badge + fecha -->
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <span class="px-3 py-1 bg-<?= $tripDetails['tipo'] === 'ofrezco' ? 'blue' : 'purple' ?>-500/10 text-<?= $tripDetails['tipo'] === 'ofrezco' ? 'blue' : 'purple' ?>-400 rounded-full text-xs font-bold border border-<?= $tripDetails['tipo'] === 'ofrezco' ? 'blue' : 'purple' ?>-500/20 uppercase tracking-wide">
+                                <?= ucfirst($tripDetails['tipo']) ?>
+                            </span>
+                            <span class="text-sm text-gray-400 flex items-center gap-1.5">
+                                <i class="far fa-calendar text-xs"></i>
+                                <?= date('d M, Y', strtotime($tripDetails['fechaSalida'])) ?>
+                            </span>
+                            <span class="text-sm text-gray-400 flex items-center gap-1.5">
+                                <i class="far fa-clock text-xs"></i>
+                                <?= date('H:i', strtotime($tripDetails['horaSalida'])) ?>
+                            </span>
+                        </div>
 
-        <script>
-            const ratingTexts = {
-                1: '😞 <?= t('rating.mood_1') ?>',
-                2: '😕 <?= t('rating.mood_2') ?>',
-                3: '😊 <?= t('rating.mood_3') ?>',
-                4: '😃 <?= t('rating.mood_4') ?>',
-                5: '🌟 <?= t('rating.mood_5') ?>'
-            };
+                        <!-- Ruta -->
+                        <div class="bg-gray-800/40 rounded-xl p-4 border border-gray-700/40">
+                            <div class="flex items-stretch gap-4">
+                                <div class="flex flex-col items-center pt-1 pb-1">
+                                    <div class="w-3.5 h-3.5 rounded-full border-[3px] border-primary bg-surface shadow-md shadow-primary/20 shrink-0"></div>
+                                    <div class="w-0.5 flex-1 bg-gradient-to-b from-primary/60 to-gray-600 my-1"></div>
+                                    <div class="w-3.5 h-3.5 rounded-full border-[3px] border-gray-500 bg-surface shrink-0"></div>
+                                </div>
+                                <div class="flex-1 flex flex-col justify-between gap-4">
+                                    <div>
+                                        <h4 class="text-base font-bold text-white"><?= htmlspecialchars($tripDetails['origenNombre']) ?></h4>
+                                        <p class="text-sm text-primary font-semibold mt-0.5"><i class="far fa-clock text-xs mr-1"></i><?= t('dashboard.departure') ?>: <?= substr($tripDetails['horaSalida'], 0, 5) ?></p>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-base font-bold text-white"><?= htmlspecialchars($tripDetails['destinoNombre']) ?></h4>
+                                        <?php if (!empty($tripDetails['horaLlegada'])): ?>
+                                            <p class="text-sm text-primary font-semibold mt-0.5"><i class="far fa-clock text-xs mr-1"></i><?= t('dashboard.arrival_label') ?>: <?= substr($tripDetails['horaLlegada'], 0, 5) ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-            document.querySelectorAll('input[name="puntuacion"]').forEach(radio => {
-                radio.addEventListener('change', function () {
-                    const text = document.getElementById('ratingText');
-                    text.textContent = ratingTexts[this.value];
-                    text.style.opacity = '1';
-                });
-            });
-
-            document.getElementById('comentario').addEventListener('input', function () {
-                document.getElementById('charCount').textContent = this.value.length;
-            });
-
-            const form        = document.getElementById('ratingForm');
-            const submitBtn   = document.getElementById('submitBtn');
-            const responseMsg = document.getElementById('responseMessage');
-
-            form.addEventListener('submit', async function (e) {
-                e.preventDefault();
-
-                if (!document.querySelector('input[name="puntuacion"]:checked')) {
-                    showMessage('<?= t('rating.err_select') ?>', 'error');
-                    return;
-                }
-
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Enviando...';
-
-                try {
-                    const res    = await fetch('<?= url("/rating") ?>', { method: 'POST', body: new FormData(form) });
-                    const result = await res.json();
-
-                    if (result.success) {
-                        showMessage(result.message || '<?= t('rating.success') ?>', 'success');
-                        setTimeout(() => { window.location.href = '<?= url("/dashboard") ?>'; }, 2000);
-                    } else {
-                        showMessage(result.message || '<?= t('rating.err_submit') ?>', 'error');
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i><?= t('rating.submit') ?>';
-                    }
-                } catch (err) {
-                    showMessage('<?= t('rating.err_connection') ?>', 'error');
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i><?= t('rating.submit') ?>';
-                }
-            });
-
-            function showMessage(message, type) {
-                const isSuccess = type === 'success';
-                responseMsg.className = `bg-surface border ${isSuccess ? 'border-primary/30' : 'border-red-500/30'} rounded-2xl p-4 flex items-center gap-3`;
-                responseMsg.innerHTML = `
-                    <div class="flex items-center justify-center w-10 h-10 rounded-full ${isSuccess ? 'bg-primary/10' : 'bg-red-500/10'} shrink-0">
-                        <i class="fas ${isSuccess ? 'fa-check-circle text-primary' : 'fa-exclamation-circle text-red-400'} text-xl"></i>
+                        <?php if (!empty($tripDetails['horaRegreso'])): ?>
+                            <div class="flex items-center gap-2 bg-purple-500/10 px-3 py-2 rounded-lg border border-purple-500/20">
+                                <i class="fas fa-undo text-purple-400 text-xs"></i>
+                                <span class="text-sm text-purple-400 font-medium"><?= t('myrides.return_time') ?> <?= substr($tripDetails['horaRegreso'], 0, 5) ?></span>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                    <span class="text-sm font-medium text-white">${message}</span>
-                `;
-                responseMsg.classList.remove('hidden');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                </div>
+
+                <!-- Usuario a valorar -->
+                <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                    <h3 class="text-base lg:text-lg font-semibold text-white mb-5 flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center"><i class="fas fa-user text-green-400 text-sm"></i></div>
+                        <?= t('rating.rating_to') ?>
+                    </h3>
+
+                    <div class="flex items-center gap-4 bg-gray-800/40 p-4 rounded-xl border border-gray-700/40">
+                        <?php if (!empty($userToRate['foto'])): ?>
+                            <img src="<?= BASE_PATH ?>/public/uploads/profiles/<?= $userToRate['foto'] ?>"
+                                 alt="<?= htmlspecialchars($userToRate['nombre']) ?>"
+                                 class="w-14 h-14 rounded-xl object-cover ring-2 ring-primary/30 shrink-0">
+                        <?php else: ?>
+                            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-lg font-bold text-secondary shrink-0">
+                                <?= strtoupper(substr($userToRate['nombre'], 0, 2)) ?>
+                            </div>
+                        <?php endif; ?>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-lg font-bold text-white truncate"><?= htmlspecialchars($userToRate['nombre']) ?></p>
+                            <p class="text-sm text-gray-400 mt-0.5 flex items-center gap-1.5">
+                                <i class="fas fa-user-tag text-primary text-xs"></i>
+                                <span class="capitalize"><?= $userRole ?></span>
+                            </p>
+                        </div>
+                        <a href="<?= url('/profile') ?>?id=<?= $userToRate['id'] ?>" class="text-primary hover:text-primary-dark transition-colors shrink-0">
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Info de ayuda -->
+                <div class="bg-surface rounded-2xl border border-gray-700 p-6">
+                    <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center"><i class="fas fa-lightbulb text-yellow-400 text-sm"></i></div>
+                        <?= t('rating.tips_title') ?>
+                    </h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3 text-sm text-gray-400">
+                            <i class="fas fa-check-circle text-primary mt-0.5 shrink-0"></i>
+                            <?= t('rating.tip_honest') ?>
+                        </li>
+                        <li class="flex items-start gap-3 text-sm text-gray-400">
+                            <i class="fas fa-check-circle text-primary mt-0.5 shrink-0"></i>
+                            <?= t('rating.tip_constructive') ?>
+                        </li>
+                        <li class="flex items-start gap-3 text-sm text-gray-400">
+                            <i class="fas fa-check-circle text-primary mt-0.5 shrink-0"></i>
+                            <?= t('rating.tip_respectful') ?>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    const ratingTexts = {
+        1: '<?= t('rating.mood_1') ?>',
+        2: '<?= t('rating.mood_2') ?>',
+        3: '<?= t('rating.mood_3') ?>',
+        4: '<?= t('rating.mood_4') ?>',
+        5: '<?= t('rating.mood_5') ?>'
+    };
+
+    document.querySelectorAll('input[name="puntuacion"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            const text = document.getElementById('ratingText');
+            text.textContent = ratingTexts[this.value];
+            text.style.opacity = '1';
+        });
+    });
+
+    document.getElementById('comentario').addEventListener('input', function () {
+        document.getElementById('charCount').textContent = this.value.length;
+    });
+
+    const form        = document.getElementById('ratingForm');
+    const submitBtn   = document.getElementById('submitBtn');
+    const responseMsg = document.getElementById('responseMessage');
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        if (!document.querySelector('input[name="puntuacion"]:checked')) {
+            showMessage('<?= t('rating.err_select') ?>', 'error');
+            return;
+        }
+
+        // Deshabilitar todos los botones submit
+        document.querySelectorAll('button[type="submit"]').forEach(btn => {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Enviando...';
+        });
+
+        try {
+            const res    = await fetch('<?= url("/rating") ?>', { method: 'POST', body: new FormData(form) });
+            const result = await res.json();
+
+            if (result.success) {
+                showMessage(result.message || '<?= t('rating.success') ?>', 'success');
+                setTimeout(() => { window.location.href = '<?= url("/my-rides") ?>?tab=past-bookings'; }, 2000);
+            } else {
+                showMessage(result.message || '<?= t('rating.err_submit') ?>', 'error');
+                resetButtons();
             }
-        </script>
-    </body>
+        } catch (err) {
+            showMessage('<?= t('rating.err_connection') ?>', 'error');
+            resetButtons();
+        }
+    });
+
+    function resetButtons() {
+        document.querySelectorAll('button[type="submit"]').forEach(btn => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i><?= t('rating.submit') ?>';
+        });
+    }
+
+    function showMessage(message, type) {
+        const isSuccess = type === 'success';
+        responseMsg.className = `mb-6 bg-${isSuccess ? 'green' : 'red'}-500/10 border border-${isSuccess ? 'green' : 'red'}-500/50 text-${isSuccess ? 'green' : 'red'}-500 p-4 rounded-xl flex items-center gap-3`;
+        responseMsg.innerHTML = `
+            <i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-exclamation-circle'} text-xl"></i>
+            <div class="font-medium">${message}</div>
+        `;
+        responseMsg.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+
+</body>
 </html>

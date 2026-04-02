@@ -53,7 +53,14 @@ class RideController {
         // Añadir estado de reserva a los viajes
         $userBookings = $this->ride->getUserBookings($_SESSION['user_id']);
         foreach ($rides as &$ride) {
-            $ride['booking_status'] = $userBookings[$ride['idAnuncio']] ?? null;
+            $booking = $userBookings[$ride['idAnuncio']] ?? null;
+            if (is_array($booking)) {
+                $ride['booking_status'] = $booking['estado'];
+                $ride['cooldown_until'] = $booking['cooldown_until'] ?? null;
+            } else {
+                $ride['booking_status'] = $booking;
+                $ride['cooldown_until'] = null;
+            }
         }
         unset($ride);
 
@@ -85,12 +92,37 @@ class RideController {
         // Recoger viajes publicados por el usuario
         $myRidesData = $this->ride->getRidesByUserId($userId);
         $activeRides = $myRidesData['active'];
-        $pastRides = $myRidesData['past'];
+        $pastRides = [];
 
-        // Obtener reservas donde el usuario es pasajero
+        // Los viajes pasados que tengan pasajeros aceptados y no estén completados
+        // se mantienen visibles en activos con banner "Viaje finalizado" durante 24h
+        $now = time();
+        foreach ($myRidesData['past'] as $ride) {
+            $endTime = $ride['horaRegreso'] ?: ($ride['horaLlegada'] ?: $ride['horaSalida']);
+            $rideEnd = strtotime($ride['fechaSalida'] . ' ' . $endTime);
+            $hoursSinceEnd = ($now - $rideEnd) / 3600;
+            $hasAccepted = false;
+            $allCompleted = true;
+
+            if (!empty($ride['passengers'])) {
+                foreach ($ride['passengers'] as $p) {
+                    if ($p['estado'] === 'aceptado') $hasAccepted = true;
+                    if ($p['estado'] !== 'completado') $allCompleted = false;
+                }
+            }
+
+            if ($hasAccepted && !$allCompleted && $hoursSinceEnd <= 24) {
+                $ride['trip_ended'] = true;
+                $activeRides[] = $ride;
+            } else {
+                $pastRides[] = $ride;
+            }
+        }
+
+        // Obtener reservas donde el usuario es pasajero/conductor respondedor
         $passengerBookings = $this->ride->getPassengerBookings($userId);
 
-        // Separar en activo y pasado los viajes según la fecha
+        // Separar en activo y pasado
         $currentDate = date('Y-m-d H:i:s');
         $activeBookings = [];
         $pastBookings = [];
@@ -418,8 +450,10 @@ class RideController {
             redirectWithFlash(url('/my-rides'), 'error', 'unauthorized');
         }
 
-        // Solo se puede completar si la fecha de salida ya ha pasado
-        if ($ride['fechaSalida'] >= date('Y-m-d')) {
+        // Solo se puede completar si la hora de llegada/regreso ya ha pasado
+        $endTime = $ride['horaRegreso'] ?? $ride['horaLlegada'] ?? $ride['horaSalida'];
+        $rideEnd = strtotime($ride['fechaSalida'] . ' ' . $endTime);
+        if ($rideEnd > time()) {
             redirectWithFlash(url('/my-rides'), 'error', 'trip_not_past');
         }
 
@@ -450,7 +484,7 @@ class RideController {
                 (int)$p['idPasajero'],
                 'Tu viaje ' . htmlspecialchars($origen) . ' → ' . htmlspecialchars($destino) . ' se ha completado. ¡Valora tu experiencia!',
                 'fas fa-check-double',
-                url('/rate') . '?viaje=' . $p['idViaje']
+                url('/rating') . '?viaje=' . $p['idViaje']
             );
 
             // Enviar emails de valoración al pasajero y al conductor

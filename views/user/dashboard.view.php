@@ -761,10 +761,31 @@
             btnReserve.className  = btnStyles.confirmed;
             btnReserve.innerHTML  = '<i class="fas fa-check text-xs"></i> <?= t('dashboard.seat_confirmed') ?>';
 
-        } else if (ride.booking_status === 'rechazado') {
+        } else if (ride.booking_status === 'rechazado' && ride.cooldown_until) {
             btnReserve.disabled   = true;
             btnReserve.className  = btnStyles.rejected;
-            btnReserve.innerHTML  = '<i class="fas fa-times text-xs"></i> <?= t('dashboard.request_rejected') ?>';
+            const cooldownEnd = new Date(ride.cooldown_until).getTime();
+            function updateCooldown() {
+                const remaining = Math.max(0, cooldownEnd - Date.now());
+                if (remaining <= 0) {
+                    btnReserve.disabled  = false;
+                    btnReserve.className = btnStyles.active;
+                    btnReserve.innerHTML = '<i class="fas fa-redo text-xs"></i> <?= t('dashboard.request_again') ?>';
+                    btnReserve.onclick   = () => { submitReserveForm(ride.idAnuncio); };
+                    return;
+                }
+                const mins = Math.floor(remaining / 60000);
+                const secs = Math.floor((remaining % 60000) / 1000);
+                btnReserve.innerHTML = '<i class="fas fa-clock text-xs"></i> <?= t('dashboard.rejected_cooldown') ?> ' + mins + ':' + String(secs).padStart(2, '0');
+                setTimeout(updateCooldown, 1000);
+            }
+            updateCooldown();
+
+        } else if (ride.booking_status === 'rechazado') {
+            // Cooldown ya pasado, puede volver a solicitar
+            btnReserve.className  = btnStyles.active;
+            btnReserve.innerHTML  = '<i class="fas fa-redo text-xs"></i> <?= t('dashboard.request_again') ?>';
+            btnReserve.onclick    = () => { submitReserveForm(ride.idAnuncio); };
 
         } else if (ride.plazasDisponibles <= 0) {
             btnReserve.disabled   = true;
