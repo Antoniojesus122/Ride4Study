@@ -97,6 +97,7 @@ return [
     'landing.flexibility' => 'Flexibilidad horaria total',
     'landing.join_free' => 'Únete gratis hoy',
     'landing.institutions' => 'Instituciones',
+    'landing.estudiantes' => 'Estudiantes',
     'landing.survey' => 'Encuesta',
 
     // AUTH: LOGIN

@@ -97,6 +97,7 @@ return [
     'landing.flexibility' => 'Total schedule flexibility',
     'landing.join_free' => 'Join free today',
     'landing.institutions' => 'Institutions',
+    'landing.estudiantes' => 'Students',
     'landing.survey' => 'Survey',
 
     // AUTH: LOGIN 

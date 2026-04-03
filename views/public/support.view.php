@@ -106,7 +106,7 @@
 
                             <div class="pt-4">
                                 <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-secondary font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-primary/20 transform hover:-translate-y-0.5 text-lg">
-                                    <?= t('support.submit') ?>
+                                    <i class="fas fa-paper-plane mr-2"></i> <?= t('support.submit') ?>
                                 </button>
                             </div>
                         </form>

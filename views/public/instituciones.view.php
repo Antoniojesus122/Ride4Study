@@ -42,12 +42,23 @@
                             Ride4Study
                         </span>
                     </a>
+                    
+                    <div class="hidden md:flex gap-8 items-center">
+                        <a href="<?= url('/') ?>" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                            <?= t('landing.estudiantes') ?>
+                        </a>
+                        <a href="<?= SURVEY_URL ?>" target="_blank" rel="noopener" class="text-sm font-medium text-primary hover:text-green-300 transition-colors flex items-center gap-1.5">
+                            <i class="fas fa-poll"></i>
+                            <?= t('landing.survey') ?>
+                        </a>
+                    </div>
 
                     <div class="flex items-center gap-2 sm:gap-4">
-                        <a href="<?= url('/login') ?>" class="text-xs sm:text-sm md:text-base text-white hover:text-primary font-medium px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 transition-colors whitespace-nowrap">
-                            <?= t('landing.login') ?>
-                        </a>
-                        <a href="<?= url('/register') ?>" class="bg-white text-secondary hover:bg-gray-200 text-xs sm:text-sm md:text-base font-bold px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-full transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
+                        <div class="flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/5">
+                            <a href="<?= url('/set-lang') ?>?lang=es" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'es' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">ES</a>
+                            <a href="<?= url('/set-lang') ?>?lang=en" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'en' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">EN</a>
+                        </div>
+                        <a href="#formulario" class="bg-white text-secondary hover:bg-gray-200 text-xs sm:text-sm md:text-base font-bold px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-full transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
                             <?= t('landing.register') ?>
                         </a>
                     </div>
@@ -328,7 +339,7 @@
                         <?php endif; ?>
 
                         <div class="bg-gray-900 rounded-2xl p-8 md:p-10 border border-white/10 shadow-2xl">
-                            <form action="<?= url('/instituciones') ?>" method="POST" class="space-y-8">
+                            <form action="<?= url('/instituciones') ?>" method="POST" class="space-y-8" >
                                 <input type="hidden" name="action" value="contact">
 
                                 <!-- Datos de la institucion -->
@@ -474,7 +485,7 @@
                                 </div>
 
                                 <div class="pt-2">
-                                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-blue-500/25 transform hover:-translate-y-0.5 text-lg">
+                                    <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-secondary font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-primary/20 transform hover:-translate-y-0.5 text-lg">
                                         <i class="fas fa-paper-plane mr-2"></i> <?= t('inst_public.form_submit') ?>
                                     </button>
                                     <p class="text-center text-xs text-gray-500 mt-4"><?= t('inst_public.form_note') ?></p>
@@ -485,7 +496,7 @@
                         <!-- Info de contacto -->
                         <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
                             <div class="p-6 rounded-2xl bg-gray-900/50 border border-white/5 hover:border-blue-500/20 transition-colors">
-                                <i class="fas fa-envelope text-2xl text-blue-400 mb-3"></i>
+                                <i class="fas fa-envelope text-2xl text-primary mb-3"></i>
                                 <p class="font-semibold mb-1"><?= t('inst_public.contact_email') ?></p>
                                 <p class="text-sm text-gray-400">ride4study@outlook.es</p>
                             </div>

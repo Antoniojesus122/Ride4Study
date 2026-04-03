@@ -152,12 +152,12 @@ $router->any('/chat', function () {
     $controller = new MessageController();
     $action = $_GET['action'] ?? null;
     match ($action) {
-        'send'           => $controller->send(),
-        'edit'           => $controller->edit(),
-        'delete'         => $controller->delete(),
-        'load'           => $controller->fetchMessages(),
-        'offer_ride'     => $controller->offerRide(),
-        default          => $controller->chat(),
+        'send' => $controller->send(),
+        'edit' => $controller->edit(),
+        'delete' => $controller->delete(),
+        'load' => $controller->fetchMessages(),
+        'offer_ride' => $controller->offerRide(),
+        default => $controller->chat(),
     };
 });
 
@@ -316,9 +316,9 @@ $router->any('/premium', function () {
     $action = $_GET['action'] ?? null;
     match ($action) {
         'checkout' => $controller->checkout(),
-        'success'  => $controller->success(),
-        'cancel'   => $controller->cancel(),
-        default    => $controller->index(),
+        'success' => $controller->success(),
+        'cancel' => $controller->cancel(),
+        default => $controller->index(),
     };
 });
 
@@ -353,14 +353,14 @@ $router->any('/admin/users', function () { // Gestión de verificaciones de estu
     $controller = new AdminUserController();
     $action = $_POST['action'] ?? $_GET['action'] ?? null;
     match ($action) {
-        'approve'     => $controller->approveVerification(),
-        'reject'      => $controller->rejectVerification(),
+        'approve' => $controller->approveVerification(),
+        'reject' => $controller->rejectVerification(),
         'update_role' => $controller->updateRole(),
-        'delete'      => $controller->deleteUser(),
-        'ban'         => $controller->banUser(),
-        'unban'       => $controller->unbanUser(),
-        'export_csv'  => $controller->exportCsv(),
-        default       => $controller->index(),
+        'delete' => $controller->deleteUser(),
+        'ban' => $controller->banUser(),
+        'unban' => $controller->unbanUser(),
+        'export_csv' => $controller->exportCsv(),
+        default => $controller->index(),
     };
 });
 
@@ -398,8 +398,8 @@ $router->any('/admin/reports', function () { // Gestión de reportes
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['idReporte'])) {
         switch ($_POST['action']) {
             case 'resolve': $controller->resolve($tab); exit;
-            case 'delete':  $controller->delete($tab);  exit;
-            case 'take':    $controller->takeReport($tab); exit;
+            case 'delete': $controller->delete($tab);  exit;
+            case 'take': $controller->takeReport($tab); exit;
             case 'release': $controller->releaseReport($tab); exit;
         }
     }
@@ -409,13 +409,13 @@ $router->any('/admin/reports', function () { // Gestión de reportes
 
     switch ($tab) {
         case 'anuncio': $reportes = $controller->getReportsByType('anuncio'); break;
-        case 'chat':    $reportes = $controller->getReportsByType('chat');    break;
-        case 'stats':   $reportes = []; break;
-        default:        $reportes = $controller->getReportsByType('usuario'); $tab = 'usuario'; break;
+        case 'chat': $reportes = $controller->getReportsByType('chat');    break;
+        case 'stats': $reportes = []; break;
+        default: $reportes = $controller->getReportsByType('usuario'); $tab = 'usuario'; break;
     }
     $flashData = getFlash();
     $successMsg = ($flashData && $flashData['type'] === 'success') ? $flashData['message'] : null;
-    $errorMsg   = ($flashData && $flashData['type'] === 'error') ? $flashData['message'] : null;
+    $errorMsg = ($flashData && $flashData['type'] === 'error') ? $flashData['message'] : null;
     require_once __DIR__ . '/views/admin/reports.view.php';
 });
 
@@ -429,13 +429,13 @@ $router->any('/admin/instituciones', function () {
     $controller = new AdminInstitucionController();
     $action = $_POST['action'] ?? $_GET['action'] ?? 'list';
     match ($action) {
-        'create'         => $controller->create(),
-        'edit'           => $controller->edit(),
-        'delete'         => $controller->delete(),
+        'create' => $controller->create(),
+        'edit' => $controller->edit(),
+        'delete' => $controller->delete(),
         'reset_password' => $controller->resetPassword(),
-        'toggle_active'  => $controller->toggleActive(),
-        'export_csv'     => $controller->exportCsv(),
-        default          => $controller->listAll(),
+        'toggle_active' => $controller->toggleActive(),
+        'export_csv' => $controller->exportCsv(),
+        default => $controller->listAll(),
     };
 });
 
@@ -449,9 +449,9 @@ $router->any('/admin/ads', function () {
     $controller = new AdminAdController();
     $action = $_POST['action'] ?? $_GET['action'] ?? 'list';
     match ($action) {
-        'delete'     => $controller->deleteAd(),
+        'delete' => $controller->deleteAd(),
         'export_csv' => $controller->exportCsv(),
-        default      => $controller->listAll(),
+        default => $controller->listAll(),
     };
 });
 
@@ -465,9 +465,9 @@ $router->any('/admin/profile', function () {
     $controller = new AdminProfileController();
     $action = $_POST['action'] ?? $_GET['action'] ?? null;
     match ($action) {
-        'update_info'     => $controller->updateInfo(),
+        'update_info' => $controller->updateInfo(),
         'change_password' => $controller->changePassword(),
-        default           => $controller->index(),
+        default => $controller->index(),
     };
 });
 
@@ -481,10 +481,10 @@ $router->any('/admin/messages', function () {
     $controller = new AdminMessageController();
     $action = $_POST['action'] ?? $_GET['action'] ?? null;
     match ($action) {
-        'view'                => $controller->viewConversation(),
-        'delete_message'      => $controller->deleteMessage(),
+        'view' => $controller->viewConversation(),
+        'delete_message' => $controller->deleteMessage(),
         'delete_conversation' => $controller->deleteConversation(),
-        default               => $controller->index(),
+        default => $controller->index(),
     };
 });
 
@@ -498,9 +498,9 @@ $router->any('/admin/notifications', function () {
     $controller = new AdminNotificationController();
     $action = $_POST['action'] ?? $_GET['action'] ?? null;
     match ($action) {
-        'send'    => $controller->send(),
+        'send' => $controller->send(),
         'preview' => $controller->preview(),
-        default   => $controller->index(),
+        default => $controller->index(),
     };
 });
 
@@ -526,7 +526,7 @@ $router->any('/admin/config', function () {
     $action = $_POST['action'] ?? $_GET['action'] ?? null;
     match ($action) {
         'update' => $controller->update(),
-        default  => $controller->index(),
+        default => $controller->index(),
     };
 });
 
@@ -540,10 +540,10 @@ $router->any('/admin/premium', function () {
     $controller = new AdminPremiumController();
     $action = $_POST['action'] ?? $_GET['action'] ?? 'list';
     match ($action) {
-        'grant'  => $controller->grant(),
+        'grant' => $controller->grant(),
         'revoke' => $controller->revoke(),
         'search' => $controller->searchUsers(),
-        default  => $controller->listAll(),
+        default => $controller->listAll(),
     };
 });
 
