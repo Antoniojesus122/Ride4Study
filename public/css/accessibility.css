@@ -76,14 +76,6 @@ textarea::placeholder {
     outline-color: #f87171;
 }
 
-/* --- Asegurar que los enlaces sean visibles aun sin color --------------- */
-a:hover,
-a:focus-visible {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 3px;
-}
-
 /* --- Botones sin label visible: minimo 44x44 para tap (WCAG 2.5.5) ----- */
 button[aria-label]:not(:has(span:not(.sr-only))) {
     min-width: 44px;
