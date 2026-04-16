@@ -1256,7 +1256,11 @@
             setTimeout(() => {
                 if (window._prmMap) { window._prmMap.remove(); window._prmMap = null; }
                 const map = L.map(prmMapEl, { zoomControl: true, attributionControl: false }).setView([39.5, -3.5], 6);
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(map);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    maxZoom: 18,
+                    subdomains: 'abcd',
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                }).addTo(map);
                 window._prmMap = map;
 
                 try {

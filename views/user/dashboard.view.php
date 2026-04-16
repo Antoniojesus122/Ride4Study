@@ -823,7 +823,11 @@
                 if (window._modalMap) { window._modalMap.remove(); window._modalMap = null; }
 
                 const modalMap = L.map(mapEl, { zoomControl: true, attributionControl: false }).setView([39.5, -3.5], 6);
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(modalMap);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    maxZoom: 18,
+                    subdomains: 'abcd',
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                }).addTo(modalMap);
                 window._modalMap = modalMap;
 
                 try {
@@ -863,7 +867,11 @@
             setTimeout(() => {
                 if (window._modalMap) { window._modalMap.remove(); window._modalMap = null; }
                 const modalMap = L.map(mapEl, { zoomControl: true, attributionControl: false }).setView([39.5, -3.5], 6);
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(modalMap);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    maxZoom: 18,
+                    subdomains: 'abcd',
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                }).addTo(modalMap);
                 window._modalMap = modalMap;
 
                 const greenIcon = L.divIcon({ html: '<div style="background:#34d399;width:12px;height:12px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>', iconSize: [12,12], iconAnchor: [6,6], className: '' });
