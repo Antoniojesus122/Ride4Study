@@ -282,11 +282,21 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                                 <span id="route-duration" class="text-white font-medium">--</span> min
                             </span>
                         </div>
+
+                        <!-- Selector de rutas alternativas -->
+                        <fieldset id="route-selector" class="hidden mt-3">
+                            <legend class="text-xs font-medium text-gray-400 mb-2 flex items-center gap-1.5">
+                                <i class="fas fa-route text-primary" aria-hidden="true"></i>
+                                <?= t('publish.choose_route') ?? 'Elige la ruta que prefieres' ?>
+                            </legend>
+                            <div id="route-options" class="grid grid-cols-1 sm:grid-cols-3 gap-2" role="radiogroup" aria-label="<?= t('publish.choose_route') ?? 'Elige la ruta que prefieres' ?>"></div>
+                        </fieldset>
                         <p id="map-placeholder" class="text-xs text-gray-500 mt-3 text-center">
                             <i class="fas fa-info-circle mr-1" aria-hidden="true"></i> <?= t('publish.map_hint') ?>
                             <br><span class="text-gray-600"><?= t('publish.map_or_type') ?></span>
                         </p>
                         <input type="hidden" name="ruta_polyline" id="ruta_polyline" value="<?= htmlspecialchars($isEdit ? ($ride['ruta_polyline'] ?? '') : '') ?>">
+                        <input type="hidden" name="route_index" id="route_index" value="0">
                     </div>
 
                     <!-- Boton de envio (solo móvil, en desktop está en el header) -->
@@ -772,7 +782,104 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
             if (bounds.length === 2) publishMap.fitBounds(bounds, { padding: [40, 40] });
         }
 
-        // Actualizar ruta cuando se seleccionan origen y destino
+        // ----- Rutas alternativas -------------------------------------------
+        // ORS puede devolver hasta 3 rutas distintas (principal + 2 alternativas).
+        // Guardamos las features y las polylines dibujadas para poder seleccionar
+        // interactivamente cual quiere el usuario.
+        let routeFeatures = [];       // features raw de ORS
+        let routePolylines = [];      // L.polyline correspondientes
+        let selectedRouteIdx = 0;     // indice de la ruta seleccionada
+        const ROUTE_PALETTE = [
+            { base: '#10b981', sel: '#059669', name: 'Ruta 1' }, // verde (principal)
+            { base: '#f59e0b', sel: '#d97706', name: 'Ruta 2' }, // ambar (alternativa)
+            { base: '#8b5cf6', sel: '#7c3aed', name: 'Ruta 3' }  // violeta (alternativa)
+        ];
+
+        // Cambia el estilo visual de todas las polylines segun cual este seleccionada
+        function paintRoutes() {
+            routePolylines.forEach((pl, i) => {
+                const colors = ROUTE_PALETTE[i % ROUTE_PALETTE.length];
+                const isSel = (i === selectedRouteIdx);
+                pl.setStyle({
+                    color: isSel ? colors.sel : colors.base,
+                    weight: isSel ? 6 : 4,
+                    opacity: isSel ? 0.95 : 0.55,
+                    dashArray: isSel ? null : '6 8'
+                });
+                if (isSel && pl.bringToFront) pl.bringToFront();
+            });
+        }
+
+        // Actualiza los campos de distancia, duracion y la polyline guardada
+        // usando la ruta que corresponda al indice seleccionado
+        function applySelectedRoute() {
+            const feature = routeFeatures[selectedRouteIdx];
+            if (!feature) return;
+
+            const dist = (feature.properties.summary.distance / 1000).toFixed(1);
+            const dur  = Math.ceil(feature.properties.summary.duration / 60);
+
+            document.getElementById('route-distance').textContent = dist;
+            document.getElementById('route-duration').textContent = dur;
+            document.getElementById('route-info').classList.remove('hidden');
+            document.getElementById('map-placeholder').classList.add('hidden');
+
+            // El backend solo guarda la ruta elegida
+            document.getElementById('ruta_polyline').value = JSON.stringify(feature.geometry.coordinates);
+            // Indice para que el backend pida ORS con alternative_routes y elija el mismo
+            document.getElementById('route_index').value = String(selectedRouteIdx);
+
+            paintRoutes();
+
+            // Marcar el radio correcto por si la seleccion vino del mapa
+            const radio = document.querySelector(`input[name="route-choice"][value="${selectedRouteIdx}"]`);
+            if (radio) radio.checked = true;
+        }
+
+        // Renderiza el panel de seleccion con N tarjetas radio, una por ruta
+        function renderRouteSelector() {
+            const container = document.getElementById('route-options');
+            const fieldset  = document.getElementById('route-selector');
+            container.innerHTML = '';
+
+            // Si solo hay una ruta, ocultar el selector (no tiene sentido elegir)
+            if (routeFeatures.length <= 1) {
+                fieldset.classList.add('hidden');
+                return;
+            }
+
+            routeFeatures.forEach((f, i) => {
+                const colors = ROUTE_PALETTE[i % ROUTE_PALETTE.length];
+                const dist = (f.properties.summary.distance / 1000).toFixed(1);
+                const dur  = Math.ceil(f.properties.summary.duration / 60);
+                const checked = i === selectedRouteIdx ? 'checked' : '';
+
+                const label = document.createElement('label');
+                label.className = 'cursor-pointer';
+                label.innerHTML = `
+                    <input type="radio" name="route-choice" value="${i}" ${checked} class="peer sr-only">
+                    <div class="p-3 rounded-xl border-2 border-gray-600 peer-checked:border-primary peer-checked:bg-primary/10 hover:bg-gray-800 transition-all">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="inline-block w-3 h-3 rounded-full" style="background:${colors.base}" aria-hidden="true"></span>
+                            <span class="text-sm font-semibold text-white">${colors.name}</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-xs text-gray-400">
+                            <span><i class="fas fa-road" aria-hidden="true"></i> ${dist} km</span>
+                            <span><i class="fas fa-clock" aria-hidden="true"></i> ${dur} min</span>
+                        </div>
+                    </div>
+                `;
+                label.querySelector('input').addEventListener('change', () => {
+                    selectedRouteIdx = i;
+                    applySelectedRoute();
+                });
+                container.appendChild(label);
+            });
+
+            fieldset.classList.remove('hidden');
+        }
+
+        // Actualizar ruta(s) cuando se seleccionan origen y destino
         function updateRoutePreview() {
             const oLat = parseFloat(document.getElementById('origen_lat')?.value || 0);
             const oLng = parseFloat(document.getElementById('origen_lng')?.value || 0);
@@ -784,38 +891,65 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
             initPublishMap();
             routeLayer.clearLayers();
             markersLayer.clearLayers();
+            routePolylines = [];
+            routeFeatures = [];
+            selectedRouteIdx = 0;
 
             L.marker([oLat, oLng], { icon: greenIcon }).addTo(markersLayer);
             L.marker([dLat, dLng], { icon: redIcon }).addTo(markersLayer);
 
-            // Pedir ruta a OpenRouteService
-            const url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${ORS_API_KEY}&start=${oLng},${oLat}&end=${dLng},${dLat}`;
+            // Pedir hasta 3 rutas a OpenRouteService (POST para poder usar
+            // el parametro alternative_routes, no soportado en GET).
+            const url = 'https://api.openrouteservice.org/v2/directions/driving-car/geojson';
+            const body = {
+                coordinates: [[oLng, oLat], [dLng, dLat]],
+                alternative_routes: {
+                    target_count: 3,
+                    weight_factor: 1.6,
+                    share_factor: 0.6
+                }
+            };
 
-            fetch(url, { headers: { 'Accept': 'application/json, application/geo+json' } })
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Authorization': ORS_API_KEY,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json, application/geo+json'
+                },
+                body: JSON.stringify(body)
+            })
                 .then(r => r.json())
                 .then(data => {
-                    const feature = data.features?.[0];
-                    if (!feature) return;
+                    const feats = (data && data.features) ? data.features : [];
+                    if (feats.length === 0) return;
 
-                    const coords = feature.geometry.coordinates.map(c => [c[1], c[0]]);
-                    const polyline = L.polyline(coords, {
-                        color: '#34d399', weight: 4, opacity: 0.8, smoothFactor: 1
-                    }).addTo(routeLayer);
+                    routeFeatures = feats;
 
-                    publishMap.fitBounds(polyline.getBounds(), { padding: [30, 30] });
+                    // Dibujar cada ruta (orden inverso para que la principal quede arriba)
+                    feats.forEach((f, i) => {
+                        const coords = f.geometry.coordinates.map(c => [c[1], c[0]]);
+                        const pl = L.polyline(coords, {
+                            color: ROUTE_PALETTE[i % ROUTE_PALETTE.length].base,
+                            weight: 4, opacity: 0.55, smoothFactor: 1
+                        }).addTo(routeLayer);
+                        pl.on('click', () => { selectedRouteIdx = i; applySelectedRoute(); });
+                        pl.bindTooltip(
+                            ROUTE_PALETTE[i % ROUTE_PALETTE.length].name,
+                            { sticky: true, direction: 'top' }
+                        );
+                        routePolylines.push(pl);
+                    });
 
-                    // Info de distancia y duración
-                    const dist = (feature.properties.summary.distance / 1000).toFixed(1);
-                    const dur = Math.ceil(feature.properties.summary.duration / 60);
-                    document.getElementById('route-distance').textContent = dist;
-                    document.getElementById('route-duration').textContent = dur;
-                    document.getElementById('route-info').classList.remove('hidden');
-                    document.getElementById('map-placeholder').classList.add('hidden');
+                    // Ajustar mapa al conjunto de todas las rutas
+                    const group = L.featureGroup(routePolylines);
+                    publishMap.fitBounds(group.getBounds(), { padding: [30, 30] });
 
-                    // Guardar polyline para el backend
-                    document.getElementById('ruta_polyline').value = JSON.stringify(feature.geometry.coordinates);
+                    // Render selector + aplicar la principal por defecto
+                    renderRouteSelector();
+                    applySelectedRoute();
                 })
-                .catch(err => console.error('Error fetching route:', err));
+                .catch(err => console.error('Error fetching routes:', err));
         }
 
         // Observar cambios en los campos de coordenadas

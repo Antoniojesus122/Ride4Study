@@ -1133,6 +1133,11 @@ return [
     'inst_auth.err_max_attempts' => 'Has superado el maximo de intentos. Inicia sesion de nuevo.',
     'inst_auth.err_wrong_code' => 'Codigo incorrecto. Intentalo de nuevo.',
 
+    // PUBLISH - rutas alternativas
+    'publish.choose_route' => 'Elige la ruta que prefieres',
+    'publish.route_main' => 'Ruta principal',
+    'publish.route_alternative' => 'Alternativa',
+
     // ACCESIBILIDAD (WCAG 2.1)
     'a11y.skip_to_content' => 'Saltar al contenido principal',
     'a11y.main_nav' => 'Navegación principal',
