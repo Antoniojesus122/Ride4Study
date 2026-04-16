@@ -2,6 +2,8 @@
 // Cron: Aviso de expiración de premium (3 días antes) y desactivación automática de premium expirado.
 // Se ejecuta cada vez que un usuario inicia sesión.
 
+require_once __DIR__ . '/../config/env.php';
+require_once __DIR__ . '/../app/helpers.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../services/MailService.php';
 require_once __DIR__ . '/../app/models/Notification.php';

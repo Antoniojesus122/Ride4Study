@@ -5,6 +5,46 @@ class Report
     private PDO $conn;
     private string $table = 'reportes';
 
+    // Constantes de estado de reporte
+    const ESTADO_PENDIENTE   = 'pendiente';
+    const ESTADO_EN_REVISION = 'en_revision';
+    const ESTADO_RESUELTO    = 'resuelto';
+    const ESTADO_ELIMINADO   = 'eliminado';
+
+    // Constantes de tipo de reporte
+    const TIPO_USUARIO = 'usuario';
+    const TIPO_ANUNCIO = 'anuncio';
+    const TIPO_CHAT    = 'chat';
+
+    // Constantes de prioridad
+    const PRIORIDAD_BAJA    = 'baja';
+    const PRIORIDAD_MEDIA   = 'media';
+    const PRIORIDAD_ALTA    = 'alta';
+    const PRIORIDAD_URGENTE = 'urgente';
+
+    // Constantes de motivo
+    const MOTIVO_SPAM          = 'spam';
+    const MOTIVO_OFENSIVO      = 'ofensivo';
+    const MOTIVO_SUPLANTACION  = 'suplantacion';
+    const MOTIVO_INAPROPIADO   = 'inapropiado';
+    const MOTIVO_FRAUDE        = 'fraude';
+    const MOTIVO_OTRO          = 'otro';
+
+    const MOTIVOS_VALIDOS = [
+        self::MOTIVO_SPAM,
+        self::MOTIVO_OFENSIVO,
+        self::MOTIVO_SUPLANTACION,
+        self::MOTIVO_INAPROPIADO,
+        self::MOTIVO_FRAUDE,
+        self::MOTIVO_OTRO,
+    ];
+
+    const TIPOS_VALIDOS = [
+        self::TIPO_USUARIO,
+        self::TIPO_ANUNCIO,
+        self::TIPO_CHAT,
+    ];
+
     public function __construct(PDO $db)
     {
         $this->conn = $db;
@@ -38,31 +78,31 @@ class Report
     private function calcularPrioridad(string $tipo, string $motivo, ?int $idUsuarioReportado): string
     {
         // Fraude y suplantacion siempre urgente
-        if (in_array($motivo, ['fraude', 'suplantacion'])) {
-            return 'urgente';
+        if (in_array($motivo, [self::MOTIVO_FRAUDE, self::MOTIVO_SUPLANTACION])) {
+            return self::PRIORIDAD_URGENTE;
         }
 
         // Si el usuario tiene 3+ reportes pendientes, prioridad alta
         if ($idUsuarioReportado) {
             $count = $this->countPendingByUser($idUsuarioReportado);
-            if ($count >= 3) return 'urgente';
-            if ($count >= 2) return 'alta';
+            if ($count >= 3) return self::PRIORIDAD_URGENTE;
+            if ($count >= 2) return self::PRIORIDAD_ALTA;
         }
 
         // Ofensivo = alta
-        if ($motivo === 'ofensivo') return 'alta';
+        if ($motivo === self::MOTIVO_OFENSIVO) return self::PRIORIDAD_ALTA;
 
         // Inapropiado = media
-        if ($motivo === 'inapropiado') return 'media';
+        if ($motivo === self::MOTIVO_INAPROPIADO) return self::PRIORIDAD_MEDIA;
 
         // Spam y otro = baja
-        return 'baja';
+        return self::PRIORIDAD_BAJA;
     }
 
     // Contar reportes pendientes contra un usuario
     public function countPendingByUser(int $userId): int
     {
-        $sql = "SELECT COUNT(*) FROM {$this->table} WHERE idUsuarioReportado = :uid AND estado IN ('pendiente', 'en_revision')";
+        $sql = "SELECT COUNT(*) FROM {$this->table} WHERE idUsuarioReportado = :uid AND estado IN ('" . self::ESTADO_PENDIENTE . "', '" . self::ESTADO_EN_REVISION . "')";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([':uid' => $userId]);
         return (int)$stmt->fetchColumn();
@@ -72,7 +112,7 @@ class Report
     public function existsPending(string $tipo, ?int $idUsuarioReportado, ?int $idAnuncio, ?int $idChat, int $idUsuarioQueReporta): bool
     {
         $sql = "SELECT COUNT(*) FROM {$this->table}
-                WHERE tipo = :tipo AND idUsuarioQueReporta = :reporter AND estado IN ('pendiente', 'en_revision')";
+                WHERE tipo = :tipo AND idUsuarioQueReporta = :reporter AND estado IN ('" . self::ESTADO_PENDIENTE . "', '" . self::ESTADO_EN_REVISION . "')";
         $params = [':tipo' => $tipo, ':reporter' => $idUsuarioQueReporta];
 
         // Para chats: mensaje concreto (idChat set) o conversación completa (idChat null, idAnuncio set)

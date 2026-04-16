@@ -3,10 +3,37 @@ class Ride {
     private $conn;
     private $table = 'anuncios';
 
+    // Constantes de estado de viaje
+    const ESTADO_PENDIENTE  = 'pendiente';
+    const ESTADO_ACEPTADO   = 'aceptado';
+    const ESTADO_RECHAZADO  = 'rechazado';
+    const ESTADO_COMPLETADO = 'completado';
+    const ESTADO_CANCELADO  = 'cancelado';
+
+    // Constantes de tipo de anuncio
+    const TIPO_OFREZCO = 'ofrezco';
+    const TIPO_BUSCO   = 'busco';
+
+    // Constantes de ordenación
+    const ORDER_MAP = [
+        'precio_asc'  => 'a.precio ASC, a.fechaSalida ASC',
+        'precio_desc' => 'a.precio DESC, a.fechaSalida ASC',
+        'fecha_asc'   => 'a.fechaSalida ASC, a.horaSalida ASC',
+        'fecha_desc'  => 'a.fechaSalida DESC, a.horaSalida DESC',
+    ];
+    const ORDER_DEFAULT = 'a.destacado DESC, a.fechaPublicacion DESC, a.fechaSalida ASC, a.horaSalida ASC';
+
     public $idAnuncio;
 
     public function __construct($db) {
         $this->conn = $db;
+    }
+
+    /**
+     * Escapa caracteres especiales de LIKE (%, _, \) en el input del usuario
+     */
+    private static function escapeLike(string $value): string {
+        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $value);
     }
 
     // Obtener viajes con paginación y filtros
@@ -21,12 +48,12 @@ class Ride {
             $params[':excludeUserId'] = $excludeUserId;
         }
         if (!empty($filters['origen'])) {
-            $conditions .= " AND lo.nombreLocalidad LIKE :origen";
-            $params[':origen'] = '%' . $filters['origen'] . '%';
+            $conditions .= " AND lo.nombreLocalidad LIKE :origen ESCAPE '\\\\'";
+            $params[':origen'] = '%' . self::escapeLike($filters['origen']) . '%';
         }
         if (!empty($filters['destino'])) {
-            $conditions .= " AND ld.nombreLocalidad LIKE :destino";
-            $params[':destino'] = '%' . $filters['destino'] . '%';
+            $conditions .= " AND ld.nombreLocalidad LIKE :destino ESCAPE '\\\\'";
+            $params[':destino'] = '%' . self::escapeLike($filters['destino']) . '%';
         }
         if (!empty($filters['fecha'])) {
             $conditions .= " AND a.fechaSalida = :fecha";
@@ -64,13 +91,7 @@ class Ride {
                   WHERE 1=1 {$conditions}
                   GROUP BY a.idAnuncio";
 
-        $orderMap = [
-            'precio_asc'  => 'a.precio ASC, a.fechaSalida ASC',
-            'precio_desc' => 'a.precio DESC, a.fechaSalida ASC',
-            'fecha_asc'   => 'a.fechaSalida ASC, a.horaSalida ASC',
-            'fecha_desc'  => 'a.fechaSalida DESC, a.horaSalida DESC',
-        ];
-        $order = $orderMap[$filters['orden'] ?? ''] ?? 'a.destacado DESC, a.fechaPublicacion DESC, a.fechaSalida ASC, a.horaSalida ASC';
+        $order = self::ORDER_MAP[$filters['orden'] ?? ''] ?? self::ORDER_DEFAULT;
         $query .= " ORDER BY " . $order . " LIMIT :limit OFFSET :offset";
 
         $stmt = $this->conn->prepare($query);
@@ -105,7 +126,7 @@ class Ride {
         $query = "SELECT v.estado, v.fecha_actualizacion FROM viajes v
                   WHERE v.idAnuncio = :rideId
                   AND (v.idPasajero = :userId1 OR v.idConductor = :userId2)
-                  AND v.estado NOT IN ('rechazado')";
+                  AND v.estado NOT IN ('" . self::ESTADO_RECHAZADO . "')";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':rideId', $rideId);
         $stmt->bindParam(':userId1', $userId);
@@ -118,7 +139,7 @@ class Ride {
         $query = "SELECT v.estado, v.fecha_actualizacion FROM viajes v
                   WHERE v.idAnuncio = :rideId
                   AND (v.idPasajero = :userId1 OR v.idConductor = :userId2)
-                  AND v.estado = 'rechazado'
+                  AND v.estado = '" . self::ESTADO_RECHAZADO . "'
                   ORDER BY v.fecha_actualizacion DESC
                   LIMIT 1";
         $stmt = $this->conn->prepare($query);
@@ -136,7 +157,7 @@ class Ride {
                 return $rejected;
             }
             // Cooldown pasado: eliminar registro rechazado para permitir re-solicitud
-            $del = $this->conn->prepare("DELETE FROM viajes WHERE idAnuncio = :rideId AND (idPasajero = :uid1 OR idConductor = :uid2) AND estado = 'rechazado'");
+            $del = $this->conn->prepare("DELETE FROM viajes WHERE idAnuncio = :rideId AND (idPasajero = :uid1 OR idConductor = :uid2) AND estado = '" . self::ESTADO_RECHAZADO . "'");
             $del->execute([':rideId' => $rideId, ':uid1' => $userId, ':uid2' => $userId]);
             return null;
         }
@@ -144,21 +165,43 @@ class Ride {
         return null;
     }
 
-    // Obtener todas las reservas de un usuario (para el dashboard)
+    // Obtener las reservas de un usuario, opcionalmente filtradas por IDs de anuncio
     // Incluye reservas como pasajero en "ofrezco" y ofertas como conductor en "busco"
-    public function getUserBookings($userId) {
+    public function getUserBookings($userId, array $rideIds = []) {
         $query = "SELECT v.idAnuncio, v.estado, v.fecha_actualizacion FROM viajes v
                   JOIN " . $this->table . " a ON v.idAnuncio = a.idAnuncio
-                  WHERE (v.idPasajero = :userId1 AND LOWER(a.tipo) = 'ofrezco')
-                     OR (v.idConductor = :userId2 AND LOWER(a.tipo) = 'busco')";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':userId1', $userId);
-        $stmt->bindParam(':userId2', $userId);
-        $stmt->execute();
+                  WHERE ((v.idPasajero = :userId1 AND LOWER(a.tipo) = '" . self::TIPO_OFREZCO . "')
+                     OR (v.idConductor = :userId2 AND LOWER(a.tipo) = '" . self::TIPO_BUSCO . "'))";
+
+        $params = [':userId1' => $userId, ':userId2' => $userId];
+
+        // Filtrar solo por los anuncios de la pagina actual si se proporcionan IDs
+        if (!empty($rideIds)) {
+            $placeholders = implode(',', array_fill(0, count($rideIds), '?'));
+            // Reemplazar named params por positional ya que mezclamos ambos
+            $query = "SELECT v.idAnuncio, v.estado, v.fecha_actualizacion FROM viajes v
+                      JOIN " . $this->table . " a ON v.idAnuncio = a.idAnuncio
+                      WHERE ((v.idPasajero = ? AND LOWER(a.tipo) = '" . self::TIPO_OFREZCO . "')
+                         OR (v.idConductor = ? AND LOWER(a.tipo) = '" . self::TIPO_BUSCO . "'))
+                         AND v.idAnuncio IN ($placeholders)";
+            $stmt = $this->conn->prepare($query);
+            $paramIndex = 1;
+            $stmt->bindValue($paramIndex++, $userId, PDO::PARAM_INT);
+            $stmt->bindValue($paramIndex++, $userId, PDO::PARAM_INT);
+            foreach ($rideIds as $rid) {
+                $stmt->bindValue($paramIndex++, $rid, PDO::PARAM_INT);
+            }
+            $stmt->execute();
+        } else {
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':userId1', $userId);
+            $stmt->bindParam(':userId2', $userId);
+            $stmt->execute();
+        }
 
         $bookings = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            if ($row['estado'] === 'rechazado') {
+            if ($row['estado'] === self::ESTADO_RECHAZADO) {
                 $rejectedAt = strtotime($row['fecha_actualizacion'] ?? 'now');
                 $cooldownEnd = $rejectedAt + 3600;
                 if (time() >= $cooldownEnd) {
@@ -166,7 +209,7 @@ class Ride {
                     continue;
                 }
                 $bookings[$row['idAnuncio']] = [
-                    'estado' => 'rechazado',
+                    'estado' => self::ESTADO_RECHAZADO,
                     'cooldown_until' => date('Y-m-d\TH:i:s', $cooldownEnd)
                 ];
             } else {
@@ -208,13 +251,13 @@ class Ride {
                            FROM viajes v
                            JOIN usuarios u ON v.idPasajero = u.idUsuario
                            JOIN {$this->table} a ON v.idAnuncio = a.idAnuncio
-                           WHERE v.idAnuncio IN ($placeholders) AND LOWER(a.tipo) = 'ofrezco'
+                           WHERE v.idAnuncio IN ($placeholders) AND LOWER(a.tipo) = '" . self::TIPO_OFREZCO . "'
                            UNION ALL
                            SELECT v.idAnuncio, u.idUsuario, u.nombre, u.foto_perfil, v.fechaSalida as fechaUnido, v.estado, 'conductor' as rol
                            FROM viajes v
                            JOIN usuarios u ON v.idConductor = u.idUsuario
                            JOIN {$this->table} a ON v.idAnuncio = a.idAnuncio
-                           WHERE v.idAnuncio IN ($placeholders) AND LOWER(a.tipo) = 'busco'";
+                           WHERE v.idAnuncio IN ($placeholders) AND LOWER(a.tipo) = '" . self::TIPO_BUSCO . "'";
 
             $pStmt = $this->conn->prepare($batchQuery);
             // Bind rideIds dos veces (una para cada parte del UNION)
@@ -263,8 +306,8 @@ class Ride {
                   JOIN usuarios u ON a.idUsuario = u.idUsuario
                   JOIN localidades lo ON a.origen = lo.idLocalidad
                   JOIN localidades ld ON a.destino = ld.idLocalidad
-                  WHERE (v.idPasajero = :userId1 AND LOWER(a.tipo) = 'ofrezco')
-                     OR (v.idConductor = :userId2 AND LOWER(a.tipo) = 'busco')
+                  WHERE (v.idPasajero = :userId1 AND LOWER(a.tipo) = '" . self::TIPO_OFREZCO . "')
+                     OR (v.idConductor = :userId2 AND LOWER(a.tipo) = '" . self::TIPO_BUSCO . "')
                   ORDER BY a.fechaSalida DESC";
 
         $stmt = $this->conn->prepare($query);
@@ -389,13 +432,13 @@ class Ride {
             // Determinar roles según tipo de anuncio
             $tipo = strtolower($ride['tipo']);
             
-            if ($tipo === 'ofrezco') {
+            if ($tipo === self::TIPO_OFREZCO) {
                 // TIPO OFREZCO: Usuario reserva plaza en viaje ofrecido
                 $conductorId = $ride['idUsuario'];  // Quien publicó es conductor
                 $pasajeroId = $userId;              // Quien reserva es pasajero
                 error_log("Reserva tipo 'ofrezco' - Conductor: $conductorId, Pasajero: $pasajeroId");
                 
-            } else if ($tipo === 'busco') {
+            } else if ($tipo === self::TIPO_BUSCO) {
                 // TIPO  BUSCO: Usuario ofrece llevar a quien busca viaje
                 $conductorId = $userId;             // Quien responde es conductor
                 $pasajeroId = $ride['idUsuario'];   // Quien publicó es pasajero
@@ -408,7 +451,7 @@ class Ride {
             
             // Crear la reserva/oferta con roles correctos
             $query = "INSERT INTO viajes (idAnuncio, idConductor, idPasajero, estado)
-                    VALUES (:rideId, :conductorId, :pasajeroId, 'pendiente')";
+                    VALUES (:rideId, :conductorId, :pasajeroId, '" . self::ESTADO_PENDIENTE . "')";
             
             $stmt = $this->conn->prepare($query);
             $result = $stmt->execute([
@@ -434,7 +477,7 @@ class Ride {
     // $userId puede ser idPasajero (ofrezco) o idConductor (busco)
     public function updateReservationStatus($rideId, $userId, $status) {
 
-        if ($status === 'aceptado') {
+        if ($status === self::ESTADO_ACEPTADO) {
             $updateSeats = "UPDATE " . $this->table . " SET plazasDisponibles = plazasDisponibles - 1
                             WHERE idAnuncio = :rideId AND plazasDisponibles > 0";
             $stmtSeats = $this->conn->prepare($updateSeats);
@@ -513,6 +556,13 @@ class Ride {
         return $R * $c;
     }
 
+    // Obtener CO2 ahorrado cacheado del usuario (columna pre-calculada por cron)
+    public function getCachedUserCO2(int $userId): float {
+        $stmt = $this->conn->prepare("SELECT COALESCE(co2_ahorrado, 0) FROM usuarios WHERE idUsuario = :uid");
+        $stmt->execute([':uid' => $userId]);
+        return (float)$stmt->fetchColumn();
+    }
+
     // Calcular CO2 ahorrado por un usuario (en kg) basado en viajes completados
     public function calculateUserCO2(int $userId): float {
         $query = "SELECT lo.lat as origenLat, lo.lng as origenLng, ld.lat as destinoLat, ld.lng as destinoLng
@@ -521,7 +571,7 @@ class Ride {
                   JOIN localidades lo ON a.origen = lo.idLocalidad
                   JOIN localidades ld ON a.destino = ld.idLocalidad
                   WHERE (v.idConductor = :uid1 OR v.idPasajero = :uid2)
-                    AND v.estado = 'aceptado'
+                    AND v.estado = '" . self::ESTADO_ACEPTADO . "'
                     AND a.fechaSalida < CURDATE()";
 
         $stmt = $this->conn->prepare($query);
@@ -586,7 +636,7 @@ class Ride {
             }
 
             // Si la reserva estaba aceptada, devolver la plaza
-            if ($booking['estado'] === 'aceptado') {
+            if ($booking['estado'] === self::ESTADO_ACEPTADO) {
                 $updateSeats = "UPDATE " . $this->table . "
                                SET plazasDisponibles = plazasDisponibles + 1
                                WHERE idAnuncio = :rideId";
@@ -646,7 +696,7 @@ class Ride {
                   JOIN localidades lo ON a.origen = lo.idLocalidad
                   JOIN localidades ld ON a.destino = ld.idLocalidad
                   WHERE v.idConductor = :conductorId 
-                  AND v.estado = 'pendiente'
+                  AND v.estado = '" . self::ESTADO_PENDIENTE . "'
                   ORDER BY v.fechaSalida ASC";
         
         $stmt = $this->conn->prepare($query);
@@ -665,7 +715,7 @@ class Ride {
 
         if (!$ride) return [];
 
-        if (strtolower($ride['tipo']) === 'ofrezco') {
+        if (strtolower($ride['tipo']) === self::TIPO_OFREZCO) {
             $query = "SELECT u.idUsuario, u.nombre, u.correo, u.notificaciones_email
                       FROM viajes v
                       JOIN usuarios u ON v.idPasajero = u.idUsuario

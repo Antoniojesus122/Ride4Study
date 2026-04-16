@@ -5,6 +5,15 @@ class Payment
     private PDO $conn;
     private string $table = 'pagos_premium';
 
+    // Constantes de estado de pago
+    const ESTADO_COMPLETADO = 'completado';
+    const ESTADO_PENDIENTE  = 'pendiente';
+    const ESTADO_FALLIDO    = 'fallido';
+
+    // Constantes de origen de pago
+    const ORIGEN_STRIPE = 'stripe';
+    const ORIGEN_ADMIN  = 'admin';
+
     public function __construct(PDO $db)
     {
         $this->conn = $db;

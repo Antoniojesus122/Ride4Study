@@ -44,14 +44,15 @@ class RideController {
         $limit = 6; // 6 items por página
 
         $data = $this->ride->getPaginatedRides($page, $limit, $filters, $_SESSION['user_id']);
-        
+
         $rides = $data['rides'];
         $totalPages = $data['pages'];
         $currentPage = $page;
         $totalItems = $data['total'];
 
-        // Añadir estado de reserva a los viajes
-        $userBookings = $this->ride->getUserBookings($_SESSION['user_id']);
+        // Añadir estado de reserva solo para los viajes de la pagina actual (optimizado)
+        $currentRideIds = array_column($rides, 'idAnuncio');
+        $userBookings = $this->ride->getUserBookings($_SESSION['user_id'], $currentRideIds);
         foreach ($rides as &$ride) {
             $booking = $userBookings[$ride['idAnuncio']] ?? null;
             if (is_array($booking)) {
@@ -64,8 +65,8 @@ class RideController {
         }
         unset($ride);
 
-        // CO2 para el widget lateral
-        $myCO2 = $this->ride->calculateUserCO2((int)$_SESSION['user_id']);
+        // CO2 para el widget lateral (usa valor cacheado, no recalcula)
+        $myCO2 = $this->ride->getCachedUserCO2((int)$_SESSION['user_id']);
         $totalCO2Global = $this->ride->getTotalCO2();
 
         // Variables para la vista

@@ -1,2 +1,16 @@
-# Variables de entorno para la api del correo
+# Variables de entorno (credenciales sensibles)
 .env
+env
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Editores
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log

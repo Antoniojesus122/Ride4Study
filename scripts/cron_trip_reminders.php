@@ -3,6 +3,8 @@
 // Envía email y notificación in-app a conductores y pasajeros con viajes programados para el día siguiente
 // Se ejecuta cada vez que un usuario inicia sesión.
 
+require_once __DIR__ . '/../config/env.php';
+require_once __DIR__ . '/../app/helpers.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../services/MailService.php';
 require_once __DIR__ . '/../app/models/Notification.php';
