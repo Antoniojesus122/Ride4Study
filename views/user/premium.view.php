@@ -7,7 +7,7 @@
 
     <?php if ($flashData && $flashData['type'] === 'success' && $flashData['message'] === 'activated'): ?>
         <div class="mb-6 bg-green-500/10 border border-green-500/50 text-green-400 p-4 rounded-xl flex items-center gap-3">
-            <i class="fas fa-check-circle text-xl"></i>
+            <i class="fas fa-check-circle text-xl" aria-hidden="true"></i>
             <span class="font-medium"><?= t('premium.success') ?></span>
         </div>
     <?php endif; ?>
@@ -15,32 +15,32 @@
     <!-- Estado: ya es Premium -->
     <div class="text-center mb-10">
         <div class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/20 text-yellow-400 text-sm font-bold rounded-full border border-yellow-500/30 mb-4">
-            <i class="fas fa-crown"></i> <?= t('premium.active_title') ?>
+            <i class="fas fa-crown" aria-hidden="true"></i> <?= t('premium.active_title') ?>
         </div>
         <h1 class="text-4xl font-bold text-white mb-3"><?= t('premium.already_premium') ?></h1>
         <p class="text-gray-400 text-lg"><?= t('premium.active_desc') ?><?= $premiumHasta ? ' ' . t('premium.active_until') . ' <strong class="text-white">' . date('d/m/Y', strtotime($premiumHasta)) . '</strong>' : '' ?>.</p>
     </div>
 
     <div class="bg-gradient-to-br from-yellow-500/10 to-amber-500/5 border border-yellow-500/20 rounded-2xl p-8 mb-8 text-center">
-        <i class="fas fa-crown text-yellow-400 text-5xl mb-4"></i>
+        <i class="fas fa-crown text-yellow-400 text-5xl mb-4" aria-hidden="true"></i>
         <h2 class="text-2xl font-bold text-white mb-4"><?= t('premium.perks_title') ?></h2>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 text-left">
             <div class="flex items-start gap-3 bg-gray-800/50 rounded-xl p-4 border border-gray-700/50">
-                <i class="fas fa-infinity text-yellow-400 mt-0.5"></i>
+                <i class="fas fa-infinity text-yellow-400 mt-0.5" aria-hidden="true"></i>
                 <div>
                     <p class="text-sm font-semibold text-white"><?= t('premium.perk_unlimited') ?></p>
                     <p class="text-xs text-gray-400 mt-0.5"><?= t('premium.perk_unlimited_desc') ?></p>
                 </div>
             </div>
             <div class="flex items-start gap-3 bg-gray-800/50 rounded-xl p-4 border border-gray-700/50">
-                <i class="fas fa-star text-yellow-400 mt-0.5"></i>
+                <i class="fas fa-star text-yellow-400 mt-0.5" aria-hidden="true"></i>
                 <div>
                     <p class="text-sm font-semibold text-white"><?= t('premium.perk_featured') ?></p>
                     <p class="text-xs text-gray-400 mt-0.5"><?= t('premium.perk_featured_desc') ?></p>
                 </div>
             </div>
             <div class="flex items-start gap-3 bg-gray-800/50 rounded-xl p-4 border border-gray-700/50">
-                <i class="fas fa-crown text-yellow-400 mt-0.5"></i>
+                <i class="fas fa-crown text-yellow-400 mt-0.5" aria-hidden="true"></i>
                 <div>
                     <p class="text-sm font-semibold text-white"><?= t('premium.perk_badge') ?></p>
                     <p class="text-xs text-gray-400 mt-0.5"><?= t('premium.perk_badge_desc') ?></p>
@@ -48,7 +48,7 @@
             </div>
         </div>
         <a href="<?= url('/my-rides') ?>" class="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all">
-            <i class="fas fa-star"></i> <?= t('premium.go_rides') ?>
+            <i class="fas fa-star" aria-hidden="true"></i> <?= t('premium.go_rides') ?>
         </a>
     </div>
 
@@ -56,7 +56,7 @@
     <!-- Estado: plan gratuito -->
     <div class="text-center mb-10">
         <div class="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary text-sm font-medium rounded-full border border-primary/20 mb-4">
-            <i class="fas fa-star"></i> <?= t('premium.improve_title') ?>
+            <i class="fas fa-star" aria-hidden="true"></i> <?= t('premium.improve_title') ?>
         </div>
         <h1 class="text-4xl lg:text-5xl font-bold text-white mb-3"><?= t('premium.title') ?></h1>
         <p class="text-gray-400 text-lg lg:text-xl max-w-2xl mx-auto"><?= t('premium.subtitle') ?></p>
@@ -64,21 +64,21 @@
 
     <?php if ($flashData && $flashData['type'] === 'success'): ?>
         <div class="mb-6 bg-green-500/10 border border-green-500/50 text-green-400 p-4 rounded-xl flex items-center gap-3">
-            <i class="fas fa-check-circle text-xl"></i>
+            <i class="fas fa-check-circle text-xl" aria-hidden="true"></i>
             <span class="font-medium"><?= t('premium.success') ?></span>
         </div>
     <?php endif; ?>
 
     <?php if ($flashData && $flashData['type'] === 'cancelled'): ?>
         <div class="mb-6 bg-yellow-500/10 border border-yellow-500/50 text-yellow-400 p-4 rounded-xl flex items-center gap-3">
-            <i class="fas fa-info-circle text-xl"></i>
+            <i class="fas fa-info-circle text-xl" aria-hidden="true"></i>
             <span class="font-medium"><?= t('premium.cancelled') ?></span>
         </div>
     <?php endif; ?>
 
     <?php if ($flashData && $flashData['type'] === 'error'): ?>
         <div class="mb-6 bg-red-500/10 border border-red-500/50 text-red-400 p-4 rounded-xl flex items-center gap-3">
-            <i class="fas fa-exclamation-circle text-xl"></i>
+            <i class="fas fa-exclamation-circle text-xl" aria-hidden="true"></i>
             <span class="font-medium"><?= t('premium.error') ?></span>
         </div>
     <?php endif; ?>
@@ -97,27 +97,27 @@
             </div>
             <ul class="space-y-3 mb-6">
                 <li class="flex items-center gap-3 text-sm text-gray-300">
-                    <i class="fas fa-check text-green-400 w-4 text-center"></i>
+                    <i class="fas fa-check text-green-400 w-4 text-center" aria-hidden="true"></i>
                     <?= t('premium.free_4_rides') ?>
                 </li>
                 <li class="flex items-center gap-3 text-sm text-gray-300">
-                    <i class="fas fa-check text-green-400 w-4 text-center"></i>
+                    <i class="fas fa-check text-green-400 w-4 text-center" aria-hidden="true"></i>
                     <?= t('premium.free_chat') ?>
                 </li>
                 <li class="flex items-center gap-3 text-sm text-gray-300">
-                    <i class="fas fa-check text-green-400 w-4 text-center"></i>
+                    <i class="fas fa-check text-green-400 w-4 text-center" aria-hidden="true"></i>
                     <?= t('premium.free_ratings') ?>
                 </li>
                 <li class="flex items-center gap-3 text-sm text-gray-500">
-                    <i class="fas fa-times text-gray-600 w-4 text-center"></i>
+                    <i class="fas fa-times text-gray-600 w-4 text-center" aria-hidden="true"></i>
                     <?= t('premium.free_no_unlimited') ?>
                 </li>
                 <li class="flex items-center gap-3 text-sm text-gray-500">
-                    <i class="fas fa-times text-gray-600 w-4 text-center"></i>
+                    <i class="fas fa-times text-gray-600 w-4 text-center" aria-hidden="true"></i>
                     <?= t('premium.free_no_featured') ?>
                 </li>
                 <li class="flex items-center gap-3 text-sm text-gray-500">
-                    <i class="fas fa-times text-gray-600 w-4 text-center"></i>
+                    <i class="fas fa-times text-gray-600 w-4 text-center" aria-hidden="true"></i>
                     <?= t('premium.free_no_badge') ?>
                 </li>
             </ul>
@@ -131,7 +131,7 @@
             <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 rounded-full blur-2xl -mr-10 -mt-10"></div>
             <div class="absolute top-4 right-4">
                 <span class="px-2.5 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full border border-yellow-500/30">
-                    <i class="fas fa-crown mr-1"></i><?= t('premium.recommended') ?>
+                    <i class="fas fa-crown mr-1" aria-hidden="true"></i><?= t('premium.recommended') ?>
                 </span>
             </div>
             <div class="mb-5">
@@ -144,25 +144,25 @@
             </div>
             <ul class="space-y-3 mb-6">
                 <li class="flex items-center gap-3 text-sm text-gray-200">
-                    <i class="fas fa-check text-yellow-400 w-4 text-center"></i>
+                    <i class="fas fa-check text-yellow-400 w-4 text-center" aria-hidden="true"></i>
                     <?= t('premium.includes_free') ?>
                 </li>
                 <li class="flex items-center gap-3 text-sm text-gray-200">
-                    <i class="fas fa-infinity text-yellow-400 w-4 text-center"></i>
+                    <i class="fas fa-infinity text-yellow-400 w-4 text-center" aria-hidden="true"></i>
                     <strong><?= t('premium.unlimited_rides') ?></strong>
                 </li>
                 <li class="flex items-center gap-3 text-sm text-gray-200">
-                    <i class="fas fa-star text-yellow-400 w-4 text-center"></i>
+                    <i class="fas fa-star text-yellow-400 w-4 text-center" aria-hidden="true"></i>
                     <strong><?= t('premium.one_featured') ?></strong> <?= t('premium.one_featured_desc') ?>
                 </li>
                 <li class="flex items-center gap-3 text-sm text-gray-200">
-                    <i class="fas fa-crown text-yellow-400 w-4 text-center"></i>
+                    <i class="fas fa-crown text-yellow-400 w-4 text-center" aria-hidden="true"></i>
                     <?= t('premium.badge_visible') ?>
                 </li>
             </ul>
             <form action="<?= url('/premium') ?>?action=checkout" method="POST">
                 <button type="submit" class="block w-full px-4 py-3 bg-yellow-500 hover:bg-yellow-400 text-gray-900 rounded-xl text-sm font-bold text-center transition-all shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/40 transform hover:-translate-y-0.5 cursor-pointer">
-                    <i class="fas fa-crown mr-2"></i><?= t('premium.buy_now') ?>
+                    <i class="fas fa-crown mr-2" aria-hidden="true"></i><?= t('premium.buy_now') ?>
                 </button>
             </form>
         </div>
@@ -171,7 +171,7 @@
     <!-- FAQ -->
     <div class="bg-surface rounded-2xl border border-gray-700 p-6">
         <h3 class="text-lg font-bold text-white mb-5 flex items-center gap-2">
-            <i class="fas fa-question-circle text-primary"></i>
+            <i class="fas fa-question-circle text-primary" aria-hidden="true"></i>
             <?= t('premium.faq_title') ?>
         </h3>
         <div class="space-y-4">

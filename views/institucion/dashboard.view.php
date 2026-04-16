@@ -10,35 +10,35 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
             <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center mb-3">
-                <i class="fas fa-users text-blue-400"></i>
+                <i class="fas fa-users text-blue-400" aria-hidden="true"></i>
             </div>
             <p class="text-3xl font-bold text-white"><?= $stats['totalStudents'] ?></p>
             <p class="text-xs text-gray-500 mt-1">Estudiantes registrados</p>
         </div>
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
             <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mb-3">
-                <i class="fas fa-route text-primary"></i>
+                <i class="fas fa-route text-primary" aria-hidden="true"></i>
             </div>
             <p class="text-3xl font-bold text-white"><?= $stats['totalTrips'] ?></p>
             <p class="text-xs text-gray-500 mt-1">Viajes publicados</p>
         </div>
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
             <div class="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center mb-3">
-                <i class="fas fa-check-double text-green-400"></i>
+                <i class="fas fa-check-double text-green-400" aria-hidden="true"></i>
             </div>
             <p class="text-3xl font-bold text-white"><?= $stats['completedTrips'] ?></p>
             <p class="text-xs text-gray-500 mt-1">Viajes completados</p>
         </div>
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
             <div class="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center mb-3">
-                <i class="fas fa-star text-yellow-400"></i>
+                <i class="fas fa-star text-yellow-400" aria-hidden="true"></i>
             </div>
             <p class="text-3xl font-bold text-white"><?= $stats['avgRating'] ?: '-' ?> <span class="text-lg text-gray-500">/ 5</span></p>
             <p class="text-xs text-gray-500 mt-1">Valoracion media</p>
         </div>
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
             <div class="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center mb-3">
-                <i class="fas fa-leaf text-emerald-400"></i>
+                <i class="fas fa-leaf text-emerald-400" aria-hidden="true"></i>
             </div>
             <p class="text-3xl font-bold text-white"><?= $stats['co2Saved'] ?> <span class="text-lg text-gray-500">kg</span></p>
             <p class="text-xs text-gray-500 mt-1">CO2 ahorrado</p>
@@ -63,7 +63,7 @@
             <h3 class="text-base font-semibold text-white mb-6">Rutas mas frecuentes</h3>
             <?php if (empty($topRoutes)): ?>
                 <div class="text-center py-12">
-                    <i class="fas fa-map-signs text-3xl text-gray-600 mb-3"></i>
+                    <i class="fas fa-map-signs text-3xl text-gray-600 mb-3" aria-hidden="true"></i>
                     <p class="text-gray-500 text-sm">Aun no hay datos de rutas</p>
                 </div>
             <?php else: ?>
@@ -75,7 +75,7 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm text-gray-200 font-medium truncate">
-                                    <?= htmlspecialchars($route['origen']) ?> <i class="fas fa-arrow-right text-xs text-gray-500 mx-1"></i> <?= htmlspecialchars($route['destino']) ?>
+                                    <?= htmlspecialchars($route['origen']) ?> <i class="fas fa-arrow-right text-xs text-gray-500 mx-1" aria-hidden="true"></i> <?= htmlspecialchars($route['destino']) ?>
                                 </p>
                             </div>
                             <span class="text-sm font-semibold text-blue-400"><?= $route['total'] ?> viajes</span>
@@ -91,12 +91,12 @@
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-base font-semibold text-white">Ultimos estudiantes registrados</h3>
             <a href="<?= url('/institution/students') ?>" class="text-sm text-blue-400 hover:text-blue-300 transition-colors">
-                Ver todos <i class="fas fa-arrow-right text-xs ml-1"></i>
+                Ver todos <i class="fas fa-arrow-right text-xs ml-1" aria-hidden="true"></i>
             </a>
         </div>
         <?php if (empty($recentStudents)): ?>
             <div class="text-center py-12">
-                <i class="fas fa-user-graduate text-3xl text-gray-600 mb-3"></i>
+                <i class="fas fa-user-graduate text-3xl text-gray-600 mb-3" aria-hidden="true"></i>
                 <p class="text-gray-500 text-sm">Aun no hay estudiantes de tu institucion registrados</p>
             </div>
         <?php else: ?>

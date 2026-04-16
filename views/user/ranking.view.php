@@ -5,7 +5,7 @@
     <!-- Encabezado -->
     <div class="text-center mb-10">
         <div class="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 text-green-400 text-sm font-medium rounded-full border border-green-500/20 mb-4">
-            <i class="fas fa-leaf"></i> <?= t('co2.ranking_title') ?>
+            <i class="fas fa-leaf" aria-hidden="true"></i> <?= t('co2.ranking_title') ?>
         </div>
         <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3"><?= t('co2.ranking_title') ?></h1>
         <p class="text-gray-400 text-lg lg:text-xl max-w-2xl mx-auto"><?= t('co2.ranking_subtitle') ?></p>
@@ -14,17 +14,17 @@
     <!-- Stats globales -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6 mb-8">
         <div class="bg-surface rounded-2xl border border-green-500/20 p-6 text-center">
-            <i class="fas fa-globe-americas text-green-400 text-2xl mb-2"></i>
+            <i class="fas fa-globe-americas text-green-400 text-2xl mb-2" aria-hidden="true"></i>
             <p class="text-2xl lg:text-3xl font-bold text-green-400"><?= number_format($totalCO2, 1) ?> kg</p>
             <p class="text-xs lg:text-sm text-gray-400 mt-1"><?= t('co2.total_saved') ?></p>
         </div>
         <div class="bg-surface rounded-2xl border border-green-500/20 p-6 text-center">
-            <i class="fas fa-tree text-green-400 text-2xl mb-2"></i>
+            <i class="fas fa-tree text-green-400 text-2xl mb-2" aria-hidden="true"></i>
             <p class="text-2xl lg:text-3xl font-bold text-green-400"><?= number_format($totalCO2 / 21, 0) ?></p>
             <p class="text-xs lg:text-sm text-gray-400 mt-1"><?= t('co2.equivalent') ?> <?= t('co2.trees') ?></p>
         </div>
         <div class="bg-surface rounded-2xl border border-primary/20 p-6 text-center">
-            <i class="fas fa-user text-primary text-2xl mb-2"></i>
+            <i class="fas fa-user text-primary text-2xl mb-2" aria-hidden="true"></i>
             <p class="text-2xl lg:text-3xl font-bold text-primary"><?= number_format($userCO2, 1) ?> kg</p>
             <p class="text-xs lg:text-sm text-gray-400 mt-1"><?= t('co2.your_position') ?>: <?= $userPosition > 0 ? '#' . $userPosition : '-' ?></p>
         </div>
@@ -33,7 +33,7 @@
     <!-- Ranking -->
     <?php if (empty($ranking)): ?>
         <div class="text-center py-16 text-gray-500">
-            <i class="fas fa-leaf text-4xl mb-3 opacity-50"></i>
+            <i class="fas fa-leaf text-4xl mb-3 opacity-50" aria-hidden="true"></i>
             <p class="text-sm"><?= t('co2.no_data') ?></p>
         </div>
     <?php else: ?>
@@ -47,7 +47,7 @@
                 <!-- Posición -->
                 <div class="w-10 text-center shrink-0">
                     <?php if ($position <= 3): ?>
-                        <i class="fas fa-trophy text-xl <?= $medalColors[$position] ?>"></i>
+                        <i class="fas fa-trophy text-xl <?= $medalColors[$position] ?>" aria-hidden="true"></i>
                     <?php else: ?>
                         <span class="text-lg font-bold text-gray-500"><?= $position ?></span>
                     <?php endif; ?>
@@ -70,7 +70,7 @@
                             <span class="text-xs text-primary ml-1">(<?= t('co2.you') ?>)</span>
                         <?php endif; ?>
                         <?php if ((int)($user['estado_verificacion'] ?? 0) === 2): ?>
-                            <i class="fas fa-check-circle text-green-400 text-xs ml-1"></i>
+                            <i class="fas fa-check-circle text-green-400 text-xs ml-1" aria-hidden="true"></i>
                         <?php endif; ?>
                     </p>
                 </div>

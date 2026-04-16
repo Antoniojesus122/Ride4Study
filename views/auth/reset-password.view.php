@@ -8,6 +8,7 @@
   <script src="public/js/tailwind-config.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+      <link rel="stylesheet" href="public/css/accessibility.css">
 </head>
 <body class="h-full text-text flex items-center justify-center">
   <div class="w-full max-w-md mx-4">
@@ -74,7 +75,7 @@
         </div>
 
         <button type="submit" class="w-full flex items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold text-secondary hover:bg-primary/90 transition">
-                <i class="fas fa-check"></i> <?= t('reset.submit') ?>
+                <i class="fas fa-check" aria-hidden="true"></i> <?= t('reset.submit') ?>
                 </button>
             </form>
             <?php endif; ?>

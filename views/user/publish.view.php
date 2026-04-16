@@ -34,10 +34,10 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
             </div>
             <div class="hidden sm:flex items-center gap-3">
                 <a href="<?= url('/my-rides') ?>" class="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-800 transition-all font-medium">
-                    <i class="fas fa-arrow-left"></i> <?= t('publish.cancel') ?>
+                    <i class="fas fa-arrow-left" aria-hidden="true"></i> <?= t('publish.cancel') ?>
                 </a>
                 <button type="submit" form="publishForm" class="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-secondary font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5">
-                    <i class="fas fa-paper-plane"></i> <?= $submitText ?>
+                    <i class="fas fa-paper-plane" aria-hidden="true"></i> <?= $submitText ?>
                 </button>
             </div>
         </div>
@@ -45,7 +45,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
         <!-- Alertas de error -->
         <?php if (!empty($errors)): ?>
             <div class="bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-xl mb-6" role="alert">
-                <p class="font-bold mb-1"><i class="fas fa-exclamation-triangle mr-2"></i><?= t('publish.fix_errors') ?></p>
+                <p class="font-bold mb-1"><i class="fas fa-exclamation-triangle mr-2" aria-hidden="true"></i><?= t('publish.fix_errors') ?></p>
                 <ul class="list-disc list-inside text-sm">
                     <?php foreach ($errors as $error): ?>
                         <li><?= $error ?></li>
@@ -67,7 +67,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                     <!-- Tipo de viaje -->
                     <div class="bg-surface rounded-2xl border border-gray-700 p-6 lg:flex-1">
                         <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center"><i class="fas fa-exchange-alt text-primary text-sm"></i></div>
+                            <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center"><i class="fas fa-exchange-alt text-primary text-sm" aria-hidden="true"></i></div>
                             <?= t('publish.driver_or_passenger') ?>
                         </h3>
 
@@ -78,7 +78,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                         <?php if ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers): ?>
                             <div class="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl mb-4">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-lock text-yellow-500"></i>
+                                    <i class="fas fa-lock text-yellow-500" aria-hidden="true"></i>
                                     <p class="text-yellow-400 text-sm font-medium"><?= t('publish.cant_change_type') ?></p>
                                 </div>
                             </div>
@@ -90,7 +90,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                                     <?= $currentType == 'ofrezco' ? 'checked' : '' ?>
                                     <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'disabled' : '' ?>>
                                 <div class="p-5 rounded-xl border-2 border-gray-600 <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'opacity-60 cursor-not-allowed' : 'hover:bg-gray-800' ?> peer-checked:border-primary peer-checked:bg-primary/10 text-gray-400 peer-checked:text-white transition-all text-center">
-                                    <i class="fas fa-car text-2xl mb-2"></i>
+                                    <i class="fas fa-car text-2xl mb-2" aria-hidden="true"></i>
                                     <div class="font-bold text-sm lg:text-base"><?= t('publish.i_drive') ?></div>
                                 </div>
                             </label>
@@ -99,7 +99,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                                     <?= $currentType == 'busco' ? 'checked' : '' ?>
                                     <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'disabled' : '' ?>>
                                 <div class="p-5 rounded-xl border-2 border-gray-600 <?= ($isEdit && isset($hasAcceptedPassengers) && $hasAcceptedPassengers) ? 'opacity-60 cursor-not-allowed' : 'hover:bg-gray-800' ?> peer-checked:border-purple-500 peer-checked:bg-purple-500/10 text-gray-400 peer-checked:text-white transition-all text-center">
-                                    <i class="fas fa-walking text-2xl mb-2"></i>
+                                    <i class="fas fa-walking text-2xl mb-2" aria-hidden="true"></i>
                                     <div class="font-bold text-sm lg:text-base"><?= t('publish.i_search') ?></div>
                                 </div>
                             </label>
@@ -109,22 +109,22 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                     <!-- Ruta: Origen y Destino -->
                     <div class="bg-surface rounded-2xl border border-gray-700 p-6 lg:flex-1">
                         <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><i class="fas fa-route text-blue-400 text-sm"></i></div>
+                            <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><i class="fas fa-route text-blue-400 text-sm" aria-hidden="true"></i></div>
                             <?= t('publish.route_schedule') ?>
                         </h3>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <!-- Origen -->
                             <div class="group relative">
-                                <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.origin') ?></label>
+                                <label for="origen" class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.origin') ?></label>
                                 <div class="relative">
-                                    <i class="fas fa-map-marker-alt absolute left-3 top-3.5 text-primary z-10"></i>
+                                    <i class="fas fa-map-marker-alt absolute left-3 top-3.5 text-primary z-10" aria-hidden="true"></i>
                                     <input type="text" id="origen" autocomplete="off" required
                                         value="<?= htmlspecialchars($preOrigen) ?>"
                                         placeholder="<?= t('publish.city_placeholder') ?>"
                                         class="block w-full pl-10 pr-10 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary placeholder-gray-500 outline-none">
-                                    <div id="origen-spinner" class="hidden absolute right-3 top-3.5"><i class="fas fa-spinner fa-spin text-gray-500 text-sm"></i></div>
-                                    <div id="origen-check" class="<?= !empty($preOrigenLat) ? '' : 'hidden' ?> absolute right-3 top-3.5"><i class="fas fa-check-circle text-green-400 text-sm"></i></div>
+                                    <div id="origen-spinner" class="hidden absolute right-3 top-3.5"><i class="fas fa-spinner fa-spin text-gray-500 text-sm" aria-hidden="true"></i></div>
+                                    <div id="origen-check" class="<?= !empty($preOrigenLat) ? '' : 'hidden' ?> absolute right-3 top-3.5"><i class="fas fa-check-circle text-green-400 text-sm" aria-hidden="true"></i></div>
                                     <input type="hidden" name="origen_nombre" id="origen_nombre" value="<?= htmlspecialchars($preOrigen) ?>">
                                     <input type="hidden" name="origen_lat" id="origen_lat" value="<?= htmlspecialchars($preOrigenLat) ?>">
                                     <input type="hidden" name="origen_lng" id="origen_lng" value="<?= htmlspecialchars($preOrigenLng) ?>">
@@ -134,15 +134,15 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
 
                             <!-- Destino -->
                             <div class="group relative">
-                                <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.destination') ?></label>
+                                <label for="destino" class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.destination') ?></label>
                                 <div class="relative">
-                                    <i class="fas fa-flag-checkered absolute left-3 top-3.5 text-red-400 z-10"></i>
+                                    <i class="fas fa-flag-checkered absolute left-3 top-3.5 text-red-400 z-10" aria-hidden="true"></i>
                                     <input type="text" id="destino" autocomplete="off" required
                                         value="<?= htmlspecialchars($preDestino) ?>"
                                         placeholder="<?= t('publish.city_placeholder') ?>"
                                         class="block w-full pl-10 pr-10 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary placeholder-gray-500 outline-none">
-                                    <div id="destino-spinner" class="hidden absolute right-3 top-3.5"><i class="fas fa-spinner fa-spin text-gray-500 text-sm"></i></div>
-                                    <div id="destino-check" class="<?= !empty($preDestinoLat) ? '' : 'hidden' ?> absolute right-3 top-3.5"><i class="fas fa-check-circle text-green-400 text-sm"></i></div>
+                                    <div id="destino-spinner" class="hidden absolute right-3 top-3.5"><i class="fas fa-spinner fa-spin text-gray-500 text-sm" aria-hidden="true"></i></div>
+                                    <div id="destino-check" class="<?= !empty($preDestinoLat) ? '' : 'hidden' ?> absolute right-3 top-3.5"><i class="fas fa-check-circle text-green-400 text-sm" aria-hidden="true"></i></div>
                                     <input type="hidden" name="destino_nombre" id="destino_nombre" value="<?= htmlspecialchars($preDestino) ?>">
                                     <input type="hidden" name="destino_lat" id="destino_lat" value="<?= htmlspecialchars($preDestinoLat) ?>">
                                     <input type="hidden" name="destino_lng" id="destino_lng" value="<?= htmlspecialchars($preDestinoLng) ?>">
@@ -155,16 +155,16 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                     <!-- Horarios -->
                     <div class="bg-surface rounded-2xl border border-gray-700 p-6 lg:flex-1">
                         <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center"><i class="far fa-clock text-purple-400 text-sm"></i></div>
+                            <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center"><i class="far fa-clock text-purple-400 text-sm" aria-hidden="true"></i></div>
                             <?= t('publish.schedule') ?>
                         </h3>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                             <!-- Fecha -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.departure_date') ?></label>
+                                <label for="fechaSalida" class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.departure_date') ?></label>
                                 <div class="relative">
-                                    <i class="far fa-calendar-alt absolute left-3 top-3.5 text-gray-500"></i>
+                                    <i class="far fa-calendar-alt absolute left-3 top-3.5 text-gray-500" aria-hidden="true"></i>
                                     <input type="date" name="fechaSalida" id="fechaSalida" required min="<?= date('Y-m-d') ?>"
                                         value="<?= getVal('fechaSalida', $isEdit ? $ride : [], $_POST) ?>"
                                         class="block w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary [color-scheme:dark]">
@@ -173,9 +173,9 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
 
                             <!-- Hora Salida -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.departure_time') ?></label>
+                                <label for="horaSalida" class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.departure_time') ?></label>
                                 <div class="relative">
-                                    <i class="far fa-clock absolute left-3 top-3.5 text-gray-500"></i>
+                                    <i class="far fa-clock absolute left-3 top-3.5 text-gray-500" aria-hidden="true"></i>
                                     <input type="time" name="horaSalida" id="horaSalida" required
                                         value="<?= getVal('horaSalida', $isEdit ? $ride : [], $_POST) ?>"
                                         class="block w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary [color-scheme:dark]">
@@ -184,9 +184,9 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
 
                             <!-- Hora Regreso -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.return_time') ?></label>
+                                <label for="horaRegreso" class="block text-sm font-medium text-gray-400 mb-1.5"><?= t('publish.return_time') ?></label>
                                 <div class="relative">
-                                    <i class="fas fa-undo absolute left-3 top-3.5 text-gray-500"></i>
+                                    <i class="fas fa-undo absolute left-3 top-3.5 text-gray-500" aria-hidden="true"></i>
                                     <input type="time" name="horaRegreso" id="horaRegreso"
                                         value="<?= getVal('horaRegreso', $isEdit ? $ride : [], $_POST) ?>"
                                         class="block w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-primary focus:border-primary [color-scheme:dark]">
@@ -203,7 +203,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                     <!-- Plazas, Precio y Descripción -->
                     <div class="bg-surface rounded-2xl border border-gray-700 p-5 lg:flex-1">
                         <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                            <div class="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center"><i class="fas fa-sliders-h text-green-400 text-xs"></i></div>
+                            <div class="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center"><i class="fas fa-sliders-h text-green-400 text-xs" aria-hidden="true"></i></div>
                             <?= t('publish.details') ?>
                         </h3>
 
@@ -212,7 +212,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                             <div>
                                 <label class="block text-xs font-medium text-gray-400 mb-1"><?= t('publish.seats') ?></label>
                                 <div class="relative">
-                                    <i class="fas fa-chair absolute left-3 top-2.5 text-gray-500 text-xs"></i>
+                                    <i class="fas fa-chair absolute left-3 top-2.5 text-gray-500 text-xs" aria-hidden="true"></i>
                                     <input type="number" name="plazasDisponibles" min="1" max="8" required
                                         value="<?= getVal('plazasDisponibles', $isEdit ? $ride : [], $_POST, '1') ?>"
                                         class="block w-full pl-8 pr-3 py-2.5 bg-gray-800 border border-gray-600 rounded-xl text-white text-sm focus:ring-primary focus:border-primary">
@@ -223,7 +223,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                             <div>
                                 <label class="block text-xs font-medium text-gray-400 mb-1"><?= t('publish.price') ?></label>
                                 <div class="relative text-white">
-                                    <i class="fas fa-euro-sign absolute left-3 top-2.5 text-gray-500 text-xs"></i>
+                                    <i class="fas fa-euro-sign absolute left-3 top-2.5 text-gray-500 text-xs" aria-hidden="true"></i>
                                     <input type="number" name="precio" min="0" step="0.50"
                                         value="<?= getVal('precio', $isEdit ? $ride : [], $_POST) ?>"
                                         placeholder="<?= t('publish.price_placeholder') ?>"
@@ -245,7 +245,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                     <!-- Mapa interactivo -->
                     <div class="bg-surface rounded-2xl border border-gray-700 p-6 flex-1 flex flex-col">
                         <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><i class="fas fa-map-marked-alt text-blue-400 text-sm"></i></div>
+                            <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><i class="fas fa-map-marked-alt text-blue-400 text-sm" aria-hidden="true"></i></div>
                             <?= t('publish.map_interactive') ?>
                         </h3>
 
@@ -267,23 +267,23 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
 
                         <!-- Indicador de modo activo -->
                         <div id="map-mode-indicator" class="hidden mb-3 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs text-center font-medium">
-                            <i class="fas fa-mouse-pointer mr-1"></i>
+                            <i class="fas fa-mouse-pointer mr-1" aria-hidden="true"></i>
                             <span id="map-mode-text"></span>
                         </div>
 
                         <div id="publish-map" class="w-full min-h-[20rem] flex-1 rounded-xl border border-gray-600 bg-gray-800 overflow-hidden cursor-crosshair" style="z-index: 1;"></div>
                         <div id="route-info" class="hidden mt-3 flex items-center gap-4 text-sm">
                             <span class="flex items-center gap-1.5 text-gray-400">
-                                <i class="fas fa-road text-primary text-xs"></i>
+                                <i class="fas fa-road text-primary text-xs" aria-hidden="true"></i>
                                 <span id="route-distance" class="text-white font-medium">--</span> km
                             </span>
                             <span class="flex items-center gap-1.5 text-gray-400">
-                                <i class="fas fa-clock text-primary text-xs"></i>
+                                <i class="fas fa-clock text-primary text-xs" aria-hidden="true"></i>
                                 <span id="route-duration" class="text-white font-medium">--</span> min
                             </span>
                         </div>
                         <p id="map-placeholder" class="text-xs text-gray-500 mt-3 text-center">
-                            <i class="fas fa-info-circle mr-1"></i> <?= t('publish.map_hint') ?>
+                            <i class="fas fa-info-circle mr-1" aria-hidden="true"></i> <?= t('publish.map_hint') ?>
                             <br><span class="text-gray-600"><?= t('publish.map_or_type') ?></span>
                         </p>
                         <input type="hidden" name="ruta_polyline" id="ruta_polyline" value="<?= htmlspecialchars($isEdit ? ($ride['ruta_polyline'] ?? '') : '') ?>">
@@ -292,7 +292,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                     <!-- Boton de envio (solo móvil, en desktop está en el header) -->
                     <div class="bg-surface rounded-2xl border border-gray-700 p-6 sm:hidden">
                         <button type="submit" class="w-full px-8 py-4 rounded-xl bg-primary text-secondary font-bold text-lg hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5">
-                            <i class="fas fa-paper-plane mr-2"></i> <?= $submitText ?>
+                            <i class="fas fa-paper-plane mr-2" aria-hidden="true"></i> <?= $submitText ?>
                         </button>
                         <a href="<?= url('/my-rides') ?>" class="w-full flex items-center justify-center mt-3 px-6 py-3 rounded-xl border border-gray-600 text-gray-400 hover:text-white hover:bg-gray-800 transition-all font-medium">
                             <?= t('publish.cancel') ?>
@@ -414,7 +414,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                 if (!results.length) {
                     this.dropdown.innerHTML = `
                         <div class="px-4 py-3 text-sm text-gray-500 flex items-center gap-2">
-                            <i class="fas fa-search-minus"></i> <?= t('publish.no_results') ?>
+                            <i class="fas fa-search-minus" aria-hidden="true"></i> <?= t('publish.no_results') ?>
                         </div>`;
                     this.dropdown.classList.remove('hidden');
                     return;
@@ -433,7 +433,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                     item.className = 'px-4 py-3 cursor-pointer hover:bg-gray-700 transition-colors border-b border-gray-700/50 last:border-0';
                     item.innerHTML = `
                         <div class="flex items-center gap-3">
-                            <i class="fas fa-map-pin text-primary text-sm"></i>
+                            <i class="fas fa-map-pin text-primary text-sm" aria-hidden="true"></i>
                             <div>
                                 <p class="text-sm text-white font-medium">${this._escapeHtml(cityName)}</p>
                                 ${subtitle ? `<p class="text-xs text-gray-500">${this._escapeHtml(subtitle)}</p>` : ''}

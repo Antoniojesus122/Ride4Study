@@ -11,7 +11,7 @@
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                        <i class="fas fa-comments text-primary text-sm"></i>
+                        <i class="fas fa-comments text-primary text-sm" aria-hidden="true"></i>
                     </div>
                     <h2 class="text-lg lg:text-xl font-bold text-white"><?= t('chat.title') ?></h2>
                 </div>
@@ -24,7 +24,7 @@
             <?php if (empty($chats)): ?>
                 <div class="p-10 text-center text-gray-500">
                     <div class="w-16 h-16 bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <i class="far fa-comments text-2xl text-gray-600"></i>
+                        <i class="far fa-comments text-2xl text-gray-600" aria-hidden="true"></i>
                     </div>
                     <p class="text-sm font-medium"><?= t('chat.no_conversations') ?></p>
                 </div>
@@ -53,12 +53,12 @@
                                     <span class="text-[10px] lg:text-xs text-gray-500 shrink-0 ml-2 tabular-nums"><?= date('H:i', strtotime($chat['fechaCreacion'])) ?></span>
                                 </div>
                                 <p class="text-xs text-primary/60 truncate mb-0.5">
-                                    <i class="fas fa-route text-[9px] mr-1"></i>
+                                    <i class="fas fa-route text-[9px] mr-1" aria-hidden="true"></i>
                                     <?= htmlspecialchars($chat['nombreOrigen']) ?> → <?= htmlspecialchars($chat['nombreDestino']) ?>
                                 </p>
                                 <p class="text-xs lg:text-sm truncate <?= $hasUnread ? 'font-semibold text-white' : 'text-gray-500' ?>">
                                     <?php if ($chat['idEmisor'] == $_SESSION['user_id']): ?>
-                                        <i class="fas fa-reply text-[9px] mr-1 text-gray-600"></i>
+                                        <i class="fas fa-reply text-[9px] mr-1 text-gray-600" aria-hidden="true"></i>
                                     <?php endif; ?>
                                     <?= htmlspecialchars($chat['mensaje']) ?>
                                 </p>
@@ -78,7 +78,7 @@
             <div class="border-b border-gray-700 bg-surface flex items-center justify-between px-5 lg:px-6 py-3.5 shrink-0 shadow-lg z-10">
                 <div class="flex items-center gap-4">
                     <a href="<?= url('/messages') ?>" class="md:hidden p-2 -ml-2 text-gray-400 hover:text-white">
-                        <i class="fas fa-arrow-left"></i>
+                        <i class="fas fa-arrow-left" aria-hidden="true"></i>
                     </a>
 
                     <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-sm font-bold text-secondary uppercase shadow-lg shadow-primary/20">
@@ -87,7 +87,7 @@
                     <div>
                         <h3 class="text-base lg:text-lg font-bold text-white leading-tight"><?= htmlspecialchars($otherUser['nombre']) ?></h3>
                         <a href="<?= url('/profile') ?>?id=<?= $otherUser['idUsuario'] ?>" class="text-xs text-primary hover:underline flex items-center gap-1">
-                            <i class="fas fa-user text-[9px]"></i> <?= t('chat.view_profile') ?>
+                            <i class="fas fa-user text-[9px]" aria-hidden="true"></i> <?= t('chat.view_profile') ?>
                         </a>
                     </div>
                 </div>
@@ -95,10 +95,10 @@
                 <!-- Opciones -->
                 <div class="flex items-center gap-1">
                     <button onclick="openReportModal('chat_conv', {idUsuario: <?= (int)$otherUser['idUsuario'] ?>, idAnuncio: <?= (int)($contextRide['idAnuncio'] ?? 0) ?>})" class="w-9 h-9 flex items-center justify-center rounded-lg text-gray-500 hover:text-yellow-400 hover:bg-yellow-500/10 transition-all" title="Reportar conversacion">
-                        <i class="fas fa-flag text-sm"></i>
+                        <i class="fas fa-flag text-sm" aria-hidden="true"></i>
                     </button>
                     <button onclick="confirmDeleteConversation(<?= $selectedConversationId ?>)" class="w-9 h-9 flex items-center justify-center rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all" title="<?= t('chat.delete_conversation') ?>">
-                        <i class="fas fa-trash-alt text-sm"></i>
+                        <i class="fas fa-trash-alt text-sm" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>
@@ -109,27 +109,27 @@
                 <div class="flex items-center justify-between gap-3 sm:gap-4">
                     <div class="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
                         <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary shrink-0 shadow-inner">
-                             <i class="fas fa-car text-base sm:text-xl"></i>
+                             <i class="fas fa-car text-base sm:text-xl" aria-hidden="true"></i>
                         </div>
                         <div class="min-w-0 flex-1">
                             <p class="text-xs text-gray-400 mb-1">💬 <?= t('chat.about_ride') ?></p>
                             <div class="flex items-center gap-2 text-white font-semibold text-sm mb-1">
                                 <span class="truncate"><?= htmlspecialchars($contextRide['nombreOrigen']) ?></span>
-                                <i class="fas fa-arrow-right text-[10px] text-primary shrink-0"></i>
+                                <i class="fas fa-arrow-right text-[10px] text-primary shrink-0" aria-hidden="true"></i>
                                 <span class="truncate"><?= htmlspecialchars($contextRide['nombreDestino']) ?></span>
                             </div>
                             <div class="flex items-center gap-3 text-xs text-gray-400">
                                 <span class="flex items-center gap-1">
-                                    <i class="far fa-calendar"></i>
+                                    <i class="far fa-calendar" aria-hidden="true"></i>
                                     <?= date('d/m/Y', strtotime($contextRide['fechaSalida'])) ?>
                                 </span>
                                 <span class="flex items-center gap-1">
-                                    <i class="far fa-clock"></i>
+                                    <i class="far fa-clock" aria-hidden="true"></i>
                                     <?= substr($contextRide['horaSalida'], 0, 5) ?>
                                 </span>
                                 <?php if (!empty($contextRide['precio'])): ?>
                                 <span class="flex items-center gap-1 text-primary font-semibold">
-                                    <i class="fas fa-euro-sign"></i>
+                                    <i class="fas fa-euro-sign" aria-hidden="true"></i>
                                     <?= number_format($contextRide['precio'], 2) ?>€
                                 </span>
                                 <?php endif; ?>
@@ -180,22 +180,22 @@
                             <?php if ($pendingPassenger): ?>
                                 <div class="flex items-center gap-2">
                                     <span class="text-xs text-gray-400 mr-1">
-                                        <i class="fas fa-user-circle"></i> <?= htmlspecialchars($pendingPassenger['pasajeroNombre']) ?>
+                                        <i class="fas fa-user-circle" aria-hidden="true"></i> <?= htmlspecialchars($pendingPassenger['pasajeroNombre']) ?>
                                     </span>
                                     <button onclick="handleOfferResponse(<?= $anuncioId ?>, <?= $pendingPassenger['idPasajero'] ?>, 'accept')"
                                             class="px-3 py-1.5 text-xs bg-green-500/10 border border-green-500/30 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors font-medium shadow-sm"
                                             title="<?= t('chat.accept_offer') ?>">
-                                        <i class="fas fa-check"></i>
+                                        <i class="fas fa-check" aria-hidden="true"></i>
                                     </button>
                                     <button onclick="handleOfferResponse(<?= $anuncioId ?>, <?= $pendingPassenger['idPasajero'] ?>, 'reject')"
                                             class="px-3 py-1.5 text-xs bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors font-medium shadow-sm"
                                             title="<?= t('chat.reject_offer') ?>">
-                                        <i class="fas fa-times"></i>
+                                        <i class="fas fa-times" aria-hidden="true"></i>
                                     </button>
                                 </div>
                             <?php else: ?>
                                 <span class="px-4 py-2 text-xs bg-blue-500/10 text-blue-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-blue-500/30 shadow-sm">
-                                    <i class="fas fa-hourglass-half mr-1"></i> <?= t('chat.no_requests') ?>
+                                    <i class="fas fa-hourglass-half mr-1" aria-hidden="true"></i> <?= t('chat.no_requests') ?>
                                 </span>
                             <?php endif; ?>
                         <?php elseif (!$myOffer): ?>
@@ -203,20 +203,20 @@
                             <form action="<?= url('/reserve') ?>" method="POST" class="inline">
                                 <input type="hidden" name="ride_id" value="<?= $anuncioId ?>">
                                 <button type="submit" class="px-4 py-2 text-xs border border-primary/30 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors whitespace-nowrap shrink-0 font-medium shadow-sm cursor-pointer">
-                                    <i class="fas fa-user-plus mr-1"></i> <?= t('chat.request_seat') ?>
+                                    <i class="fas fa-user-plus mr-1" aria-hidden="true"></i> <?= t('chat.request_seat') ?>
                                 </button>
                             </form>
                         <?php elseif ($myOffer['estado'] === 'pendiente'): ?>
                             <span class="px-4 py-2 text-xs bg-yellow-500/10 text-yellow-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-yellow-500/30 shadow-sm">
-                                <i class="fas fa-clock mr-1"></i> <?= t('chat.request_sent') ?>
+                                <i class="fas fa-clock mr-1" aria-hidden="true"></i> <?= t('chat.request_sent') ?>
                             </span>
                         <?php elseif ($myOffer['estado'] === 'aceptado'): ?>
                             <span class="px-4 py-2 text-xs bg-green-500/10 text-green-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-green-500/30 shadow-sm">
-                                <i class="fas fa-check-circle mr-1"></i> <?= t('chat.seat_confirmed') ?>
+                                <i class="fas fa-check-circle mr-1" aria-hidden="true"></i> <?= t('chat.seat_confirmed') ?>
                             </span>
                         <?php elseif ($myOffer['estado'] === 'rechazado'): ?>
                             <span class="px-4 py-2 text-xs bg-red-500/10 text-red-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-red-500/30 shadow-sm">
-                                <i class="fas fa-times-circle mr-1"></i> <?= t('chat.request_rejected') ?>
+                                <i class="fas fa-times-circle mr-1" aria-hidden="true"></i> <?= t('chat.request_rejected') ?>
                             </span>
                         <?php endif; ?>
 
@@ -226,19 +226,19 @@
                             <!-- No soy el publicador y no he ofrecido -->
                             <button onclick="offerRide(<?= $anuncioId ?>, <?= $_SESSION['user_id'] ?>)"
                                     class="px-4 py-2 text-xs border border-green-500/30 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors whitespace-nowrap shrink-0 font-medium shadow-sm hover:shadow-md">
-                                <i class="fas fa-hand-holding-heart mr-1"></i> <?= t('chat.offer_ride') ?>
+                                <i class="fas fa-hand-holding-heart mr-1" aria-hidden="true"></i> <?= t('chat.offer_ride') ?>
                             </button>
                         <?php elseif (!$isPublisher && $myOffer['estado'] === 'pendiente'): ?>
                             <span class="px-4 py-2 text-xs bg-yellow-500/10 text-yellow-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-yellow-500/30 shadow-sm">
-                                <i class="fas fa-clock mr-1"></i> <?= t('chat.offer_sent') ?>
+                                <i class="fas fa-clock mr-1" aria-hidden="true"></i> <?= t('chat.offer_sent') ?>
                             </span>
                         <?php elseif (!$isPublisher && $myOffer['estado'] === 'aceptado'): ?>
                             <span class="px-4 py-2 text-xs bg-green-500/10 text-green-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-green-500/30 shadow-sm">
-                                <i class="fas fa-check-circle mr-1"></i> <?= t('chat.offer_accepted') ?>
+                                <i class="fas fa-check-circle mr-1" aria-hidden="true"></i> <?= t('chat.offer_accepted') ?>
                             </span>
                         <?php elseif (!$isPublisher && $myOffer['estado'] === 'rechazado'): ?>
                             <span class="px-4 py-2 text-xs bg-red-500/10 text-red-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-red-500/30 shadow-sm">
-                                <i class="fas fa-times-circle mr-1"></i> <?= t('chat.offer_rejected') ?>
+                                <i class="fas fa-times-circle mr-1" aria-hidden="true"></i> <?= t('chat.offer_rejected') ?>
                             </span>
                         <?php elseif ($isPublisher): ?>
                             <!-- Soy el publicador (pasajero que busca viaje): gestionar ofertas -->
@@ -277,28 +277,28 @@
                                 <!-- Oferta pendiente: botones Aceptar/Rechazar -->
                                 <div class="flex items-center gap-2">
                                     <span class="text-xs text-gray-400 mr-1">
-                                        <i class="fas fa-user-circle"></i> <?= htmlspecialchars($pendingOffer['conductorNombre']) ?>
+                                        <i class="fas fa-user-circle" aria-hidden="true"></i> <?= htmlspecialchars($pendingOffer['conductorNombre']) ?>
                                     </span>
                                     <button onclick="handleOfferResponse(<?= $anuncioId ?>, <?= $pendingOffer['idConductor'] ?>, 'accept')"
                                             class="px-3 py-1.5 text-xs bg-green-500/10 border border-green-500/30 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors font-medium shadow-sm hover:shadow-md"
                                             title="<?= t('chat.accept_offer') ?>">
-                                        <i class="fas fa-check"></i>
+                                        <i class="fas fa-check" aria-hidden="true"></i>
                                     </button>
                                     <button onclick="handleOfferResponse(<?= $anuncioId ?>, <?= $pendingOffer['idConductor'] ?>, 'reject')"
                                             class="px-3 py-1.5 text-xs bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors font-medium shadow-sm hover:shadow-md"
                                             title="<?= t('chat.reject_offer') ?>">
-                                        <i class="fas fa-times"></i>
+                                        <i class="fas fa-times" aria-hidden="true"></i>
                                     </button>
                                 </div>
                             <?php elseif ($acceptedOffer): ?>
                                 <!-- Oferta aceptada -->
                                 <span class="px-4 py-2 text-xs bg-green-500/10 text-green-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-green-500/30 shadow-sm">
-                                    <i class="fas fa-check-circle mr-1"></i> <?= t('chat.offer_accepted') ?>
+                                    <i class="fas fa-check-circle mr-1" aria-hidden="true"></i> <?= t('chat.offer_accepted') ?>
                                 </span>
                             <?php else: ?>
                                 <!-- Sin ofertas aún -->
                                 <span class="px-4 py-2 text-xs bg-blue-500/10 text-blue-400 rounded-lg whitespace-nowrap shrink-0 font-medium border border-blue-500/30 shadow-sm animate-pulse">
-                                    <i class="fas fa-hourglass-half mr-1"></i> <?= t('chat.waiting_offers') ?>
+                                    <i class="fas fa-hourglass-half mr-1" aria-hidden="true"></i> <?= t('chat.waiting_offers') ?>
                                 </span>
                             <?php endif; ?>
                         <?php endif; ?>
@@ -312,7 +312,7 @@
                 <?php if (!empty($hasMore)): ?>
                 <div id="load-more-wrap" class="text-center py-3">
                     <button onclick="loadOlderMessages()" id="load-more-btn" class="px-5 py-2 text-xs font-medium bg-white/5 text-gray-400 rounded-full hover:bg-white/10 hover:text-gray-200 transition border border-gray-700/50">
-                        <i class="fas fa-arrow-up mr-1.5"></i> <?= t('chat.load_older') ?>
+                        <i class="fas fa-arrow-up mr-1.5" aria-hidden="true"></i> <?= t('chat.load_older') ?>
                     </button>
                 </div>
                 <?php endif; ?>
@@ -330,8 +330,8 @@
                     <div class="flex-1 bg-secondary rounded-2xl border border-gray-700 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 transition-all">
                         <textarea name="message" rows="1" class="block w-full bg-transparent px-5 py-3.5 text-white placeholder-gray-600 outline-none text-sm lg:text-base resize-none max-h-32" placeholder="<?= t('chat.write_message') ?>" required oninput="this.style.height='auto'; this.style.height=this.scrollHeight + 'px'"></textarea>
                     </div>
-                    <button type="submit" class="w-12 h-12 flex items-center justify-center bg-primary text-secondary rounded-2xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 shrink-0">
-                        <i class="fas fa-paper-plane"></i>
+                    <button type="submit" class="w-12 h-12 flex items-center justify-center bg-primary text-secondary rounded-2xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 shrink-0" aria-label="Enviar mensaje">
+                        <i class="fas fa-paper-plane" aria-hidden="true"></i>
                     </button>
                 </form>
             </div>
@@ -340,7 +340,7 @@
             <!-- Empty state -->
             <div class="flex-1 flex flex-col items-center justify-center p-8">
                 <div class="w-28 h-28 bg-gradient-to-br from-primary/10 to-primary/5 rounded-3xl flex items-center justify-center mb-6 border border-primary/10">
-                    <i class="far fa-paper-plane text-4xl text-primary/40"></i>
+                    <i class="far fa-paper-plane text-4xl text-primary/40" aria-hidden="true"></i>
                 </div>
                 <h3 class="text-xl lg:text-2xl font-bold text-white mb-2"><?= t('chat.your_messages') ?></h3>
                 <p class="text-center max-w-sm text-gray-500 lg:text-base"><?= t('chat.select_conversation') ?></p>
@@ -389,14 +389,14 @@
             <p id="ccm-message" class="text-gray-300 leading-relaxed"></p>
             <div id="ccm-warning-wrap" class="hidden mt-4 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
                 <p class="text-sm text-yellow-400 flex items-start gap-2">
-                    <i class="fas fa-info-circle mt-0.5 shrink-0"></i>
+                    <i class="fas fa-info-circle mt-0.5 shrink-0" aria-hidden="true"></i>
                     <span id="ccm-warning"></span>
                 </p>
             </div>
         </div>
         <div class="p-6 bg-gray-800/50 border-t border-gray-700 flex gap-3">
             <button onclick="closeChatConfirm()" class="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-medium transition-all">
-                <i class="fas fa-times mr-2"></i><?= t('chat.cancel') ?>
+                <i class="fas fa-times mr-2" aria-hidden="true"></i><?= t('chat.cancel') ?>
             </button>
             <button id="ccm-btn" onclick="executeChatConfirm()" class="flex-1 px-4 py-3 text-white rounded-xl font-bold transition-all shadow-lg">
                 <?= t('chat.confirm') ?>
@@ -447,11 +447,11 @@
                 <div class="max-w-[75%] md:max-w-[60%]">
                     <div class="px-3.5 py-2 rounded-xl text-[15px] bg-primary/15 text-gray-100 rounded-br-none">
                         <p class="whitespace-pre-wrap message-content leading-snug">${escapeHtml(msg)}</p>
-                        <p class="text-[10px] mt-0.5 text-primary/50 text-right">${timeStr} <i class="fas fa-check ml-0.5"></i></p>
+                        <p class="text-[10px] mt-0.5 text-primary/50 text-right">${timeStr} <i class="fas fa-check ml-0.5" aria-hidden="true"></i></p>
                     </div>
                     <div class="hidden group-hover:flex items-center gap-2.5 mt-0.5 justify-end pr-1">
-                        <button onclick="editMessage(this.closest('[id^=msg-]').id.replace('msg-','').replace('temp-',''))" class="text-[10px] text-gray-600 hover:text-gray-300 transition"><i class="fas fa-pen"></i></button>
-                        <button onclick="deleteMessage(this.closest('[id^=msg-]').id.replace('msg-','').replace('temp-',''))" class="text-[10px] text-gray-600 hover:text-red-400 transition"><i class="fas fa-trash"></i></button>
+                        <button type="button" onclick="editMessage(this.closest('[id^=msg-]').id.replace('msg-','').replace('temp-',''))" class="text-[10px] text-gray-600 hover:text-gray-300 transition" aria-label="Editar mensaje"><i class="fas fa-pen" aria-hidden="true"></i></button>
+                        <button type="button" onclick="deleteMessage(this.closest('[id^=msg-]').id.replace('msg-','').replace('temp-',''))" class="text-[10px] text-gray-600 hover:text-red-400 transition" aria-label="Eliminar mensaje"><i class="fas fa-trash" aria-hidden="true"></i></button>
                     </div>
                 </div>
             </div>`;
@@ -714,12 +714,12 @@
                 }
                 loadingMore = false;
                 if (btn && data.hasMore) {
-                    btn.innerHTML = '<i class="fas fa-arrow-up mr-1"></i> <?= t('chat.load_older') ?>';
+                    btn.innerHTML = '<i class="fas fa-arrow-up mr-1" aria-hidden="true"></i> <?= t('chat.load_older') ?>';
                 }
             })
             .catch(() => {
                 loadingMore = false;
-                if (btn) btn.innerHTML = '<i class="fas fa-arrow-up mr-1"></i> <?= t('chat.load_older') ?>';
+                if (btn) btn.innerHTML = '<i class="fas fa-arrow-up mr-1" aria-hidden="true"></i> <?= t('chat.load_older') ?>';
             });
     }
 

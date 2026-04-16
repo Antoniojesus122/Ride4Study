@@ -92,7 +92,7 @@
             <div class="flex items-center gap-4 pt-2">
                 <button type="button" onclick="previewCount()"
                     class="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white text-base font-medium rounded-lg transition flex items-center gap-2">
-                    <i class="fas fa-eye"></i>
+                    <i class="fas fa-eye" aria-hidden="true"></i>
                     Vista previa
                 </button>
 
@@ -102,7 +102,7 @@
 
                 <button type="submit" onclick="return confirmSend()"
                     class="ml-auto px-8 py-3 bg-primary hover:bg-primary-dark text-gray-900 text-base font-semibold rounded-lg transition flex items-center gap-2">
-                    <i class="fas fa-paper-plane"></i>
+                    <i class="fas fa-paper-plane" aria-hidden="true"></i>
                     Enviar notificacion
                 </button>
             </div>
@@ -118,7 +118,7 @@
         <?php if (empty($broadcasts)): ?>
             <div class="py-20 flex flex-col items-center justify-center">
                 <div class="w-14 h-14 bg-gray-800 rounded-full flex items-center justify-center mb-4">
-                    <i class="fas fa-inbox text-xl text-gray-500"></i>
+                    <i class="fas fa-inbox text-xl text-gray-500" aria-hidden="true"></i>
                 </div>
                 <p class="text-gray-400 font-medium">No se han enviado notificaciones masivas todavia</p>
                 <p class="text-gray-500 text-sm mt-1">Las notificaciones enviadas apareceran aqui</p>

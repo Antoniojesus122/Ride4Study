@@ -24,7 +24,7 @@
     <div class="flex items-center h-[72px] border-b border-gray-800 shrink-0">
         <div class="w-[72px] flex items-center justify-center shrink-0">
             <div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                <i class="fas fa-university text-blue-400"></i>
+                <i class="fas fa-university text-blue-400" aria-hidden="true"></i>
             </div>
         </div>
         <span class="nav-label text-lg font-bold text-white whitespace-nowrap">Ride4Study</span>
@@ -52,7 +52,7 @@
     <div class="border-t border-gray-800 shrink-0">
         <a href="<?= url('/institution-logout') ?>" class="flex items-center h-12 text-gray-500 hover:text-red-400 transition-colors" title="Cerrar sesion">
             <div class="w-[72px] flex items-center justify-center shrink-0">
-                <i class="fas fa-sign-out-alt text-lg"></i>
+                <i class="fas fa-sign-out-alt text-lg" aria-hidden="true"></i>
             </div>
             <span class="nav-label text-sm whitespace-nowrap">Cerrar sesion</span>
         </a>

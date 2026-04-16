@@ -8,6 +8,7 @@
         <script src="public/js/tailwind-config.js"></script>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+      <link rel="stylesheet" href="public/css/accessibility.css">
         <style>
             body { font-family: 'Inter', sans-serif; }
             .code-input {
@@ -64,10 +65,10 @@
                             <!-- Icono -->
                             <div class="text-center mb-8">
                                 <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20 mb-4 icon-glow">
-                                    <i class="fas fa-university text-blue-400 text-3xl"></i>
+                                    <i class="fas fa-university text-blue-400 text-3xl" aria-hidden="true"></i>
                                 </div>
                                 <div class="flex items-center justify-center gap-2 text-xs text-gray-500">
-                                    <i class="fas fa-envelope text-blue-400/60"></i>
+                                    <i class="fas fa-envelope text-blue-400/60" aria-hidden="true"></i>
                                     <span><?= t('inst_auth.check_email') ?></span>
                                 </div>
                             </div>
@@ -77,7 +78,7 @@
                             <div class="mb-6 rounded-xl bg-red-900/20 border border-red-500/20 p-4 animate-fade-in">
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
-                                        <i class="fas fa-times text-red-400 text-sm"></i>
+                                        <i class="fas fa-times text-red-400 text-sm" aria-hidden="true"></i>
                                     </div>
                                     <p class="text-sm font-medium text-red-200"><?= htmlspecialchars($error) ?></p>
                                 </div>
@@ -111,14 +112,14 @@
 
                                 <button type="submit" id="submitBtn" disabled
                                     class="flex w-full justify-center items-center gap-2 rounded-xl bg-blue-500/30 px-3 py-3 text-sm font-semibold leading-6 text-white/50 cursor-not-allowed transition-all">
-                                    <i class="fas fa-lock text-xs"></i>
+                                    <i class="fas fa-lock text-xs" aria-hidden="true"></i>
                                     <span><?= t('auth.2fa_verify') ?></span>
                                 </button>
                             </form>
 
                             <div class="mt-6 pt-6 border-t border-gray-800 text-center">
                                 <a href="<?= url('/institution-login') ?>" class="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-blue-400 transition-colors">
-                                    <i class="fas fa-arrow-left text-xs"></i> <?= t('inst_auth.back_login') ?>
+                                    <i class="fas fa-arrow-left text-xs" aria-hidden="true"></i> <?= t('inst_auth.back_login') ?>
                                 </a>
                             </div>
                         </div>
@@ -139,13 +140,13 @@
                         <div class="mt-10 space-y-3 max-w-sm">
                             <div class="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
                                 <div class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
-                                    <i class="fas fa-envelope text-blue-400 text-sm"></i>
+                                    <i class="fas fa-envelope text-blue-400 text-sm" aria-hidden="true"></i>
                                 </div>
                                 <p class="text-sm text-gray-300"><?= t('inst_auth.check_email') ?></p>
                             </div>
                             <div class="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
                                 <div class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
-                                    <i class="fas fa-clock text-blue-400 text-sm"></i>
+                                    <i class="fas fa-clock text-blue-400 text-sm" aria-hidden="true"></i>
                                 </div>
                                 <p class="text-sm text-gray-300">10 min</p>
                             </div>

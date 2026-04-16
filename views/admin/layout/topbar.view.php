@@ -72,7 +72,7 @@
                 <div class="max-h-96 overflow-y-auto">
                     <?php if ($totalPending === 0): ?>
                     <div class="px-5 py-8 text-center">
-                        <i class="fas fa-check-circle text-2xl text-green-400/50 mb-2"></i>
+                        <i class="fas fa-check-circle text-2xl text-green-400/50 mb-2" aria-hidden="true"></i>
                         <p class="text-sm text-gray-500">Todo al dia, sin pendientes</p>
                     </div>
                     <?php else: ?>
@@ -85,7 +85,7 @@
                         <?php foreach ($recentNotifs as $n): ?>
                         <a href="<?= url('/admin/reports') ?>?tab=<?= htmlspecialchars($n['tipo']) ?>" class="flex items-start gap-3 px-5 py-3 hover:bg-gray-700/40 transition border-b border-gray-700/30">
                             <div class="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                                <i class="fas fa-flag text-xs text-red-400"></i>
+                                <i class="fas fa-flag text-xs text-red-400" aria-hidden="true"></i>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm text-gray-200 leading-snug">
@@ -112,7 +112,7 @@
                         <?php foreach ($recentVerifs as $v): ?>
                         <a href="<?= url('/admin/users') ?>?tab=verificaciones" class="flex items-start gap-3 px-5 py-3 hover:bg-gray-700/40 transition border-b border-gray-700/30">
                             <div class="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                                <i class="fas fa-id-card text-xs text-yellow-400"></i>
+                                <i class="fas fa-id-card text-xs text-yellow-400" aria-hidden="true"></i>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm text-gray-200 leading-snug">

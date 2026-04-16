@@ -8,6 +8,7 @@
       <script src="public/js/tailwind-config.js"></script>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+      <link rel="stylesheet" href="public/css/accessibility.css">
 
         <style>
           body { font-family: 'Inter', sans-serif; }
@@ -44,7 +45,7 @@
                   <div class="mb-6 rounded-lg bg-red-900/30 border border-red-500/30 p-4">
                     <div class="flex">
                       <div class="flex-shrink-0">
-                        <i class="fas fa-times-circle text-red-400"></i>
+                        <i class="fas fa-times-circle text-red-400" aria-hidden="true"></i>
                       </div>
                       <div class="ml-3">
                         <p class="text-sm font-medium text-red-200"><?= htmlspecialchars($error) ?></p>
@@ -161,19 +162,19 @@
               <div class="mt-10 space-y-3 max-w-sm">
                 <div class="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
                   <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-                    <i class="fas fa-user-check text-primary text-sm"></i>
+                    <i class="fas fa-user-check text-primary text-sm" aria-hidden="true"></i>
                   </div>
                   <p class="text-sm text-gray-300"><?= t('register.hero_feature_1') ?></p>
                 </div>
                 <div class="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
                   <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-                    <i class="fas fa-comments text-primary text-sm"></i>
+                    <i class="fas fa-comments text-primary text-sm" aria-hidden="true"></i>
                   </div>
                   <p class="text-sm text-gray-300"><?= t('register.hero_feature_2') ?></p>
                 </div>
                 <div class="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
                   <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-                    <i class="fas fa-euro-sign text-primary text-sm"></i>
+                    <i class="fas fa-euro-sign text-primary text-sm" aria-hidden="true"></i>
                   </div>
                   <p class="text-sm text-gray-300"><?= t('register.hero_feature_3') ?></p>
                 </div>
