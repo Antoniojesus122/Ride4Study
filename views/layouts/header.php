@@ -38,9 +38,35 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <link rel="stylesheet" href="public/css/accessibility.css">
 
         <style>
             body { font-family: 'Inter', sans-serif; }
+
+            /* Enlace de salto al contenido (accesibilidad) */
+            .skip-link {
+                position: absolute;
+                top: -40px;
+                left: 8px;
+                background: #fde047;
+                color: #111827;
+                padding: 8px 16px;
+                z-index: 100;
+                font-weight: 600;
+                border-radius: 8px;
+                transition: top 0.2s ease;
+            }
+            .skip-link:focus {
+                top: 8px;
+                outline: 3px solid #111827;
+            }
+
+            /* Focus visible global (accesibilidad - WCAG 2.4.7) */
+            *:focus-visible {
+                outline: 2px solid #fde047;
+                outline-offset: 2px;
+                border-radius: 4px;
+            }
 
             #mobile-menu {
                 transition: opacity 0.2s ease, transform 0.2s ease;
@@ -57,20 +83,31 @@
                 transform: translateY(0);
                 pointer-events: auto;
             }
+
+            /* Respetar preferencia de reduccion de movimiento (WCAG 2.3.3) */
+            @media (prefers-reduced-motion: reduce) {
+                *, *::before, *::after {
+                    animation-duration: 0.01ms !important;
+                    animation-iteration-count: 1 !important;
+                    transition-duration: 0.01ms !important;
+                    scroll-behavior: auto !important;
+                }
+            }
         </style>
     </head>
     <body class="min-h-screen text-gray-100 flex flex-col pt-28 bg-cover bg-center">
-        <div class="fixed inset-0 bg-gray-900/90 z-[-1]"></div>
-            <nav class="fixed top-6 inset-x-0 mx-auto z-50 w-full max-w-6xl px-4 sm:px-6">
+        <a href="#main-content" class="skip-link"><?= t('a11y.skip_to_content') ?? 'Saltar al contenido principal' ?></a>
+        <div class="fixed inset-0 bg-gray-900/90 z-[-1]" aria-hidden="true"></div>
+            <nav class="fixed top-6 inset-x-0 mx-auto z-50 w-full max-w-6xl px-4 sm:px-6" aria-label="<?= t('a11y.main_nav') ?? 'Navegacion principal' ?>">
 
                 <!-- Principal-->
                 <div class="bg-gray-900/80 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl px-5 sm:px-8 py-3.5 mx-auto">
                     <div class="flex items-center justify-between gap-3">
 
                         <!-- Logo -->
-                        <a href="<?= url('/') ?>" class="flex-shrink-0 group">
+                        <a href="<?= url('/') ?>" class="flex-shrink-0 group" aria-label="<?= t('a11y.home') ?? 'Ride4Study - ir al inicio' ?>">
                             <div class="flex items-center gap-2.5 sm:gap-3">
-                                <img src="public/img/logo.png" alt="Ride4Study" class="w-10 h-10 sm:w-11 sm:h-11 object-contain transition-transform group-hover:scale-110">
+                                <img src="public/img/logo.png" alt="" aria-hidden="true" class="w-10 h-10 sm:w-11 sm:h-11 object-contain transition-transform group-hover:scale-110">
                                 <span class="text-xl sm:text-2xl font-bold text-white transition-colors group-hover:text-primary">Ride4Study</span>
                             </div>
                         </a>
@@ -80,16 +117,16 @@
 
                             <!-- Enlaces de navegacion (solo escritorio) -->
                             <div class="hidden md:flex items-center gap-1 bg-white/5 rounded-full p-1.5 border border-white/5">
-                                <a href="<?= url('/dashboard') ?>" class="px-5 py-2 rounded-full text-sm font-medium transition-all <?= isActive('/dashboard') ? 'bg-primary text-secondary shadow-lg shadow-primary/25' : 'text-gray-300 hover:text-white hover:bg-white/5' ?>">
-                                    <i class="fas fa-search mr-1.5"></i><?= t('nav.search') ?>
+                                <a href="<?= url('/dashboard') ?>" class="px-5 py-2 rounded-full text-sm font-medium transition-all <?= isActive('/dashboard') ? 'bg-primary text-secondary shadow-lg shadow-primary/25' : 'text-gray-300 hover:text-white hover:bg-white/5' ?>"<?= isActive('/dashboard') ? ' aria-current="page"' : '' ?>>
+                                    <i class="fas fa-search mr-1.5" aria-hidden="true"></i><?= t('nav.search') ?>
                                 </a>
 
-                                <a href="<?= url('/my-rides') ?>" class="px-5 py-2 rounded-full text-sm font-medium transition-all <?= isActive('/my-rides') ? 'bg-primary text-secondary shadow-lg shadow-primary/25' : 'text-gray-300 hover:text-white hover:bg-white/5' ?>">
-                                    <i class="fas fa-car mr-1.5"></i><?= t('nav.my_rides') ?>
+                                <a href="<?= url('/my-rides') ?>" class="px-5 py-2 rounded-full text-sm font-medium transition-all <?= isActive('/my-rides') ? 'bg-primary text-secondary shadow-lg shadow-primary/25' : 'text-gray-300 hover:text-white hover:bg-white/5' ?>"<?= isActive('/my-rides') ? ' aria-current="page"' : '' ?>>
+                                    <i class="fas fa-car mr-1.5" aria-hidden="true"></i><?= t('nav.my_rides') ?>
                                 </a>
 
-                                <a href="<?= url('/messages') ?>" class="px-5 py-2 rounded-full text-sm font-medium transition-all relative <?= isActive('/messages') ? 'bg-primary text-secondary shadow-lg shadow-primary/25' : 'text-gray-300 hover:text-white hover:bg-white/5' ?>">
-                                    <i class="fas fa-comment-alt mr-1.5"></i><?= t('nav.messages') ?>
+                                <a href="<?= url('/messages') ?>" class="px-5 py-2 rounded-full text-sm font-medium transition-all relative <?= isActive('/messages') ? 'bg-primary text-secondary shadow-lg shadow-primary/25' : 'text-gray-300 hover:text-white hover:bg-white/5' ?>"<?= isActive('/messages') ? ' aria-current="page"' : '' ?>>
+                                    <i class="fas fa-comment-alt mr-1.5" aria-hidden="true"></i><?= t('nav.messages') ?>
                                 </a>
                             </div>
 
@@ -97,27 +134,27 @@
                             <div class="flex items-center gap-2 sm:gap-3">
 
                                 <!-- Selector de idioma -->
-                                <div class="flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/5">
-                                    <a href="<?= url('/set-lang') ?>?lang=es" class="px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'es' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">ES</a>
-                                    <a href="<?= url('/set-lang') ?>?lang=en" class="px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'en' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">EN</a>
+                                <div class="flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/5" role="group" aria-label="<?= t('a11y.lang_selector') ?? 'Seleccionar idioma' ?>">
+                                    <a href="<?= url('/set-lang') ?>?lang=es" hreflang="es" lang="es" class="px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'es' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>"<?= currentLang() === 'es' ? ' aria-current="true"' : '' ?>>ES</a>
+                                    <a href="<?= url('/set-lang') ?>?lang=en" hreflang="en" lang="en" class="px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'en' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>"<?= currentLang() === 'en' ? ' aria-current="true"' : '' ?>>EN</a>
                                 </div>
 
                                 <div class="h-7 w-px bg-white/10 hidden md:block"></div>
 
                                 <!-- Campana de notificaciones -->
                                 <div class="relative" id="notif-wrapper">
-                                    <button onclick="toggleNotifPanel()" class="relative p-2.5 rounded-full hover:bg-white/10 transition-all text-gray-300 hover:text-white" aria-label="<?= t('nav.notifications') ?>" aria-expanded="false" aria-haspopup="true">
+                                    <button type="button" onclick="toggleNotifPanel()" class="relative p-2.5 rounded-full hover:bg-white/10 transition-all text-gray-300 hover:text-white" aria-label="<?= t('nav.notifications') ?><?= $unreadNotifCount > 0 ? ' (' . $unreadNotifCount . ' ' . (t('a11y.unread') ?? 'sin leer') . ')' : '' ?>" aria-expanded="false" aria-haspopup="true" aria-controls="notif-panel" id="notif-btn">
                                         <i class="fas fa-bell text-lg" aria-hidden="true"></i>
-                                        
+
                                         <?php if ($unreadNotifCount > 0): ?>
-                                            <span class="absolute top-0.5 right-0.5 min-w-[16px] h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-0.5" id="notif-badge"><?= $unreadNotifCount ?></span>
+                                            <span class="absolute top-0.5 right-0.5 min-w-[16px] h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-0.5" id="notif-badge" aria-hidden="true"><?= $unreadNotifCount ?></span>
                                         <?php else: ?>
-                                            <span class="absolute top-0.5 right-0.5 min-w-[16px] h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-0.5 hidden" id="notif-badge">0</span>
+                                            <span class="absolute top-0.5 right-0.5 min-w-[16px] h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-0.5 hidden" id="notif-badge" aria-hidden="true">0</span>
                                         <?php endif; ?>
                                     </button>
 
                                     <!-- Panel de notificaciones -->
-                                    <div id="notif-panel" class="hidden absolute right-0 top-full mt-3 w-80 max-w-[calc(100vw-2rem)] origin-top-right rounded-2xl bg-[#1a1b26]/95 backdrop-blur-xl border border-white/10 shadow-2xl z-50" role="menu" aria-label="<?= t('nav.notifications') ?>">
+                                    <div id="notif-panel" class="hidden absolute right-0 top-full mt-3 w-80 max-w-[calc(100vw-2rem)] origin-top-right rounded-2xl bg-[#1a1b26]/95 backdrop-blur-xl border border-white/10 shadow-2xl z-50" role="region" aria-label="<?= t('nav.notifications') ?>">
                                         <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
                                             <span class="text-sm font-semibold text-white"><?= t('nav.notifications') ?></span>
                                             <button onclick="markAllRead()" class="text-xs text-primary hover:underline"><?= t('nav.mark_all_read') ?></button>
@@ -133,7 +170,7 @@
 
                                 <!-- Avatar + desplegable (escritorio) -->
                                 <div class="relative hidden md:block">
-                                    <button type="button" onclick="toggleUserMenu()" class="flex items-center gap-2 rounded-full pr-1.5 pl-1.5 py-1 hover:bg-white/10 transition-all border border-transparent hover:border-white/10" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                                    <button type="button" onclick="toggleUserMenu()" class="flex items-center gap-2 rounded-full pr-1.5 pl-1.5 py-1 hover:bg-white/10 transition-all border border-transparent hover:border-white/10" id="user-menu-button" aria-expanded="false" aria-haspopup="true" aria-controls="user-menu" aria-label="<?= t('a11y.user_menu') ?? 'Menu de usuario' ?>">
                                         <div class="h-10 w-10 rounded-full overflow-hidden ring-2 ring-gray-900 bg-gray-800 flex items-center justify-center">
                                             <?php if (!empty($_SESSION['user_photo']) && file_exists(__DIR__ . '/../../public/uploads/profiles/' . $_SESSION['user_photo'])):
                                                 $photoPath = 'public/uploads/profiles/' . $_SESSION['user_photo'];
@@ -141,58 +178,58 @@
                                                 $ver = filemtime($fsPath);
                                             ?>
 
-                                            <img src="<?= $photoPath ?>?v=<?= $ver ?>" alt="Avatar" class="w-full h-full object-cover">
+                                            <img src="<?= $photoPath ?>?v=<?= $ver ?>" alt="" aria-hidden="true" class="w-full h-full object-cover">
 
                                             <?php else: ?>
-                                                <div class="w-full h-full bg-gradient-to-tr from-gray-700 to-gray-600 flex items-center justify-center text-white font-bold text-sm">
+                                                <div class="w-full h-full bg-gradient-to-tr from-gray-700 to-gray-600 flex items-center justify-center text-white font-bold text-sm" aria-hidden="true">
                                                     <?= $userInitial ?>
                                                 </div>
                                             <?php endif; ?>
                                         </div>
-                                        <i class="fas fa-chevron-down text-gray-400 text-xs mr-2 transition-transform duration-200" id="menu-arrow"></i>
+                                        <i class="fas fa-chevron-down text-gray-400 text-xs mr-2 transition-transform duration-200" id="menu-arrow" aria-hidden="true"></i>
                                     </button>
 
                                     <!-- Desplegable escritorio -->
-                                    <div id="user-menu" class="hidden absolute right-0 top-full mt-3 w-60 origin-top-right rounded-2xl bg-[#1a1b26]/95 backdrop-blur-xl border border-white/10 py-2 shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                                    <div id="user-menu" class="hidden absolute right-0 top-full mt-3 w-60 origin-top-right rounded-2xl bg-[#1a1b26]/95 backdrop-blur-xl border border-white/10 py-2 shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50" role="menu" aria-labelledby="user-menu-button">
                                         <div class="px-5 py-4 border-b border-white/5 bg-white/5 mx-2 rounded-xl mb-2">
                                             <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold"><?= t('nav.connected_as') ?></p>
                                             <div class="flex items-center gap-2 mt-1">
                                                 <p class="text-base font-bold text-white truncate"><?= htmlspecialchars($userName) ?></p>
                                                 <?php if ($userIsPremium): ?>
                                                     <span class="px-1.5 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold rounded-full border border-yellow-500/30 flex-shrink-0">
-                                                        <i class="fas fa-crown mr-0.5"></i> PRO
+                                                        <i class="fas fa-crown mr-0.5" aria-hidden="true"></i> PRO
                                                     </span>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
 
                                         <div class="px-2 space-y-1">
-                                            <a href="<?= url('/profile') ?>" class="group flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 rounded-lg hover:bg-primary hover:text-secondary transition-all">
-                                                <i class="fas fa-user-circle w-6 text-center text-gray-400 group-hover:text-secondary/70"></i><?= t('nav.my_profile') ?>
+                                            <a href="<?= url('/profile') ?>" role="menuitem" class="group flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 rounded-lg hover:bg-primary hover:text-secondary transition-all">
+                                                <i class="fas fa-user-circle w-6 text-center text-gray-400 group-hover:text-secondary/70" aria-hidden="true"></i><?= t('nav.my_profile') ?>
                                             </a>
 
-                                            <a href="<?= url('/my-rides') ?>" class="group flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 rounded-lg hover:bg-primary hover:text-secondary transition-all">
-                                                <i class="fas fa-car w-6 text-center text-gray-400 group-hover:text-secondary/70"></i><?= t('nav.my_rides') ?>
+                                            <a href="<?= url('/my-rides') ?>" role="menuitem" class="group flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 rounded-lg hover:bg-primary hover:text-secondary transition-all">
+                                                <i class="fas fa-car w-6 text-center text-gray-400 group-hover:text-secondary/70" aria-hidden="true"></i><?= t('nav.my_rides') ?>
                                             </a>
 
-                                            <a href="<?= url('/my-rides') ?>?tab=bookings" class="group flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 rounded-lg hover:bg-primary hover:text-secondary transition-all">
-                                                <i class="fas fa-ticket-alt w-6 text-center text-gray-400 group-hover:text-secondary/70"></i><?= t('nav.my_bookings') ?>
+                                            <a href="<?= url('/my-rides') ?>?tab=bookings" role="menuitem" class="group flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 rounded-lg hover:bg-primary hover:text-secondary transition-all">
+                                                <i class="fas fa-ticket-alt w-6 text-center text-gray-400 group-hover:text-secondary/70" aria-hidden="true"></i><?= t('nav.my_bookings') ?>
                                             </a>
 
                                             <?php if ($userIsPremium): ?>
-                                                <a href="<?= url('/premium') ?>" class="group flex items-center px-3 py-2.5 text-sm font-medium text-yellow-400 rounded-lg hover:bg-yellow-500/10 transition-all">
-                                                    <i class="fas fa-crown w-6 text-center opacity-70"></i><?= t('nav.my_subscription') ?>
+                                                <a href="<?= url('/premium') ?>" role="menuitem" class="group flex items-center px-3 py-2.5 text-sm font-medium text-yellow-400 rounded-lg hover:bg-yellow-500/10 transition-all">
+                                                    <i class="fas fa-crown w-6 text-center opacity-70" aria-hidden="true"></i><?= t('nav.my_subscription') ?>
                                                 </a>
                                             <?php else: ?>
-                                                <a href="<?= url('/premium') ?>" class="group flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 rounded-lg hover:bg-primary hover:text-secondary transition-all">
-                                                    <i class="fas fa-star w-6 text-center text-gray-400 group-hover:text-secondary/70"></i><?= t('nav.go_premium') ?>
+                                                <a href="<?= url('/premium') ?>" role="menuitem" class="group flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 rounded-lg hover:bg-primary hover:text-secondary transition-all">
+                                                    <i class="fas fa-star w-6 text-center text-gray-400 group-hover:text-secondary/70" aria-hidden="true"></i><?= t('nav.go_premium') ?>
                                                 </a>
                                             <?php endif; ?>
                                         </div>
 
                                         <div class="mt-2 pt-2 border-t border-white/5 px-2">
-                                            <a href="<?= url('/logout') ?>" class="group flex items-center px-3 py-2.5 text-sm font-medium text-red-400 rounded-lg hover:bg-red-500/10 hover:text-red-300 transition-all">
-                                                <i class="fas fa-sign-out-alt w-6 text-center opacity-70"></i><?= t('nav.logout') ?>
+                                            <a href="<?= url('/logout') ?>" role="menuitem" class="group flex items-center px-3 py-2.5 text-sm font-medium text-red-400 rounded-lg hover:bg-red-500/10 hover:text-red-300 transition-all">
+                                                <i class="fas fa-sign-out-alt w-6 text-center opacity-70" aria-hidden="true"></i><?= t('nav.logout') ?>
                                             </a>
                                         </div>
                                     </div>
@@ -204,9 +241,11 @@
                                     id="mobile-menu-btn"
                                     onclick="toggleMobileMenu()"
                                     class="md:hidden flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/10 transition-all text-gray-300 hover:text-white border border-transparent hover:border-white/10"
-                                    aria-label="Abrir menú"
+                                    aria-label="<?= t('a11y.open_menu') ?? 'Abrir menu' ?>"
+                                    aria-expanded="false"
+                                    aria-controls="mobile-menu"
                                 >
-                                    <i class="fas fa-bars text-base" id="mobile-menu-icon"></i>
+                                    <i class="fas fa-bars text-base" id="mobile-menu-icon" aria-hidden="true"></i>
                                 </button>
 
                             </div>
@@ -214,9 +253,9 @@
                         <?php else: ?>
                             <!-- Usuario NO logueado: botones CTA + idioma -->
                             <div class="flex items-center gap-2">
-                                <div class="flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/5">
-                                    <a href="<?= url('/set-lang') ?>?lang=es" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'es' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">ES</a>
-                                    <a href="<?= url('/set-lang') ?>?lang=en" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'en' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">EN</a>
+                                <div class="flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/5" role="group" aria-label="<?= t('a11y.lang_selector') ?? 'Seleccionar idioma' ?>">
+                                    <a href="<?= url('/set-lang') ?>?lang=es" hreflang="es" lang="es" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'es' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>"<?= currentLang() === 'es' ? ' aria-current="true"' : '' ?>>ES</a>
+                                    <a href="<?= url('/set-lang') ?>?lang=en" hreflang="en" lang="en" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'en' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>"<?= currentLang() === 'en' ? ' aria-current="true"' : '' ?>>EN</a>
                                 </div>
 
                                 <a href="<?= url('/login') ?>" class="px-3 sm:px-4 py-2 rounded-full text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all">
@@ -233,16 +272,16 @@
 
                 <!-- Menú móvil (solo para usuario logueado) -->
                 <?php if ($isLoggedIn): ?>
-                    <div id="mobile-menu" class="hidden md:hidden mt-2 mx-0 rounded-2xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden">
+                    <div id="mobile-menu" class="hidden md:hidden mt-2 mx-0 rounded-2xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden" aria-label="<?= t('a11y.mobile_menu') ?? 'Menu movil' ?>">
 
                         <!-- Cabecera del menú móvil -->
                         <div class="px-4 py-4 border-b border-white/10 bg-white/5 flex items-center gap-3">
                             <div class="h-10 w-10 rounded-full overflow-hidden ring-2 ring-gray-700 bg-gray-800 flex items-center justify-center flex-shrink-0">
                                 <?php if (!empty($_SESSION['user_photo']) && file_exists(__DIR__ . '/../../public/uploads/profiles/' . $_SESSION['user_photo'])): ?>
-                                    <img src="<?= 'public/uploads/profiles/' . $_SESSION['user_photo'] ?>?v=<?= filemtime(__DIR__ . '/../../public/uploads/profiles/' . $_SESSION['user_photo']) ?>" alt="Avatar" class="w-full h-full object-cover">
-                                
+                                    <img src="<?= 'public/uploads/profiles/' . $_SESSION['user_photo'] ?>?v=<?= filemtime(__DIR__ . '/../../public/uploads/profiles/' . $_SESSION['user_photo']) ?>" alt="" aria-hidden="true" class="w-full h-full object-cover">
+
                                 <?php else: ?>
-                                <div class="w-full h-full bg-gradient-to-tr from-gray-700 to-gray-600 flex items-center justify-center text-white font-bold text-sm">
+                                <div class="w-full h-full bg-gradient-to-tr from-gray-700 to-gray-600 flex items-center justify-center text-white font-bold text-sm" aria-hidden="true">
                                     <?= $userInitial ?>
                                 </div>
                                 <?php endif; ?>
@@ -253,7 +292,7 @@
                                     <p class="text-sm font-bold text-white truncate"><?= htmlspecialchars($userName) ?></p>
                                     <?php if ($userIsPremium): ?>
                                         <span class="px-1.5 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold rounded-full border border-yellow-500/30 flex-shrink-0">
-                                            <i class="fas fa-crown mr-0.5"></i> PRO
+                                            <i class="fas fa-crown mr-0.5" aria-hidden="true"></i> PRO
                                         </span>
                                     <?php endif; ?>
                                 </div>
@@ -262,48 +301,48 @@
                         </div>
 
                         <!-- Enlaces de navegación principal -->
-                        <div class="px-3 py-3 space-y-1 border-b border-white/10">
-                            <p class="text-[10px] uppercase tracking-widest text-gray-500 font-semibold px-3 pb-1"><?= t('nav.navigation') ?? 'Navegación' ?></p>
-                            <a href="<?= url('/dashboard') ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all <?= isActive('/dashboard') ? 'bg-primary/20 text-primary' : 'text-gray-300 hover:bg-white/5 hover:text-white' ?>">
-                                <i class="fas fa-search w-5 text-center text-sm opacity-70"></i><?= t('nav.search') ?>
+                        <nav class="px-3 py-3 space-y-1 border-b border-white/10" aria-label="<?= t('nav.navigation') ?? 'Navegacion' ?>">
+                            <p class="text-[10px] uppercase tracking-widest text-gray-500 font-semibold px-3 pb-1" id="mobile-nav-label"><?= t('nav.navigation') ?? 'Navegación' ?></p>
+                            <a href="<?= url('/dashboard') ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all <?= isActive('/dashboard') ? 'bg-primary/20 text-primary' : 'text-gray-300 hover:bg-white/5 hover:text-white' ?>"<?= isActive('/dashboard') ? ' aria-current="page"' : '' ?>>
+                                <i class="fas fa-search w-5 text-center text-sm opacity-70" aria-hidden="true"></i><?= t('nav.search') ?>
                             </a>
 
-                            <a href="<?= url('/my-rides') ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all <?= isActive('/my-rides') ? 'bg-primary/20 text-primary' : 'text-gray-300 hover:bg-white/5 hover:text-white' ?>">
-                                <i class="fas fa-car w-5 text-center text-sm opacity-70"></i><?= t('nav.my_rides') ?>
+                            <a href="<?= url('/my-rides') ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all <?= isActive('/my-rides') ? 'bg-primary/20 text-primary' : 'text-gray-300 hover:bg-white/5 hover:text-white' ?>"<?= isActive('/my-rides') ? ' aria-current="page"' : '' ?>>
+                                <i class="fas fa-car w-5 text-center text-sm opacity-70" aria-hidden="true"></i><?= t('nav.my_rides') ?>
                             </a>
 
-                            <a href="<?= url('/messages') ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all <?= isActive('/messages') ? 'bg-primary/20 text-primary' : 'text-gray-300 hover:bg-white/5 hover:text-white' ?>">
-                                <i class="fas fa-comment-alt w-5 text-center text-sm opacity-70"></i><?= t('nav.messages') ?>
+                            <a href="<?= url('/messages') ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all <?= isActive('/messages') ? 'bg-primary/20 text-primary' : 'text-gray-300 hover:bg-white/5 hover:text-white' ?>"<?= isActive('/messages') ? ' aria-current="page"' : '' ?>>
+                                <i class="fas fa-comment-alt w-5 text-center text-sm opacity-70" aria-hidden="true"></i><?= t('nav.messages') ?>
                             </a>
-                        </div>
+                        </nav>
 
                         <!-- Enlaces de cuenta -->
-                        <div class="px-3 py-3 space-y-1 border-b border-white/10">
+                        <nav class="px-3 py-3 space-y-1 border-b border-white/10" aria-label="<?= t('nav.account') ?? 'Cuenta' ?>">
                             <p class="text-[10px] uppercase tracking-widest text-gray-500 font-semibold px-3 pb-1"><?= t('nav.account') ?? 'Cuenta' ?></p>
                             <a href="<?= url('/profile') ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white transition-all">
-                                <i class="fas fa-user-circle w-5 text-center text-sm opacity-70"></i><?= t('nav.my_profile') ?>
+                                <i class="fas fa-user-circle w-5 text-center text-sm opacity-70" aria-hidden="true"></i><?= t('nav.my_profile') ?>
                             </a>
 
                             <a href="<?= url('/my-rides') ?>?tab=bookings" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white transition-all">
-                                <i class="fas fa-ticket-alt w-5 text-center text-sm opacity-70"></i><?= t('nav.my_bookings') ?>
+                                <i class="fas fa-ticket-alt w-5 text-center text-sm opacity-70" aria-hidden="true"></i><?= t('nav.my_bookings') ?>
                             </a>
 
                             <?php if ($userIsPremium): ?>
                                 <a href="<?= url('/premium') ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-yellow-400 hover:bg-yellow-500/10 transition-all">
-                                    <i class="fas fa-crown w-5 text-center text-sm opacity-70"></i><?= t('nav.my_subscription') ?>
+                                    <i class="fas fa-crown w-5 text-center text-sm opacity-70" aria-hidden="true"></i><?= t('nav.my_subscription') ?>
                                 </a>
 
                             <?php else: ?>
                                 <a href="<?= url('/premium') ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white transition-all">
-                                    <i class="fas fa-star w-5 text-center text-sm opacity-70"></i><?= t('nav.go_premium') ?>
+                                    <i class="fas fa-star w-5 text-center text-sm opacity-70" aria-hidden="true"></i><?= t('nav.go_premium') ?>
                                 </a>
                             <?php endif; ?>
-                        </div>
+                        </nav>
 
                         <!-- Logout -->
                         <div class="px-3 py-3">
                             <a href="<?= url('/logout') ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all">
-                                <i class="fas fa-sign-out-alt w-5 text-center text-sm opacity-70"></i><?= t('nav.logout') ?>
+                                <i class="fas fa-sign-out-alt w-5 text-center text-sm opacity-70" aria-hidden="true"></i><?= t('nav.logout') ?>
                             </a>
                         </div>
                     </div>
@@ -316,16 +355,19 @@
                 /* Escritorio: desplegable de usuario */
                 function toggleUserMenu() {
                     const menu  = document.getElementById('user-menu');
+                    const btn   = document.getElementById('user-menu-button');
                     const arrow = document.getElementById('menu-arrow');
                     const isHidden = menu.classList.contains('hidden');
 
                     menu.classList.toggle('hidden', !isHidden);
+                    if (btn) btn.setAttribute('aria-expanded', String(isHidden));
                     arrow.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
                 }
 
                 /* Móvil: hamburguesa */
                 function toggleMobileMenu() {
                     const mobileMenu = document.getElementById('mobile-menu');
+                    const btn        = document.getElementById('mobile-menu-btn');
                     const icon = document.getElementById('mobile-menu-icon');
                     const isHidden = mobileMenu.classList.contains('hidden');
 
@@ -334,11 +376,13 @@
                         mobileMenu.getBoundingClientRect();
                         mobileMenu.classList.add('open');
                         icon.classList.replace('fa-bars', 'fa-times');
+                        if (btn) btn.setAttribute('aria-expanded', 'true');
 
                         } else {
                             mobileMenu.classList.remove('open');
                             mobileMenu.classList.add('hidden');
                             icon.classList.replace('fa-times', 'fa-bars');
+                            if (btn) btn.setAttribute('aria-expanded', 'false');
                     }
                 }
 
@@ -351,15 +395,18 @@
 
                     if (btn && menu && !btn.contains(event.target) && !menu.contains(event.target)) {
                         menu.classList.add('hidden');
+                        btn.setAttribute('aria-expanded', 'false');
                         if (arrow) arrow.style.transform = 'rotate(0deg)';
                     }
 
                     // Notificaciones
                     const notifWrapper = document.getElementById('notif-wrapper');
                     const notifPanel   = document.getElementById('notif-panel');
+                    const notifBtn     = document.getElementById('notif-btn');
 
                     if (notifWrapper && !notifWrapper.contains(event.target)) {
                         notifPanel.classList.add('hidden');
+                        if (notifBtn) notifBtn.setAttribute('aria-expanded', 'false');
                     }
 
                     // Menú para móvil
@@ -370,7 +417,39 @@
                     if (mobileBtn && mobileMenu && !mobileBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
                         mobileMenu.classList.remove('open');
                         mobileMenu.classList.add('hidden');
+                        mobileBtn.setAttribute('aria-expanded', 'false');
                         if (mIcon) { mIcon.classList.remove('fa-times'); mIcon.classList.add('fa-bars'); }
+                    }
+                });
+
+                /* Cerrar menus con tecla Escape (accesibilidad) */
+                document.addEventListener('keydown', function(event) {
+                    if (event.key !== 'Escape') return;
+                    const userMenu   = document.getElementById('user-menu');
+                    const userBtn    = document.getElementById('user-menu-button');
+                    const notifPanel = document.getElementById('notif-panel');
+                    const notifBtn   = document.getElementById('notif-btn');
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    const mobileBtn  = document.getElementById('mobile-menu-btn');
+                    const mIcon      = document.getElementById('mobile-menu-icon');
+                    const reportM    = document.getElementById('reportModal');
+
+                    if (userMenu && !userMenu.classList.contains('hidden')) {
+                        userMenu.classList.add('hidden');
+                        if (userBtn) { userBtn.setAttribute('aria-expanded', 'false'); userBtn.focus(); }
+                    }
+                    if (notifPanel && !notifPanel.classList.contains('hidden')) {
+                        notifPanel.classList.add('hidden');
+                        if (notifBtn) { notifBtn.setAttribute('aria-expanded', 'false'); notifBtn.focus(); }
+                    }
+                    if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.remove('open');
+                        mobileMenu.classList.add('hidden');
+                        if (mIcon) { mIcon.classList.remove('fa-times'); mIcon.classList.add('fa-bars'); }
+                        if (mobileBtn) { mobileBtn.setAttribute('aria-expanded', 'false'); mobileBtn.focus(); }
+                    }
+                    if (reportM && !reportM.classList.contains('hidden')) {
+                        closeReportModal();
                     }
                 });
 
@@ -395,9 +474,11 @@
 
                 function toggleNotifPanel() {
                     const panel = document.getElementById('notif-panel');
+                    const btn   = document.getElementById('notif-btn');
                     const wasHidden = panel.classList.contains('hidden');
 
                     panel.classList.toggle('hidden');
+                    if (btn) btn.setAttribute('aria-expanded', String(wasHidden));
                     if (wasHidden) loadNotifications();
                 }
 
@@ -576,15 +657,15 @@
             </script>
 
             <!-- Modal global de reporte -->
-            <div id="reportModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="<?= t('report.title') ?>">
+            <div id="reportModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="report-modal-title" aria-describedby="report-modal-desc">
                 <div class="bg-[#1a1b26] border border-gray-700 rounded-2xl shadow-2xl max-w-md w-full mx-4">
                     <div class="p-6 border-b border-gray-700 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-flag text-red-400"></i>
+                        <div class="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0" aria-hidden="true">
+                            <i class="fas fa-flag text-red-400" aria-hidden="true"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-white"><?= t('nav.report') ?> <span id="report-label"><?= t('nav.report_content') ?></span></h3>
-                            <p class="text-xs text-gray-400"><?= t('nav.report_reviewed') ?></p>
+                            <h3 id="report-modal-title" class="text-lg font-bold text-white"><?= t('nav.report') ?> <span id="report-label"><?= t('nav.report_content') ?></span></h3>
+                            <p id="report-modal-desc" class="text-xs text-gray-400"><?= t('nav.report_reviewed') ?></p>
                         </div>
                     </div>
 
@@ -595,8 +676,8 @@
                         <input type="hidden" id="report-idChat">
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2"><?= t('nav.report_reason') ?></label>
-                            <select id="report-motivo" class="w-full bg-gray-800 border border-gray-600 text-gray-100 text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-primary">
+                            <label for="report-motivo" class="block text-sm font-medium text-gray-300 mb-2"><?= t('nav.report_reason') ?> <span aria-label="<?= t('a11y.required') ?? 'obligatorio' ?>" class="text-red-400">*</span></label>
+                            <select id="report-motivo" required aria-required="true" class="w-full bg-gray-800 border border-gray-600 text-gray-100 text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-primary">
                                 <option value=""><?= t('nav.report_select_reason') ?></option>
                                 <option value="spam"><?= t('nav.report_reason_spam') ?></option>
                                 <option value="ofensivo"><?= t('nav.report_reason_offensive') ?></option>
@@ -608,39 +689,39 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2"><?= t('nav.report_details') ?></label>
+                            <label for="report-mensaje" class="block text-sm font-medium text-gray-300 mb-2"><?= t('nav.report_details') ?></label>
                             <textarea id="report-mensaje" rows="3" maxlength="500" placeholder="<?= t('nav.report_placeholder') ?>" class="w-full bg-gray-800 border border-gray-600 text-gray-100 text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-primary resize-none placeholder-gray-500"></textarea>
                         </div>
 
                         <!-- Evidencia (captura de pantalla) -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2"><?= t('nav.report_evidence') ?? 'Adjuntar evidencia (opcional)' ?></label>
-                            <label id="report-evidencia-label" class="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gray-800 border-2 border-dashed border-gray-600 rounded-xl cursor-pointer hover:border-primary/50 hover:bg-gray-800/80 transition group">
-                                <i class="fas fa-camera text-gray-500 group-hover:text-primary transition"></i>
+                            <label for="report-evidencia" class="block text-sm font-medium text-gray-300 mb-2"><?= t('nav.report_evidence') ?? 'Adjuntar evidencia (opcional)' ?></label>
+                            <label id="report-evidencia-label" for="report-evidencia" class="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gray-800 border-2 border-dashed border-gray-600 rounded-xl cursor-pointer hover:border-primary/50 hover:bg-gray-800/80 transition group">
+                                <i class="fas fa-camera text-gray-500 group-hover:text-primary transition" aria-hidden="true"></i>
                                 <span id="report-evidencia-text" class="text-sm text-gray-500 group-hover:text-gray-300 transition"><?= t('nav.report_evidence_upload') ?? 'Subir captura de pantalla' ?></span>
                                 <input type="file" id="report-evidencia" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="previewEvidence(this)">
                             </label>
                             <div id="report-evidencia-preview" class="hidden mt-2 relative">
-                                <img id="report-evidencia-img" class="w-full max-h-32 object-cover rounded-lg border border-gray-600" alt="Preview">
-                                <button type="button" onclick="clearEvidence()" class="absolute top-1 right-1 w-6 h-6 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-500 transition">
-                                    <i class="fas fa-times text-white text-xs"></i>
+                                <img id="report-evidencia-img" class="w-full max-h-32 object-cover rounded-lg border border-gray-600" alt="<?= t('nav.report_evidence_preview') ?? 'Vista previa de la evidencia adjuntada' ?>">
+                                <button type="button" onclick="clearEvidence()" class="absolute top-1 right-1 w-6 h-6 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-500 transition" aria-label="<?= t('a11y.remove_evidence') ?? 'Eliminar evidencia' ?>">
+                                    <i class="fas fa-times text-white text-xs" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
 
                     <div class="px-6 pb-6 flex gap-3">
-                        <button onclick="closeReportModal()" class="flex-1 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-sm font-medium transition-colors"><?= t('nav.report_cancel') ?></button>
-                        <button onclick="submitReport()"     class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-sm font-bold transition-colors"><?= t('nav.report_send') ?></button>
+                        <button type="button" onclick="closeReportModal()" class="flex-1 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-sm font-medium transition-colors"><?= t('nav.report_cancel') ?></button>
+                        <button type="button" onclick="submitReport()"     class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-sm font-bold transition-colors"><?= t('nav.report_send') ?></button>
                     </div>
                 </div>
             </div>
 
             <!-- Toast global -->
-            <div id="global-toast" class="hidden fixed bottom-6 right-6 z-[9999] flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl text-white text-sm font-medium transition-opacity duration-300 bg-green-600 max-w-[calc(100vw-3rem)]">
-                <i id="global-toast-icon" class="fas fa-check-circle flex-shrink-0"></i>
+            <div id="global-toast" role="status" aria-live="polite" aria-atomic="true" class="hidden fixed bottom-6 right-6 z-[9999] flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl text-white text-sm font-medium transition-opacity duration-300 bg-green-600 max-w-[calc(100vw-3rem)]">
+                <i id="global-toast-icon" class="fas fa-check-circle flex-shrink-0" aria-hidden="true"></i>
                 <span id="global-toast-msg"></span>
             </div>
             <?php require_once __DIR__ . '/cookie-banner.php'; ?>
         <?php endif; ?>
-        <main class="flex-grow flex flex-col h-full">
+        <main id="main-content" tabindex="-1" class="flex-grow flex flex-col h-full">

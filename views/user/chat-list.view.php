@@ -9,9 +9,9 @@
     <?php if (!empty($chats)): ?>
         <div class="mb-6 relative">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <i class="fas fa-search text-gray-500"></i>
+                <i class="fas fa-search text-gray-500" aria-hidden="true"></i>
             </div>
-            <input type="text" id="chat-search" placeholder="<?= t('chatlist.search_placeholder') ?>" class="w-full pl-11 pr-4 py-3 bg-surface border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-colors">
+            <input type="search" id="chat-search" placeholder="<?= t('chatlist.search_placeholder') ?>" aria-label="<?= t('chatlist.search_placeholder') ?>" class="w-full pl-11 pr-4 py-3 bg-surface border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-colors">
         </div>
     <?php endif; ?>
 
@@ -19,7 +19,7 @@
         <?php if (empty($chats)): ?>
             <div class="p-12 text-center">
                 <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="far fa-comments text-3xl text-gray-500"></i>
+                    <i class="far fa-comments text-3xl text-gray-500" aria-hidden="true"></i>
                 </div>
                 <h3 class="text-lg font-medium text-white"><?= t('chatlist.no_messages') ?></h3>
                 <p class="text-gray-400 mt-2"><?= t('chatlist.no_messages_desc') ?></p>
@@ -48,7 +48,7 @@
                                     </p>
                                 </div>
                                 <button type="button" class="p-2 text-gray-500 hover:text-red-400 transition-colors z-10 relative" onclick="event.preventDefault(); confirmDeleteChat(<?= $chat['idUsuario'] ?>)">
-                                    <i class="fas fa-trash-alt"></i>
+                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </a>

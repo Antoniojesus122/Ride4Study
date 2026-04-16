@@ -44,10 +44,10 @@
         <div class="flex items-center gap-3">
             <a href="<?= url('/admin/instituciones') ?>?action=export_csv"
                class="px-4 py-2.5 text-base font-medium bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/20 transition border border-emerald-500/20">
-                <i class="fas fa-file-csv mr-1"></i> Exportar CSV
+                <i class="fas fa-file-csv mr-1" aria-hidden="true"></i> Exportar CSV
             </a>
             <button onclick="document.getElementById('create-form').classList.toggle('hidden')" class="px-5 py-2.5 text-base font-medium bg-primary text-gray-900 rounded-lg hover:bg-primary-dark transition">
-                <i class="fas fa-plus mr-1"></i> Nueva institucion
+                <i class="fas fa-plus mr-1" aria-hidden="true"></i> Nueva institucion
             </button>
         </div>
     </div>
@@ -63,7 +63,7 @@
             <div class="relative">
                 <label class="block text-xs text-gray-500 mb-1">Nombre de la institucion *</label>
                 <input type="text" name="nombre" id="admin-inst-nombre" required autocomplete="off" placeholder="Escribe para buscar..."
-                    class="w-full px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+                    class="w-full px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary" aria-label="Escribe para buscar...">
                 <ul id="admin-inst-autocomplete" class="hidden absolute z-20 w-full bg-gray-800 border border-gray-600 rounded-lg mt-1 shadow-lg max-h-48 overflow-y-auto"></ul>
             </div>
 
@@ -94,7 +94,7 @@
             <div class="md:col-span-2 flex justify-end gap-2">
                 <button type="button" onclick="document.getElementById('create-form').classList.add('hidden')" class="px-4 py-2 text-base text-gray-400 hover:text-gray-200">Cancelar</button>
                 <button type="submit" class="px-5 py-2.5 text-base font-medium bg-primary text-gray-900 rounded-lg hover:bg-primary-dark transition">
-                    <i class="fas fa-paper-plane mr-1"></i> Crear y enviar credenciales
+                    <i class="fas fa-paper-plane mr-1" aria-hidden="true"></i> Crear y enviar credenciales
                 </button>
             </div>
         </form>
@@ -103,7 +103,7 @@
     <?php if (empty($instituciones)): ?>
         <div class="text-center py-20">
             <div class="w-14 h-14 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-university text-2xl text-gray-500"></i>
+                <i class="fas fa-university text-2xl text-gray-500" aria-hidden="true"></i>
             </div>
             <p class="text-gray-400 font-medium">No hay instituciones</p>
             <p class="text-gray-500 text-sm mt-1">Crea la primera institucion para comenzar</p>
@@ -129,24 +129,24 @@
                             <div>
                                 <p class="text-gray-200 font-medium"><?= htmlspecialchars($inst['nombre']) ?></p>
                                 <?php if ($inst['telefono']): ?>
-                                    <p class="text-xs text-gray-500 mt-0.5"><i class="fas fa-phone text-[10px] mr-1"></i><?= htmlspecialchars($inst['telefono']) ?></p>
+                                    <p class="text-xs text-gray-500 mt-0.5"><i class="fas fa-phone text-[10px] mr-1" aria-hidden="true"></i><?= htmlspecialchars($inst['telefono']) ?></p>
                                 <?php endif; ?>
                             </div>
                         </td>
                         <td class="px-5 py-4 text-gray-400"><?= htmlspecialchars($inst['correo']) ?></td>
                         <td class="px-5 py-4">
                             <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-500/10 text-blue-400 rounded-full text-xs font-semibold border border-blue-500/20">
-                                <i class="fas fa-users text-[10px]"></i> <?= $inst['num_estudiantes'] ?>
+                                <i class="fas fa-users text-[10px]" aria-hidden="true"></i> <?= $inst['num_estudiantes'] ?>
                             </span>
                         </td>
                         <td class="px-5 py-4">
                             <?php if ($isActive): ?>
                                 <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-green-500/10 text-green-400 rounded-full text-xs font-semibold border border-green-500/20">
-                                    <i class="fas fa-check-circle text-[10px]"></i> Activa
+                                    <i class="fas fa-check-circle text-[10px]" aria-hidden="true"></i> Activa
                                 </span>
                             <?php else: ?>
                                 <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-red-500/10 text-red-400 rounded-full text-xs font-semibold border border-red-500/20">
-                                    <i class="fas fa-times-circle text-[10px]"></i> Inactiva
+                                    <i class="fas fa-times-circle text-[10px]" aria-hidden="true"></i> Inactiva
                                 </span>
                             <?php endif; ?>
                         </td>
@@ -156,15 +156,15 @@
                         <td class="px-5 py-4 text-right">
                             <div class="flex items-center justify-end gap-1">
                                 <button onclick="toggleEdit(<?= $inst['idInstitucion'] ?>)" class="px-2.5 py-1.5 text-xs font-medium bg-emerald-500/10 text-emerald-400 rounded-md hover:bg-emerald-500/20 transition border border-emerald-500/20" title="Editar">
-                                    <i class="fas fa-edit"></i>
+                                    <i class="fas fa-edit" aria-hidden="true"></i>
                                 </button>
 
                                 <!-- Regenerar contraseña -->
                                 <form method="POST" action="<?= url('/admin/instituciones') ?>" class="inline" onsubmit="return confirm('¿Regenerar contraseña para <?= htmlspecialchars($inst['nombre']) ?>?\n\nSe enviara la nueva contraseña por email.');">
                                     <input type="hidden" name="action" value="reset_password">
                                     <input type="hidden" name="id" value="<?= $inst['idInstitucion'] ?>">
-                                    <button type="submit" class="px-2.5 py-1.5 text-xs font-medium bg-yellow-500/10 text-yellow-400 rounded-md hover:bg-yellow-500/20 transition border border-yellow-500/20" title="Regenerar contraseña">
-                                        <i class="fas fa-key"></i>
+                                    <button type="submit" class="px-2.5 py-1.5 text-xs font-medium bg-yellow-500/10 text-yellow-400 rounded-md hover:bg-yellow-500/20 transition border border-yellow-500/20" title="Regenerar contraseña" aria-label="Regenerar contraseña">
+                                        <i class="fas fa-key" aria-hidden="true"></i>
                                     </button>
                                 </form>
 
@@ -173,7 +173,7 @@
                                     <input type="hidden" name="action" value="toggle_active">
                                     <input type="hidden" name="id" value="<?= $inst['idInstitucion'] ?>">
                                     <button type="submit" class="px-2.5 py-1.5 text-xs font-medium <?= $isActive ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20' ?> rounded-md hover:opacity-80 transition border" title="<?= $isActive ? 'Desactivar' : 'Activar' ?>">
-                                        <i class="fas <?= $isActive ? 'fa-ban' : 'fa-check' ?>"></i>
+                                        <i class="fas <?= $isActive ? 'fa-ban' : 'fa-check' ?>" aria-hidden="true"></i>
                                     </button>
                                 </form>
 
@@ -181,8 +181,8 @@
                                 <form method="POST" action="<?= url('/admin/instituciones') ?>" class="inline" onsubmit="return confirm('¿Eliminar la institucion <?= htmlspecialchars($inst['nombre']) ?>?\n\nEsta accion no se puede deshacer.');">
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="id" value="<?= $inst['idInstitucion'] ?>">
-                                    <button type="submit" class="px-2.5 py-1.5 text-xs font-medium bg-red-500/10 text-red-400 rounded-md hover:bg-red-500/20 transition border border-red-500/20" title="Eliminar">
-                                        <i class="fas fa-trash-alt"></i>
+                                    <button type="submit" class="px-2.5 py-1.5 text-xs font-medium bg-red-500/10 text-red-400 rounded-md hover:bg-red-500/20 transition border border-red-500/20" title="Eliminar" aria-label="Eliminar">
+                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                     </button>
                                 </form>
                             </div>

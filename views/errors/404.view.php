@@ -30,7 +30,7 @@
 
                     <div class="float mb-8">
                         <div class="inline-flex items-center justify-center w-28 h-28 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
-                            <i class="fas fa-road text-5xl text-primary/80"></i>
+                            <i class="fas fa-road text-5xl text-primary/80" aria-hidden="true"></i>
                         </div>
                     </div>
 
@@ -46,11 +46,11 @@
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
                         <a href="<?= url('/') ?>"
                         class="px-8 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 transform hover:-translate-y-0.5">
-                            <i class="fas fa-home mr-2"></i> <?= t('404.home') ?>
+                            <i class="fas fa-home mr-2" aria-hidden="true"></i> <?= t('404.home') ?>
                         </a>
                         <a href="<?= url('/dashboard') ?>"
                         class="px-8 py-3 bg-white/5 border border-white/10 text-white font-medium rounded-xl hover:bg-white/10 transition-all">
-                            <i class="fas fa-search mr-2"></i> <?= t('404.search') ?>
+                            <i class="fas fa-search mr-2" aria-hidden="true"></i> <?= t('404.search') ?>
                         </a>
                     </div>
 

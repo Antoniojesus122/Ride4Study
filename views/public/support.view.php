@@ -53,7 +53,7 @@
                     <?php if ($flashData && $flashData['type'] === 'success'): ?>
                     <div class="bg-green-500/10 border border-green-500/20 text-green-400 p-6 rounded-2xl flex items-center gap-4 mb-12 animate-fade-in-down">
                         <div class="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-check text-2xl"></i>
+                            <i class="fas fa-check text-2xl" aria-hidden="true"></i>
                         </div>
                         <div>
                             <h3 class="font-bold text-lg"><?= t('support.success') ?></h3>
@@ -92,7 +92,7 @@
                                         <option value="Otro"><?= t('support.subject_other') ?></option>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-400">
-                                        <i class="fas fa-chevron-down text-sm"></i>
+                                        <i class="fas fa-chevron-down text-sm" aria-hidden="true"></i>
                                     </div>
                                 </div>
                             </div>
@@ -106,7 +106,7 @@
 
                             <div class="pt-4">
                                 <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-secondary font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-primary/20 transform hover:-translate-y-0.5 text-lg">
-                                    <i class="fas fa-paper-plane mr-2"></i> <?= t('support.submit') ?>
+                                    <i class="fas fa-paper-plane mr-2" aria-hidden="true"></i> <?= t('support.submit') ?>
                                 </button>
                             </div>
                         </form>
@@ -114,15 +114,15 @@
 
                     <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
                         <div class="p-6 rounded-2xl bg-gray-900/50 border border-white/5">
-                            <i class="fas fa-envelope text-2xl text-primary mb-3"></i>
+                            <i class="fas fa-envelope text-2xl text-primary mb-3" aria-hidden="true"></i>
                             <p class="text-sm text-gray-400">ride4study@outlook.es</p>
                         </div>
                         <div class="p-6 rounded-2xl bg-gray-900/50 border border-white/5">
-                            <i class="fas fa-clock text-2xl text-blue-400 mb-3"></i>
+                            <i class="fas fa-clock text-2xl text-blue-400 mb-3" aria-hidden="true"></i>
                             <p class="text-sm text-gray-400"><?= t('support.schedule') ?></p>
                         </div>
                         <div class="p-6 rounded-2xl bg-gray-900/50 border border-white/5">
-                            <i class="fas fa-map-marker-alt text-2xl text-purple-400 mb-3"></i>
+                            <i class="fas fa-map-marker-alt text-2xl text-purple-400 mb-3" aria-hidden="true"></i>
                             <p class="text-sm text-gray-400"><?= t('support.location') ?></p>
                         </div>
                     </div>

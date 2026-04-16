@@ -9,6 +9,7 @@
             <script src="public/js/tailwind-config.js"></script>
             <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+      <link rel="stylesheet" href="public/css/accessibility.css">
 
             <style>
                 body { font-family: 'Inter', sans-serif; }
@@ -38,7 +39,7 @@
                         <?= t('landing.institutions') ?>
                     </a>
                     <a href="<?= SURVEY_URL ?>" target="_blank" rel="noopener" class="text-sm font-medium text-primary hover:text-green-300 transition-colors flex items-center gap-1.5">
-                        <i class="fas fa-poll"></i>
+                        <i class="fas fa-poll" aria-hidden="true"></i>
                         <?= t('landing.survey') ?>
                     </a>
                 </div>
@@ -84,7 +85,7 @@
                                     <?= t('landing.start_now') ?>
                                 </a>
                                 <a href="<?= url('/login') ?>" class="px-8 py-4 bg-surface border border-white/10 text-white font-medium rounded-xl hover:bg-surface/80 transition-all flex items-center justify-center gap-2 group">
-                                    <i class="fas fa-search text-primary group-hover:scale-110 transition-transform"></i> <?= t('landing.search_ride') ?>
+                                    <i class="fas fa-search text-primary group-hover:scale-110 transition-transform" aria-hidden="true"></i> <?= t('landing.search_ride') ?>
                                 </a>
                             </div>
 
@@ -110,7 +111,7 @@
                                 <div class="flex justify-between items-center mb-6">
                                     <div>
                                         <p class="text-sm text-gray-400"><?= t('landing.next_ride') ?></p>
-                                        <h3 class="text-xl font-bold">Lepe <i class="fas fa-arrow-right text-sm mx-2 text-primary"></i> Huelva</h3>
+                                        <h3 class="text-xl font-bold">Lepe <i class="fas fa-arrow-right text-sm mx-2 text-primary" aria-hidden="true"></i> Huelva</h3>
                                     </div>
                                     <span class="bg-primary text-secondary text-xs font-bold px-2 py-1 rounded"><?= t('landing.today') ?></span>
                                 </div>
@@ -157,7 +158,7 @@
                             <!-- Paso 1 -->
                             <div class="relative group">
                                 <div class="w-24 h-24 bg-surface rounded-2xl border border-white/10 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary/5 group-hover:scale-110 transition-transform duration-300 z-10 relative">
-                                    <i class="fas fa-search text-4xl text-primary"></i>
+                                    <i class="fas fa-search text-4xl text-primary" aria-hidden="true"></i>
                                     <div class="absolute -top-3 -right-3 w-8 h-8 bg-primary rounded-full flex items-center justify-center font-bold text-secondary border-4 border-gray-900">1</div>
                                 </div>
                                 <h3 class="text-xl font-bold text-center mb-4"><?= t('landing.step1_title') ?></h3>
@@ -167,7 +168,7 @@
                             <!-- Paso 2 -->
                             <div class="relative group">
                                 <div class="w-24 h-24 bg-surface rounded-2xl border border-white/10 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary/5 group-hover:scale-110 transition-transform duration-300 z-10 relative">
-                                    <i class="fas fa-check-circle text-4xl text-blue-400"></i>
+                                    <i class="fas fa-check-circle text-4xl text-blue-400" aria-hidden="true"></i>
                                     <div class="absolute -top-3 -right-3 w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center font-bold text-secondary border-4 border-gray-900">2</div>
                                 </div>
                                 <h3 class="text-xl font-bold text-center mb-4"><?= t('landing.step2_title') ?></h3>
@@ -177,7 +178,7 @@
                             <!-- Paso 3 -->
                             <div class="relative group">
                                 <div class="w-24 h-24 bg-surface rounded-2xl border border-white/10 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary/5 group-hover:scale-110 transition-transform duration-300 z-10 relative">
-                                    <i class="fas fa-car-side text-4xl text-purple-400"></i>
+                                    <i class="fas fa-car-side text-4xl text-purple-400" aria-hidden="true"></i>
                                     <div class="absolute -top-3 -right-3 w-8 h-8 bg-purple-400 rounded-full flex items-center justify-center font-bold text-secondary border-4 border-gray-900">3</div>
                                 </div>
                                 <h3 class="text-xl font-bold text-center mb-4"><?= t('landing.step3_title') ?></h3>
@@ -197,22 +198,22 @@
                                 <div class="absolute inset-0 bg-primary/20 blur-3xl rounded-full -z-10"></div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                     <div class="bg-gray-900/80 backdrop-blur-sm p-6 rounded-2xl border border-white/5 hover:border-primary/50 transition-colors">
-                                        <i class="fas fa-wallet text-3xl text-primary mb-4"></i>
+                                        <i class="fas fa-wallet text-3xl text-primary mb-4" aria-hidden="true"></i>
                                         <h4 class="font-bold text-lg mb-2"><?= t('landing.saving_title') ?></h4>
                                         <p class="text-sm text-gray-400"><?= t('landing.saving_desc') ?></p>
                                     </div>
                                     <div class="bg-gray-900/80 backdrop-blur-sm p-6 rounded-2xl border border-white/5 hover:border-blue-400/50 transition-colors sm:mt-8">
-                                        <i class="fas fa-shield-alt text-3xl text-blue-400 mb-4"></i>
+                                        <i class="fas fa-shield-alt text-3xl text-blue-400 mb-4" aria-hidden="true"></i>
                                         <h4 class="font-bold text-lg mb-2"><?= t('landing.safety_title') ?></h4>
                                         <p class="text-sm text-gray-400"><?= t('landing.safety_desc') ?></p>
                                     </div>
                                     <div class="bg-gray-900/80 backdrop-blur-sm p-6 rounded-2xl border border-white/5 hover:border-purple-400/50 transition-colors">
-                                        <i class="fas fa-leaf text-3xl text-purple-400 mb-4"></i>
+                                        <i class="fas fa-leaf text-3xl text-purple-400 mb-4" aria-hidden="true"></i>
                                         <h4 class="font-bold text-lg mb-2"><?= t('landing.eco_title') ?></h4>
                                         <p class="text-sm text-gray-400"><?= t('landing.eco_desc') ?></p>
                                     </div>
                                     <div class="bg-gray-900/80 backdrop-blur-sm p-6 rounded-2xl border border-white/5 hover:border-pink-400/50 transition-colors sm:mt-8">
-                                        <i class="fas fa-users text-3xl text-pink-400 mb-4"></i>
+                                        <i class="fas fa-users text-3xl text-pink-400 mb-4" aria-hidden="true"></i>
                                         <h4 class="font-bold text-lg mb-2"><?= t('landing.community_title') ?></h4>
                                         <p class="text-sm text-gray-400"><?= t('landing.community_desc') ?></p>
                                     </div>
@@ -228,19 +229,19 @@
                                 <ul class="space-y-4">
                                     <li class="flex items-center gap-3">
                                         <div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                                            <i class="fas fa-check text-xs text-primary"></i>
+                                            <i class="fas fa-check text-xs text-primary" aria-hidden="true"></i>
                                         </div>
                                         <span><?= t('landing.exclusive') ?></span>
                                     </li>
                                     <li class="flex items-center gap-3">
                                         <div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                                            <i class="fas fa-check text-xs text-primary"></i>
+                                            <i class="fas fa-check text-xs text-primary" aria-hidden="true"></i>
                                         </div>
                                         <span><?= t('landing.no_fees') ?></span>
                                     </li>
                                     <li class="flex items-center gap-3">
                                         <div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                                            <i class="fas fa-check text-xs text-primary"></i>
+                                            <i class="fas fa-check text-xs text-primary" aria-hidden="true"></i>
                                         </div>
                                         <span><?= t('landing.flexibility') ?></span>
                                     </li>

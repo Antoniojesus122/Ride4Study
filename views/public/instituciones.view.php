@@ -48,7 +48,7 @@
                             <?= t('landing.estudiantes') ?>
                         </a>
                         <a href="<?= SURVEY_URL ?>" target="_blank" rel="noopener" class="text-sm font-medium text-primary hover:text-green-300 transition-colors flex items-center gap-1.5">
-                            <i class="fas fa-poll"></i>
+                            <i class="fas fa-poll" aria-hidden="true"></i>
                             <?= t('landing.survey') ?>
                         </a>
                     </div>
@@ -74,7 +74,7 @@
 
                 <div class="mx-auto max-w-5xl px-6 text-center">
                     <div class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-sm font-semibold mb-10">
-                        <i class="fas fa-university"></i> <?= t('inst_public.badge') ?>
+                        <i class="fas fa-university" aria-hidden="true"></i> <?= t('inst_public.badge') ?>
                     </div>
                     <h1 class="text-4xl md:text-5xl lg:text-7xl font-extrabold mb-8 leading-[1.1] tracking-tight">
                         <?= t('inst_public.hero_title_1') ?><br>
@@ -85,10 +85,10 @@
                     </p>
                     <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <a href="#formulario" class="inline-flex items-center gap-3 px-8 py-4 bg-blue-500 text-white font-bold rounded-2xl hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/25 text-lg group">
-                            <i class="fas fa-handshake group-hover:scale-110 transition-transform"></i> <?= t('inst_public.cta_request') ?>
+                            <i class="fas fa-handshake group-hover:scale-110 transition-transform" aria-hidden="true"></i> <?= t('inst_public.cta_request') ?>
                         </a>
                         <a href="#beneficios" class="inline-flex items-center gap-2 px-6 py-4 text-gray-300 hover:text-white font-medium transition-colors text-lg">
-                            <?= t('inst_public.benefits_title') ?> <i class="fas fa-arrow-down text-sm animate-bounce"></i>
+                            <?= t('inst_public.benefits_title') ?> <i class="fas fa-arrow-down text-sm animate-bounce" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
@@ -133,7 +133,7 @@
                             <!-- Panel de control -->
                             <div class="benefit-card bg-surface p-8 rounded-2xl border border-white/5 hover:border-blue-400/30 text-center group">
                                 <div class="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-500/20 transition-colors">
-                                    <i class="fas fa-chart-line text-2xl text-blue-400"></i>
+                                    <i class="fas fa-chart-line text-2xl text-blue-400" aria-hidden="true"></i>
                                 </div>
                                 <h3 class="text-lg font-bold mb-3"><?= t('inst_public.benefit_dashboard_title') ?></h3>
                                 <p class="text-sm text-gray-400 leading-relaxed"><?= t('inst_public.benefit_dashboard_desc') ?></p>
@@ -142,7 +142,7 @@
                             <!-- Estudiantes -->
                             <div class="benefit-card bg-surface p-8 rounded-2xl border border-white/5 hover:border-primary/30 text-center group">
                                 <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors">
-                                    <i class="fas fa-users text-2xl text-primary"></i>
+                                    <i class="fas fa-users text-2xl text-primary" aria-hidden="true"></i>
                                 </div>
                                 <h3 class="text-lg font-bold mb-3"><?= t('inst_public.benefit_students_title') ?></h3>
                                 <p class="text-sm text-gray-400 leading-relaxed"><?= t('inst_public.benefit_students_desc') ?></p>
@@ -151,7 +151,7 @@
                             <!-- Sostenibilidad -->
                             <div class="benefit-card bg-surface p-8 rounded-2xl border border-white/5 hover:border-purple-400/30 text-center group">
                                 <div class="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-purple-500/20 transition-colors">
-                                    <i class="fas fa-leaf text-2xl text-purple-400"></i>
+                                    <i class="fas fa-leaf text-2xl text-purple-400" aria-hidden="true"></i>
                                 </div>
                                 <h3 class="text-lg font-bold mb-3"><?= t('inst_public.benefit_eco_title') ?></h3>
                                 <p class="text-sm text-gray-400 leading-relaxed"><?= t('inst_public.benefit_eco_desc') ?></p>
@@ -160,7 +160,7 @@
                             <!-- Comunicacion -->
                             <div class="benefit-card bg-surface p-8 rounded-2xl border border-white/5 hover:border-pink-400/30 text-center group">
                                 <div class="w-16 h-16 bg-pink-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-pink-500/20 transition-colors">
-                                    <i class="fas fa-comments text-2xl text-pink-400"></i>
+                                    <i class="fas fa-comments text-2xl text-pink-400" aria-hidden="true"></i>
                                 </div>
                                 <h3 class="text-lg font-bold mb-3"><?= t('inst_public.benefit_comm_title') ?></h3>
                                 <p class="text-sm text-gray-400 leading-relaxed"><?= t('inst_public.benefit_comm_desc') ?></p>
@@ -214,31 +214,31 @@
                                 <ul class="space-y-5">
                                     <li class="flex items-start gap-4">
                                         <div class="w-7 h-7 rounded-lg bg-blue-500/20 flex items-center justify-center mt-0.5 shrink-0">
-                                            <i class="fas fa-check text-xs text-blue-400"></i>
+                                            <i class="fas fa-check text-xs text-blue-400" aria-hidden="true"></i>
                                         </div>
                                         <span class="text-gray-300"><?= t('inst_public.metric_1') ?></span>
                                     </li>
                                     <li class="flex items-start gap-4">
                                         <div class="w-7 h-7 rounded-lg bg-primary/20 flex items-center justify-center mt-0.5 shrink-0">
-                                            <i class="fas fa-check text-xs text-primary"></i>
+                                            <i class="fas fa-check text-xs text-primary" aria-hidden="true"></i>
                                         </div>
                                         <span class="text-gray-300"><?= t('inst_public.metric_2') ?></span>
                                     </li>
                                     <li class="flex items-start gap-4">
                                         <div class="w-7 h-7 rounded-lg bg-purple-500/20 flex items-center justify-center mt-0.5 shrink-0">
-                                            <i class="fas fa-check text-xs text-purple-400"></i>
+                                            <i class="fas fa-check text-xs text-purple-400" aria-hidden="true"></i>
                                         </div>
                                         <span class="text-gray-300"><?= t('inst_public.metric_3') ?></span>
                                     </li>
                                     <li class="flex items-start gap-4">
                                         <div class="w-7 h-7 rounded-lg bg-pink-500/20 flex items-center justify-center mt-0.5 shrink-0">
-                                            <i class="fas fa-check text-xs text-pink-400"></i>
+                                            <i class="fas fa-check text-xs text-pink-400" aria-hidden="true"></i>
                                         </div>
                                         <span class="text-gray-300"><?= t('inst_public.metric_4') ?></span>
                                     </li>
                                     <li class="flex items-start gap-4">
                                         <div class="w-7 h-7 rounded-lg bg-yellow-500/20 flex items-center justify-center mt-0.5 shrink-0">
-                                            <i class="fas fa-check text-xs text-yellow-400"></i>
+                                            <i class="fas fa-check text-xs text-yellow-400" aria-hidden="true"></i>
                                         </div>
                                         <span class="text-gray-300"><?= t('inst_public.metric_5') ?></span>
                                     </li>
@@ -251,7 +251,7 @@
                                 <div class="relative bg-surface backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl">
                                     <div class="flex items-center gap-3 mb-6 pb-4 border-b border-white/5">
                                         <div class="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                                            <i class="fas fa-university text-blue-400"></i>
+                                            <i class="fas fa-university text-blue-400" aria-hidden="true"></i>
                                         </div>
                                         <div>
                                             <p class="font-bold text-sm">IES La Arboleda</p>
@@ -273,7 +273,7 @@
                                             <p class="text-xs text-gray-500 mt-0.5"><?= t('inst_public.mockup_trips') ?></p>
                                         </div>
                                         <div class="bg-gray-900/60 p-4 rounded-xl border border-white/5">
-                                            <p class="text-2xl font-extrabold text-purple-400">4.7 <i class="fas fa-star text-xs"></i></p>
+                                            <p class="text-2xl font-extrabold text-purple-400">4.7 <i class="fas fa-star text-xs" aria-hidden="true"></i></p>
                                             <p class="text-xs text-gray-500 mt-0.5"><?= t('inst_public.mockup_rating') ?></p>
                                         </div>
                                         <div class="bg-gray-900/60 p-4 rounded-xl border border-white/5">
@@ -317,7 +317,7 @@
                         <?php if ($flashData && $flashData['type'] === 'success'): ?>
                             <div class="bg-green-500/10 border border-green-500/20 text-green-400 p-6 rounded-2xl flex items-center gap-4 mb-10">
                                 <div class="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-check text-2xl"></i>
+                                    <i class="fas fa-check text-2xl" aria-hidden="true"></i>
                                 </div>
                                 <div>
                                     <h3 class="font-bold text-lg"><?= t('inst_public.success_title') ?></h3>
@@ -329,7 +329,7 @@
                         <?php if ($flashData && $flashData['type'] === 'error'): ?>
                             <div class="bg-red-500/10 border border-red-500/20 text-red-400 p-6 rounded-2xl flex items-center gap-4 mb-10">
                                 <div class="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-exclamation-circle text-2xl"></i>
+                                    <i class="fas fa-exclamation-circle text-2xl" aria-hidden="true"></i>
                                 </div>
                                 <div>
                                     <h3 class="font-bold text-lg"><?= t('inst_public.error_title') ?></h3>
@@ -346,7 +346,7 @@
                                 <div>
                                     <h3 class="text-lg font-bold text-white mb-5 flex items-center gap-2">
                                         <div class="w-8 h-8 bg-blue-500/15 rounded-lg flex items-center justify-center">
-                                            <i class="fas fa-university text-blue-400 text-sm"></i>
+                                            <i class="fas fa-university text-blue-400 text-sm" aria-hidden="true"></i>
                                         </div>
                                         <?= t('inst_public.form_section_inst') ?>
                                     </h3>
@@ -373,7 +373,7 @@
                                                     <option value="otro"><?= t('inst_public.type_other') ?></option>
                                                 </select>
                                                 <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-400">
-                                                    <i class="fas fa-chevron-down text-sm"></i>
+                                                    <i class="fas fa-chevron-down text-sm" aria-hidden="true"></i>
                                                 </div>
                                             </div>
                                         </div>
@@ -416,7 +416,7 @@
                                                     <option value="mas_5000"><?= t('inst_public.students_more_5000') ?></option>
                                                 </select>
                                                 <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-400">
-                                                    <i class="fas fa-chevron-down text-sm"></i>
+                                                    <i class="fas fa-chevron-down text-sm" aria-hidden="true"></i>
                                                 </div>
                                             </div>
                                         </div>
@@ -435,7 +435,7 @@
                                 <div class="pt-6 border-t border-white/5">
                                     <h3 class="text-lg font-bold text-white mb-5 flex items-center gap-2">
                                         <div class="w-8 h-8 bg-primary/15 rounded-lg flex items-center justify-center">
-                                            <i class="fas fa-user-tie text-primary text-sm"></i>
+                                            <i class="fas fa-user-tie text-primary text-sm" aria-hidden="true"></i>
                                         </div>
                                         <?= t('inst_public.form_section_contact') ?>
                                     </h3>
@@ -486,7 +486,7 @@
 
                                 <div class="pt-2">
                                     <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-secondary font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-primary/20 transform hover:-translate-y-0.5 text-lg">
-                                        <i class="fas fa-paper-plane mr-2"></i> <?= t('inst_public.form_submit') ?>
+                                        <i class="fas fa-paper-plane mr-2" aria-hidden="true"></i> <?= t('inst_public.form_submit') ?>
                                     </button>
                                     <p class="text-center text-xs text-gray-500 mt-4"><?= t('inst_public.form_note') ?></p>
                                 </div>
@@ -496,12 +496,12 @@
                         <!-- Info de contacto -->
                         <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
                             <div class="p-6 rounded-2xl bg-gray-900/50 border border-white/5 hover:border-blue-500/20 transition-colors">
-                                <i class="fas fa-envelope text-2xl text-primary mb-3"></i>
+                                <i class="fas fa-envelope text-2xl text-primary mb-3" aria-hidden="true"></i>
                                 <p class="font-semibold mb-1"><?= t('inst_public.contact_email') ?></p>
                                 <p class="text-sm text-gray-400">ride4study@outlook.es</p>
                             </div>
                             <div class="p-6 rounded-2xl bg-gray-900/50 border border-white/5 hover:border-primary/20 transition-colors">
-                                <i class="fas fa-clock text-2xl text-primary mb-3"></i>
+                                <i class="fas fa-clock text-2xl text-primary mb-3" aria-hidden="true"></i>
                                 <p class="font-semibold mb-1"><?= t('inst_public.contact_response') ?></p>
                                 <p class="text-sm text-gray-400"><?= t('inst_public.contact_response_time') ?></p>
                             </div>

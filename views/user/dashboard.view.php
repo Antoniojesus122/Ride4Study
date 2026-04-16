@@ -24,17 +24,17 @@
                                         <option value="Busco" <?= (isset($_GET['tipo']) && $_GET['tipo'] == 'Busco') ? 'selected' : '' ?>><?= t('dashboard.passenger') ?></option>
                                     </select>
                                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
-                                        <i class="fas fa-chevron-down text-[10px]"></i>
+                                        <i class="fas fa-chevron-down text-[10px]" aria-hidden="true"></i>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Origen -->
                             <div class="w-full lg:flex-1 relative">
-                                <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-0.5"><?= t('dashboard.origin') ?></label>
+                                <label for="filter-origen" class="block text-xs font-medium text-gray-400 mb-1.5 ml-0.5"><?= t('dashboard.origin') ?></label>
                                 <div class="relative group">
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                        <i class="fas fa-circle text-[6px] text-primary group-focus-within:scale-125 transition-transform"></i>
+                                        <i class="fas fa-circle text-[6px] text-primary group-focus-within:scale-125 transition-transform" aria-hidden="true"></i>
                                     </div>
                                     <input type="text" name="origen" id="filter-origen" autocomplete="off"
                                         value="<?= htmlspecialchars($_GET['origen'] ?? '') ?>"
@@ -46,15 +46,15 @@
 
                             <!-- Separador -->
                             <div class="hidden lg:flex items-center pb-1">
-                                <i class="fas fa-arrow-right text-gray-600 text-xs"></i>
+                                <i class="fas fa-arrow-right text-gray-600 text-xs" aria-hidden="true"></i>
                             </div>
 
                             <!-- Destino -->
                             <div class="w-full lg:flex-1 relative">
-                                <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-0.5"><?= t('dashboard.destination') ?></label>
+                                <label for="filter-destino" class="block text-xs font-medium text-gray-400 mb-1.5 ml-0.5"><?= t('dashboard.destination') ?></label>
                                 <div class="relative group">
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                        <i class="fas fa-circle text-[6px] text-gray-400 group-focus-within:text-primary group-focus-within:scale-125 transition-all"></i>
+                                        <i class="fas fa-circle text-[6px] text-gray-400 group-focus-within:text-primary group-focus-within:scale-125 transition-all" aria-hidden="true"></i>
                                     </div>
                                     <input type="text" name="destino" id="filter-destino" autocomplete="off"
                                         value="<?= htmlspecialchars($_GET['destino'] ?? '') ?>"
@@ -69,7 +69,7 @@
                                 <label class="block text-xs font-medium text-gray-400 mb-1.5 ml-0.5"><?= t('dashboard.date') ?></label>
                                 <div class="relative group">
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                        <i class="far fa-calendar-alt text-gray-500 text-sm group-focus-within:text-primary transition-colors"></i>
+                                        <i class="far fa-calendar-alt text-gray-500 text-sm group-focus-within:text-primary transition-colors" aria-hidden="true"></i>
                                     </div>
                                     <input type="date" name="fecha" value="<?= htmlspecialchars($_GET['fecha'] ?? '') ?>"
                                         class="w-full rounded-xl border border-gray-600/70 bg-gray-800/80 py-3 pl-10 pr-3 text-white text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all hover:border-gray-500 [color-scheme:dark]">
@@ -79,10 +79,10 @@
                             <!-- Buscar + Limpiar -->
                             <div class="flex gap-2 w-full lg:w-auto shrink-0">
                                 <button type="submit" class="flex-1 lg:flex-none bg-primary hover:bg-primary-dark text-secondary font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-primary/20 hover:shadow-primary/30 flex items-center justify-center gap-2 text-sm">
-                                    <i class="fas fa-search text-xs"></i> <?= t('dashboard.search') ?>
+                                    <i class="fas fa-search text-xs" aria-hidden="true"></i> <?= t('dashboard.search') ?>
                                 </button>
                                 <a href="<?= url('/dashboard') ?>" class="flex items-center justify-center w-12 py-3 bg-gray-800/80 hover:bg-red-500/10 text-gray-400 hover:text-red-400 rounded-xl transition-all border border-gray-600/70 hover:border-red-500/30 group" title="<?= t('dashboard.clear_filters') ?>">
-                                    <i class="fas fa-times text-sm group-hover:rotate-90 transition-transform duration-300"></i>
+                                    <i class="fas fa-times text-sm group-hover:rotate-90 transition-transform duration-300" aria-hidden="true"></i>
                                 </a>
                             </div>
                         </div>
@@ -96,7 +96,7 @@
                                 <!-- Precio máximo -->
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-euro-sign text-xs text-gray-500"></i>
+                                        <i class="fas fa-euro-sign text-xs text-gray-500" aria-hidden="true"></i>
                                     </div>
                                     <input type="number" name="precio_max" step="0.5" min="0"
                                         value="<?= htmlspecialchars($_GET['precio_max'] ?? '') ?>"
@@ -107,7 +107,7 @@
                                 <!-- Plazas mínimas -->
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-user-friends text-xs text-gray-500"></i>
+                                        <i class="fas fa-user-friends text-xs text-gray-500" aria-hidden="true"></i>
                                     </div>
                                     <input type="number" name="plazas_min" min="1" max="8"
                                         value="<?= htmlspecialchars($_GET['plazas_min'] ?? '') ?>"
@@ -118,7 +118,7 @@
                                 <!-- Solo verificados -->
                                 <label class="flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-all text-sm font-medium <?= !empty($_GET['verificado']) ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'border-gray-600/60 bg-gray-800/70 text-gray-400 hover:border-gray-500 hover:text-gray-300' ?>">
                                     <input type="checkbox" name="verificado" value="1" <?= !empty($_GET['verificado']) ? 'checked' : '' ?> class="hidden" onchange="this.form.submit()">
-                                    <i class="fas fa-check-circle text-xs"></i>
+                                    <i class="fas fa-check-circle text-xs" aria-hidden="true"></i>
                                     <?= t('dashboard.verified_only') ?>
                                 </label>
 
@@ -132,7 +132,7 @@
                                         <option value="fecha_desc" <?= ($_GET['orden'] ?? '') === 'fecha_desc' ? 'selected' : '' ?>><?= t('dashboard.sort_date_desc') ?></option>
                                     </select>
                                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
-                                        <i class="fas fa-sort text-xs"></i>
+                                        <i class="fas fa-sort text-xs" aria-hidden="true"></i>
                                     </div>
                                 </div>
                             </div>
@@ -140,13 +140,13 @@
                             <!-- Filtros rápidos -->
                             <div class="flex items-center gap-2 shrink-0">
                                 <a href="?fecha=<?= date('Y-m-d') ?>" class="px-3.5 py-2 bg-gray-700/40 hover:bg-primary/15 hover:text-primary border border-gray-600/40 rounded-xl text-sm text-gray-400 transition-all font-medium">
-                                    <i class="far fa-clock mr-1.5 text-xs"></i><?= t('dashboard.today') ?>
+                                    <i class="far fa-clock mr-1.5 text-xs" aria-hidden="true"></i><?= t('dashboard.today') ?>
                                 </a>
                                 <a href="?fecha=<?= date('Y-m-d', strtotime('+1 day')) ?>" class="px-3.5 py-2 bg-gray-700/40 hover:bg-primary/15 hover:text-primary border border-gray-600/40 rounded-xl text-sm text-gray-400 transition-all font-medium">
-                                    <i class="far fa-calendar mr-1.5 text-xs"></i><?= t('dashboard.tomorrow') ?>
+                                    <i class="far fa-calendar mr-1.5 text-xs" aria-hidden="true"></i><?= t('dashboard.tomorrow') ?>
                                 </a>
                                 <a href="?fecha=<?= date('Y-m-d', strtotime('next monday')) ?>" class="px-3.5 py-2 bg-gray-700/40 hover:bg-primary/15 hover:text-primary border border-gray-600/40 rounded-xl text-sm text-gray-400 transition-all font-medium hidden sm:inline-flex">
-                                    <i class="fas fa-forward mr-1.5 text-xs"></i><?= t('dashboard.next_week') ?>
+                                    <i class="fas fa-forward mr-1.5 text-xs" aria-hidden="true"></i><?= t('dashboard.next_week') ?>
                                 </a>
                             </div>
                         </div>
@@ -164,7 +164,7 @@
                  <?php if (empty($rides)): ?>
                     <div class="col-span-full py-16 text-center border-2 border-dashed border-gray-700 rounded-2xl bg-surface/30">
                         <div class="w-16 h-16 sm:w-20 sm:h-20 bg-surface rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-search-location text-2xl sm:text-3xl text-gray-500"></i>
+                            <i class="fas fa-search-location text-2xl sm:text-3xl text-gray-500" aria-hidden="true"></i>
                         </div>
                         <h3 class="text-lg font-medium text-white"><?= t('dashboard.no_rides') ?></h3>
                         <p class="text-gray-400 mt-2 max-w-sm mx-auto"><?= t('dashboard.no_rides_desc') ?></p>
@@ -177,7 +177,7 @@
                                 <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500"></div>
                                 <div class="absolute top-2 left-3 z-20">
                                     <span class="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold rounded-full border border-yellow-500/30 flex items-center gap-1">
-                                        <i class="fas fa-star text-[8px]"></i> Dest.
+                                        <i class="fas fa-star text-[8px]" aria-hidden="true"></i> Dest.
                                     </span>
                                 </div>
                             <?php endif; ?>
@@ -204,7 +204,7 @@
                                 <div>
                                     <h4 class="text-sm lg:text-base font-bold text-white"><?= htmlspecialchars($ride['nombreUsuario']) ?></h4>
                                     <div class="flex items-center text-xs lg:text-sm gap-2">
-                                        <span class="text-gray-400"><i class="fas fa-star text-yellow-500 mr-1"></i> <?= number_format((float)($ride['rating'] ?? 0), 1) ?></span>
+                                        <span class="text-gray-400"><i class="fas fa-star text-yellow-500 mr-1" aria-hidden="true"></i> <?= number_format((float)($ride['rating'] ?? 0), 1) ?></span>
                                         <span class="text-gray-600">•</span>
                                         <?php if ($ride['estado_verificacion'] == 2): ?>
                                             <span class="text-green-400"><?= t('dashboard.verified') ?></span>
@@ -223,7 +223,7 @@
                                     <div class="flex items-center gap-1 mt-1">
                                         <?php foreach ($ridePrefs as $p): if (isset($prefIcons[$p])): ?>
                                         <span class="w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center" title="<?= t('pref.' . $p) ?>">
-                                            <i class="fas <?= $prefIcons[$p] ?> text-[10px] <?= $prefColors[$p] ?>"></i>
+                                            <i class="fas <?= $prefIcons[$p] ?> text-[10px] <?= $prefColors[$p] ?>" aria-hidden="true"></i>
                                         </span>
                                         <?php endif; endforeach; ?>
                                     </div>
@@ -256,17 +256,17 @@
                             <div class="mt-4 pt-4 border-t border-gray-700/50 flex justify-between items-center">
                                 <div class="flex items-center gap-4 text-xs lg:text-sm text-gray-400">
                                      <span class="flex items-center" title="<?= date('d/m/Y', strtotime($ride['fechaSalida'])) ?>">
-                                        <i class="far fa-calendar text-gray-500 mr-2"></i>
+                                        <i class="far fa-calendar text-gray-500 mr-2" aria-hidden="true"></i>
                                         <?= date('d M', strtotime($ride['fechaSalida'])) ?>
                                      </span>
                                      <span class="flex items-center" title="Plazas disponibles">
-                                        <i class="fas fa-chair text-gray-500 mr-2"></i>
+                                        <i class="fas fa-chair text-gray-500 mr-2" aria-hidden="true"></i>
                                         <?= $ride['plazasDisponibles'] ?>
                                      </span>
                                 </div>
                                 <button type="button" class="view-ride-btn text-sm lg:text-base font-medium text-white hover:text-primary transition-colors relative z-20"
                                         data-ride='<?= htmlspecialchars(json_encode($ride), ENT_QUOTES, 'UTF-8') ?>'>
-                                    <?= t('dashboard.view_detail') ?> <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                                    <?= t('dashboard.view_detail') ?> <i class="fas fa-arrow-right ml-1 text-xs" aria-hidden="true"></i>
                                 </button>
                             </div>
                             
@@ -291,7 +291,7 @@
                 ?>
                 <?php if ($currentPage > 1): ?>
                     <a href="?page=<?= $currentPage - 1 ?><?= $paginationBase ?>" class="p-2 w-10 h-10 flex items-center justify-center rounded-lg border border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
-                        <i class="fas fa-chevron-left"></i>
+                        <i class="fas fa-chevron-left" aria-hidden="true"></i>
                     </a>
                 <?php endif; ?>
 
@@ -304,7 +304,7 @@
 
                 <?php if ($currentPage < $totalPages): ?>
                     <a href="?page=<?= $currentPage + 1 ?><?= $paginationBase ?>" class="p-2 w-10 h-10 flex items-center justify-center rounded-lg border border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
-                        <i class="fas fa-chevron-right"></i>
+                        <i class="fas fa-chevron-right" aria-hidden="true"></i>
                     </a>
                 <?php endif; ?>
             </div>
@@ -320,7 +320,7 @@
             <?php $flashData = $flashData ?? getFlash(); ?>
             <?php if ($flashData && $flashData['type'] === 'error'): ?>
                 <div class="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-xl text-sm">
-                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <i class="fas fa-exclamation-circle mr-2" aria-hidden="true"></i>
                     <?php
                     switch($flashData['message']) {
                         case 'own_ride': echo t('dashboard.err_own_ride'); break;
@@ -337,7 +337,7 @@
             <div class="bg-surface rounded-2xl p-6 border border-gray-700 shadow-xl">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-                        <i class="fas fa-bolt"></i>
+                        <i class="fas fa-bolt" aria-hidden="true"></i>
                     </div>
                     <h3 class="font-bold text-white"><?= t('dashboard.quick_actions') ?></h3>
                 </div>
@@ -345,19 +345,19 @@
                 <nav class="space-y-3">
                     <a href="<?= url('/publish') ?>" class="flex items-center justify-between p-3 rounded-xl bg-primary text-secondary font-bold hover:bg-primary-dark transition-all group">
                         <span class="flex items-center gap-3">
-                            <i class="fas fa-plus-circle"></i> <?= t('dashboard.publish_ride') ?>
+                            <i class="fas fa-plus-circle" aria-hidden="true"></i> <?= t('dashboard.publish_ride') ?>
                         </span>
-                        <i class="fas fa-arrow-right opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        <i class="fas fa-arrow-right opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true"></i>
                     </a>
                     
                     <a href="<?= url('/my-rides') ?>?tab=bookings" class="flex items-center justify-between p-3 rounded-xl bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-750 border border-gray-700 transition-all">
                         <span class="flex items-center gap-3">
-                            <i class="fas fa-network-wired text-gray-500"></i> <?= t('dashboard.my_bookings') ?>
+                            <i class="fas fa-network-wired text-gray-500" aria-hidden="true"></i> <?= t('dashboard.my_bookings') ?>
                         </span>
                     </a>
                      <a href="<?= url('/profile') ?>" class="flex items-center justify-between p-3 rounded-xl bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-750 border border-gray-700 transition-all">
                         <span class="flex items-center gap-3">
-                            <i class="fas fa-user-edit text-gray-500"></i> <?= t('dashboard.edit_profile') ?>
+                            <i class="fas fa-user-edit text-gray-500" aria-hidden="true"></i> <?= t('dashboard.edit_profile') ?>
                         </span>
                     </a>
                 </nav>
@@ -367,11 +367,11 @@
             <a href="<?= url('/ranking') ?>" class="block bg-gradient-to-br from-green-900/40 to-emerald-900/30 rounded-2xl p-5 border border-green-500/20 hover:border-green-500/40 transition-all group">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
-                        <i class="fas fa-leaf"></i>
+                        <i class="fas fa-leaf" aria-hidden="true"></i>
                     </div>
                     <div>
                         <h4 class="text-sm font-bold text-white"><?= t('co2.saved') ?></h4>
-                        <p class="text-xs text-gray-400"><?= t('co2.view_ranking') ?> <i class="fas fa-arrow-right text-[10px] ml-1 opacity-0 group-hover:opacity-100 transition-opacity"></i></p>
+                        <p class="text-xs text-gray-400"><?= t('co2.view_ranking') ?> <i class="fas fa-arrow-right text-[10px] ml-1 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true"></i></p>
                     </div>
                 </div>
                 <div class="flex items-end justify-between">
@@ -419,21 +419,21 @@
             <div class="sticky top-0 z-20 px-6 sm:px-8 py-4 bg-gray-900/95 backdrop-blur-xl border-b border-gray-800/80 flex items-center justify-between">
                 <div class="flex items-center gap-4">
                     <div class="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-lg shadow-primary/5">
-                        <i class="fas fa-route text-primary text-lg"></i>
+                        <i class="fas fa-route text-primary text-lg" aria-hidden="true"></i>
                     </div>
                     <div>
                         <h3 class="text-lg sm:text-xl font-bold text-white" id="modal-title"><?= t('dashboard.ride_details') ?></h3>
                         <div class="flex items-center gap-3 mt-0.5">
                             <span id="modal-tipo-badge" class="px-3 py-0.5 rounded-full text-xs font-bold border"></span>
                             <span class="text-sm text-gray-400 flex items-center gap-1.5">
-                                <i class="far fa-calendar-alt"></i>
+                                <i class="far fa-calendar-alt" aria-hidden="true"></i>
                                 <span id="modal-fecha">—</span>
                             </span>
                         </div>
                     </div>
                 </div>
-                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all" onclick="closeRideModal()">
-                    <i class="fas fa-times text-lg"></i>
+                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all" onclick="closeRideModal()" aria-label="<?= t('a11y.close') ?? 'Cerrar' ?>">
+                    <i class="fas fa-times text-lg" aria-hidden="true"></i>
                 </button>
             </div>
 
@@ -446,17 +446,17 @@
                     <div class="flex items-center gap-3 flex-1 min-w-0">
                         <h4 class="text-base font-bold text-white truncate shrink-0" id="modal-driver-name"></h4>
                         <span class="bg-yellow-500/10 text-yellow-400 px-2 py-0.5 rounded-lg border border-yellow-500/20 inline-flex items-center gap-1 text-xs font-bold shrink-0">
-                            <i class="fas fa-star text-[9px]"></i>
+                            <i class="fas fa-star text-[9px]" aria-hidden="true"></i>
                             <span id="modal-rating"></span>
                         </span>
                         <span class="text-gray-700 hidden sm:inline">|</span>
                         <div class="hidden sm:flex items-center gap-1.5 text-sm shrink-0" id="modal-verified-wrapper">
-                            <i class="fas fa-shield-alt text-xs" id="modal-verified-icon"></i>
+                            <i class="fas fa-shield-alt text-xs" aria-hidden="true" id="modal-verified-icon"></i>
                             <span id="modal-verified" class="font-medium"></span>
                         </div>
                         <span class="text-gray-700 hidden md:inline">|</span>
                         <div class="hidden md:flex items-center gap-1.5 text-sm text-gray-400 shrink-0" id="modal-member-info">
-                            <i class="far fa-calendar text-xs text-gray-500"></i>
+                            <i class="far fa-calendar text-xs text-gray-500" aria-hidden="true"></i>
                             <span id="modal-member-since"></span>
                         </div>
                     </div>
@@ -466,7 +466,7 @@
                             <div class="flex flex-wrap gap-1.5" id="modal-prefs"></div>
                         </div>
                         <a href="#" id="modal-profile-link" class="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl px-4 py-2 text-sm font-semibold transition-all">
-                            <i class="fas fa-user text-xs"></i> <span class="hidden sm:inline"><?= t('dashboard.view_profile') ?></span><span class="sm:hidden"><?= t('dashboard.profile_short') ?></span>
+                            <i class="fas fa-user text-xs" aria-hidden="true"></i> <span class="hidden sm:inline"><?= t('dashboard.view_profile') ?></span><span class="sm:hidden"><?= t('dashboard.profile_short') ?></span>
                         </a>
                     </div>
                 </div>
@@ -491,13 +491,13 @@
                                     <div>
                                         <p class="text-xl font-bold text-white tracking-tight" id="modal-origin"></p>
                                         <p class="text-sm text-primary font-semibold mt-1 flex items-center gap-2" id="modal-time-start">
-                                            <i class="far fa-clock text-xs opacity-70"></i>
+                                            <i class="far fa-clock text-xs opacity-70" aria-hidden="true"></i>
                                         </p>
                                     </div>
                                     <div>
                                         <p class="text-xl font-bold text-white tracking-tight" id="modal-dest"></p>
                                         <p class="text-sm text-primary font-semibold mt-1 flex items-center gap-2" id="modal-time-end">
-                                            <i class="far fa-clock text-xs opacity-70"></i>
+                                            <i class="far fa-clock text-xs opacity-70" aria-hidden="true"></i>
                                         </p>
                                     </div>
                                 </div>
@@ -506,17 +506,17 @@
                             <!-- Estadísticas -->
                             <div class="flex flex-wrap items-center gap-2.5 mt-5 pt-5 border-t border-gray-700/30" id="modal-specs">
                                 <span class="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-xl border border-primary/20" id="modal-price-container">
-                                    <i class="fas fa-euro-sign text-primary"></i>
+                                    <i class="fas fa-euro-sign text-primary" aria-hidden="true"></i>
                                     <span class="text-lg font-extrabold text-primary" id="modal-price"></span>
                                     <span class="text-xs text-gray-500 font-medium">/<?= t('dashboard.seat') ?></span>
                                 </span>
                                 <span class="inline-flex items-center gap-2 bg-blue-500/10 px-4 py-2 rounded-xl border border-blue-500/20">
-                                    <i class="fas fa-chair text-blue-400"></i>
+                                    <i class="fas fa-chair text-blue-400" aria-hidden="true"></i>
                                     <span class="text-lg font-extrabold text-white" id="modal-seats"></span>
                                     <span class="text-xs text-gray-500 font-medium"><?= t('dashboard.seats_short') ?></span>
                                 </span>
                                 <span class="inline-flex items-center gap-2 bg-purple-500/10 px-4 py-2 rounded-xl border border-purple-500/20" id="modal-return-container" style="display:none;">
-                                    <i class="fas fa-undo text-purple-400"></i>
+                                    <i class="fas fa-undo text-purple-400" aria-hidden="true"></i>
                                     <span class="text-lg font-extrabold text-purple-400" id="modal-return-time"></span>
                                 </span>
                             </div>
@@ -525,7 +525,7 @@
                         <!-- Comentarios -->
                         <div>
                             <h5 class="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2.5 flex items-center gap-2">
-                                <i class="fas fa-comment-dots text-xs"></i> <?= t('dashboard.ride_comments') ?>
+                                <i class="fas fa-comment-dots text-xs" aria-hidden="true"></i> <?= t('dashboard.ride_comments') ?>
                             </h5>
                             <p class="text-sm text-gray-300 leading-relaxed bg-gray-800/30 p-5 rounded-2xl border border-gray-700/30" id="modal-desc"></p>
                         </div>
@@ -538,10 +538,10 @@
                             <!-- Mini info -->
                             <div class="absolute bottom-3 left-3 flex items-center gap-2 z-[2]">
                                 <span id="modal-map-distance" class="inline-flex items-center gap-1.5 bg-gray-900/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-medium text-gray-200 border border-gray-700/50">
-                                    <i class="fas fa-road text-primary text-[10px]"></i> <span></span>
+                                    <i class="fas fa-road text-primary text-[10px]" aria-hidden="true"></i> <span></span>
                                 </span>
                                 <span id="modal-map-duration" class="inline-flex items-center gap-1.5 bg-gray-900/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-medium text-gray-200 border border-gray-700/50">
-                                    <i class="fas fa-clock text-primary text-[10px]"></i> <span></span>
+                                    <i class="fas fa-clock text-primary text-[10px]" aria-hidden="true"></i> <span></span>
                                 </span>
                             </div>
                         </div>
@@ -559,17 +559,17 @@
                 <button type="button" id="btn-report"
                         class="hidden w-full sm:w-auto px-5 py-3 rounded-xl border border-red-500/20 bg-red-500/5 text-sm font-medium text-red-400 hover:bg-red-500/15 hover:border-red-500/30 transition-all flex items-center justify-center gap-2 order-2 sm:order-2"
                         onclick="reportCurrentRide()">
-                    <i class="fas fa-flag text-xs"></i> Reportar
+                    <i class="fas fa-flag text-xs" aria-hidden="true"></i> Reportar
                 </button>
                 <div class="flex-1 hidden sm:block order-3"></div>
                 <div class="flex gap-3 order-1 sm:order-4 w-full sm:w-auto">
                     <a href="#" id="btn-contact"
                        class="flex-1 sm:flex-none flex justify-center items-center gap-2 bg-gray-700/50 hover:bg-gray-700 text-gray-200 hover:text-white border border-gray-600/30 rounded-xl px-6 py-3 text-sm font-semibold transition-all">
-                        <i class="fas fa-comment-alt text-xs"></i> <?= t('dashboard.contact') ?>
+                        <i class="fas fa-comment-alt text-xs" aria-hidden="true"></i> <?= t('dashboard.contact') ?>
                     </a>
                     <button type="button" id="btn-reserve"
                             class="flex-1 sm:flex-none px-8 py-3 rounded-xl bg-primary text-secondary text-base font-bold hover:bg-primary-dark shadow-xl shadow-primary/25 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2.5">
-                        <i class="fas fa-ticket-alt"></i> <?= t('dashboard.request_seat') ?>
+                        <i class="fas fa-ticket-alt" aria-hidden="true"></i> <?= t('dashboard.request_seat') ?>
                     </button>
                 </div>
             </div>
@@ -643,11 +643,11 @@
         document.getElementById('modal-dest').textContent = ride.nombreDestino;
 
         const timeStartEl = document.getElementById('modal-time-start');
-        timeStartEl.innerHTML = '<i class="far fa-clock text-xs"></i> <?= t('dashboard.departure') ?>: ' + ride.horaSalida.substring(0, 5);
+        timeStartEl.innerHTML = '<i class="far fa-clock text-xs" aria-hidden="true"></i> <?= t('dashboard.departure') ?>: ' + ride.horaSalida.substring(0, 5);
 
         const timeEndEl = document.getElementById('modal-time-end');
         const arrivalTime = ride.horaLlegada ? ride.horaLlegada.substring(0, 5) : '--:--';
-        timeEndEl.innerHTML = '<i class="far fa-clock text-xs"></i> <?= t('dashboard.arrival_label') ?>: ' + arrivalTime;
+        timeEndEl.innerHTML = '<i class="far fa-clock text-xs" aria-hidden="true"></i> <?= t('dashboard.arrival_label') ?>: ' + arrivalTime;
 
         // Hora de regreso (card separada)
         const returnContainer = document.getElementById('modal-return-container');
@@ -700,7 +700,7 @@
         let prefs = [];
         try { prefs = JSON.parse(ride.preferencias_viaje || '[]'); } catch(e) {}
         if (prefs.length > 0) {
-            prefsEl.innerHTML = prefs.map(p => `<span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-${prefColors[p]}-500/10 text-${prefColors[p]}-400 border border-${prefColors[p]}-500/20 text-xs font-medium"><i class="fas ${prefIcons[p]}"></i> ${prefLabels[p] || p}</span>`).join('');
+            prefsEl.innerHTML = prefs.map(p => `<span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-${prefColors[p]}-500/10 text-${prefColors[p]}-400 border border-${prefColors[p]}-500/20 text-xs font-medium"><i class="fas ${prefIcons[p]}" aria-hidden="true"></i> ${prefLabels[p] || p}</span>`).join('');
             prefsContainer.style.display = '';
         } else {
             prefsContainer.style.display = 'none';
@@ -749,17 +749,17 @@
         if (ride.idUsuario == currentUserId) {
             btnReserve.disabled   = true;
             btnReserve.className  = btnStyles.disabled;
-            btnReserve.innerHTML  = '<i class="fas fa-user text-xs"></i> <?= t('dashboard.your_ride') ?>';
+            btnReserve.innerHTML  = '<i class="fas fa-user text-xs" aria-hidden="true"></i> <?= t('dashboard.your_ride') ?>';
 
         } else if (ride.booking_status === 'pendiente') {
             btnReserve.disabled   = true;
             btnReserve.className  = btnStyles.pending;
-            btnReserve.innerHTML  = '<i class="fas fa-clock text-xs"></i> <?= t('dashboard.pending_request') ?>';
+            btnReserve.innerHTML  = '<i class="fas fa-clock text-xs" aria-hidden="true"></i> <?= t('dashboard.pending_request') ?>';
 
         } else if (ride.booking_status === 'aceptado') {
             btnReserve.disabled   = true;
             btnReserve.className  = btnStyles.confirmed;
-            btnReserve.innerHTML  = '<i class="fas fa-check text-xs"></i> <?= t('dashboard.seat_confirmed') ?>';
+            btnReserve.innerHTML  = '<i class="fas fa-check text-xs" aria-hidden="true"></i> <?= t('dashboard.seat_confirmed') ?>';
 
         } else if (ride.booking_status === 'rechazado' && ride.cooldown_until) {
             btnReserve.disabled   = true;
@@ -770,13 +770,13 @@
                 if (remaining <= 0) {
                     btnReserve.disabled  = false;
                     btnReserve.className = btnStyles.active;
-                    btnReserve.innerHTML = '<i class="fas fa-redo text-xs"></i> <?= t('dashboard.request_again') ?>';
+                    btnReserve.innerHTML = '<i class="fas fa-redo text-xs" aria-hidden="true"></i> <?= t('dashboard.request_again') ?>';
                     btnReserve.onclick   = () => { submitReserveForm(ride.idAnuncio); };
                     return;
                 }
                 const mins = Math.floor(remaining / 60000);
                 const secs = Math.floor((remaining % 60000) / 1000);
-                btnReserve.innerHTML = '<i class="fas fa-clock text-xs"></i> <?= t('dashboard.rejected_cooldown') ?> ' + mins + ':' + String(secs).padStart(2, '0');
+                btnReserve.innerHTML = '<i class="fas fa-clock text-xs" aria-hidden="true"></i> <?= t('dashboard.rejected_cooldown') ?> ' + mins + ':' + String(secs).padStart(2, '0');
                 setTimeout(updateCooldown, 1000);
             }
             updateCooldown();
@@ -784,17 +784,17 @@
         } else if (ride.booking_status === 'rechazado') {
             // Cooldown ya pasado, puede volver a solicitar
             btnReserve.className  = btnStyles.active;
-            btnReserve.innerHTML  = '<i class="fas fa-redo text-xs"></i> <?= t('dashboard.request_again') ?>';
+            btnReserve.innerHTML  = '<i class="fas fa-redo text-xs" aria-hidden="true"></i> <?= t('dashboard.request_again') ?>';
             btnReserve.onclick    = () => { submitReserveForm(ride.idAnuncio); };
 
         } else if (ride.plazasDisponibles <= 0) {
             btnReserve.disabled   = true;
             btnReserve.className  = btnStyles.disabled;
-            btnReserve.innerHTML  = '<i class="fas fa-ban text-xs"></i> <?= t('dashboard.ride_full') ?>';
+            btnReserve.innerHTML  = '<i class="fas fa-ban text-xs" aria-hidden="true"></i> <?= t('dashboard.ride_full') ?>';
 
         } else if (ride.tipo.toLowerCase() === 'ofrezco') {
             btnReserve.className  = btnStyles.active;
-            btnReserve.innerHTML  = '<i class="fas fa-ticket-alt text-xs"></i> <?= t('dashboard.request_seat') ?>';
+            btnReserve.innerHTML  = '<i class="fas fa-ticket-alt text-xs" aria-hidden="true"></i> <?= t('dashboard.request_seat') ?>';
             btnReserve.onclick    = () => { submitReserveForm(ride.idAnuncio); };
 
         } else {

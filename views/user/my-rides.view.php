@@ -8,14 +8,14 @@
             <p class="text-gray-400 mt-2 lg:text-lg"><?= t('myrides.subtitle') ?></p>
         </div>
         <a href="<?= url('/publish') ?>" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl text-secondary bg-primary hover:bg-primary-dark transition-all transform hover:-translate-y-0.5 shadow-lg shadow-primary/20">
-            <i class="fas fa-plus-circle mr-2"></i> <?= t('myrides.new_ride') ?>
+            <i class="fas fa-plus-circle mr-2" aria-hidden="true"></i> <?= t('myrides.new_ride') ?>
         </a>
     </div>
 
     <?php $flashData = $flashData ?? getFlash(); ?>
     <?php if ($flashData && $flashData['type'] === 'success'): ?>
         <div class="mb-6 bg-green-500/10 border border-green-500/50 text-green-500 p-4 rounded-xl flex items-center gap-3">
-            <i class="fas fa-check-circle text-xl"></i>
+            <i class="fas fa-check-circle text-xl" aria-hidden="true"></i>
             <div class="font-medium">
                 <?php if ($flashData['message'] == 'created'): ?>
                     <?= t('myrides.success_created') ?>
@@ -38,7 +38,7 @@
 
     <?php if ($flashData && $flashData['type'] === 'error'): ?>
         <div class="mb-6 bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-xl flex items-center gap-3">
-             <i class="fas fa-exclamation-circle text-xl"></i>
+             <i class="fas fa-exclamation-circle text-xl" aria-hidden="true"></i>
              <div class="font-medium">
                 <?php if ($flashData['message'] == 'update_failed'): ?>
                     <?= t('myrides.err_update_failed') ?>
@@ -63,19 +63,19 @@
     <div class="mb-8 border-b border-gray-700">
         <nav class="-mb-px flex space-x-8" aria-label="Tabs">
             <button onclick="switchTab('active')" id="tab-active" class="border-primary text-primary whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm lg:text-base transition-colors flex items-center gap-2">
-                <i class="fas fa-route"></i> <?= t('myrides.tab_active') ?>
+                <i class="fas fa-route" aria-hidden="true"></i> <?= t('myrides.tab_active') ?>
                 <span class="bg-gray-800 text-gray-300 py-0.5 px-2 rounded-full text-xs ml-1"><?= count($activeRides) ?></span>
             </button>
             <button onclick="switchTab('past')" id="tab-past" class="border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm lg:text-base transition-colors flex items-center gap-2">
-                <i class="fas fa-history"></i> <?= t('myrides.tab_history') ?>
+                <i class="fas fa-history" aria-hidden="true"></i> <?= t('myrides.tab_history') ?>
                 <span class="bg-gray-800 text-gray-500 py-0.5 px-2 rounded-full text-xs ml-1"><?= count($pastRides) ?></span>
             </button>
             <button onclick="switchTab('bookings')" id="tab-bookings" class="border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm lg:text-base transition-colors flex items-center gap-2">
-                <i class="fas fa-ticket-alt"></i> <?= t('myrides.tab_bookings') ?>
+                <i class="fas fa-ticket-alt" aria-hidden="true"></i> <?= t('myrides.tab_bookings') ?>
                 <span class="bg-gray-800 text-gray-500 py-0.5 px-2 rounded-full text-xs ml-1"><?= count($activeBookings) ?></span>
             </button>
             <button onclick="switchTab('past-bookings')" id="tab-past-bookings" class="border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm lg:text-base transition-colors flex items-center gap-2">
-                <i class="fas fa-clipboard-check"></i> <?= t('myrides.tab_past_bookings') ?>
+                <i class="fas fa-clipboard-check" aria-hidden="true"></i> <?= t('myrides.tab_past_bookings') ?>
                 <span class="bg-gray-800 text-gray-500 py-0.5 px-2 rounded-full text-xs ml-1"><?= count($pastBookings) ?></span>
             </button>
         </nav>
@@ -86,7 +86,7 @@
         <?php if (empty($activeRides)): ?>
             <div class="text-center py-12 sm:py-20 bg-surface/30 rounded-2xl sm:rounded-3xl border border-dashed border-gray-700">
                 <div class="w-16 h-16 sm:w-24 sm:h-24 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                    <i class="fas fa-car-side text-4xl text-gray-600"></i>
+                    <i class="fas fa-car-side text-4xl text-gray-600" aria-hidden="true"></i>
                 </div>
                 <h3 class="text-xl font-medium text-white mb-2"><?= t('myrides.no_active') ?></h3>
                 <p class="text-gray-400 mb-6"><?= t('myrides.no_active_desc') ?></p>
@@ -107,7 +107,7 @@
         <?php if (empty($pastRides)): ?>
             <div class="text-center py-12 sm:py-20 bg-surface/30 rounded-2xl sm:rounded-3xl border border-dashed border-gray-700">
                 <div class="w-16 h-16 sm:w-24 sm:h-24 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                    <i class="fas fa-history text-4xl text-gray-600"></i>
+                    <i class="fas fa-history text-4xl text-gray-600" aria-hidden="true"></i>
                 </div>
                 <h3 class="text-xl font-medium text-white mb-2"><?= t('myrides.no_history') ?></h3>
                 <p class="text-gray-400"><?= t('myrides.no_history_desc') ?></p>
@@ -127,7 +127,7 @@
         <?php if (empty($activeBookings)): ?>
             <div class="text-center py-12 sm:py-20 bg-surface/30 rounded-2xl sm:rounded-3xl border border-dashed border-gray-700">
                 <div class="w-16 h-16 sm:w-24 sm:h-24 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                    <i class="fas fa-ticket-alt text-4xl text-gray-600"></i>
+                    <i class="fas fa-ticket-alt text-4xl text-gray-600" aria-hidden="true"></i>
                 </div>
                 <h3 class="text-xl font-medium text-white mb-2"><?= t('myrides.no_bookings') ?></h3>
                 <p class="text-gray-400 mb-6"><?= t('myrides.no_bookings_desc') ?></p>
@@ -148,7 +148,7 @@
         <?php if (empty($pastBookings)): ?>
             <div class="text-center py-12 sm:py-20 bg-surface/30 rounded-2xl sm:rounded-3xl border border-dashed border-gray-700">
                 <div class="w-16 h-16 sm:w-24 sm:h-24 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                    <i class="fas fa-clipboard-check text-4xl text-gray-600"></i>
+                    <i class="fas fa-clipboard-check text-4xl text-gray-600" aria-hidden="true"></i>
                 </div>
                 <h3 class="text-xl font-medium text-white mb-2"><?= t('myrides.no_past_bookings') ?></h3>
                 <p class="text-gray-400"><?= t('myrides.no_past_bookings_desc') ?></p>
@@ -180,7 +180,7 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
                 <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(16,185,129,0.15),transparent_70%)]"></div>
                 <div class="flex items-center gap-4 relative z-10">
                     <div class="w-10 h-10 rounded-xl bg-emerald-500/25 border border-emerald-500/30 flex items-center justify-center">
-                        <i class="fas fa-flag-checkered text-emerald-400 text-lg"></i>
+                        <i class="fas fa-flag-checkered text-emerald-400 text-lg" aria-hidden="true"></i>
                     </div>
                     <div>
                         <p class="text-base font-bold text-emerald-300"><?= t('myrides.trip_ended_title') ?></p>
@@ -190,7 +190,7 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
                 <form action="<?= url('/complete-trip') ?>" method="POST" onsubmit="return confirm('<?= t('myrides.complete_confirm') ?>')" class="relative z-10">
                     <input type="hidden" name="ride_id" value="<?= $ride['idAnuncio'] ?>">
                     <button type="submit" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-gray-900 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-500/30 hover:shadow-emerald-400/40 flex items-center gap-2 hover:-translate-y-0.5">
-                        <i class="fas fa-check-circle"></i> <?= t('myrides.complete_trip') ?>
+                        <i class="fas fa-check-circle" aria-hidden="true"></i> <?= t('myrides.complete_trip') ?>
                     </button>
                 </form>
             </div>
@@ -207,11 +207,11 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
                 </div>
                 <?php if ($isFeatured): ?>
                     <span class="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold rounded-full border border-yellow-500/30 flex items-center gap-1">
-                        <i class="fas fa-star text-[8px]"></i> <?= t('myrides.featured') ?>
+                        <i class="fas fa-star text-[8px]" aria-hidden="true"></i> <?= t('myrides.featured') ?>
                     </span>
                 <?php endif; ?>
                 <span class="text-sm text-gray-400 flex items-center gap-2">
-                    <i class="far fa-calendar"></i>
+                    <i class="far fa-calendar" aria-hidden="true"></i>
                     <?= date('d M, Y', strtotime($ride['fechaSalida'])) ?>
                 </span>
             </div>
@@ -237,15 +237,15 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
                             <div class="flex-1 flex flex-col justify-between gap-4">
                                 <div>
                                     <h4 class="text-lg font-bold text-white"><?= htmlspecialchars($ride['nombreOrigen']) ?></h4>
-                                    <p class="text-sm text-primary font-semibold mt-0.5"><i class="far fa-clock text-xs mr-1"></i><?= t('dashboard.departure') ?>: <?= substr($ride['horaSalida'], 0, 5) ?></p>
+                                    <p class="text-sm text-primary font-semibold mt-0.5"><i class="far fa-clock text-xs mr-1" aria-hidden="true"></i><?= t('dashboard.departure') ?>: <?= substr($ride['horaSalida'], 0, 5) ?></p>
                                 </div>
                                 <div>
                                     <h4 class="text-lg font-bold text-white"><?= htmlspecialchars($ride['nombreDestino']) ?></h4>
                                     <?php if (!empty($ride['horaLlegada'])): ?>
-                                        <p class="text-sm text-primary font-semibold mt-0.5"><i class="far fa-clock text-xs mr-1"></i><?= t('dashboard.arrival_label') ?>: <?= substr($ride['horaLlegada'], 0, 5) ?></p>
+                                        <p class="text-sm text-primary font-semibold mt-0.5"><i class="far fa-clock text-xs mr-1" aria-hidden="true"></i><?= t('dashboard.arrival_label') ?>: <?= substr($ride['horaLlegada'], 0, 5) ?></p>
                                     <?php endif; ?>
                                     <?php if ($ride['horaRegreso']): ?>
-                                        <p class="text-xs text-purple-400 font-medium mt-1"><i class="fas fa-undo text-[10px] mr-1"></i><?= t('myrides.return_time') ?> <?= substr($ride['horaRegreso'], 0, 5) ?></p>
+                                        <p class="text-xs text-purple-400 font-medium mt-1"><i class="fas fa-undo text-[10px] mr-1" aria-hidden="true"></i><?= t('myrides.return_time') ?> <?= substr($ride['horaRegreso'], 0, 5) ?></p>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -255,11 +255,11 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
                     <!-- Stats inline -->
                     <div class="flex items-center gap-4 text-sm mb-4">
                         <div class="flex items-center gap-2 bg-gray-800/30 rounded-lg px-3 py-2 border border-gray-700/40">
-                            <i class="fas fa-chair text-blue-400"></i>
+                            <i class="fas fa-chair text-blue-400" aria-hidden="true"></i>
                             <span class="text-gray-300"><?= $totalSeats ?> <?= t('myrides.total_seats') ?></span>
                         </div>
                         <div class="flex items-center gap-2 bg-gray-800/30 rounded-lg px-3 py-2 border border-gray-700/40">
-                            <i class="fas fa-users text-green-400"></i>
+                            <i class="fas fa-users text-green-400" aria-hidden="true"></i>
                             <span class="text-gray-300"><?= $passengerCount ?> <?= t('myrides.joined') ?></span>
                         </div>
                     </div>
@@ -288,7 +288,7 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
                                             <?= strtoupper(substr($passenger['nombre'], 0, 2)) ?>
                                         </div>
                                         <p class="text-sm font-medium text-white truncate flex-1"><?= htmlspecialchars($passenger['nombre']) ?></p>
-                                        <a href="<?= url('/profile') ?>?id=<?= $passenger['idUsuario'] ?>" class="text-gray-400 hover:text-white shrink-0"><i class="fas fa-external-link-alt text-xs"></i></a>
+                                        <a href="<?= url('/profile') ?>?id=<?= $passenger['idUsuario'] ?>" class="text-gray-400 hover:text-white shrink-0"><i class="fas fa-external-link-alt text-xs" aria-hidden="true"></i></a>
                                     </div>
                                     <?php if ($passenger['estado'] === 'pendiente'): ?>
                                         <div class="flex gap-2">
@@ -296,21 +296,21 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
                                                 <input type="hidden" name="ride_id" value="<?= $ride['idAnuncio'] ?>">
                                                 <input type="hidden" name="passenger_id" value="<?= $passenger['idUsuario'] ?>">
                                                 <input type="hidden" name="action" value="accept">
-                                                <button type="submit" class="w-full py-1.5 bg-green-500/10 hover:bg-green-500/20 text-green-500 rounded-lg text-xs font-bold border border-green-500/20 transition-colors"><i class="fas fa-check mr-1"></i><?= $ride['tipo'] === 'ofrezco' ? t('myrides.accept') : t('myrides.accept_driver') ?></button>
+                                                <button type="submit" class="w-full py-1.5 bg-green-500/10 hover:bg-green-500/20 text-green-500 rounded-lg text-xs font-bold border border-green-500/20 transition-colors"><i class="fas fa-check mr-1" aria-hidden="true"></i><?= $ride['tipo'] === 'ofrezco' ? t('myrides.accept') : t('myrides.accept_driver') ?></button>
                                             </form>
                                             <form action="<?= url('/manage-reservation') ?>" method="POST" class="flex-1">
                                                 <input type="hidden" name="ride_id" value="<?= $ride['idAnuncio'] ?>">
                                                 <input type="hidden" name="passenger_id" value="<?= $passenger['idUsuario'] ?>">
                                                 <input type="hidden" name="action" value="reject">
-                                                <button type="submit" class="w-full py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg text-xs font-bold border border-red-500/20 transition-colors"><i class="fas fa-times mr-1"></i><?= $ride['tipo'] === 'ofrezco' ? t('myrides.reject') : t('myrides.reject_driver') ?></button>
+                                                <button type="submit" class="w-full py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg text-xs font-bold border border-red-500/20 transition-colors"><i class="fas fa-times mr-1" aria-hidden="true"></i><?= $ride['tipo'] === 'ofrezco' ? t('myrides.reject') : t('myrides.reject_driver') ?></button>
                                             </form>
                                         </div>
                                     <?php elseif ($passenger['estado'] === 'aceptado'): ?>
-                                        <div class="text-center py-1 bg-green-500/10 text-green-500 rounded-lg text-xs font-bold border border-green-500/20"><i class="fas fa-check mr-1"></i><?= t('myrides.confirmed') ?></div>
+                                        <div class="text-center py-1 bg-green-500/10 text-green-500 rounded-lg text-xs font-bold border border-green-500/20"><i class="fas fa-check mr-1" aria-hidden="true"></i><?= t('myrides.confirmed') ?></div>
                                     <?php elseif ($passenger['estado'] === 'rechazado'): ?>
-                                        <div class="text-center py-1 bg-red-500/10 text-red-500 rounded-lg text-xs font-bold border border-red-500/20"><i class="fas fa-times mr-1"></i><?= t('myrides.rejected') ?></div>
+                                        <div class="text-center py-1 bg-red-500/10 text-red-500 rounded-lg text-xs font-bold border border-red-500/20"><i class="fas fa-times mr-1" aria-hidden="true"></i><?= t('myrides.rejected') ?></div>
                                     <?php elseif ($passenger['estado'] === 'completado'): ?>
-                                        <div class="text-center py-1 bg-primary/10 text-primary rounded-lg text-xs font-bold border border-primary/20"><i class="fas fa-check-double mr-1"></i><?= t('myrides.completed') ?></div>
+                                        <div class="text-center py-1 bg-primary/10 text-primary rounded-lg text-xs font-bold border border-primary/20"><i class="fas fa-check-double mr-1" aria-hidden="true"></i><?= t('myrides.completed') ?></div>
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
@@ -324,27 +324,27 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
                         <div class="space-y-2.5">
                             <?php if ($isPremium): ?>
                                 <button onclick="toggleFeatured(<?= $ride['idAnuncio'] ?>, this)" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 <?= $isFeatured ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/40' : 'bg-gray-800/50 text-gray-400 border-gray-700' ?> rounded-xl text-sm font-medium transition-colors border" data-featured="<?= $isFeatured ? '1' : '0' ?>">
-                                    <i class="fas fa-star text-xs"></i> <?= $isFeatured ? t('myrides.remove_featured') : t('myrides.set_featured') ?>
+                                    <i class="fas fa-star text-xs" aria-hidden="true"></i> <?= $isFeatured ? t('myrides.remove_featured') : t('myrides.set_featured') ?>
                                 </button>
                             <?php else: ?>
                                 <a href="<?= url('/premium') ?>" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-800/50 text-gray-500 rounded-xl text-xs font-medium border border-gray-700 hover:text-gray-300 transition-colors">
-                                    <i class="fas fa-lock text-xs"></i> <?= t('myrides.set_featured_premium') ?>
+                                    <i class="fas fa-lock text-xs" aria-hidden="true"></i> <?= t('myrides.set_featured_premium') ?>
                                 </a>
                             <?php endif; ?>
                             <a href="<?= url('/edit-ride') ?>?id=<?= $ride['idAnuncio'] ?>" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-sm font-medium transition-colors border border-gray-600">
-                                <i class="fas fa-edit"></i> <?= t('myrides.edit') ?>
+                                <i class="fas fa-edit" aria-hidden="true"></i> <?= t('myrides.edit') ?>
                             </a>
                             <button onclick="confirmDelete(<?= $ride['idAnuncio'] ?>)" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-400 rounded-xl text-sm font-medium transition-colors border border-red-500/20">
-                                <i class="fas fa-trash-alt"></i> <?= t('myrides.delete') ?>
+                                <i class="fas fa-trash-alt" aria-hidden="true"></i> <?= t('myrides.delete') ?>
                             </button>
                         </div>
                     <?php elseif ($isActive && $tripEnded): ?>
                         <div class="space-y-2.5">
                             <div class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl text-sm font-medium border border-emerald-500/20">
-                                <i class="fas fa-hourglass-half"></i> <?= t('myrides.awaiting_completion') ?>
+                                <i class="fas fa-hourglass-half" aria-hidden="true"></i> <?= t('myrides.awaiting_completion') ?>
                             </div>
                             <a href="<?= url('/chat') ?>?anuncio_id=<?= $ride['idAnuncio'] ?>" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-sm font-medium transition-colors border border-gray-600">
-                                <i class="fas fa-comment"></i> <?= t('myrides.contact') ?>
+                                <i class="fas fa-comment" aria-hidden="true"></i> <?= t('myrides.contact') ?>
                             </a>
                         </div>
                     <?php else: ?>
@@ -359,18 +359,18 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
                         ?>
                         <?php if ($allCompleted && !empty($ride['passengers'])): ?>
                             <div class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-green-500/10 text-green-500 rounded-xl text-sm font-medium border border-green-500/20">
-                                <i class="fas fa-check-double"></i> <?= t('myrides.completed') ?>
+                                <i class="fas fa-check-double" aria-hidden="true"></i> <?= t('myrides.completed') ?>
                             </div>
                         <?php elseif ($hasAccepted): ?>
                             <form action="<?= url('/complete-trip') ?>" method="POST" onsubmit="return confirm('<?= t('myrides.complete_confirm') ?>')">
                                 <input type="hidden" name="ride_id" value="<?= $ride['idAnuncio'] ?>">
                                 <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl text-sm font-medium border border-primary/30 transition-colors">
-                                    <i class="fas fa-check-circle"></i> <?= t('myrides.complete_trip') ?>
+                                    <i class="fas fa-check-circle" aria-hidden="true"></i> <?= t('myrides.complete_trip') ?>
                                 </button>
                             </form>
                         <?php else: ?>
                             <button disabled class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-800/50 text-gray-500 rounded-xl text-sm font-medium border border-gray-700 cursor-not-allowed">
-                                <i class="fas fa-archive"></i> <?= t('myrides.archived') ?>
+                                <i class="fas fa-archive" aria-hidden="true"></i> <?= t('myrides.archived') ?>
                             </button>
                         <?php endif; ?>
                     <?php endif; ?>
@@ -391,24 +391,24 @@ function renderBookingCard($booking) {
             <div class="flex items-center gap-3">
                 <?php if ($booking['tipo'] === 'ofrezco'): ?>
                     <div class="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-xs font-bold border border-blue-500/20 uppercase tracking-wide">
-                        <i class="fas fa-user-friends mr-1"></i> <?= t('common.passenger') ?>
+                        <i class="fas fa-user-friends mr-1" aria-hidden="true"></i> <?= t('common.passenger') ?>
                     </div>
                 <?php else: ?>
                     <div class="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full text-xs font-bold border border-purple-500/20 uppercase tracking-wide">
-                        <i class="fas fa-car mr-1"></i> <?= t('common.driver') ?>
+                        <i class="fas fa-car mr-1" aria-hidden="true"></i> <?= t('common.driver') ?>
                     </div>
                 <?php endif; ?>
                 <span class="text-sm text-gray-400 flex items-center gap-2">
-                    <i class="far fa-calendar"></i> <?= date('d M, Y', strtotime($booking['fechaSalida'])) ?>
+                    <i class="far fa-calendar" aria-hidden="true"></i> <?= date('d M, Y', strtotime($booking['fechaSalida'])) ?>
                 </span>
             </div>
             <div class="flex items-center gap-3">
                 <?php if ($booking['estadoReserva'] === 'pendiente'): ?>
-                    <span class="px-3 py-1.5 bg-yellow-500/10 text-yellow-500 rounded-full text-xs font-bold border border-yellow-500/20"><i class="fas fa-clock mr-1"></i> <?= t('myrides.status_pending') ?></span>
+                    <span class="px-3 py-1.5 bg-yellow-500/10 text-yellow-500 rounded-full text-xs font-bold border border-yellow-500/20"><i class="fas fa-clock mr-1" aria-hidden="true"></i> <?= t('myrides.status_pending') ?></span>
                 <?php elseif ($booking['estadoReserva'] === 'aceptado'): ?>
-                    <span class="px-3 py-1.5 bg-green-500/10 text-green-500 rounded-full text-xs font-bold border border-green-500/20"><i class="fas fa-check mr-1"></i> <?= t('myrides.status_confirmed') ?></span>
+                    <span class="px-3 py-1.5 bg-green-500/10 text-green-500 rounded-full text-xs font-bold border border-green-500/20"><i class="fas fa-check mr-1" aria-hidden="true"></i> <?= t('myrides.status_confirmed') ?></span>
                 <?php else: ?>
-                    <span class="px-3 py-1.5 bg-red-500/10 text-red-500 rounded-full text-xs font-bold border border-red-500/20"><i class="fas fa-times mr-1"></i> <?= t('myrides.status_rejected') ?></span>
+                    <span class="px-3 py-1.5 bg-red-500/10 text-red-500 rounded-full text-xs font-bold border border-red-500/20"><i class="fas fa-times mr-1" aria-hidden="true"></i> <?= t('myrides.status_rejected') ?></span>
                 <?php endif; ?>
                 <?php if ($booking['tipo'] === 'ofrezco' && $booking['precio']): ?>
                     <span class="text-xl font-bold text-primary"><?= number_format($booking['precio'], 2) ?>€</span>
@@ -432,12 +432,12 @@ function renderBookingCard($booking) {
                             <div class="flex-1 flex flex-col justify-between gap-4">
                                 <div>
                                     <h4 class="text-lg font-bold text-white"><?= htmlspecialchars($booking['nombreOrigen']) ?></h4>
-                                    <p class="text-sm text-primary font-semibold mt-0.5"><i class="far fa-clock text-xs mr-1"></i><?= t('dashboard.departure') ?>: <?= substr($booking['horaSalida'], 0, 5) ?></p>
+                                    <p class="text-sm text-primary font-semibold mt-0.5"><i class="far fa-clock text-xs mr-1" aria-hidden="true"></i><?= t('dashboard.departure') ?>: <?= substr($booking['horaSalida'], 0, 5) ?></p>
                                 </div>
                                 <div>
                                     <h4 class="text-lg font-bold text-white"><?= htmlspecialchars($booking['nombreDestino']) ?></h4>
                                     <?php if ($booking['horaRegreso']): ?>
-                                        <p class="text-xs text-purple-400 font-medium mt-1"><i class="fas fa-undo text-[10px] mr-1"></i><?= t('myrides.return_time') ?> <?= substr($booking['horaRegreso'], 0, 5) ?></p>
+                                        <p class="text-xs text-purple-400 font-medium mt-1"><i class="fas fa-undo text-[10px] mr-1" aria-hidden="true"></i><?= t('myrides.return_time') ?> <?= substr($booking['horaRegreso'], 0, 5) ?></p>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -465,7 +465,7 @@ function renderBookingCard($booking) {
                             <p class="text-xs text-gray-400 mt-0.5"><?= $booking['tipo'] === 'ofrezco' ? t('common.driver') : t('common.passenger') ?></p>
                         </div>
                         <a href="<?= url('/profile') ?>?id=<?= $booking['idUsuario'] ?>" class="text-primary hover:text-primary-dark transition-colors">
-                            <i class="fas fa-external-link-alt"></i>
+                            <i class="fas fa-external-link-alt" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
@@ -474,14 +474,14 @@ function renderBookingCard($booking) {
                 <div class="lg:col-span-3 lg:border-l lg:border-gray-700/40 lg:pl-6 flex flex-col justify-between">
                     <div class="space-y-2.5">
                         <a href="<?= url('/chat') ?>?anuncio_id=<?= $booking['idAnuncio'] ?>&other_user_id=<?= $booking['idUsuario'] ?>" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-dark text-secondary rounded-xl text-sm font-bold transition-all shadow-lg shadow-primary/20">
-                            <i class="fas fa-comment"></i> <?= t('myrides.contact') ?>
+                            <i class="fas fa-comment" aria-hidden="true"></i> <?= t('myrides.contact') ?>
                         </a>
                         <a href="<?= url('/profile') ?>?id=<?= $booking['idUsuario'] ?>" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-sm font-medium transition-colors border border-gray-600">
-                            <i class="fas fa-user"></i> <?= t('myrides.view_profile') ?>
+                            <i class="fas fa-user" aria-hidden="true"></i> <?= t('myrides.view_profile') ?>
                         </a>
                         <?php if ($booking['estadoReserva'] !== 'rechazado'): ?>
                             <button onclick="confirmCancelReservation(<?= $booking['idAnuncio'] ?>, '<?= $booking['estadoReserva'] ?>')" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-400 rounded-xl text-sm font-medium transition-colors border border-red-500/20">
-                                <i class="fas fa-times-circle"></i> <?= t('myrides.cancel_booking') ?>
+                                <i class="fas fa-times-circle" aria-hidden="true"></i> <?= t('myrides.cancel_booking') ?>
                             </button>
                         <?php endif; ?>
                     </div>
@@ -504,24 +504,24 @@ function renderPastBookingCard($booking) {
             <div class="flex items-center gap-3">
                 <?php if ($booking['tipo'] === 'ofrezco'): ?>
                     <div class="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-xs font-bold border border-blue-500/20 uppercase tracking-wide">
-                        <i class="fas fa-user-friends mr-1"></i> <?= t('common.passenger') ?>
+                        <i class="fas fa-user-friends mr-1" aria-hidden="true"></i> <?= t('common.passenger') ?>
                     </div>
                 <?php else: ?>
                     <div class="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full text-xs font-bold border border-purple-500/20 uppercase tracking-wide">
-                        <i class="fas fa-car mr-1"></i> <?= t('common.driver') ?>
+                        <i class="fas fa-car mr-1" aria-hidden="true"></i> <?= t('common.driver') ?>
                     </div>
                 <?php endif; ?>
                 <span class="text-sm text-gray-400 flex items-center gap-2">
-                    <i class="far fa-calendar"></i> <?= date('d M, Y', strtotime($booking['fechaSalida'])) ?>
+                    <i class="far fa-calendar" aria-hidden="true"></i> <?= date('d M, Y', strtotime($booking['fechaSalida'])) ?>
                 </span>
             </div>
             <div class="flex items-center gap-3">
                 <?php if ($isCompleted): ?>
-                    <span class="px-3 py-1.5 bg-green-500/10 text-green-500 rounded-full text-xs font-bold border border-green-500/20"><i class="fas fa-check-double mr-1"></i> <?= t('myrides.completed') ?></span>
+                    <span class="px-3 py-1.5 bg-green-500/10 text-green-500 rounded-full text-xs font-bold border border-green-500/20"><i class="fas fa-check-double mr-1" aria-hidden="true"></i> <?= t('myrides.completed') ?></span>
                 <?php elseif ($isAccepted): ?>
-                    <span class="px-3 py-1.5 bg-green-500/10 text-green-500 rounded-full text-xs font-bold border border-green-500/20"><i class="fas fa-check mr-1"></i> <?= t('myrides.status_confirmed') ?></span>
+                    <span class="px-3 py-1.5 bg-green-500/10 text-green-500 rounded-full text-xs font-bold border border-green-500/20"><i class="fas fa-check mr-1" aria-hidden="true"></i> <?= t('myrides.status_confirmed') ?></span>
                 <?php else: ?>
-                    <span class="px-3 py-1.5 bg-gray-500/10 text-gray-400 rounded-full text-xs font-bold border border-gray-500/20"><i class="fas fa-archive mr-1"></i> <?= t('myrides.archived') ?></span>
+                    <span class="px-3 py-1.5 bg-gray-500/10 text-gray-400 rounded-full text-xs font-bold border border-gray-500/20"><i class="fas fa-archive mr-1" aria-hidden="true"></i> <?= t('myrides.archived') ?></span>
                 <?php endif; ?>
                 <?php if ($booking['tipo'] === 'ofrezco' && $booking['precio']): ?>
                     <span class="text-xl font-bold text-primary"><?= number_format($booking['precio'], 2) ?>€</span>
@@ -544,12 +544,12 @@ function renderPastBookingCard($booking) {
                             <div class="flex-1 flex flex-col justify-between gap-4">
                                 <div>
                                     <h4 class="text-lg font-bold text-white"><?= htmlspecialchars($booking['nombreOrigen']) ?></h4>
-                                    <p class="text-sm text-primary font-semibold mt-0.5"><i class="far fa-clock text-xs mr-1"></i><?= t('dashboard.departure') ?>: <?= substr($booking['horaSalida'], 0, 5) ?></p>
+                                    <p class="text-sm text-primary font-semibold mt-0.5"><i class="far fa-clock text-xs mr-1" aria-hidden="true"></i><?= t('dashboard.departure') ?>: <?= substr($booking['horaSalida'], 0, 5) ?></p>
                                 </div>
                                 <div>
                                     <h4 class="text-lg font-bold text-white"><?= htmlspecialchars($booking['nombreDestino']) ?></h4>
                                     <?php if ($booking['horaRegreso']): ?>
-                                        <p class="text-xs text-purple-400 font-medium mt-1"><i class="fas fa-undo text-[10px] mr-1"></i><?= t('myrides.return_time') ?> <?= substr($booking['horaRegreso'], 0, 5) ?></p>
+                                        <p class="text-xs text-purple-400 font-medium mt-1"><i class="fas fa-undo text-[10px] mr-1" aria-hidden="true"></i><?= t('myrides.return_time') ?> <?= substr($booking['horaRegreso'], 0, 5) ?></p>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -571,7 +571,7 @@ function renderPastBookingCard($booking) {
                             <p class="text-xs text-gray-400 mt-0.5"><?= $booking['tipo'] === 'ofrezco' ? t('common.driver') : t('common.passenger') ?></p>
                         </div>
                         <a href="<?= url('/profile') ?>?id=<?= $booking['idUsuario'] ?>" class="text-primary hover:text-primary-dark transition-colors">
-                            <i class="fas fa-external-link-alt"></i>
+                            <i class="fas fa-external-link-alt" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
@@ -586,12 +586,12 @@ function renderPastBookingCard($booking) {
                             ?>
                             <?php if ($viajeId): ?>
                                 <a href="<?= url('/rating') ?>?viaje=<?= $viajeId ?>" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-dark text-secondary rounded-xl text-sm font-bold transition-all shadow-lg shadow-primary/20">
-                                    <i class="fas fa-star"></i> <?= t('myrides.rate_trip') ?>
+                                    <i class="fas fa-star" aria-hidden="true"></i> <?= t('myrides.rate_trip') ?>
                                 </a>
                             <?php endif; ?>
                         <?php endif; ?>
                         <a href="<?= url('/profile') ?>?id=<?= $booking['idUsuario'] ?>" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-sm font-medium transition-colors border border-gray-600">
-                            <i class="fas fa-user"></i> <?= t('myrides.view_profile') ?>
+                            <i class="fas fa-user" aria-hidden="true"></i> <?= t('myrides.view_profile') ?>
                         </a>
                     </div>
                 </div>
@@ -750,7 +750,7 @@ function renderPastBookingCard($booking) {
         <div class="p-6 border-b border-gray-700">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
-                    <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                    <i class="fas fa-exclamation-triangle text-red-500 text-xl" aria-hidden="true"></i>
                 </div>
                 <div>
                     <h3 class="text-xl font-bold text-white"><?= t('myrides.delete_title') ?></h3>
@@ -767,7 +767,7 @@ function renderPastBookingCard($booking) {
             
             <div class="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
                 <p class="text-sm text-red-400 flex items-start gap-2">
-                    <i class="fas fa-info-circle mt-0.5"></i>
+                    <i class="fas fa-info-circle mt-0.5" aria-hidden="true"></i>
                     <span><?= t('myrides.delete_permanent') ?></span>
                 </p>
             </div>
@@ -776,10 +776,10 @@ function renderPastBookingCard($booking) {
         <!-- Footer con botones -->
         <div class="p-6 bg-gray-800/50 border-t border-gray-700 flex gap-3">
             <button onclick="closeDeleteModal()" class="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-medium transition-all">
-                <i class="fas fa-times mr-2"></i><?= t('myrides.cancel') ?>
+                <i class="fas fa-times mr-2" aria-hidden="true"></i><?= t('myrides.cancel') ?>
             </button>
             <button onclick="executeDelete()" class="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all shadow-lg shadow-red-500/20 hover:shadow-red-500/40">
-                <i class="fas fa-trash-alt mr-2"></i><?= t('myrides.delete') ?>
+                <i class="fas fa-trash-alt mr-2" aria-hidden="true"></i><?= t('myrides.delete') ?>
             </button>
         </div>
     </div>
@@ -792,7 +792,7 @@ function renderPastBookingCard($booking) {
         <div class="p-6 border-b border-gray-700">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
-                    <i class="fas fa-times-circle text-red-500 text-xl"></i>
+                    <i class="fas fa-times-circle text-red-500 text-xl" aria-hidden="true"></i>
                 </div>
                 <div>
                     <h3 class="text-xl font-bold text-white"><?= t('myrides.cancel_title') ?></h3>
@@ -809,7 +809,7 @@ function renderPastBookingCard($booking) {
 
             <div class="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
                 <p class="text-sm text-red-400 flex items-start gap-2">
-                    <i class="fas fa-info-circle mt-0.5"></i>
+                    <i class="fas fa-info-circle mt-0.5" aria-hidden="true"></i>
                     <span id="cancelReservationWarning"><?= t('myrides.cancel_pending_info') ?></span>
                 </p>
             </div>
@@ -818,10 +818,10 @@ function renderPastBookingCard($booking) {
         <!-- Footer con botones -->
         <div class="p-6 bg-gray-800/50 border-t border-gray-700 flex gap-3">
             <button onclick="closeCancelReservationModal()" class="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-medium transition-all">
-                <i class="fas fa-arrow-left mr-2"></i><?= t('myrides.cancel_back') ?>
+                <i class="fas fa-arrow-left mr-2" aria-hidden="true"></i><?= t('myrides.cancel_back') ?>
             </button>
             <button onclick="executeCancelReservation()" class="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all shadow-lg shadow-red-500/20 hover:shadow-red-500/40">
-                <i class="fas fa-times-circle mr-2"></i><?= t('myrides.cancel_booking') ?>
+                <i class="fas fa-times-circle mr-2" aria-hidden="true"></i><?= t('myrides.cancel_booking') ?>
             </button>
         </div>
     </div>
@@ -856,7 +856,7 @@ function goToPage(tabKey, page) {
     html += '<div class="flex items-center gap-1">';
 
     // Anterior
-    html += `<button onclick="goToPage('${tabKey}', ${page - 1})" ${page === 1 ? 'disabled' : ''} class="px-3 py-2 rounded-lg text-sm font-medium transition-colors ${page === 1 ? 'text-gray-600 cursor-not-allowed' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}"><i class="fas fa-chevron-left"></i></button>`;
+    html += `<button type="button" onclick="goToPage('${tabKey}', ${page - 1})" ${page === 1 ? 'disabled' : ''} class="px-3 py-2 rounded-lg text-sm font-medium transition-colors ${page === 1 ? 'text-gray-600 cursor-not-allowed' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}" aria-label="Página anterior"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>`;
 
     // Números
     const maxVisible = 5;
@@ -880,7 +880,7 @@ function goToPage(tabKey, page) {
     }
 
     // Siguiente
-    html += `<button onclick="goToPage('${tabKey}', ${page + 1})" ${page === totalPages ? 'disabled' : ''} class="px-3 py-2 rounded-lg text-sm font-medium transition-colors ${page === totalPages ? 'text-gray-600 cursor-not-allowed' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}"><i class="fas fa-chevron-right"></i></button>`;
+    html += `<button type="button" onclick="goToPage('${tabKey}', ${page + 1})" ${page === totalPages ? 'disabled' : ''} class="px-3 py-2 rounded-lg text-sm font-medium transition-colors ${page === totalPages ? 'text-gray-600 cursor-not-allowed' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}" aria-label="Página siguiente"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>`;
 
     html += '</div></div>';
     container.innerHTML = html;

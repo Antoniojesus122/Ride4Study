@@ -6,7 +6,7 @@
     <div class="flex items-center gap-4">
         <div class="flex items-center gap-3 bg-gray-800/50 px-4 py-2 rounded-xl border border-gray-700/50">
             <div class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                <i class="fas fa-university text-blue-400 text-sm"></i>
+                <i class="fas fa-university text-blue-400 text-sm" aria-hidden="true"></i>
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-200"><?= htmlspecialchars($_SESSION['institution_name'] ?? '') ?></p>

@@ -49,10 +49,10 @@
         </div>
         <div class="hidden sm:flex items-center gap-3">
             <a href="<?= url('/my-rides') ?>?tab=past-bookings" class="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-800 transition-all font-medium">
-                <i class="fas fa-arrow-left"></i> <?= t('rating.cancel') ?>
+                <i class="fas fa-arrow-left" aria-hidden="true"></i> <?= t('rating.cancel') ?>
             </a>
             <button type="submit" form="ratingForm" class="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-secondary font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5">
-                <i class="fas fa-paper-plane"></i> <?= t('rating.submit') ?>
+                <i class="fas fa-paper-plane" aria-hidden="true"></i> <?= t('rating.submit') ?>
             </button>
         </div>
     </div>
@@ -72,7 +72,7 @@
                 <!-- Puntuación general -->
                 <div class="bg-surface rounded-2xl border border-gray-700 p-6">
                     <h3 class="text-base lg:text-lg font-semibold text-white mb-5 flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center"><i class="fas fa-star text-primary text-sm"></i></div>
+                        <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center"><i class="fas fa-star text-primary text-sm" aria-hidden="true"></i></div>
                         <?= t('rating.general') ?> <span class="text-red-400 text-sm">*</span>
                     </h3>
 
@@ -81,15 +81,15 @@
                     <div class="bg-gray-800/40 rounded-xl p-6 border border-gray-700/40">
                         <div class="star-rating" id="generalRating">
                             <input type="radio" name="puntuacion" id="star5" value="5" required>
-                            <label for="star5"><i class="fas fa-star"></i></label>
+                            <label for="star5"><i class="fas fa-star" aria-hidden="true"></i></label>
                             <input type="radio" name="puntuacion" id="star4" value="4">
-                            <label for="star4"><i class="fas fa-star"></i></label>
+                            <label for="star4"><i class="fas fa-star" aria-hidden="true"></i></label>
                             <input type="radio" name="puntuacion" id="star3" value="3">
-                            <label for="star3"><i class="fas fa-star"></i></label>
+                            <label for="star3"><i class="fas fa-star" aria-hidden="true"></i></label>
                             <input type="radio" name="puntuacion" id="star2" value="2">
-                            <label for="star2"><i class="fas fa-star"></i></label>
+                            <label for="star2"><i class="fas fa-star" aria-hidden="true"></i></label>
                             <input type="radio" name="puntuacion" id="star1" value="1">
-                            <label for="star1"><i class="fas fa-star"></i></label>
+                            <label for="star1"><i class="fas fa-star" aria-hidden="true"></i></label>
                         </div>
                         <p id="ratingText" class="text-center text-sm font-semibold text-primary mt-4 h-5 opacity-0 transition-all"></p>
                     </div>
@@ -98,7 +98,7 @@
                 <!-- Valoración detallada -->
                 <div class="bg-surface rounded-2xl border border-gray-700 p-6">
                     <h3 class="text-base lg:text-lg font-semibold text-white mb-1 flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center"><i class="fas fa-sliders-h text-cyan-400 text-sm"></i></div>
+                        <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center"><i class="fas fa-sliders-h text-cyan-400 text-sm" aria-hidden="true"></i></div>
                         <?= t('rating.detailed') ?>
                         <span class="text-gray-500 font-normal text-xs ml-1"><?= t('rating.optional') ?></span>
                     </h3>
@@ -108,7 +108,7 @@
                         <!-- Puntualidad -->
                         <div>
                             <label class="block text-sm font-medium text-gray-400 mb-1.5 flex items-center gap-2">
-                                <i class="fas fa-clock text-primary text-xs"></i> <?= t('rating.punctuality') ?>
+                                <i class="fas fa-clock text-primary text-xs" aria-hidden="true"></i> <?= t('rating.punctuality') ?>
                             </label>
                             <div class="relative">
                                 <select name="puntualidad" class="appearance-none w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-primary focus:border-primary transition-all text-sm cursor-pointer hover:border-gray-500 outline-none">
@@ -119,14 +119,14 @@
                                     <option value="2">&#11088;&#11088; <?= t('rating.fair') ?></option>
                                     <option value="1">&#11088; <?= t('rating.bad') ?></option>
                                 </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fas fa-chevron-down text-xs"></i></div>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fas fa-chevron-down text-xs" aria-hidden="true"></i></div>
                             </div>
                         </div>
 
                         <!-- Comunicación -->
                         <div>
                             <label class="block text-sm font-medium text-gray-400 mb-1.5 flex items-center gap-2">
-                                <i class="fas fa-comments text-cyan-400 text-xs"></i> <?= t('rating.communication') ?>
+                                <i class="fas fa-comments text-cyan-400 text-xs" aria-hidden="true"></i> <?= t('rating.communication') ?>
                             </label>
                             <div class="relative">
                                 <select name="comunicacion" class="appearance-none w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-primary focus:border-primary transition-all text-sm cursor-pointer hover:border-gray-500 outline-none">
@@ -137,7 +137,7 @@
                                     <option value="2">&#11088;&#11088; <?= t('rating.fair') ?></option>
                                     <option value="1">&#11088; <?= t('rating.bad') ?></option>
                                 </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fas fa-chevron-down text-xs"></i></div>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fas fa-chevron-down text-xs" aria-hidden="true"></i></div>
                             </div>
                         </div>
 
@@ -145,7 +145,7 @@
                         <!-- Vehículo -->
                         <div>
                             <label class="block text-sm font-medium text-gray-400 mb-1.5 flex items-center gap-2">
-                                <i class="fas fa-car text-green-400 text-xs"></i> <?= t('rating.vehicle') ?>
+                                <i class="fas fa-car text-green-400 text-xs" aria-hidden="true"></i> <?= t('rating.vehicle') ?>
                             </label>
                             <div class="relative">
                                 <select name="vehiculo" class="appearance-none w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-primary focus:border-primary transition-all text-sm cursor-pointer hover:border-gray-500 outline-none">
@@ -156,14 +156,14 @@
                                     <option value="2">&#11088;&#11088; <?= t('rating.fair') ?></option>
                                     <option value="1">&#11088; <?= t('rating.bad') ?></option>
                                 </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fas fa-chevron-down text-xs"></i></div>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fas fa-chevron-down text-xs" aria-hidden="true"></i></div>
                             </div>
                         </div>
 
                         <!-- Conducción -->
                         <div>
                             <label class="block text-sm font-medium text-gray-400 mb-1.5 flex items-center gap-2">
-                                <i class="fas fa-road text-yellow-400 text-xs"></i> <?= t('rating.driving') ?>
+                                <i class="fas fa-road text-yellow-400 text-xs" aria-hidden="true"></i> <?= t('rating.driving') ?>
                             </label>
                             <div class="relative">
                                 <select name="conduccion" class="appearance-none w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-primary focus:border-primary transition-all text-sm cursor-pointer hover:border-gray-500 outline-none">
@@ -174,7 +174,7 @@
                                     <option value="2">&#11088;&#11088; <?= t('rating.fair') ?></option>
                                     <option value="1">&#11088; <?= t('rating.bad') ?></option>
                                 </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fas fa-chevron-down text-xs"></i></div>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fas fa-chevron-down text-xs" aria-hidden="true"></i></div>
                             </div>
                         </div>
                         <?php endif; ?>
@@ -182,7 +182,7 @@
                         <!-- Comportamiento -->
                         <div>
                             <label class="block text-sm font-medium text-gray-400 mb-1.5 flex items-center gap-2">
-                                <i class="fas fa-smile text-pink-400 text-xs"></i> <?= t('rating.behavior') ?>
+                                <i class="fas fa-smile text-pink-400 text-xs" aria-hidden="true"></i> <?= t('rating.behavior') ?>
                             </label>
                             <div class="relative">
                                 <select name="comportamiento" class="appearance-none w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-primary focus:border-primary transition-all text-sm cursor-pointer hover:border-gray-500 outline-none">
@@ -193,7 +193,7 @@
                                     <option value="2">&#11088;&#11088; <?= t('rating.fair') ?></option>
                                     <option value="1">&#11088; <?= t('rating.bad') ?></option>
                                 </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fas fa-chevron-down text-xs"></i></div>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fas fa-chevron-down text-xs" aria-hidden="true"></i></div>
                             </div>
                         </div>
                     </div>
@@ -202,7 +202,7 @@
                 <!-- Comentario -->
                 <div class="bg-surface rounded-2xl border border-gray-700 p-6">
                     <h3 class="text-base lg:text-lg font-semibold text-white mb-1 flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center"><i class="fas fa-comment-dots text-purple-400 text-sm"></i></div>
+                        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center"><i class="fas fa-comment-dots text-purple-400 text-sm" aria-hidden="true"></i></div>
                         <?= t('rating.share_experience') ?>
                         <span class="text-gray-500 font-normal text-xs ml-1"><?= t('rating.max_chars') ?></span>
                     </h3>
@@ -222,10 +222,10 @@
                 <!-- Botones móvil -->
                 <div class="sm:hidden flex gap-3">
                     <a href="<?= url('/my-rides') ?>?tab=past-bookings" class="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-gray-600 text-gray-300 hover:bg-gray-800 transition-all font-medium text-sm">
-                        <i class="fas fa-arrow-left"></i> <?= t('rating.cancel') ?>
+                        <i class="fas fa-arrow-left" aria-hidden="true"></i> <?= t('rating.cancel') ?>
                     </a>
                     <button type="submit" class="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-secondary font-bold hover:bg-primary-dark shadow-lg shadow-primary/20 transition-all text-sm">
-                        <i class="fas fa-paper-plane"></i> <?= t('rating.submit') ?>
+                        <i class="fas fa-paper-plane" aria-hidden="true"></i> <?= t('rating.submit') ?>
                     </button>
                 </div>
             </div>
@@ -236,7 +236,7 @@
                 <!-- Datos del viaje -->
                 <div class="bg-surface rounded-2xl border border-gray-700 p-6">
                     <h3 class="text-base lg:text-lg font-semibold text-white mb-5 flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><i class="fas fa-route text-blue-400 text-sm"></i></div>
+                        <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><i class="fas fa-route text-blue-400 text-sm" aria-hidden="true"></i></div>
                         <?= t('rating.ride_details') ?>
                     </h3>
 
@@ -247,11 +247,11 @@
                                 <?= ucfirst($tripDetails['tipo']) ?>
                             </span>
                             <span class="text-sm text-gray-400 flex items-center gap-1.5">
-                                <i class="far fa-calendar text-xs"></i>
+                                <i class="far fa-calendar text-xs" aria-hidden="true"></i>
                                 <?= date('d M, Y', strtotime($tripDetails['fechaSalida'])) ?>
                             </span>
                             <span class="text-sm text-gray-400 flex items-center gap-1.5">
-                                <i class="far fa-clock text-xs"></i>
+                                <i class="far fa-clock text-xs" aria-hidden="true"></i>
                                 <?= date('H:i', strtotime($tripDetails['horaSalida'])) ?>
                             </span>
                         </div>
@@ -267,12 +267,12 @@
                                 <div class="flex-1 flex flex-col justify-between gap-4">
                                     <div>
                                         <h4 class="text-base font-bold text-white"><?= htmlspecialchars($tripDetails['origenNombre']) ?></h4>
-                                        <p class="text-sm text-primary font-semibold mt-0.5"><i class="far fa-clock text-xs mr-1"></i><?= t('dashboard.departure') ?>: <?= substr($tripDetails['horaSalida'], 0, 5) ?></p>
+                                        <p class="text-sm text-primary font-semibold mt-0.5"><i class="far fa-clock text-xs mr-1" aria-hidden="true"></i><?= t('dashboard.departure') ?>: <?= substr($tripDetails['horaSalida'], 0, 5) ?></p>
                                     </div>
                                     <div>
                                         <h4 class="text-base font-bold text-white"><?= htmlspecialchars($tripDetails['destinoNombre']) ?></h4>
                                         <?php if (!empty($tripDetails['horaLlegada'])): ?>
-                                            <p class="text-sm text-primary font-semibold mt-0.5"><i class="far fa-clock text-xs mr-1"></i><?= t('dashboard.arrival_label') ?>: <?= substr($tripDetails['horaLlegada'], 0, 5) ?></p>
+                                            <p class="text-sm text-primary font-semibold mt-0.5"><i class="far fa-clock text-xs mr-1" aria-hidden="true"></i><?= t('dashboard.arrival_label') ?>: <?= substr($tripDetails['horaLlegada'], 0, 5) ?></p>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -281,7 +281,7 @@
 
                         <?php if (!empty($tripDetails['horaRegreso'])): ?>
                             <div class="flex items-center gap-2 bg-purple-500/10 px-3 py-2 rounded-lg border border-purple-500/20">
-                                <i class="fas fa-undo text-purple-400 text-xs"></i>
+                                <i class="fas fa-undo text-purple-400 text-xs" aria-hidden="true"></i>
                                 <span class="text-sm text-purple-400 font-medium"><?= t('myrides.return_time') ?> <?= substr($tripDetails['horaRegreso'], 0, 5) ?></span>
                             </div>
                         <?php endif; ?>
@@ -291,7 +291,7 @@
                 <!-- Usuario a valorar -->
                 <div class="bg-surface rounded-2xl border border-gray-700 p-6">
                     <h3 class="text-base lg:text-lg font-semibold text-white mb-5 flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center"><i class="fas fa-user text-green-400 text-sm"></i></div>
+                        <div class="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center"><i class="fas fa-user text-green-400 text-sm" aria-hidden="true"></i></div>
                         <?= t('rating.rating_to') ?>
                     </h3>
 
@@ -308,12 +308,12 @@
                         <div class="flex-1 min-w-0">
                             <p class="text-lg font-bold text-white truncate"><?= htmlspecialchars($userToRate['nombre']) ?></p>
                             <p class="text-sm text-gray-400 mt-0.5 flex items-center gap-1.5">
-                                <i class="fas fa-user-tag text-primary text-xs"></i>
+                                <i class="fas fa-user-tag text-primary text-xs" aria-hidden="true"></i>
                                 <span class="capitalize"><?= $userRole ?></span>
                             </p>
                         </div>
                         <a href="<?= url('/profile') ?>?id=<?= $userToRate['id'] ?>" class="text-primary hover:text-primary-dark transition-colors shrink-0">
-                            <i class="fas fa-external-link-alt"></i>
+                            <i class="fas fa-external-link-alt" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
@@ -321,20 +321,20 @@
                 <!-- Info de ayuda -->
                 <div class="bg-surface rounded-2xl border border-gray-700 p-6">
                     <h3 class="text-base lg:text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center"><i class="fas fa-lightbulb text-yellow-400 text-sm"></i></div>
+                        <div class="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center"><i class="fas fa-lightbulb text-yellow-400 text-sm" aria-hidden="true"></i></div>
                         <?= t('rating.tips_title') ?>
                     </h3>
                     <ul class="space-y-3">
                         <li class="flex items-start gap-3 text-sm text-gray-400">
-                            <i class="fas fa-check-circle text-primary mt-0.5 shrink-0"></i>
+                            <i class="fas fa-check-circle text-primary mt-0.5 shrink-0" aria-hidden="true"></i>
                             <?= t('rating.tip_honest') ?>
                         </li>
                         <li class="flex items-start gap-3 text-sm text-gray-400">
-                            <i class="fas fa-check-circle text-primary mt-0.5 shrink-0"></i>
+                            <i class="fas fa-check-circle text-primary mt-0.5 shrink-0" aria-hidden="true"></i>
                             <?= t('rating.tip_constructive') ?>
                         </li>
                         <li class="flex items-start gap-3 text-sm text-gray-400">
-                            <i class="fas fa-check-circle text-primary mt-0.5 shrink-0"></i>
+                            <i class="fas fa-check-circle text-primary mt-0.5 shrink-0" aria-hidden="true"></i>
                             <?= t('rating.tip_respectful') ?>
                         </li>
                     </ul>
@@ -381,7 +381,7 @@
         // Deshabilitar todos los botones submit
         document.querySelectorAll('button[type="submit"]').forEach(btn => {
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Enviando...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2" aria-hidden="true"></i>Enviando...';
         });
 
         try {
@@ -404,7 +404,7 @@
     function resetButtons() {
         document.querySelectorAll('button[type="submit"]').forEach(btn => {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i><?= t('rating.submit') ?>';
+            btn.innerHTML = '<i class="fas fa-paper-plane mr-2" aria-hidden="true"></i><?= t('rating.submit') ?>';
         });
     }
 
@@ -412,7 +412,7 @@
         const isSuccess = type === 'success';
         responseMsg.className = `mb-6 bg-${isSuccess ? 'green' : 'red'}-500/10 border border-${isSuccess ? 'green' : 'red'}-500/50 text-${isSuccess ? 'green' : 'red'}-500 p-4 rounded-xl flex items-center gap-3`;
         responseMsg.innerHTML = `
-            <i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-exclamation-circle'} text-xl"></i>
+            <i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-exclamation-circle'} text-xl" aria-hidden="true"></i>
             <div class="font-medium">${message}</div>
         `;
         responseMsg.classList.remove('hidden');

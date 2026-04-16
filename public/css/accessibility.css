@@ -1,0 +1,83 @@
+/* ============================================================================
+ * Accesibilidad global (WCAG 2.1 AA)
+ * Proyecto: Ride4Study
+ * Incluir este archivo en todas las vistas (tanto las que usan header.php
+ * como las vistas standalone de auth/public).
+ * ============================================================================ */
+
+/* --- Focus visible global (WCAG 2.4.7) ----------------------------------- */
+*:focus-visible {
+    outline: 2px solid #fde047;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Evitar doble outline cuando el elemento ya tiene ring de Tailwind */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline-offset: 1px;
+}
+
+/* --- Skip link (WCAG 2.4.1 - Bypass Blocks) ------------------------------ */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 8px;
+    background: #fde047;
+    color: #111827;
+    padding: 8px 16px;
+    z-index: 9999;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: top 0.2s ease;
+    text-decoration: none;
+}
+.skip-link:focus {
+    top: 8px;
+    outline: 3px solid #111827;
+}
+
+/* --- Screen reader only -------------------------------------------------- */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* --- Respeto a reduccion de movimiento (WCAG 2.3.3) --------------------- */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* --- Contraste minimo AA para placeholders (WCAG 1.4.3) ----------------- */
+input::placeholder,
+textarea::placeholder {
+    color: #9ca3af; /* gray-400, ratio >= 4.5:1 contra fondos oscuros */
+    opacity: 1;
+}
+
+/* --- Estados de error de formulario accesibles -------------------------- */
+[aria-invalid="true"] {
+    border-color: #f87171 !important;
+}
+[aria-invalid="true"]:focus {
+    outline-color: #f87171;
+}
+
+/* --- Botones sin label visible: minimo 44x44 para tap (WCAG 2.5.5) ----- */
+button[aria-label]:not(:has(span:not(.sr-only))) {
+    min-width: 44px;
+    min-height: 44px;
+}

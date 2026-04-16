@@ -46,7 +46,7 @@
             <?php foreach (['usuario' => 'Usuarios', 'anuncio' => 'Anuncios', 'chat' => 'Chats', 'stats' => 'Estadisticas'] as $key => $label): ?>
             <a href="<?= url('/admin/reports') ?>?tab=<?= $key ?>" class="px-5 py-2.5 text-base font-medium rounded-md transition flex items-center gap-2
                 <?= $tab === $key ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">
-                <?php if ($key === 'stats'): ?><i class="fas fa-chart-bar text-sm"></i><?php endif; ?>
+                <?php if ($key === 'stats'): ?><i class="fas fa-chart-bar text-sm" aria-hidden="true"></i><?php endif; ?>
                 <?= $label ?>
             </a>
             <?php endforeach; ?>
@@ -117,13 +117,13 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Tiempo medio -->
                 <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-7">
-                    <h4 class="text-lg font-semibold text-white mb-4 flex items-center gap-2"><i class="fas fa-clock text-purple-400 text-sm"></i> Tiempo medio de resolucion</h4>
+                    <h4 class="text-lg font-semibold text-white mb-4 flex items-center gap-2"><i class="fas fa-clock text-purple-400 text-sm" aria-hidden="true"></i> Tiempo medio de resolucion</h4>
                     <p class="text-4xl font-bold text-purple-400"><?= $stats['tiempo_medio_horas'] ?? 0 ?> <span class="text-base font-normal text-gray-400">horas</span></p>
                 </div>
 
                 <!-- Por prioridad -->
                 <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-7">
-                    <h4 class="text-lg font-semibold text-white mb-4 flex items-center gap-2"><i class="fas fa-layer-group text-orange-400 text-sm"></i> Pendientes por prioridad</h4>
+                    <h4 class="text-lg font-semibold text-white mb-4 flex items-center gap-2"><i class="fas fa-layer-group text-orange-400 text-sm" aria-hidden="true"></i> Pendientes por prioridad</h4>
                     <div class="space-y-3">
                         <?php foreach (['urgente', 'alta', 'media', 'baja'] as $p):
                             $count = $stats['por_prioridad'][$p] ?? 0;
@@ -139,7 +139,7 @@
 
                 <!-- Por motivo -->
                 <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-7">
-                    <h4 class="text-lg font-semibold text-white mb-4 flex items-center gap-2"><i class="fas fa-tags text-cyan-400 text-sm"></i> Motivos mas frecuentes</h4>
+                    <h4 class="text-lg font-semibold text-white mb-4 flex items-center gap-2"><i class="fas fa-tags text-cyan-400 text-sm" aria-hidden="true"></i> Motivos mas frecuentes</h4>
                     <div class="space-y-3">
                         <?php
                         $totalMotivos = array_sum(array_column($stats['por_motivo'] ?? [], 'total'));
@@ -163,7 +163,7 @@
             <!-- Usuarios mas reportados -->
             <?php if (!empty($stats['usuarios_mas_reportados'])): ?>
             <div class="mt-8 bg-gray-800/50 border border-gray-700 rounded-xl p-7">
-                <h4 class="text-lg font-semibold text-white mb-5 flex items-center gap-2"><i class="fas fa-user-shield text-red-400 text-sm"></i> Usuarios mas reportados</h4>
+                <h4 class="text-lg font-semibold text-white mb-5 flex items-center gap-2"><i class="fas fa-user-shield text-red-400 text-sm" aria-hidden="true"></i> Usuarios mas reportados</h4>
                 <div class="overflow-x-auto">
                     <table class="w-full text-base">
                         <thead><tr class="text-gray-500 text-sm uppercase tracking-wider border-b border-gray-700">
@@ -198,7 +198,7 @@
             <!-- Reportes por semana -->
             <?php if (!empty($stats['por_semana'])): ?>
             <div class="mt-8 bg-gray-800/50 border border-gray-700 rounded-xl p-7">
-                <h4 class="text-lg font-semibold text-white mb-5 flex items-center gap-2"><i class="fas fa-chart-line text-green-400 text-sm"></i> Reportes por semana (ultimas 8 semanas)</h4>
+                <h4 class="text-lg font-semibold text-white mb-5 flex items-center gap-2"><i class="fas fa-chart-line text-green-400 text-sm" aria-hidden="true"></i> Reportes por semana (ultimas 8 semanas)</h4>
                 <div class="flex items-end gap-3 h-40">
                     <?php
                     $maxWeek = max(array_column($stats['por_semana'], 'total'));
@@ -256,7 +256,7 @@
                                     <span class="px-2.5 py-1 text-sm rounded-full bg-yellow-500/10 text-yellow-400 font-medium">Pendiente</span>
                                 <?php elseif ($r['estado'] === 'en_revision'): ?>
                                     <span class="px-2.5 py-1 text-sm rounded-full bg-blue-500/10 text-blue-400 font-medium flex items-center gap-1.5">
-                                        <i class="fas fa-eye text-sm"></i> En revision<?= !empty($r['admin_nombre']) ? ' (' . htmlspecialchars($r['admin_nombre']) . ')' : '' ?>
+                                        <i class="fas fa-eye text-sm" aria-hidden="true"></i> En revision<?= !empty($r['admin_nombre']) ? ' (' . htmlspecialchars($r['admin_nombre']) . ')' : '' ?>
                                     </span>
                                 <?php else: ?>
                                     <span class="px-2.5 py-1 text-sm rounded-full bg-green-500/10 text-green-400 font-medium">Resuelto</span>
@@ -264,7 +264,7 @@
 
                                 <!-- Evidencia indicator -->
                                 <?php if (!empty($r['evidencia_img'])): ?>
-                                <span class="text-sm text-gray-500" title="Tiene evidencia adjunta"><i class="fas fa-image"></i></span>
+                                <span class="text-sm text-gray-500" title="Tiene evidencia adjunta"><i class="fas fa-image" aria-hidden="true"></i></span>
                                 <?php endif; ?>
                             </div>
 
@@ -308,7 +308,7 @@
                                     <p class="text-base text-gray-200 font-medium">
                                         <?= htmlspecialchars($r['reportado_nombre'] ?? 'N/A') ?>
                                         <?php if (!empty($r['idUsuarioReportado'])): ?>
-                                        <button onclick="previewContent('usuario', <?= $r['idUsuarioReportado'] ?>)" class="ml-1.5 text-primary hover:text-primary-light underline text-xs"><i class="fas fa-external-link-alt text-xs"></i> Ver perfil</button>
+                                        <button onclick="previewContent('usuario', <?= $r['idUsuarioReportado'] ?>)" class="ml-1.5 text-primary hover:text-primary-light underline text-xs"><i class="fas fa-external-link-alt text-xs" aria-hidden="true"></i> Ver perfil</button>
                                         <?php endif; ?>
                                     </p>
                                     <?php if (!empty($r['reportado_correo'])): ?>
@@ -318,15 +318,15 @@
                                     <!-- Ver contenido reportado -->
                                     <?php if ($r['tipo'] === 'anuncio' && !empty($r['idAnuncio'])): ?>
                                     <button onclick="previewContent('anuncio', <?= $r['idAnuncio'] ?>)" class="inline-flex items-center gap-1 mt-1 text-xs text-blue-400 hover:text-blue-300 underline">
-                                        <i class="fas fa-car text-xs"></i> Ver anuncio #<?= $r['idAnuncio'] ?>
+                                        <i class="fas fa-car text-xs" aria-hidden="true"></i> Ver anuncio #<?= $r['idAnuncio'] ?>
                                     </button>
                                     <?php elseif ($r['tipo'] === 'chat' && !empty($r['idChat'])): ?>
                                     <button onclick="previewContent('chat_msg', <?= $r['idChat'] ?>)" class="inline-flex items-center gap-1 mt-1 text-xs text-blue-400 hover:text-blue-300 underline">
-                                        <i class="fas fa-comment text-xs"></i> Ver mensaje reportado
+                                        <i class="fas fa-comment text-xs" aria-hidden="true"></i> Ver mensaje reportado
                                     </button>
                                     <?php elseif ($r['tipo'] === 'chat' && empty($r['idChat']) && !empty($r['idAnuncio'])): ?>
                                     <button onclick="previewContent('chat_conv', <?= $r['idAnuncio'] ?>, <?= (int)$r['idUsuarioReportado'] ?>)" class="inline-flex items-center gap-1 mt-1 text-xs text-blue-400 hover:text-blue-300 underline">
-                                        <i class="fas fa-comments text-xs"></i> Ver conversacion reportada
+                                        <i class="fas fa-comments text-xs" aria-hidden="true"></i> Ver conversacion reportada
                                     </button>
                                     <?php endif; ?>
                                 </div>
@@ -337,7 +337,7 @@
                                     <p class="text-base text-gray-200 font-medium">
                                         <?= htmlspecialchars($r['reporta_nombre'] ?? 'N/A') ?>
                                         <?php if (!empty($r['idUsuarioQueReporta'])): ?>
-                                        <button onclick="previewContent('usuario', <?= $r['idUsuarioQueReporta'] ?>)" class="ml-1.5 text-primary hover:text-primary-light underline text-xs"><i class="fas fa-external-link-alt text-xs"></i> Ver perfil</button>
+                                        <button onclick="previewContent('usuario', <?= $r['idUsuarioQueReporta'] ?>)" class="ml-1.5 text-primary hover:text-primary-light underline text-xs"><i class="fas fa-external-link-alt text-xs" aria-hidden="true"></i> Ver perfil</button>
                                         <?php endif; ?>
                                     </p>
                                 </div>
@@ -363,7 +363,7 @@
                             <?php if (!empty($r['idUsuarioReportado'])): ?>
                             <div class="mb-5">
                                 <button onclick="loadHistory(<?= $r['idUsuarioReportado'] ?>, <?= $r['idReporte'] ?>)" class="text-sm text-purple-400 hover:text-purple-300 flex items-center gap-2 transition">
-                                    <i class="fas fa-history text-sm"></i> Ver historial de sanciones del usuario
+                                    <i class="fas fa-history text-sm" aria-hidden="true"></i> Ver historial de sanciones del usuario
                                 </button>
                                 <div id="history-<?= $r['idReporte'] ?>" class="hidden mt-3"></div>
                             </div>
@@ -399,7 +399,7 @@
                                     <input type="hidden" name="tab" value="<?= $tab ?>">
                                     <input type="hidden" name="idReporte" value="<?= $r['idReporte'] ?>">
                                     <button type="submit" class="text-sm px-4 py-2 font-medium bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition border border-blue-500/20 flex items-center gap-2">
-                                        <i class="fas fa-hand-paper text-sm"></i> Tomar reporte (asignarme)
+                                        <i class="fas fa-hand-paper text-sm" aria-hidden="true"></i> Tomar reporte (asignarme)
                                     </button>
                                 </form>
                             </div>
@@ -507,11 +507,11 @@
 <div id="historyModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" onclick="if(event.target===this)closeHistoryModal()">
     <div class="bg-[#1a1b26] border border-gray-700 rounded-2xl shadow-2xl max-w-xl w-full max-h-[80vh] overflow-hidden flex flex-col">
         <div class="p-5 border-b border-gray-700 flex items-center justify-between">
-            <h3 class="text-base font-bold text-white flex items-center gap-2"><i class="fas fa-history text-purple-400"></i> Historial de sanciones</h3>
-            <button onclick="closeHistoryModal()" class="text-gray-500 hover:text-gray-300 text-lg"><i class="fas fa-times"></i></button>
+            <h3 class="text-base font-bold text-white flex items-center gap-2"><i class="fas fa-history text-purple-400" aria-hidden="true"></i> Historial de sanciones</h3>
+            <button type="button" onclick="closeHistoryModal()" class="text-gray-500 hover:text-gray-300 text-lg" aria-label="Cerrar historial"><i class="fas fa-times" aria-hidden="true"></i></button>
         </div>
         <div id="historyModalContent" class="p-5 overflow-y-auto flex-1">
-            <div class="text-center text-gray-500 py-8"><i class="fas fa-spinner fa-spin"></i></div>
+            <div class="text-center text-gray-500 py-8"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></div>
         </div>
     </div>
 </div>
@@ -548,7 +548,7 @@
         const content = document.getElementById('historyModalContent');
         modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
-        content.innerHTML = '<div class="text-center text-gray-500 py-8"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+        content.innerHTML = '<div class="text-center text-gray-500 py-8"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Cargando...</div>';
 
         fetch(`<?= url('/admin/reports') ?>?ajax=history&userId=${userId}`)
         .then(r => r.json())
@@ -626,7 +626,7 @@
         const modal = document.getElementById('preview-modal');
         const body = document.getElementById('preview-body');
         const title = document.getElementById('preview-title');
-        body.innerHTML = '<div class="flex items-center justify-center py-8 text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i> Cargando...</div>';
+        body.innerHTML = '<div class="flex items-center justify-center py-8 text-gray-500"><i class="fas fa-spinner fa-spin mr-2" aria-hidden="true"></i> Cargando...</div>';
         modal.classList.remove('hidden');
 
         let url = '<?= url("/admin/reports") ?>?ajax=preview&tipo=' + tipo + '&id=' + id;
@@ -675,7 +675,7 @@
                         <div class="space-y-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-lg ${data.tipo === 'ofrezco' ? 'bg-green-500/10' : 'bg-emerald-500/10'} flex items-center justify-center">
-                                    <i class="fas fa-car ${data.tipo === 'ofrezco' ? 'text-green-400' : 'text-emerald-400'}"></i>
+                                    <i class="fas fa-car ${data.tipo === 'ofrezco' ? 'text-green-400' : 'text-emerald-400'}" aria-hidden="true"></i>
                                 </div>
                                 <div>
                                     <span class="px-2.5 py-1 text-xs rounded-full font-medium ${data.tipo === 'ofrezco' ? 'bg-green-500/10 text-green-400' : 'bg-emerald-500/10 text-emerald-400'}">${data.tipo}</span>
@@ -683,7 +683,7 @@
                                 </div>
                             </div>
                             <div class="bg-gray-900/60 rounded-xl p-4">
-                                <p class="text-white font-semibold text-base flex items-center gap-2">${data.nombreOrigen} <i class="fas fa-arrow-right text-xs text-gray-500"></i> ${data.nombreDestino}</p>
+                                <p class="text-white font-semibold text-base flex items-center gap-2">${data.nombreOrigen} <i class="fas fa-arrow-right text-xs text-gray-500" aria-hidden="true"></i> ${data.nombreDestino}</p>
                                 <p class="text-gray-400 text-sm mt-2">${data.descripcion || 'Sin descripcion'}</p>
                             </div>
                             <div class="bg-gray-900/60 rounded-xl p-4 grid grid-cols-2 gap-3 text-sm">
@@ -719,7 +719,7 @@
                     body.innerHTML = `
                         <div class="space-y-3">
                             <div class="flex items-center gap-2 text-sm text-gray-400">
-                                <i class="fas fa-comments text-gray-500"></i>
+                                <i class="fas fa-comments text-gray-500" aria-hidden="true"></i>
                                 <span class="font-medium text-gray-300">${data.user1_nombre || '?'}</span>
                                 <span>&harr;</span>
                                 <span class="font-medium text-gray-300">${data.user2_nombre || '?'}</span>

@@ -35,13 +35,13 @@
                 <!-- Insignia de verificación -->
                 <?php if($profileUser['estado_verificacion'] == 2): ?>
                 <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center border-4 border-surface shadow-lg">
-                    <i class="fas fa-check text-white text-sm"></i>
+                    <i class="fas fa-check text-white text-sm" aria-hidden="true"></i>
                 </div>
                 <?php endif; ?>
                 
                 <?php if ($isOwnProfile): ?>
-                <button onclick="document.getElementById('photo-input').click()" class="absolute bottom-0 right-0 bg-primary text-secondary p-2.5 rounded-full border-2 border-surface hover:bg-primary-dark transition-colors cursor-pointer shadow-lg opacity-0 group-hover:opacity-100" title="<?= t('profile.change_photo') ?>">
-                    <i class="fas fa-camera text-sm"></i>
+                <button onclick="document.getElementById('photo-input').click()" class="absolute bottom-0 right-0 bg-primary text-secondary p-2.5 rounded-full border-2 border-surface hover:bg-primary-dark transition-colors cursor-pointer shadow-lg opacity-0 group-hover:opacity-100" title="<?= t('profile.change_photo') ?>" aria-label="<?= t('profile.change_photo') ?>">
+                    <i class="fas fa-camera text-sm" aria-hidden="true"></i>
                 </button>
                 <?php endif; ?>
              </div>
@@ -54,24 +54,24 @@
                              <h1 class="text-3xl lg:text-4xl font-bold text-white"><?= htmlspecialchars($profileUser['nombre']) ?></h1>
                              <?php if (!empty($profileUser['premium']) && (!empty($profileUser['premium_hasta']) ? $profileUser['premium_hasta'] > date('Y-m-d H:i:s') : true)): ?>
                                  <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full border border-yellow-500/30 flex items-center gap-1 flex-shrink-0">
-                                     <i class="fas fa-crown"></i> <?= t('profile.premium') ?>
+                                     <i class="fas fa-crown" aria-hidden="true"></i> <?= t('profile.premium') ?>
                                  </span>
                              <?php endif; ?>
                          </div>
                          <div class="flex flex-wrap items-center gap-4 text-sm lg:text-base text-gray-400">
                              <span class="flex items-center gap-2">
-                                 <i class="fas fa-map-marker-alt text-primary"></i> 
+                                 <i class="fas fa-map-marker-alt text-primary" aria-hidden="true"></i> 
                                  <?= htmlspecialchars($profileUser['ciudad'] ?? t('profile.no_location')) ?>
                              </span>
                              <?php if (!empty($profileUser['institucion'])): ?>
                              <span class="flex items-center gap-2">
-                                 <i class="fas fa-university text-blue-400"></i> 
+                                 <i class="fas fa-university text-blue-400" aria-hidden="true"></i> 
                                  <?= htmlspecialchars($profileUser['institucion']) ?>
                              </span>
                              <?php endif; ?>
                              <?php if (!empty($profileUser['vehiculo'])): ?>
                              <span class="flex items-center gap-2">
-                                 <i class="fas fa-car text-purple-400"></i> 
+                                 <i class="fas fa-car text-purple-400" aria-hidden="true"></i> 
                                  <?= htmlspecialchars($profileUser['vehiculo']) ?>
                              </span>
                              <?php endif; ?>
@@ -79,7 +79,7 @@
                      </div>
                      <?php if (!$isOwnProfile): ?>
                          <button onclick="openReportModal('usuario', {idUsuario: <?= (int)$profileUser['idUsuario'] ?>})" class="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-sm font-medium border border-red-500/20 transition-colors flex-shrink-0">
-                             <i class="fas fa-flag text-xs"></i> <?= t('profile.report_user') ?>
+                             <i class="fas fa-flag text-xs" aria-hidden="true"></i> <?= t('profile.report_user') ?>
                          </button>
                      <?php endif; ?>
                  </div>
@@ -88,7 +88,7 @@
                  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 lg:gap-4">
                      <div class="bg-gray-800/50 rounded-xl p-3 lg:p-4 border border-gray-700/50">
                          <div class="flex items-center gap-2 mb-1">
-                             <i class="fas fa-star text-yellow-500 text-sm"></i>
+                             <i class="fas fa-star text-yellow-500 text-sm" aria-hidden="true"></i>
                              <span class="text-xs text-gray-400"><?= t('profile.rating') ?></span>
                          </div>
                          <p class="text-xl font-bold text-white">
@@ -98,7 +98,7 @@
                      
                      <div class="bg-gray-800/50 rounded-xl p-3 lg:p-4 border border-gray-700/50">
                          <div class="flex items-center gap-2 mb-1">
-                             <i class="fas fa-route text-blue-400 text-sm"></i>
+                             <i class="fas fa-route text-blue-400 text-sm" aria-hidden="true"></i>
                              <span class="text-xs text-gray-400"><?= t('profile.rides') ?></span>
                          </div>
                          <p class="text-xl font-bold text-white"><?= $userStats['total_viajes'] ?></p>
@@ -106,7 +106,7 @@
                      
                      <div class="bg-gray-800/50 rounded-xl p-3 lg:p-4 border border-gray-700/50">
                          <div class="flex items-center gap-2 mb-1">
-                             <i class="fas fa-steering-wheel text-primary text-sm"></i>
+                             <i class="fas fa-steering-wheel text-primary text-sm" aria-hidden="true"></i>
                              <span class="text-xs text-gray-400"><?= t('profile.driver') ?></span>
                          </div>
                          <p class="text-xl font-bold text-white"><?= $userStats['viajes_como_conductor'] ?></p>
@@ -114,14 +114,14 @@
                      
                      <div class="bg-gray-800/50 rounded-xl p-3 lg:p-4 border border-gray-700/50">
                          <div class="flex items-center gap-2 mb-1">
-                             <i class="fas fa-users text-purple-400 text-sm"></i>
+                             <i class="fas fa-users text-purple-400 text-sm" aria-hidden="true"></i>
                              <span class="text-xs text-gray-400"><?= t('profile.passenger') ?></span>
                          </div>
                          <p class="text-xl font-bold text-white"><?= $userStats['viajes_como_pasajero'] ?></p>
                      </div>
                      <div class="bg-gray-800/50 rounded-xl p-3 border border-green-500/20">
                          <div class="flex items-center gap-2 mb-1">
-                             <i class="fas fa-leaf text-green-400 text-sm"></i>
+                             <i class="fas fa-leaf text-green-400 text-sm" aria-hidden="true"></i>
                              <span class="text-xs text-gray-400"><?= t('co2.saved') ?></span>
                          </div>
                          <p class="text-xl font-bold text-green-400"><?= number_format($userStats['co2_ahorrado'] ?? 0, 1) ?> kg</p>
@@ -132,7 +132,7 @@
                  <?php if (!empty($userBadges) || !empty($allBadges)): ?>
                  <div class="mt-5">
                      <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-2 mb-3">
-                         <i class="fas fa-award text-amber-400"></i> <?= t('badges.title') ?>
+                         <i class="fas fa-award text-amber-400" aria-hidden="true"></i> <?= t('badges.title') ?>
                          <span class="text-xs font-normal text-gray-500">(<?= count($userBadges) ?>/<?= count($allBadges) ?>)</span>
                      </h3>
 
@@ -160,7 +160,7 @@
                              $colorClass = $badgeColors[$b['color']] ?? $badgeColors['gray'];
                          ?>
                              <div class="group relative inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-br <?= $colorClass ?> border text-sm font-medium cursor-default transition-all hover:scale-105 hover:shadow-lg">
-                                 <i class="fas <?= htmlspecialchars($b['icono']) ?>"></i>
+                                 <i class="fas <?= htmlspecialchars($b['icono']) ?>" aria-hidden="true"></i>
                                  <span><?= t('badge.' . $b['clave']) ?></span>
                                  <!-- Tooltip -->
                                  <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50">
@@ -175,12 +175,12 @@
                              </div>
                          <?php endforeach; ?>
                          <button onclick="document.getElementById('badges-modal').classList.remove('hidden')" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-600 border-dashed text-xs text-gray-400 hover:text-primary hover:border-primary/50 transition-colors font-medium">
-                             <?= t('badges.view_all') ?> <i class="fas fa-chevron-right text-[10px]"></i>
+                             <?= t('badges.view_all') ?> <i class="fas fa-chevron-right text-[10px]" aria-hidden="true"></i>
                          </button>
                      </div>
                      <?php else: ?>
                      <p class="text-sm text-gray-500 italic">
-                         <i class="fas fa-lock text-xs mr-1"></i> <?= t('badges.none_yet') ?>
+                         <i class="fas fa-lock text-xs mr-1" aria-hidden="true"></i> <?= t('badges.none_yet') ?>
                      </p>
                      <?php endif; ?>
                  </div>
@@ -194,16 +194,16 @@
         <div class="px-4 sm:px-8 pb-6">
             <div class="flex gap-2 overflow-x-auto border-t border-gray-700 pt-4 scrollbar-hide">
                 <button onclick="switchTab('profile')" id="tab-profile" class="px-4 py-2 rounded-lg bg-primary/10 text-primary font-medium border border-primary/20 whitespace-nowrap transition-colors">
-                    <i class="fas fa-user mr-2"></i><?= t('profile.tab_profile') ?>
+                    <i class="fas fa-user mr-2" aria-hidden="true"></i><?= t('profile.tab_profile') ?>
                 </button>
                 <button onclick="switchTab('security')" id="tab-security" class="px-4 py-2 rounded-lg bg-transparent text-gray-400 font-medium hover:text-white hover:bg-gray-800 transition-colors whitespace-nowrap border border-transparent">
-                    <i class="fas fa-lock mr-2"></i><?= t('profile.tab_security') ?>
+                    <i class="fas fa-lock mr-2" aria-hidden="true"></i><?= t('profile.tab_security') ?>
                 </button>
                 <button onclick="switchTab('privacy')" id="tab-privacy" class="px-4 py-2 rounded-lg bg-transparent text-gray-400 font-medium hover:text-white hover:bg-gray-800 transition-colors whitespace-nowrap border border-transparent">
-                    <i class="fas fa-shield-alt mr-2"></i><?= t('profile.tab_privacy') ?>
+                    <i class="fas fa-shield-alt mr-2" aria-hidden="true"></i><?= t('profile.tab_privacy') ?>
                 </button>
                 <button onclick="switchTab('verification')" id="tab-verification" class="px-4 py-2 rounded-lg bg-transparent text-gray-400 font-medium hover:text-white hover:bg-gray-800 transition-colors whitespace-nowrap border border-transparent">
-                    <i class="fas fa-check-circle mr-2"></i><?= t('profile.tab_verification') ?>
+                    <i class="fas fa-check-circle mr-2" aria-hidden="true"></i><?= t('profile.tab_verification') ?>
                 </button>
             </div>
         </div>
@@ -215,7 +215,7 @@
             <div class="mt-6">
                 <div class="bg-surface rounded-2xl border border-gray-700 p-6 mb-6">
                     <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">
-                        <i class="fas fa-star text-yellow-400"></i> <?= t('profile.ratings') ?>
+                        <i class="fas fa-star text-yellow-400" aria-hidden="true"></i> <?= t('profile.ratings') ?>
                     </h3>
                     <div class="mb-4">
                         <div class="flex items-center gap-4">
@@ -245,7 +245,7 @@
                                                 <span class="text-sm font-bold text-white"><?= htmlspecialchars($rv['valoradorNombre']) ?></span>
                                                 <div class="flex items-center gap-0.5">
                                                     <?php for ($s = 1; $s <= 5; $s++): ?>
-                                                        <i class="fas fa-star text-xs <?= $s <= (int)$rv['puntuacion'] ? 'text-yellow-400' : 'text-gray-600' ?>"></i>
+                                                        <i class="fas fa-star text-xs <?= $s <= (int)$rv['puntuacion'] ? 'text-yellow-400' : 'text-gray-600' ?>" aria-hidden="true"></i>
                                                     <?php endfor; ?>
                                                 </div>
                                             </div>
@@ -255,13 +255,13 @@
                                             <!-- Respuesta del valorado -->
                                             <?php if (!empty($rv['respuesta'])): ?>
                                                 <div class="mt-2 pl-3 border-l-2 border-primary/40">
-                                                    <p class="text-xs text-gray-400 mb-0.5"><i class="fas fa-reply text-primary/60 mr-1"></i><?= t('profile.reply') ?></p>
+                                                    <p class="text-xs text-gray-400 mb-0.5"><i class="fas fa-reply text-primary/60 mr-1" aria-hidden="true"></i><?= t('profile.reply') ?></p>
                                                     <p class="text-sm text-gray-300"><?= htmlspecialchars($rv['respuesta']) ?></p>
                                                 </div>
                                             <?php elseif ($isOwnProfile): ?>
                                                 <div class="mt-2">
                                                     <button onclick="toggleReplyForm(<?= (int)$rv['idValoracion'] ?>)" class="text-xs text-primary hover:underline">
-                                                        <i class="fas fa-reply mr-1"></i>Responder
+                                                        <i class="fas fa-reply mr-1" aria-hidden="true"></i>Responder
                                                     </button>
                                                     <div id="reply-form-<?= (int)$rv['idValoracion'] ?>" class="hidden mt-2">
                                                         <textarea id="reply-text-<?= (int)$rv['idValoracion'] ?>" rows="2" maxlength="300" placeholder="Escribe tu respuesta..." class="w-full bg-gray-900 border border-gray-600 text-gray-100 text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-primary resize-none placeholder-gray-500"></textarea>
@@ -293,11 +293,11 @@
                          <div class="mt-1.5">
                              <?php if($profileUser['estado_verificacion'] == 2): ?>
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-green-500/10 text-green-500 border border-green-500/20">
-                                    <i class="fas fa-check-circle"></i> Verificado
+                                    <i class="fas fa-check-circle" aria-hidden="true"></i> Verificado
                                 </span>
                              <?php elseif($profileUser['estado_verificacion'] == 1): ?>
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">
-                                    <i class="fas fa-clock"></i> Pendiente
+                                    <i class="fas fa-clock" aria-hidden="true"></i> Pendiente
                                 </span>
                              <?php else: ?>
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gray-500/10 text-gray-400 border border-gray-500/20">
@@ -360,7 +360,7 @@
             <?php if ($isOwnProfile || $visibPerfil !== 'private'): ?>
              <div class="bg-surface rounded-2xl border border-gray-700 p-6">
                  <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">
-                     <i class="fas fa-quote-left text-primary"></i> Sobre mí
+                     <i class="fas fa-quote-left text-primary" aria-hidden="true"></i> Sobre mí
                  </h3>
                  <p class="text-gray-400 text-sm leading-relaxed italic">
                      <?= !empty($profileUser['biografia']) ? nl2br(htmlspecialchars($profileUser['biografia'])) : 'Este usuario no ha escrito nada sobre sí mismo aún.' ?>
@@ -377,7 +377,7 @@
                 <!-- Perfil -->
                 <div id="content-profile" class="bg-surface rounded-2xl border border-gray-700 p-4 sm:p-6 lg:p-8">
                      <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                         <i class="fas fa-user-edit text-primary"></i> Editar Perfil
+                         <i class="fas fa-user-edit text-primary" aria-hidden="true"></i> Editar Perfil
                      </h3>
 
                      <?php if ($error && (!$tab || $tab === 'profile')): ?>
@@ -401,7 +401,7 @@
                      <?php endif; ?>
 
                      <form action="<?= url('/profile') ?>?action=update" method="POST" enctype="multipart/form-data">
-                         <input type="file" name="foto_perfil" id="photo-input" class="hidden" accept="image/*">
+                         <input type="file" name="foto_perfil" id="photo-input" class="hidden" accept="image/*" aria-label="<?= t('profile.upload_photo') ?? 'Subir foto de perfil' ?>">
                          
                          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
                              <div>
@@ -457,7 +457,7 @@
                                      <label class="pref-toggle flex items-center gap-2.5 px-4 py-2.5 rounded-xl border cursor-pointer transition-all select-none <?= $isActive ? $activeClasses : $inactiveClasses ?>"
                                             data-color="<?= $pref['color'] ?>">
                                          <input type="checkbox" name="preferencias_viaje[]" value="<?= $key ?>" <?= $isActive ? 'checked' : '' ?> class="hidden">
-                                         <i class="fas <?= $pref['icon'] ?> text-<?= $pref['color'] ?>-400"></i>
+                                         <i class="fas <?= $pref['icon'] ?> text-<?= $pref['color'] ?>-400" aria-hidden="true"></i>
                                          <span class="text-sm text-gray-300 whitespace-nowrap"><?= t('pref.' . $key) ?></span>
                                      </label>
                                      <?php endforeach; ?>
@@ -466,7 +466,7 @@
                          </div>
                          <div class="flex justify-end">
                              <button type="submit" class="px-6 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
-                                 <i class="fas fa-save"></i> Guardar Cambios
+                                 <i class="fas fa-save" aria-hidden="true"></i> Guardar Cambios
                              </button>
                          </div>
                      </form>
@@ -475,7 +475,7 @@
                 <!-- Seguridad -->
                 <div id="content-security" class="hidden bg-surface rounded-2xl border border-gray-700 p-4 sm:p-6 lg:p-8">
                     <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <i class="fas fa-lock text-primary"></i> Cambiar Contraseña
+                        <i class="fas fa-lock text-primary" aria-hidden="true"></i> Cambiar Contraseña
                     </h3>
                     <?php if ($error && $tab === 'security'): ?>
                         <div class="mb-6 rounded-xl border border-red-500 bg-red-500/10 px-4 py-3 text-sm text-red-400">
@@ -529,7 +529,7 @@
                         </div>
                         <div class="flex justify-end">
                              <button type="submit" class="px-6 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
-                                 <i class="fas fa-key"></i> Actualizar Contraseña
+                                 <i class="fas fa-key" aria-hidden="true"></i> Actualizar Contraseña
                              </button>
                          </div>
                     </form>
@@ -538,7 +538,7 @@
                 <!-- Verificación -->
                 <div id="content-verification" class="hidden bg-surface rounded-2xl border border-gray-700 p-8">
                      <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                         <i class="fas fa-shield-check text-primary"></i> Verificación de Estudiante
+                         <i class="fas fa-shield-check text-primary" aria-hidden="true"></i> Verificación de Estudiante
                      </h3>
 
                      <?php if ($error && $tab === 'verification'): ?>
@@ -566,13 +566,13 @@
 
                      <?php if ($profileUser['estado_verificacion'] == 2): ?>
                         <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-6 text-center">
-                            <i class="fas fa-check-circle text-5xl text-green-500 mb-3"></i>
+                            <i class="fas fa-check-circle text-5xl text-green-500 mb-3" aria-hidden="true"></i>
                             <h4 class="text-lg font-bold text-green-500 mb-2">¡Tu cuenta está verificada!</h4>
                             <p class="text-gray-400 text-sm">Ya puedes disfrutar de todas las ventajas de ser un estudiante verificado.</p>
                         </div>
                      <?php elseif ($profileUser['estado_verificacion'] == 1): ?>
                         <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-6 text-center">
-                            <i class="fas fa-clock text-5xl text-yellow-500 mb-3"></i>
+                            <i class="fas fa-clock text-5xl text-yellow-500 mb-3" aria-hidden="true"></i>
                             <h4 class="text-lg font-bold text-yellow-500 mb-2">Solicitud en revisión</h4>
                             <p class="text-gray-400 text-sm">Estamos revisando tus documentos. Te notificaremos pronto.</p>
                         </div>
@@ -582,7 +582,7 @@
                             
                             <form action="<?= url('/profile') ?>?action=verify" method="POST" enctype="multipart/form-data" class="bg-gray-800/50 p-6 rounded-xl border border-dashed border-gray-600 text-center">
                                 <div class="mb-4">
-                                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-500 mb-2"></i>
+                                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-500 mb-2" aria-hidden="true"></i>
                                     <p class="text-sm text-gray-400">Arrastra tu archivo aquí o haz clic para seleccionar</p>
                                 </div>
                                 <input type="file" name="document" required class="block w-full text-sm text-gray-400
@@ -594,7 +594,7 @@
                                   cursor-pointer mb-6 mx-auto max-w-xs
                                 ">
                                 <button type="submit" class="px-6 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 flex items-center gap-2 mx-auto">
-                                    <i class="fas fa-paper-plane"></i> Enviar Documentación
+                                    <i class="fas fa-paper-plane" aria-hidden="true"></i> Enviar Documentación
                                 </button>
                             </form>
                         </div>
@@ -604,7 +604,7 @@
                 <!-- Privacidad -->
                 <div id="content-privacy" class="hidden bg-surface rounded-2xl border border-gray-700 p-8">
                     <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <i class="fas fa-user-shield text-primary"></i> Privacidad y Configuración
+                        <i class="fas fa-user-shield text-primary" aria-hidden="true"></i> Privacidad y Configuración
                     </h3>
                     <form action="<?= url('/profile') ?>?action=update_privacy" method="POST">
                         <div class="space-y-6 mb-8">
@@ -650,7 +650,7 @@
                         </div>
                         <div class="flex justify-end">
                              <button type="submit" class="px-6 py-3 bg-primary text-secondary font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
-                                 <i class="fas fa-save"></i> Guardar Preferencias
+                                 <i class="fas fa-save" aria-hidden="true"></i> Guardar Preferencias
                              </button>
                          </div>
                     </form>
@@ -658,12 +658,12 @@
                     <!-- Zona peligrosa: Eliminar cuenta -->
                     <div class="mt-10 pt-8 border-t border-red-500/20">
                         <h4 class="text-red-400 font-semibold mb-2 flex items-center gap-2">
-                            <i class="fas fa-exclamation-triangle"></i> <?= t('profile.danger_zone') ?>
+                            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i> <?= t('profile.danger_zone') ?>
                         </h4>
                         <p class="text-sm text-gray-400 mb-4"><?= t('profile.delete_warning') ?></p>
                         <button onclick="document.getElementById('delete-account-modal').classList.remove('hidden'); document.body.style.overflow='hidden';"
                                 class="px-5 py-2.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl text-sm font-medium hover:bg-red-500/20 transition-all">
-                            <i class="fas fa-trash-alt mr-2"></i><?= t('profile.delete_account') ?>
+                            <i class="fas fa-trash-alt mr-2" aria-hidden="true"></i><?= t('profile.delete_account') ?>
                         </button>
                     </div>
                 </div>
@@ -681,7 +681,7 @@
                 <!-- Perfil privado -->
                 <div class="bg-surface rounded-2xl border border-gray-700 p-8">
                     <div class="text-center py-12 text-gray-500">
-                        <i class="fas fa-lock text-4xl mb-3"></i>
+                        <i class="fas fa-lock text-4xl mb-3" aria-hidden="true"></i>
                         <p class="text-lg font-semibold text-white mb-1">Perfil privado</p>
                         <p class="text-sm">Este usuario ha decidido mantener su perfil privado.</p>
                     </div>
@@ -691,11 +691,11 @@
                 <!-- Anuncios activos del usuario -->
                 <div class="bg-surface rounded-2xl border border-gray-700 p-8">
                     <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <i class="fas fa-route text-primary"></i> Anuncios activos
+                        <i class="fas fa-route text-primary" aria-hidden="true"></i> Anuncios activos
                     </h3>
                     <?php if (empty($activeRides)): ?>
                         <div class="text-center py-10 text-gray-500">
-                            <i class="fas fa-car-side text-4xl mb-3"></i>
+                            <i class="fas fa-car-side text-4xl mb-3" aria-hidden="true"></i>
                             <p>Este usuario no tiene anuncios activos ahora mismo.</p>
                         </div>
                     <?php else: ?>
@@ -719,7 +719,7 @@
                                      data-ride='<?= htmlspecialchars(json_encode($arJson), ENT_QUOTES, 'UTF-8') ?>'>
                                     <div class="flex items-center gap-3">
                                         <span class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 <?= $ar['tipo'] === 'ofrezco' ? 'bg-primary/10 text-primary' : 'bg-purple-500/10 text-purple-400' ?>">
-                                            <i class="fas <?= $ar['tipo'] === 'ofrezco' ? 'fa-steering-wheel' : 'fa-hand-paper' ?> text-sm"></i>
+                                            <i class="fas <?= $ar['tipo'] === 'ofrezco' ? 'fa-steering-wheel' : 'fa-hand-paper' ?> text-sm" aria-hidden="true"></i>
                                         </span>
                                         <div>
                                             <p class="text-sm font-semibold text-white">
@@ -743,7 +743,7 @@
                                             <span class="text-xs text-gray-500">Gratis</span>
                                         <?php endif; ?>
                                         <span class="text-xs px-3 py-1.5 bg-primary/10 text-primary border border-primary/20 rounded-lg group-hover:bg-primary/20 transition-colors">
-                                            Ver detalles <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                                            Ver detalles <i class="fas fa-arrow-right ml-1 text-xs" aria-hidden="true"></i>
                                         </span>
                                     </div>
                                 </div>
@@ -765,7 +765,7 @@
         <div class="p-6 border-b border-gray-700">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
-                    <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                    <i class="fas fa-exclamation-triangle text-red-500 text-xl" aria-hidden="true"></i>
                 </div>
                 <div>
                     <h3 class="text-xl font-bold text-white"><?= t('profile.delete_account') ?></h3>
@@ -777,10 +777,10 @@
             <div class="p-6">
                 <p class="text-gray-300 mb-4"><?= t('profile.delete_confirm_text') ?></p>
                 <ul class="text-sm text-gray-400 space-y-1 mb-6">
-                    <li><i class="fas fa-times text-red-400 mr-2 w-4 text-center"></i><?= t('profile.delete_data_rides') ?></li>
-                    <li><i class="fas fa-times text-red-400 mr-2 w-4 text-center"></i><?= t('profile.delete_data_messages') ?></li>
-                    <li><i class="fas fa-times text-red-400 mr-2 w-4 text-center"></i><?= t('profile.delete_data_ratings') ?></li>
-                    <li><i class="fas fa-times text-red-400 mr-2 w-4 text-center"></i><?= t('profile.delete_data_profile') ?></li>
+                    <li><i class="fas fa-times text-red-400 mr-2 w-4 text-center" aria-hidden="true"></i><?= t('profile.delete_data_rides') ?></li>
+                    <li><i class="fas fa-times text-red-400 mr-2 w-4 text-center" aria-hidden="true"></i><?= t('profile.delete_data_messages') ?></li>
+                    <li><i class="fas fa-times text-red-400 mr-2 w-4 text-center" aria-hidden="true"></i><?= t('profile.delete_data_ratings') ?></li>
+                    <li><i class="fas fa-times text-red-400 mr-2 w-4 text-center" aria-hidden="true"></i><?= t('profile.delete_data_profile') ?></li>
                 </ul>
                 <label class="block text-sm text-gray-300 mb-2"><?= t('profile.delete_password_label') ?></label>
                 <input type="password" name="password" required placeholder="<?= t('profile.delete_password_placeholder') ?>"
@@ -792,7 +792,7 @@
                     <?= t('chat.cancel') ?>
                 </button>
                 <button type="submit" class="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all">
-                    <i class="fas fa-trash-alt mr-2"></i><?= t('profile.delete_account') ?>
+                    <i class="fas fa-trash-alt mr-2" aria-hidden="true"></i><?= t('profile.delete_account') ?>
                 </button>
             </div>
         </form>
@@ -934,21 +934,21 @@
             <div class="sticky top-0 z-20 px-6 sm:px-8 py-4 bg-gray-900/95 backdrop-blur-xl border-b border-gray-800/80 flex items-center justify-between">
                 <div class="flex items-center gap-4">
                     <div class="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-lg shadow-primary/5">
-                        <i class="fas fa-route text-primary text-lg"></i>
+                        <i class="fas fa-route text-primary text-lg" aria-hidden="true"></i>
                     </div>
                     <div>
                         <h3 class="text-lg sm:text-xl font-bold text-white"><?= t('dashboard.ride_details') ?></h3>
                         <div class="flex items-center gap-3 mt-0.5">
                             <span id="prm-tipo-badge" class="px-3 py-0.5 rounded-full text-xs font-bold border"></span>
                             <span class="text-sm text-gray-400 flex items-center gap-1.5">
-                                <i class="far fa-calendar-alt"></i>
+                                <i class="far fa-calendar-alt" aria-hidden="true"></i>
                                 <span id="prm-fecha">—</span>
                             </span>
                         </div>
                     </div>
                 </div>
-                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all" onclick="closeProfileRideModal()">
-                    <i class="fas fa-times text-lg"></i>
+                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all" onclick="closeProfileRideModal()" aria-label="<?= t('a11y.close') ?? 'Cerrar' ?>">
+                    <i class="fas fa-times text-lg" aria-hidden="true"></i>
                 </button>
             </div>
 
@@ -959,12 +959,12 @@
                     <div class="flex items-center gap-3 flex-1 min-w-0">
                         <h4 class="text-base font-bold text-white truncate shrink-0" id="prm-driver-name"></h4>
                         <span class="bg-yellow-500/10 text-yellow-400 px-2 py-0.5 rounded-lg border border-yellow-500/20 inline-flex items-center gap-1 text-xs font-bold shrink-0">
-                            <i class="fas fa-star text-[9px]"></i>
+                            <i class="fas fa-star text-[9px]" aria-hidden="true"></i>
                             <span id="prm-rating"></span>
                         </span>
                         <span class="text-gray-700 hidden sm:inline">|</span>
                         <div class="hidden sm:flex items-center gap-1.5 text-sm shrink-0">
-                            <i class="fas fa-shield-alt text-xs" id="prm-verified-icon"></i>
+                            <i class="fas fa-shield-alt text-xs" aria-hidden="true" id="prm-verified-icon"></i>
                             <span id="prm-verified" class="font-medium"></span>
                         </div>
                     </div>
@@ -973,7 +973,7 @@
                             <div class="flex flex-wrap gap-1.5" id="prm-prefs"></div>
                         </div>
                         <a href="<?= url('/profile') ?>?id=<?= (int)$profileUser['idUsuario'] ?>" class="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl px-4 py-2 text-sm font-semibold transition-all">
-                            <i class="fas fa-user text-xs"></i> <span class="hidden sm:inline"><?= t('dashboard.view_profile') ?></span><span class="sm:hidden"><?= t('dashboard.profile_short') ?></span>
+                            <i class="fas fa-user text-xs" aria-hidden="true"></i> <span class="hidden sm:inline"><?= t('dashboard.view_profile') ?></span><span class="sm:hidden"><?= t('dashboard.profile_short') ?></span>
                         </a>
                     </div>
                 </div>
@@ -995,28 +995,28 @@
                                 <div class="flex-1 flex flex-col justify-between gap-6">
                                     <div>
                                         <p class="text-xl font-bold text-white tracking-tight" id="prm-origin"></p>
-                                        <p class="text-sm text-primary font-semibold mt-1 flex items-center gap-2" id="prm-time-start"><i class="far fa-clock text-xs opacity-70"></i></p>
+                                        <p class="text-sm text-primary font-semibold mt-1 flex items-center gap-2" id="prm-time-start"><i class="far fa-clock text-xs opacity-70" aria-hidden="true"></i></p>
                                     </div>
                                     <div>
                                         <p class="text-xl font-bold text-white tracking-tight" id="prm-dest"></p>
-                                        <p class="text-sm text-primary font-semibold mt-1 flex items-center gap-2" id="prm-time-end"><i class="far fa-clock text-xs opacity-70"></i></p>
+                                        <p class="text-sm text-primary font-semibold mt-1 flex items-center gap-2" id="prm-time-end"><i class="far fa-clock text-xs opacity-70" aria-hidden="true"></i></p>
                                     </div>
                                 </div>
                             </div>
                             <!-- Estadísticas -->
                             <div class="flex flex-wrap items-center gap-2.5 mt-5 pt-5 border-t border-gray-700/30">
                                 <span class="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-xl border border-primary/20" id="prm-price-container">
-                                    <i class="fas fa-euro-sign text-primary"></i>
+                                    <i class="fas fa-euro-sign text-primary" aria-hidden="true"></i>
                                     <span class="text-lg font-extrabold text-primary" id="prm-price"></span>
                                     <span class="text-xs text-gray-500 font-medium">/<?= t('dashboard.seat') ?></span>
                                 </span>
                                 <span class="inline-flex items-center gap-2 bg-blue-500/10 px-4 py-2 rounded-xl border border-blue-500/20">
-                                    <i class="fas fa-chair text-blue-400"></i>
+                                    <i class="fas fa-chair text-blue-400" aria-hidden="true"></i>
                                     <span class="text-lg font-extrabold text-white" id="prm-seats"></span>
                                     <span class="text-xs text-gray-500 font-medium"><?= t('dashboard.seats_short') ?></span>
                                 </span>
                                 <span class="inline-flex items-center gap-2 bg-purple-500/10 px-4 py-2 rounded-xl border border-purple-500/20" id="prm-return-container" style="display:none;">
-                                    <i class="fas fa-undo text-purple-400"></i>
+                                    <i class="fas fa-undo text-purple-400" aria-hidden="true"></i>
                                     <span class="text-lg font-extrabold text-purple-400" id="prm-return-time"></span>
                                 </span>
                             </div>
@@ -1024,7 +1024,7 @@
                         <!-- Comentarios -->
                         <div>
                             <h5 class="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2.5 flex items-center gap-2">
-                                <i class="fas fa-comment-dots text-xs"></i> <?= t('dashboard.ride_comments') ?>
+                                <i class="fas fa-comment-dots text-xs" aria-hidden="true"></i> <?= t('dashboard.ride_comments') ?>
                             </h5>
                             <p class="text-sm text-gray-300 leading-relaxed bg-gray-800/30 p-5 rounded-2xl border border-gray-700/30" id="prm-desc"></p>
                         </div>
@@ -1036,10 +1036,10 @@
                             <div id="prm-map" class="w-full h-[300px] sm:h-[350px] lg:h-full lg:min-h-[380px]" style="z-index: 1;"></div>
                             <div class="absolute bottom-3 left-3 flex items-center gap-2 z-[2]">
                                 <span id="prm-map-distance" class="inline-flex items-center gap-1.5 bg-gray-900/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-medium text-gray-200 border border-gray-700/50">
-                                    <i class="fas fa-road text-primary text-[10px]"></i> <span></span>
+                                    <i class="fas fa-road text-primary text-[10px]" aria-hidden="true"></i> <span></span>
                                 </span>
                                 <span id="prm-map-duration" class="inline-flex items-center gap-1.5 bg-gray-900/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-medium text-gray-200 border border-gray-700/50">
-                                    <i class="fas fa-clock text-primary text-[10px]"></i> <span></span>
+                                    <i class="fas fa-clock text-primary text-[10px]" aria-hidden="true"></i> <span></span>
                                 </span>
                             </div>
                         </div>
@@ -1057,17 +1057,17 @@
                 <button type="button" id="prm-btn-report"
                         class="hidden w-full sm:w-auto px-5 py-3 rounded-xl border border-red-500/20 bg-red-500/5 text-sm font-medium text-red-400 hover:bg-red-500/15 hover:border-red-500/30 transition-all flex items-center justify-center gap-2 order-2 sm:order-2"
                         onclick="reportProfileRide()">
-                    <i class="fas fa-flag text-xs"></i> Reportar
+                    <i class="fas fa-flag text-xs" aria-hidden="true"></i> Reportar
                 </button>
                 <div class="flex-1 hidden sm:block order-3"></div>
                 <div class="flex gap-3 order-1 sm:order-4 w-full sm:w-auto">
                     <a href="#" id="prm-btn-contact"
                        class="flex-1 sm:flex-none flex justify-center items-center gap-2 bg-gray-700/50 hover:bg-gray-700 text-gray-200 hover:text-white border border-gray-600/30 rounded-xl px-6 py-3 text-sm font-semibold transition-all">
-                        <i class="fas fa-comment-alt text-xs"></i> <?= t('dashboard.contact') ?>
+                        <i class="fas fa-comment-alt text-xs" aria-hidden="true"></i> <?= t('dashboard.contact') ?>
                     </a>
                     <button type="button" id="prm-btn-reserve"
                             class="flex-1 sm:flex-none px-8 py-3 rounded-xl bg-primary text-secondary text-base font-bold hover:bg-primary-dark shadow-xl shadow-primary/25 hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2.5">
-                        <i class="fas fa-ticket-alt"></i> <?= t('dashboard.request_seat') ?>
+                        <i class="fas fa-ticket-alt" aria-hidden="true"></i> <?= t('dashboard.request_seat') ?>
                     </button>
                 </div>
             </div>
@@ -1137,11 +1137,11 @@
         document.getElementById('prm-dest').textContent   = ride.nombreDestino;
 
         const prmTimeStart = document.getElementById('prm-time-start');
-        prmTimeStart.innerHTML = '<i class="far fa-clock text-xs"></i> <?= t('dashboard.departure') ?>: ' + ride.horaSalida.substring(0, 5);
+        prmTimeStart.innerHTML = '<i class="far fa-clock text-xs" aria-hidden="true"></i> <?= t('dashboard.departure') ?>: ' + ride.horaSalida.substring(0, 5);
 
         const prmTimeEnd = document.getElementById('prm-time-end');
         const prmArrival = ride.horaLlegada ? ride.horaLlegada.substring(0, 5) : '--:--';
-        prmTimeEnd.innerHTML = '<i class="far fa-clock text-xs"></i> <?= t('dashboard.arrival_label') ?>: ' + prmArrival;
+        prmTimeEnd.innerHTML = '<i class="far fa-clock text-xs" aria-hidden="true"></i> <?= t('dashboard.arrival_label') ?>: ' + prmArrival;
 
         // Hora de regreso
         const prmReturnContainer = document.getElementById('prm-return-container');
@@ -1213,7 +1213,7 @@
         let prmPrefs = [];
         try { prmPrefs = JSON.parse(ride.preferencias_viaje || '[]'); } catch(e) {}
         if (prmPrefs.length > 0) {
-            prmPrefsEl.innerHTML = prmPrefs.map(p => `<span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-${prmPrefColors[p]}-500/10 text-${prmPrefColors[p]}-400 border border-${prmPrefColors[p]}-500/20 text-xs font-medium"><i class="fas ${prmPrefIcons[p]}"></i> ${prmPrefLabels[p] || p}</span>`).join('');
+            prmPrefsEl.innerHTML = prmPrefs.map(p => `<span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-${prmPrefColors[p]}-500/10 text-${prmPrefColors[p]}-400 border border-${prmPrefColors[p]}-500/20 text-xs font-medium"><i class="fas ${prmPrefIcons[p]}" aria-hidden="true"></i> ${prmPrefLabels[p] || p}</span>`).join('');
             prmPrefsContainer.style.display = '';
         } else {
             prmPrefsContainer.style.display = 'none';
@@ -1229,11 +1229,11 @@
 
         if (ride.tipo.toLowerCase() === 'ofrezco' && ride.plazasDisponibles > 0) {
             btnReserve.className = prmBtnStyles.active;
-            btnReserve.innerHTML = '<i class="fas fa-ticket-alt text-xs"></i> Solicitar Plaza';
+            btnReserve.innerHTML = '<i class="fas fa-ticket-alt text-xs" aria-hidden="true"></i> Solicitar Plaza';
             btnReserve.onclick   = () => { submitReserveForm(ride.idAnuncio); };
         } else if (ride.tipo.toLowerCase() === 'ofrezco' && ride.plazasDisponibles <= 0) {
             btnReserve.className = prmBtnStyles.disabled;
-            btnReserve.innerHTML = '<i class="fas fa-ban text-xs"></i> Viaje completo';
+            btnReserve.innerHTML = '<i class="fas fa-ban text-xs" aria-hidden="true"></i> Viaje completo';
             btnReserve.disabled  = true;
         } else {
             // Tipo "busco" — solo contactar
@@ -1318,15 +1318,15 @@
         <div class="flex items-center justify-between p-5 border-b border-gray-700">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                    <i class="fas fa-trophy text-amber-400"></i>
+                    <i class="fas fa-trophy text-amber-400" aria-hidden="true"></i>
                 </div>
                 <div>
                     <h3 class="text-lg font-bold text-white"><?= t('badges.all_title') ?></h3>
                     <p class="text-xs text-gray-400"><?= count($userBadges) ?> / <?= count($allBadges) ?> <?= t('badges.unlocked') ?></p>
                 </div>
             </div>
-            <button onclick="document.getElementById('badges-modal').classList.add('hidden')" class="text-gray-400 hover:text-white transition-colors p-2">
-                <i class="fas fa-times"></i>
+            <button type="button" onclick="document.getElementById('badges-modal').classList.add('hidden')" class="text-gray-400 hover:text-white transition-colors p-2" aria-label="<?= t('a11y.close') ?? 'Cerrar' ?>">
+                <i class="fas fa-times" aria-hidden="true"></i>
             </button>
         </div>
 
@@ -1352,7 +1352,7 @@
                 <?php if (!empty($groupedBadges[$cat])): ?>
                 <div class="mb-6 last:mb-0">
                     <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                        <i class="fas <?= $catIcon ?> text-gray-500"></i> <?= t('badges.cat_' . $cat) ?>
+                        <i class="fas <?= $catIcon ?> text-gray-500" aria-hidden="true"></i> <?= t('badges.cat_' . $cat) ?>
                     </h4>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                         <?php foreach ($groupedBadges[$cat] as $badge):
@@ -1364,9 +1364,9 @@
                             : 'bg-gray-800/50 border-gray-700/50' ?>">
                             <div class="w-11 h-11 rounded-xl flex items-center justify-center text-lg flex-shrink-0 <?= $earned ? '' : 'bg-gray-700/50' ?>">
                                 <?php if ($earned): ?>
-                                    <i class="fas <?= htmlspecialchars($badge['icono']) ?>"></i>
+                                    <i class="fas <?= htmlspecialchars($badge['icono']) ?>" aria-hidden="true"></i>
                                 <?php else: ?>
-                                    <i class="fas <?= htmlspecialchars($badge['icono']) ?> text-gray-600"></i>
+                                    <i class="fas <?= htmlspecialchars($badge['icono']) ?> text-gray-600" aria-hidden="true"></i>
                                 <?php endif; ?>
                             </div>
                             <div class="flex-1 min-w-0">
@@ -1378,9 +1378,9 @@
                                 </p>
                             </div>
                             <?php if ($earned): ?>
-                                <i class="fas fa-check-circle text-green-400 flex-shrink-0"></i>
+                                <i class="fas fa-check-circle text-green-400 flex-shrink-0" aria-hidden="true"></i>
                             <?php else: ?>
-                                <i class="fas fa-lock text-gray-600/80 text-xs flex-shrink-0"></i>
+                                <i class="fas fa-lock text-gray-600/80 text-xs flex-shrink-0" aria-hidden="true"></i>
                             <?php endif; ?>
                         </div>
                         <?php endforeach; ?>

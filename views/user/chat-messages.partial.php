@@ -10,18 +10,18 @@
                 <p class="text-[10px] mt-0.5 <?= $isMe ? 'text-primary/50 text-right' : 'text-gray-500 text-right' ?>">
                     <?= date('H:i', strtotime($msg['fechaCreacion'])) ?>
                     <?php if ($isMe): ?>
-                        <i class="fas fa-check<?= $msg['leido'] ? '-double text-primary/70' : '' ?> ml-0.5"></i>
+                        <i class="fas fa-check<?= $msg['leido'] ? '-double text-primary/70' : '' ?> ml-0.5" aria-hidden="true"></i>
                     <?php endif; ?>
                 </p>
             </div>
             <?php if ($isMe && (time() - strtotime($msg['fechaCreacion']) < 3600)): ?>
             <div class="hidden group-hover:flex items-center gap-2.5 mt-0.5 justify-end pr-1">
-                <button onclick="editMessage(<?= $msg['idMensaje'] ?>)" class="text-[10px] text-gray-600 hover:text-gray-300 transition"><i class="fas fa-pen"></i></button>
-                <button onclick="deleteMessage(<?= $msg['idMensaje'] ?>)" class="text-[10px] text-gray-600 hover:text-red-400 transition"><i class="fas fa-trash"></i></button>
+                <button onclick="editMessage(<?= $msg['idMensaje'] ?>)" class="text-[10px] text-gray-600 hover:text-gray-300 transition"><i class="fas fa-pen" aria-hidden="true"></i></button>
+                <button onclick="deleteMessage(<?= $msg['idMensaje'] ?>)" class="text-[10px] text-gray-600 hover:text-red-400 transition"><i class="fas fa-trash" aria-hidden="true"></i></button>
             </div>
             <?php elseif (!$isMe): ?>
             <div class="hidden group-hover:flex items-center mt-0.5 pl-1">
-                <button onclick="openReportModal('chat', {idChat: <?= (int)$msg['idMensaje'] ?>, idUsuario: <?= (int)$msg['idEmisor'] ?>})" class="text-[10px] text-gray-600 hover:text-red-400 transition"><i class="fas fa-flag"></i></button>
+                <button onclick="openReportModal('chat', {idChat: <?= (int)$msg['idMensaje'] ?>, idUsuario: <?= (int)$msg['idEmisor'] ?>})" class="text-[10px] text-gray-600 hover:text-red-400 transition"><i class="fas fa-flag" aria-hidden="true"></i></button>
             </div>
             <?php endif; ?>
         </div>
