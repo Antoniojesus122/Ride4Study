@@ -5,9 +5,7 @@
                 <!-- Logo y descripcion -->
                 <div>
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-secondary font-bold text-sm shadow-lg shadow-primary/20" aria-hidden="true">
-                            R
-                        </div>
+                        <img src="public/img/logo.png" alt="" aria-hidden="true" class="w-8 h-8 object-contain">
                         <span class="font-semibold text-white text-lg tracking-tight">
                             Ride4Study
                         </span>

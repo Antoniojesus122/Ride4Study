@@ -35,9 +35,7 @@
             <nav class="fixed w-full z-50 px-4 sm:px-6 py-4 sm:py-5 bg-gray-900/80 backdrop-blur-xl border-b border-white/5">
                 <div class="flex justify-between items-center max-w-7xl mx-auto">
                     <a href="<?= url('/') ?>" class="flex items-center gap-2">
-                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-xl flex items-center justify-center text-secondary font-bold text-lg sm:text-xl shadow-lg shadow-primary/20">
-                            R
-                        </div>
+                        <img src="public/img/logo.png" alt="" aria-hidden="true" class="w-8 h-8 sm:w-10 sm:h-10 object-contain">
                         <span class="font-bold text-lg sm:text-2xl tracking-tight">
                             Ride4Study
                         </span>
@@ -66,7 +64,7 @@
             </nav>
 
             <!-- Hero -->
-            <header class="relative pt-36 pb-24 lg:pt-48 lg:pb-32 overflow-hidden">
+            <header class="relative shrink-0 pt-36 pb-24 lg:pt-48 lg:pb-32 overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-b from-gray-900 via-gray-900 to-surface -z-10"></div>
                 <div class="hero-glow absolute inset-0 -z-10"></div>
                 <div class="absolute top-20 right-10 w-72 h-72 bg-blue-500/8 rounded-full blur-3xl -z-10"></div>
@@ -76,9 +74,9 @@
                     <div class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-sm font-semibold mb-10">
                         <i class="fas fa-university" aria-hidden="true"></i> <?= t('inst_public.badge') ?>
                     </div>
-                    <h1 class="text-4xl md:text-5xl lg:text-7xl font-extrabold mb-8 leading-[1.1] tracking-tight">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold mb-8 leading-[1.2] tracking-tight">
                         <?= t('inst_public.hero_title_1') ?><br>
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-300 to-primary"><?= t('inst_public.hero_title_2') ?></span>
+                        <span class="inline-block pb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-300 to-primary"><?= t('inst_public.hero_title_2') ?></span>
                     </h1>
                     <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed mb-12">
                         <?= t('inst_public.hero_desc') ?>
