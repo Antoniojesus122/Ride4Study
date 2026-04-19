@@ -143,6 +143,15 @@ return [
     'register.hero_feature_3' => 'Ahorra dinero en tus trayectos',
     'register.students_count' => '+100 estudiantes registrados',
     'register.rights' => 'Todos los derechos reservados.',
+    'register.section_account' => 'Tu cuenta',
+    'register.section_institution' => 'Tu institución',
+    'register.section_security' => 'Seguridad',
+    'register.password_strength_weak' => 'Débil',
+    'register.password_strength_fair' => 'Regular',
+    'register.password_strength_good' => 'Buena',
+    'register.password_strength_strong' => 'Fuerte',
+    'register.password_match' => 'Las contraseñas coinciden',
+    'register.password_nomatch' => 'Las contraseñas no coinciden',
 
     // AUTH: FORGOT PASSWORD
     'forgot.title' => 'Recuperar Contraseña - Ride4Study',

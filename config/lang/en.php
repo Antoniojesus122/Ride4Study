@@ -143,8 +143,17 @@ return [
     'register.hero_feature_3' => 'Save money on your commute',
     'register.students_count' => '+100 registered students',
     'register.rights' => 'All rights reserved.',
+    'register.section_account' => 'Your account',
+    'register.section_institution' => 'Your institution',
+    'register.section_security' => 'Security',
+    'register.password_strength_weak' => 'Weak',
+    'register.password_strength_fair' => 'Fair',
+    'register.password_strength_good' => 'Good',
+    'register.password_strength_strong' => 'Strong',
+    'register.password_match' => 'Passwords match',
+    'register.password_nomatch' => 'Passwords do not match',
 
-    // AUTH: FORGOT PASSWORD 
+    // AUTH: FORGOT PASSWORD
     'forgot.title' => 'Recover Password - Ride4Study',
     'forgot.heading' => 'Recover your access',
     'forgot.desc' => 'We\'ll send a code to your email to reset your password.',

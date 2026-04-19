@@ -28,8 +28,8 @@
     <body class="h-full text-text">
       <div class="flex min-h-full">
         <!-- Sección del formulario -->
-        <div class="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24 bg-secondary">
-          <div class="mx-auto w-full max-w-sm lg:w-96">
+        <div class="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-16 xl:px-20 bg-secondary">
+          <div class="mx-auto w-full max-w-md lg:w-[30rem]">
             <div class="text-center lg:text-left">
               <a href="<?= url('/') ?>" class="inline-flex items-center gap-2 group">
                   <img src="public/img/logo.png" alt="" aria-hidden="true" class="h-10 w-10 object-contain">
@@ -58,67 +58,105 @@
                   </div>
                 <?php endif; ?>
 
-                <form method="POST" class="space-y-5">
-                  <div>
-                    <label for="nombre" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.name') ?></label>
-                    <div class="mt-2">
-                      <input id="nombre" name="nombre" type="text" autocomplete="name" required
-                        value="<?= htmlspecialchars($_POST['nombre'] ?? '') ?>"
-                        class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition-all">
+                <form method="POST" class="space-y-6">
+                  <!-- Grupo 1: Tu cuenta -->
+                  <fieldset class="space-y-4">
+                    <legend class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary mb-1">
+                      <i class="fas fa-user-circle" aria-hidden="true"></i>
+                      <?= t('register.section_account') ?>
+                    </legend>
+                    <div>
+                      <label for="nombre" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.name') ?></label>
+                      <div class="mt-1.5">
+                        <input id="nombre" name="nombre" type="text" autocomplete="name" required
+                          value="<?= htmlspecialchars($_POST['nombre'] ?? '') ?>"
+                          class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition-all">
+                      </div>
                     </div>
-                  </div>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label for="correo" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.email') ?></label>
+                        <div class="mt-1.5">
+                          <input id="correo" name="correo" type="email" autocomplete="email" required
+                            value="<?= htmlspecialchars($_POST['correo'] ?? '') ?>"
+                            class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition-all">
+                        </div>
+                      </div>
+                      <div>
+                        <label for="telefono" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.phone') ?> <span class="text-gray-500 text-xs ml-1"><?= t('register.optional') ?></span></label>
+                        <div class="mt-1.5">
+                          <input id="telefono" name="telefono" type="tel" autocomplete="tel"
+                            value="<?= htmlspecialchars($_POST['telefono'] ?? '') ?>"
+                            class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition-all">
+                        </div>
+                      </div>
+                    </div>
+                  </fieldset>
 
-                  <div>
-                    <label for="correo" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.email') ?></label>
-                    <div class="mt-2">
-                      <input id="correo" name="correo" type="email" autocomplete="email" required
-                        value="<?= htmlspecialchars($_POST['correo'] ?? '') ?>"
-                        class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition-all">
+                  <!-- Grupo 2: Institución -->
+                  <fieldset>
+                    <legend class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary mb-1">
+                      <i class="fas fa-university" aria-hidden="true"></i>
+                      <?= t('register.section_institution') ?>
+                    </legend>
+                    <div class="relative">
+                      <label for="institucion" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.institution') ?></label>
+                      <div class="mt-1.5 relative">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                          <i class="fas fa-search text-sm" aria-hidden="true"></i>
+                        </span>
+                        <input id="institucion" name="institucion" type="text" required autocomplete="off"
+                          value="<?= htmlspecialchars($_POST['institucion'] ?? '') ?>"
+                          placeholder="<?= t('register.institution_placeholder') ?>"
+                          class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 pl-10 pr-3 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition-all">
+                      </div>
+                      <ul id="inst-autocomplete-list" class="hidden absolute z-30 w-full bg-gray-800 border border-gray-600 rounded-lg mt-1 shadow-xl max-h-48 overflow-y-auto"></ul>
                     </div>
-                  </div>
-                  
-                  <div>
-                    <label for="telefono" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.phone') ?> <span class="text-gray-500 text-xs ml-1"><?= t('register.optional') ?></span></label>
-                    <div class="mt-2">
-                      <input id="telefono" name="telefono" type="tel" autocomplete="tel"
-                        value="<?= htmlspecialchars($_POST['telefono'] ?? '') ?>"
-                        class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition-all">
-                    </div>
-                  </div>
+                  </fieldset>
 
-                  <!-- Institución (obligatorio, con autocompletado) -->
-                  <div class="relative">
-                    <label for="institucion" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.institution') ?></label>
-                    <div class="mt-2">
-                      <input id="institucion" name="institucion" type="text" required autocomplete="off"
-                        value="<?= htmlspecialchars($_POST['institucion'] ?? '') ?>"
-                        placeholder="<?= t('register.institution_placeholder') ?>"
-                        class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition-all">
+                  <!-- Grupo 3: Seguridad -->
+                  <fieldset class="space-y-4">
+                    <legend class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary mb-1">
+                      <i class="fas fa-lock" aria-hidden="true"></i>
+                      <?= t('register.section_security') ?>
+                    </legend>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label for="contrasena" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.password') ?></label>
+                        <div class="mt-1.5 relative">
+                          <input id="contrasena" name="contrasena" type="password" required autocomplete="new-password"
+                            class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 pr-10 transition-all">
+                          <button type="button" onclick="togglePasswordVisibility('contrasena', 'icon-1')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-white transition-colors" aria-label="<?= t('a11y.toggle_password') ?? 'Toggle password' ?>">
+                            <i id="icon-1" class="fas fa-eye" aria-hidden="true"></i>
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <label for="confirmar_contrasena" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.confirm_password') ?></label>
+                        <div class="mt-1.5 relative">
+                          <input id="confirmar_contrasena" name="confirmar_contrasena" type="password" required autocomplete="new-password"
+                            class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 pr-10 transition-all">
+                          <button type="button" onclick="togglePasswordVisibility('confirmar_contrasena', 'icon-2')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-white transition-colors" aria-label="<?= t('a11y.toggle_password') ?? 'Toggle password' ?>">
+                            <i id="icon-2" class="fas fa-eye" aria-hidden="true"></i>
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <ul id="inst-autocomplete-list" class="hidden absolute z-30 w-full bg-gray-800 border border-gray-600 rounded-lg mt-1 shadow-xl max-h-48 overflow-y-auto"></ul>
-                  </div>
 
-                  <div>
-                    <label for="contrasena" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.password') ?></label>
-                    <div class="mt-2 relative">
-                      <input id="contrasena" name="contrasena" type="password" required
-                        class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 pr-10 transition-all">
-                        <button type="button" onclick="togglePasswordVisibility('contrasena', 'icon-1')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-white transition-colors">
-                          <i id="icon-1" class="fas fa-eye"></i>
-                        </button>
+                    <!-- Indicador de fuerza de contraseña -->
+                    <div id="pw-strength-wrap" class="hidden" aria-live="polite">
+                      <div class="flex gap-1.5" role="presentation">
+                        <div class="pw-bar h-1 flex-1 rounded-full bg-gray-700 transition-colors"></div>
+                        <div class="pw-bar h-1 flex-1 rounded-full bg-gray-700 transition-colors"></div>
+                        <div class="pw-bar h-1 flex-1 rounded-full bg-gray-700 transition-colors"></div>
+                        <div class="pw-bar h-1 flex-1 rounded-full bg-gray-700 transition-colors"></div>
+                      </div>
+                      <p id="pw-strength-label" class="mt-1.5 text-xs text-gray-400"></p>
                     </div>
-                  </div>
-                  
-                  <div>
-                    <label for="confirmar_contrasena" class="block text-sm font-medium leading-6 text-gray-300"><?= t('register.confirm_password') ?></label>
-                    <div class="mt-2 relative">
-                      <input id="confirmar_contrasena" name="confirmar_contrasena" type="password" required
-                        class="block w-full rounded-lg border-0 bg-secondary/50 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 pr-10 transition-all">
-                        <button type="button" onclick="togglePasswordVisibility('confirmar_contrasena', 'icon-2')" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-white transition-colors">
-                          <i id="icon-2" class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                  </div>
+
+                    <!-- Indicador de coincidencia -->
+                    <p id="pw-match-label" class="hidden text-xs" aria-live="polite"></p>
+                  </fieldset>
 
                   <div class="flex items-start gap-3">
                     <div class="flex items-center h-5">
@@ -220,6 +258,61 @@
           telefonoInput.addEventListener('input', function() {
             this.value = this.value.replace(/\D/g, '').slice(0, 9);
           });
+
+          // Indicador de fuerza de contraseña
+          const pwInput = document.getElementById('contrasena');
+          const pwConfirm = document.getElementById('confirmar_contrasena');
+          const pwWrap = document.getElementById('pw-strength-wrap');
+          const pwBars = pwWrap.querySelectorAll('.pw-bar');
+          const pwLabel = document.getElementById('pw-strength-label');
+          const matchLabel = document.getElementById('pw-match-label');
+
+          const STRENGTH_LABELS = [
+            '',
+            <?= json_encode(t('register.password_strength_weak')) ?>,
+            <?= json_encode(t('register.password_strength_fair')) ?>,
+            <?= json_encode(t('register.password_strength_good')) ?>,
+            <?= json_encode(t('register.password_strength_strong')) ?>,
+          ];
+          const STRENGTH_COLORS = ['', 'bg-red-500', 'bg-amber-500', 'bg-lime-500', 'bg-green-500'];
+          const STRENGTH_TEXT = ['text-gray-400', 'text-red-400', 'text-amber-400', 'text-lime-400', 'text-green-400'];
+
+          function calcStrength(pw) {
+            let score = 0;
+            if (pw.length >= 8) score++;
+            if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+            if (/\d/.test(pw)) score++;
+            if (/[^A-Za-z0-9]/.test(pw)) score++;
+            return score;
+          }
+
+          function renderStrength() {
+            const v = pwInput.value;
+            if (!v) { pwWrap.classList.add('hidden'); return; }
+            pwWrap.classList.remove('hidden');
+            const s = calcStrength(v);
+            pwBars.forEach((bar, i) => {
+              bar.className = 'pw-bar h-1 flex-1 rounded-full transition-colors ' + (i < s ? STRENGTH_COLORS[s] : 'bg-gray-700');
+            });
+            pwLabel.className = 'mt-1.5 text-xs ' + STRENGTH_TEXT[s];
+            pwLabel.textContent = STRENGTH_LABELS[s] || '';
+          }
+
+          function renderMatch() {
+            const a = pwInput.value, b = pwConfirm.value;
+            if (!b) { matchLabel.classList.add('hidden'); return; }
+            matchLabel.classList.remove('hidden');
+            if (a === b) {
+              matchLabel.className = 'text-xs text-green-400 flex items-center gap-1';
+              matchLabel.innerHTML = '<i class="fas fa-check-circle" aria-hidden="true"></i> <?= htmlspecialchars(t('register.password_match'), ENT_QUOTES) ?>';
+            } else {
+              matchLabel.className = 'text-xs text-red-400 flex items-center gap-1';
+              matchLabel.innerHTML = '<i class="fas fa-times-circle" aria-hidden="true"></i> <?= htmlspecialchars(t('register.password_nomatch'), ENT_QUOTES) ?>';
+            }
+          }
+
+          pwInput.addEventListener('input', () => { renderStrength(); renderMatch(); });
+          pwConfirm.addEventListener('input', renderMatch);
 
           const checkbox = document.getElementById('acepta_politicas');
           const submitBtn = document.querySelector('button[name="register"]');
