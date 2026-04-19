@@ -579,6 +579,7 @@
 </div>
 
 <script>
+    const MAPTILER_KEY = '<?= $_ENV['MAPTILER_KEY'] ?? '' ?>';
     const modal = document.getElementById('ride-modal');
     const backdrop = document.getElementById('modal-backdrop');
     const panel = document.getElementById('modal-panel');
@@ -823,10 +824,11 @@
                 if (window._modalMap) { window._modalMap.remove(); window._modalMap = null; }
 
                 const modalMap = L.map(mapEl, { zoomControl: true, attributionControl: false }).setView([39.5, -3.5], 6);
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                    maxZoom: 18,
-                    subdomains: 'abcd',
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                L.tileLayer(`https://api.maptiler.com/maps/streets-v2-light/{z}/{x}/{y}{r}.png?key=${MAPTILER_KEY}&language=es`, {
+                    maxZoom: 19,
+                    tileSize: 512,
+                    zoomOffset: -1,
+                    attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                 }).addTo(modalMap);
                 window._modalMap = modalMap;
 
@@ -867,10 +869,11 @@
             setTimeout(() => {
                 if (window._modalMap) { window._modalMap.remove(); window._modalMap = null; }
                 const modalMap = L.map(mapEl, { zoomControl: true, attributionControl: false }).setView([39.5, -3.5], 6);
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                    maxZoom: 18,
-                    subdomains: 'abcd',
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                L.tileLayer(`https://api.maptiler.com/maps/streets-v2-light/{z}/{x}/{y}{r}.png?key=${MAPTILER_KEY}&language=es`, {
+                    maxZoom: 19,
+                    tileSize: 512,
+                    zoomOffset: -1,
+                    attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                 }).addTo(modalMap);
                 window._modalMap = modalMap;
 

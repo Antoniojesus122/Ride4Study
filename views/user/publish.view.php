@@ -600,6 +600,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
 
         // Vista previa del mapa con ruta + selección interactiva
         const ORS_API_KEY = '<?= $_ENV['ORS_API_KEY'] ?? '' ?>';
+        const MAPTILER_KEY = '<?= $_ENV['MAPTILER_KEY'] ?? '' ?>';
         let publishMap = null;
         let routeLayer = null;
         let markersLayer = null;
@@ -624,10 +625,11 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
                 attributionControl: false
             }).setView([39.5, -3.5], 6);
 
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                maxZoom: 18,
-                subdomains: 'abcd',
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            L.tileLayer(`https://api.maptiler.com/maps/streets-v2-light/{z}/{x}/{y}{r}.png?key=${MAPTILER_KEY}&language=es`, {
+                maxZoom: 19,
+                tileSize: 512,
+                zoomOffset: -1,
+                attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }).addTo(publishMap);
 
             routeLayer = L.layerGroup().addTo(publishMap);
