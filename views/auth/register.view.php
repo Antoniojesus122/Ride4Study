@@ -8,6 +8,12 @@
       <script src="public/js/tailwind-config.js"></script>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" href="public/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="public/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="public/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="public/apple-touch-icon.png">
+    <link rel="manifest" href="public/site.webmanifest">
+    <meta name="theme-color" content="#fde047">
       <link rel="stylesheet" href="public/css/accessibility.css">
 
         <style>
@@ -26,9 +32,7 @@
           <div class="mx-auto w-full max-w-sm lg:w-96">
             <div class="text-center lg:text-left">
               <a href="<?= url('/') ?>" class="inline-flex items-center gap-2 group">
-                  <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-secondary font-bold text-xl transition-transform group-hover:rotate-12 shadow-lg shadow-primary/20">
-                      R
-                  </div>
+                  <img src="public/img/logo.png" alt="" aria-hidden="true" class="h-10 w-10 object-contain">
                   <span class="text-2xl font-bold tracking-tighter text-white group-hover:text-primary transition-colors">Ride4Study</span>
               </a>
               <h2 class="mt-8 text-3xl font-bold leading-9 tracking-tight text-white"><?= t('register.hero') ?></h2>

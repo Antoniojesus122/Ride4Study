@@ -19,9 +19,7 @@
             <!-- Barra de navegacion -->
             <nav class="absolute w-full z-10 px-4 sm:px-6 py-4 sm:py-6 flex justify-between items-center max-w-7xl mx-auto left-0 right-0">
                 <a href="<?= url('/') ?>" class="flex items-center gap-2">
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-xl flex items-center justify-center text-secondary font-bold text-lg sm:text-xl shadow-lg shadow-primary/20">
-                        R
-                    </div>
+                    <img src="public/img/logo.png" alt="" aria-hidden="true" class="w-8 h-8 sm:w-10 sm:h-10 object-contain">
                     <span class="font-bold text-lg sm:text-2xl tracking-tight">
                         Ride4Study
                     </span>
