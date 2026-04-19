@@ -1132,6 +1132,11 @@ return [
     'inst_auth.err_max_attempts' => 'Maximum attempts exceeded. Please sign in again.',
     'inst_auth.err_wrong_code' => 'Incorrect code. Please try again.',
 
+    // PUBLISH - alternative routes
+    'publish.choose_route' => 'Choose your preferred route',
+    'publish.route_main' => 'Main route',
+    'publish.route_alternative' => 'Alternative',
+
     // ACCESSIBILITY (WCAG 2.1)
     'a11y.skip_to_content' => 'Skip to main content',
     'a11y.main_nav' => 'Main navigation',

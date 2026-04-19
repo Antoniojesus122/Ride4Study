@@ -272,8 +272,11 @@ class RideController {
         $data['origen']  = $this->ride->findOrCreateLocation($origenNombre, $origenLat, $origenLng);
         $data['destino'] = $this->ride->findOrCreateLocation($destinoNombre, $destinoLat, $destinoLng);
 
+        // Indice de ruta alternativa elegida por el usuario en el mapa (0 = principal)
+        $routeIdx = isset($_POST['route_index']) ? max(0, (int)$_POST['route_index']) : 0;
+
         // Calcular ruta, hora de llegada, distancia y polyline
-        $routeInfo = $this->calculateRouteData($origenLat, $origenLng, $destinoLat, $destinoLng, $data['fechaSalida'], $data['horaSalida']);
+        $routeInfo = $this->calculateRouteData($origenLat, $origenLng, $destinoLat, $destinoLng, $data['fechaSalida'], $data['horaSalida'], $routeIdx);
         $data['horaLlegada']   = $routeInfo['horaLlegada'];
         $data['ruta_polyline'] = $routeInfo['ruta_polyline'];
         $data['distancia_km']  = $routeInfo['distancia_km'];
@@ -916,8 +919,11 @@ class RideController {
         $data['origen']  = $this->ride->findOrCreateLocation($origenNombre, $origenLat, $origenLng);
         $data['destino'] = $this->ride->findOrCreateLocation($destinoNombre, $destinoLat, $destinoLng);
 
+        // Indice de ruta alternativa elegida por el usuario en el mapa (0 = principal)
+        $routeIdx = isset($_POST['route_index']) ? max(0, (int)$_POST['route_index']) : 0;
+
         // Calcular ruta, hora de llegada, distancia y polyline
-        $routeInfo = $this->calculateRouteData($origenLat, $origenLng, $destinoLat, $destinoLng, $data['fechaSalida'], $data['horaSalida']);
+        $routeInfo = $this->calculateRouteData($origenLat, $origenLng, $destinoLat, $destinoLng, $data['fechaSalida'], $data['horaSalida'], $routeIdx);
         $data['horaLlegada']   = $routeInfo['horaLlegada'];
         $data['ruta_polyline'] = $routeInfo['ruta_polyline'];
         $data['distancia_km']  = $routeInfo['distancia_km'];
@@ -935,8 +941,9 @@ class RideController {
         }
     }
 
-    // Calcula hora de llegada, polyline, distancia y duración usando OpenRouteService
-    private function calculateRouteData(float $origenLat, float $origenLng, float $destinoLat, float $destinoLng, string $fechaSalida, string $horaSalida): array {
+    // Calcula hora de llegada, polyline, distancia y duración usando OpenRouteService.
+    // $routeIndex selecciona cual de las rutas alternativas usar (0 = principal).
+    private function calculateRouteData(float $origenLat, float $origenLng, float $destinoLat, float $destinoLng, string $fechaSalida, string $horaSalida, int $routeIndex = 0): array {
         $result = ['horaLlegada' => null, 'ruta_polyline' => null, 'distancia_km' => null, 'duracion_min' => null];
 
         if ($origenLat == 0 || $origenLng == 0 || $destinoLat == 0 || $destinoLng == 0) {
@@ -948,11 +955,28 @@ class RideController {
             error_log('ORS_API_KEY no configurada en .env');
             return $result;
         }
-        $url = "https://api.openrouteservice.org/v2/directions/driving-car?api_key={$apiKey}&start={$origenLng},{$origenLat}&end={$destinoLng},{$destinoLat}";
+
+        // POST con alternative_routes para poder pedir hasta 3 rutas distintas.
+        // GET /directions NO admite ese parametro, por eso usamos el endpoint geojson en POST.
+        $url  = 'https://api.openrouteservice.org/v2/directions/driving-car/geojson';
+        $body = [
+            'coordinates' => [[$origenLng, $origenLat], [$destinoLng, $destinoLat]],
+            'alternative_routes' => [
+                'target_count'  => 3,
+                'weight_factor' => 1.6,
+                'share_factor'  => 0.6,
+            ],
+        ];
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json, application/geo+json']);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: ' . $apiKey,
+            'Content-Type: application/json',
+            'Accept: application/json, application/geo+json',
+        ]);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -964,7 +988,11 @@ class RideController {
         }
 
         $routeData = json_decode($response, true);
-        $feature = $routeData['features'][0] ?? null;
+        $features  = $routeData['features'] ?? [];
+
+        // Seleccionar la ruta pedida por el usuario; si el indice esta fuera de rango,
+        // cae a la principal (indice 0) para no romper el guardado.
+        $feature = $features[$routeIndex] ?? ($features[0] ?? null);
 
         if (!$feature) {
             error_log('OpenRouteService: respuesta sin features');
