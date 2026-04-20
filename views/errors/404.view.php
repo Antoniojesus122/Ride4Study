@@ -5,7 +5,7 @@
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>404 - Ride4Study</title>
 
-            <base href="<?= url('/') ?>/">
+            <base href="<?= url('/') ?>">
             <script src="https://cdn.tailwindcss.com"></script>
             <script src="public/js/tailwind-config.js"></script>
             <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">

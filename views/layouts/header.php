@@ -30,7 +30,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Ride4Study</title>
-        <base href="<?= url('/') ?>/">
+        <base href="<?= url('/') ?>">
 
         <link rel="icon" href="public/favicon.ico" sizes="any">
         <link rel="icon" type="image/png" sizes="32x32" href="public/favicon-32.png">

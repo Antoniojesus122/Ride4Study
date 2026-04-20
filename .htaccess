@@ -1,10 +1,15 @@
 RewriteEngine On
-RewriteBase /Ride4Study/
 
 # No reescribir archivos y directorios que existen (assets estáticos)
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# Redirigir todo lo demás a index.php
+# Ruteo condicional según entorno
+# Producción (ride4study.es): reescribe desde raíz a index.php
+RewriteCond %{HTTP_HOST} ^(www\.)?ride4study\.es$ [NC]
 RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Desarrollo local (XAMPP): reescribe desde /Ride4Study/ a index.php
+RewriteCond %{HTTP_HOST} !^(www\.)?ride4study\.es$ [NC]
+RewriteRule ^(.*)$ /Ride4Study/index.php [QSA,L]

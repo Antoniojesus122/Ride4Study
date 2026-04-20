@@ -1,7 +1,8 @@
 <?php
 
 // Ruta principal del proyecto
-define('BASE_PATH', '/Ride4Study');
+// Detección automática de entorno: producción ('') vs desarrollo local ('/Ride4Study')
+define('BASE_PATH', in_array($_SERVER['HTTP_HOST'] ?? '', ['ride4study.es', 'www.ride4study.es'], true) ? '' : '/Ride4Study');
 
 // URL de la encuesta de satisfacción (Google Forms)
 define('SURVEY_URL', 'https://forms.gle/YF7XLH9f4AvkPjb16');
