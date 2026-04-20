@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: 127.0.0.1
--- Tiempo de generación: 02-04-2026 a las 16:02:48
--- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.0.30
+-- Servidor: localhost
+-- Tiempo de generación: 15-04-2026 a las 22:20:03
+-- Versión del servidor: 10.4.28-MariaDB
+-- Versión de PHP: 8.0.28
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -20,6 +20,43 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `if0_40294789_ride4study`
 --
+
+DELIMITER $$
+--
+-- Procedimientos
+--
+CREATE DEFINER=`if0_40294789`@`sql308.infinityfree.com
+` PROCEDURE `add_fk_if_not_exists` (IN `p_table` VARCHAR(64), IN `p_fk` VARCHAR(64), IN `p_sql` TEXT)   BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = p_table
+          AND CONSTRAINT_NAME = p_fk
+          AND CONSTRAINT_TYPE = 'FOREIGN KEY'
+    ) THEN
+        SET @stmt = p_sql;
+        PREPARE s FROM @stmt;
+        EXECUTE s;
+        DEALLOCATE PREPARE s;
+    END IF;
+END$$
+
+CREATE DEFINER=`if0_40294789`@`sql308.infinityfree.com
+` PROCEDURE `add_index_if_not_exists` (IN `p_table` VARCHAR(64), IN `p_index` VARCHAR(64), IN `p_sql` TEXT)   BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM INFORMATION_SCHEMA.STATISTICS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = p_table
+          AND INDEX_NAME = p_index
+    ) THEN
+        SET @stmt = p_sql;
+        PREPARE s FROM @stmt;
+        EXECUTE s;
+        DEALLOCATE PREPARE s;
+    END IF;
+END$$
+
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -102,22 +139,13 @@ INSERT INTO `anuncios` (`idAnuncio`, `idUsuario`, `tipo`, `origen`, `destino`, `
 (4, 1, 'busco', 11, 12, '2025-10-31', '08:00:00', NULL, '10:03:00', NULL, 2.00, NULL, '2025-10-29 23:44:02', 0, NULL, NULL, NULL),
 (5, 1, 'ofrezco', 10, 17, '2025-11-02', '02:00:00', NULL, '10:00:00', 2, NULL, NULL, '2025-10-29 23:46:16', 0, NULL, NULL, NULL),
 (6, 1, 'busco', 5, 10, '2025-10-31', '02:00:00', NULL, '06:00:00', 4, NULL, NULL, '2025-10-29 23:50:24', 0, NULL, NULL, NULL),
-(7, 8, 'ofrezco', 6, 4, '2025-11-12', '03:04:00', NULL, NULL, 3, NULL, NULL, '2025-11-12 22:04:35', 0, NULL, NULL, NULL),
-(8, 8, 'ofrezco', 12, 20, '2025-11-28', '03:03:00', NULL, '06:06:00', 4, NULL, NULL, '2025-11-12 22:05:08', 0, NULL, NULL, NULL),
-(9, 8, 'ofrezco', 3, 17, '2025-11-29', '04:04:00', NULL, NULL, 4, NULL, NULL, '2025-11-12 22:06:08', 0, NULL, NULL, NULL),
 (10, 1, 'ofrezco', 18, 3, '2026-01-23', '03:02:00', NULL, '11:01:00', 2, NULL, 'Esto es una prueba', '2026-01-11 23:26:23', 0, NULL, NULL, NULL),
 (13, 9, 'ofrezco', 2, 12, '2026-02-12', '20:20:00', NULL, NULL, 1, NULL, '', '2026-02-09 23:20:13', 0, NULL, NULL, NULL),
 (14, 9, 'ofrezco', 4, 16, '2026-02-13', '17:45:00', NULL, NULL, 0, NULL, '', '2026-02-10 17:45:38', 0, NULL, NULL, NULL),
 (15, 9, 'ofrezco', 20, 13, '2026-02-25', '21:37:00', NULL, NULL, 1, NULL, '', '2026-02-18 16:32:57', 0, NULL, NULL, NULL),
-(17, 5, 'ofrezco', 2, 11, '2026-02-18', '01:56:00', NULL, NULL, 1, NULL, '', '2026-02-18 22:55:18', 0, NULL, NULL, NULL),
 (19, 9, 'ofrezco', 18, 8, '2026-02-25', '20:49:00', NULL, NULL, 1, NULL, '', '2026-02-22 18:48:05', 0, NULL, NULL, NULL),
 (20, 9, 'ofrezco', 14, 15, '2026-02-24', '23:54:00', NULL, NULL, 2, NULL, '', '2026-02-22 18:50:13', 0, NULL, NULL, NULL),
-(21, 5, 'ofrezco', 9, 20, '2026-02-28', '20:51:00', NULL, NULL, 0, NULL, '', '2026-02-26 17:48:26', 0, NULL, NULL, NULL),
 (25, 9, 'busco', 6, 17, '2026-02-28', '03:56:00', NULL, NULL, 0, NULL, '', '2026-02-26 23:52:49', 0, NULL, NULL, NULL),
-(26, 5, 'ofrezco', 9, 13, '2026-02-28', '14:22:00', NULL, NULL, 0, NULL, '', '2026-02-28 14:21:31', 0, NULL, NULL, NULL),
-(34, 5, 'ofrezco', 14, 15, '2026-03-17', '20:07:00', NULL, NULL, 3, NULL, '', '2026-03-08 17:05:35', 0, NULL, NULL, NULL),
-(35, 5, 'busco', 11, 17, '2026-03-10', '21:09:00', NULL, NULL, 1, NULL, '', '2026-03-08 17:05:43', 0, NULL, NULL, NULL),
-(36, 5, 'ofrezco', 2, 7, '2026-03-18', '18:05:00', NULL, NULL, 4, NULL, '', '2026-03-08 17:05:56', 0, NULL, NULL, NULL),
 (37, 9, 'ofrezco', 17, 14, '2026-03-08', '22:46:00', NULL, NULL, 1, NULL, '', '2026-03-08 22:45:47', 0, NULL, NULL, NULL),
 (38, 29, 'ofrezco', 3, 1, '2026-03-18', '01:02:00', NULL, NULL, 5, NULL, '', '2026-03-10 21:58:44', 0, NULL, NULL, NULL),
 (39, 29, 'ofrezco', 21, 22, '2026-03-12', '01:18:00', NULL, NULL, 1, NULL, '', '2026-03-10 22:14:30', 0, NULL, NULL, NULL),
@@ -351,13 +379,11 @@ CREATE TABLE `mensajes` (
 --
 
 INSERT INTO `mensajes` (`idMensaje`, `idConversation`, `idEmisor`, `idReceptor`, `mensaje`, `tipo`, `fechaCreacion`, `leido`) VALUES
-(50, 14, 29, 9, 'Hola', 'normal', '2026-03-08 21:47:23', 1),
 (51, 16, 9, 29, 'Hey', 'normal', '2026-03-14 14:11:34', 1),
 (52, 16, 9, 29, 'jk', 'normal', '2026-03-23 17:12:53', 1),
 (53, 16, 29, 9, 'jkl', 'normal', '2026-03-23 17:13:21', 1),
 (54, 16, 9, 29, 'hjk', 'normal', '2026-03-23 17:13:33', 1),
 (55, 17, 9, 29, 'vedç', 'normal', '2026-03-23 17:59:54', 1),
-(56, 19, 29, 30, 'rge', 'normal', '2026-03-28 14:46:59', 0),
 (57, 17, 9, 29, 'bhjkl', 'normal', '2026-03-31 13:56:30', 1),
 (58, 17, 9, 29, 'gr', 'normal', '2026-03-31 14:05:28', 1),
 (59, 17, 9, 29, 'fe', 'normal', '2026-03-31 14:05:37', 1),
@@ -405,7 +431,6 @@ CREATE TABLE `notificaciones` (
 --
 
 INSERT INTO `notificaciones` (`idNotificacion`, `idUsuario`, `tipoNotificacion`, `mensaje`, `fechaEnvio`, `leida`, `icono`, `url`) VALUES
-(1, 5, 'sistema', 'Tu solicitud de plaza en el viaje Cartaya → Lucena del Puerto ha sido rechazada.', '2026-03-08 22:24:25', 0, 'fas fa-times-circle', '/Ride4Study/my-rides?tab=bookings'),
 (2, 29, 'sistema', 'Fernando Domingo ha solicitado plaza en tu viaje Lepe → Huelva.', '2026-03-14 15:11:07', 1, 'fas fa-user-plus', '/Ride4Study/my-rides?tab=requests'),
 (3, 9, 'sistema', 'Paco ha solicitado plaza en tu viaje Lepe → Huelva.', '2026-03-17 17:15:42', 1, 'fas fa-user-plus', '/Ride4Study/my-rides?tab=requests'),
 (4, 29, 'sistema', 'Tu solicitud de plaza en el viaje Lepe → Huelva ha sido aceptada.', '2026-03-17 17:16:19', 1, 'fas fa-check-circle', '/Ride4Study/my-rides?tab=bookings'),
@@ -414,11 +439,7 @@ INSERT INTO `notificaciones` (`idNotificacion`, `idUsuario`, `tipoNotificacion`,
 (7, 9, 'sistema', 'Tu reporte ha sido revisado y resuelto por el equipo de Ride4Study.', '2026-03-21 14:12:54', 1, 'fas fa-check-circle', '/Ride4Study/dashboard'),
 (8, 29, 'sistema', 'Has recibido una advertencia por parte del equipo de Ride4Study. Por favor, revisa tu comportamiento en la plataforma.', '2026-03-21 14:43:23', 1, 'fas fa-exclamation-triangle', '/Ride4Study/dashboard'),
 (9, 9, 'sistema', 'Tu reporte ha sido revisado y resuelto por el equipo de Ride4Study.', '2026-03-21 14:43:23', 1, 'fas fa-check-circle', '/Ride4Study/dashboard'),
-(10, 5, 'sistema', 'Has recibido una advertencia por parte del equipo de Ride4Study. Por favor, revisa tu comportamiento en la plataforma.', '2026-03-21 17:25:19', 0, 'fas fa-exclamation-triangle', '/Ride4Study/dashboard'),
 (11, 29, 'sistema', 'Tu reporte ha sido revisado y resuelto por el equipo de Ride4Study.', '2026-03-21 17:25:19', 1, 'fas fa-check-circle', '/Ride4Study/dashboard'),
-(12, 5, 'sistema', 'Tu cuenta ha sido suspendida. Motivo: No suplantes la identidad de nadie', '2026-03-21 17:25:42', 0, 'fas fa-ban', '/Ride4Study/support'),
-(13, 5, 'sistema', 'Tu cuenta ha sido reactivada. Ya puedes usar Ride4Study con normalidad.', '2026-03-21 17:27:18', 0, 'fas fa-check-circle', '/Ride4Study/dashboard'),
-(14, 5, 'sistema', 'Un contenido tuyo ha sido eliminado por el equipo de moderacion por incumplir las normas de la comunidad.', '2026-03-22 18:03:59', 0, 'fas fa-trash', '/Ride4Study/dashboard'),
 (15, 29, 'sistema', 'Tu reporte ha sido revisado y resuelto por el equipo de Ride4Study.', '2026-03-22 18:03:59', 1, 'fas fa-check-circle', '/Ride4Study/dashboard'),
 (16, 29, 'sistema', 'Fernando Domingo te ha enviado un mensaje.', '2026-03-23 18:12:53', 1, 'fas fa-comment', '/Ride4Study/chat?conversation_id=16'),
 (17, 9, 'sistema', 'Paco te ha enviado un mensaje.', '2026-03-23 18:13:21', 1, 'fas fa-comment', '/Ride4Study/chat?conversation_id=16'),
@@ -695,7 +716,6 @@ CREATE TABLE `valoraciones` (
 --
 
 INSERT INTO `valoraciones` (`idValoracion`, `idViaje`, `idValorador`, `idValorado`, `puntuacion`, `puntualidad`, `comunicacion`, `vehiculo`, `conduccion`, `comportamiento`, `comentario`, `respuesta`, `fecha_respuesta`, `fecha_valoracion`) VALUES
-(0, NULL, 5, 9, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-27 14:05:31'),
 (0, 25, 29, 30, 5, 4, 5, NULL, NULL, 4, 'Puntual y buena gente', NULL, NULL, '2026-04-02 16:01:22');
 
 -- --------------------------------------------------------
@@ -749,7 +769,11 @@ ALTER TABLE `anuncios`
   ADD KEY `fk_anuncio_usuario` (`idUsuario`),
   ADD KEY `fk_anuncio_origen` (`origen`),
   ADD KEY `fk_anuncio_destino` (`destino`),
-  ADD KEY `idx_anuncios_fecha_salida` (`fechaSalida`);
+  ADD KEY `idx_anuncios_fecha_salida` (`fechaSalida`),
+  ADD KEY `idx_anuncios_tipo` (`tipo`),
+  ADD KEY `idx_anuncios_destacado` (`destacado`),
+  ADD KEY `idx_anuncios_fecha_hora` (`fechaSalida`,`horaSalida`),
+  ADD KEY `idx_anuncios_usuario_fecha` (`idUsuario`,`fechaSalida`);
 
 --
 -- Indices de la tabla `badges`
@@ -820,7 +844,8 @@ ALTER TABLE `mensajes_instituciones`
 ALTER TABLE `notificaciones`
   ADD PRIMARY KEY (`idNotificacion`),
   ADD KEY `idUsuario` (`idUsuario`),
-  ADD KEY `idx_notif_usuario_tipo_leida` (`idUsuario`,`tipoNotificacion`,`leida`,`fechaEnvio`);
+  ADD KEY `idx_notif_usuario_tipo_leida` (`idUsuario`,`tipoNotificacion`,`leida`,`fechaEnvio`),
+  ADD KEY `idx_notificaciones_leida` (`leida`);
 
 --
 -- Indices de la tabla `notificaciones_masivas`
@@ -835,7 +860,8 @@ ALTER TABLE `notificaciones_masivas`
 ALTER TABLE `pagos_premium`
   ADD PRIMARY KEY (`idPago`),
   ADD KEY `idx_usuario` (`idUsuario`),
-  ADD KEY `idx_fecha` (`creado_en`);
+  ADD KEY `idx_fecha` (`creado_en`),
+  ADD KEY `idx_pagos_estado` (`estado`);
 
 --
 -- Indices de la tabla `password_resets`
@@ -852,7 +878,10 @@ ALTER TABLE `reportes`
   ADD PRIMARY KEY (`idReporte`),
   ADD KEY `fk_report_user_reportado` (`idUsuarioReportado`),
   ADD KEY `fk_report_anuncio` (`idAnuncio`),
-  ADD KEY `fk_report_user_que_reporta` (`idUsuarioQueReporta`);
+  ADD KEY `fk_report_user_que_reporta` (`idUsuarioQueReporta`),
+  ADD KEY `idx_reportes_estado` (`estado`),
+  ADD KEY `idx_reportes_tipo_estado` (`tipo`,`estado`),
+  ADD KEY `idx_reportes_prioridad` (`prioridad`);
 
 --
 -- Indices de la tabla `roles`
@@ -874,7 +903,10 @@ ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`idUsuario`),
   ADD UNIQUE KEY `correo` (`correo`),
   ADD KEY `idRol` (`idRol`),
-  ADD KEY `idx_usuarios_institucion` (`institucion`);
+  ADD KEY `idx_usuarios_institucion` (`institucion`),
+  ADD KEY `idx_usuarios_verificacion` (`estado_verificacion`),
+  ADD KEY `idx_usuarios_premium` (`premium`,`premium_hasta`),
+  ADD KEY `idx_usuarios_co2` (`co2_ahorrado`);
 
 --
 -- Indices de la tabla `usuario_badges`
@@ -891,7 +923,8 @@ ALTER TABLE `valoraciones`
   ADD UNIQUE KEY `unique_valoracion_viaje` (`idViaje`,`idValorador`),
   ADD KEY `idx_valoracion_viaje` (`idViaje`),
   ADD KEY `idx_valoracion_fecha` (`fecha_valoracion`),
-  ADD KEY `idx_valoracion_valorador_valorado` (`idValorador`,`idValorado`);
+  ADD KEY `idx_valoracion_valorador_valorado` (`idValorador`,`idValorado`),
+  ADD KEY `idx_valoraciones_valorado` (`idValorado`);
 
 --
 -- Indices de la tabla `viajes`
@@ -901,7 +934,10 @@ ALTER TABLE `viajes`
   ADD UNIQUE KEY `unique_reserva` (`idAnuncio`,`idPasajero`),
   ADD KEY `fk_viaje_anuncio` (`idAnuncio`),
   ADD KEY `fk_viaje_conductor` (`idConductor`),
-  ADD KEY `fk_viaje_pasajero` (`idPasajero`);
+  ADD KEY `fk_viaje_pasajero` (`idPasajero`),
+  ADD KEY `idx_viajes_estado` (`estado`),
+  ADD KEY `idx_viajes_pasajero_estado` (`idPasajero`,`estado`),
+  ADD KEY `idx_viajes_conductor_estado` (`idConductor`,`estado`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -1032,6 +1068,14 @@ ALTER TABLE `admin_logs`
   ADD CONSTRAINT `admin_logs_ibfk_1` FOREIGN KEY (`idAdmin`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE;
 
 --
+-- Filtros para la tabla `anuncios`
+--
+ALTER TABLE `anuncios`
+  ADD CONSTRAINT `fk_anuncio_destino_fk` FOREIGN KEY (`destino`) REFERENCES `localidades` (`idLocalidad`),
+  ADD CONSTRAINT `fk_anuncio_origen_fk` FOREIGN KEY (`origen`) REFERENCES `localidades` (`idLocalidad`),
+  ADD CONSTRAINT `fk_anuncio_usuario_fk` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE;
+
+--
 -- Filtros para la tabla `conversations`
 --
 ALTER TABLE `conversations`
@@ -1043,6 +1087,7 @@ ALTER TABLE `conversations`
 -- Filtros para la tabla `mensajes`
 --
 ALTER TABLE `mensajes`
+  ADD CONSTRAINT `fk_mensaje_conversacion` FOREIGN KEY (`idConversation`) REFERENCES `conversations` (`idConversation`) ON DELETE CASCADE,
   ADD CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`idEmisor`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE,
   ADD CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`idReceptor`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE;
 
@@ -1052,6 +1097,12 @@ ALTER TABLE `mensajes`
 ALTER TABLE `mensajes_instituciones`
   ADD CONSTRAINT `fk_mensajes_inst_admin` FOREIGN KEY (`idAdmin`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_mensajes_inst_institucion` FOREIGN KEY (`idInstitucion`) REFERENCES `instituciones` (`idInstitucion`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `notificaciones`
+--
+ALTER TABLE `notificaciones`
+  ADD CONSTRAINT `fk_notificacion_usuario` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `notificaciones_masivas`
@@ -1080,6 +1131,18 @@ ALTER TABLE `reportes`
   ADD CONSTRAINT `fk_report_user_reportado` FOREIGN KEY (`idUsuarioReportado`) REFERENCES `usuarios` (`idUsuario`) ON DELETE SET NULL;
 
 --
+-- Filtros para la tabla `sesiones`
+--
+ALTER TABLE `sesiones`
+  ADD CONSTRAINT `fk_sesion_usuario` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  ADD CONSTRAINT `fk_usuario_rol` FOREIGN KEY (`idRol`) REFERENCES `roles` (`idRol`);
+
+--
 -- Filtros para la tabla `usuario_badges`
 --
 ALTER TABLE `usuario_badges`
@@ -1090,6 +1153,8 @@ ALTER TABLE `usuario_badges`
 -- Filtros para la tabla `valoraciones`
 --
 ALTER TABLE `valoraciones`
+  ADD CONSTRAINT `fk_valoracion_valorado` FOREIGN KEY (`idValorado`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_valoracion_valorador` FOREIGN KEY (`idValorador`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_valoracion_viaje` FOREIGN KEY (`idViaje`) REFERENCES `viajes` (`idViaje`) ON DELETE CASCADE;
 
 --
