@@ -37,10 +37,15 @@
 
         <!-- Columna 1: bandeja de instituciones -->
         <aside class="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden h-fit">
-            <!-- Buscador -->
-            <form method="GET" action="<?= url('/admin/messages') ?>" class="p-4 border-b border-gray-700">
+            <!-- Buscador + filtro de no leídos -->
+            <form method="GET" action="<?= url('/admin/messages') ?>" class="p-4 border-b border-gray-700 space-y-3">
                 <input type="text" name="search" value="<?= htmlspecialchars($search ?? '') ?>" placeholder="Buscar institucion..."
                        class="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+                <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer select-none">
+                    <input type="checkbox" name="no_leidos" value="1" onchange="this.form.submit()" <?= !empty($_GET['no_leidos']) ? 'checked' : '' ?>
+                           class="w-4 h-4 rounded bg-gray-900 border-gray-700 text-primary focus:ring-primary focus:ring-offset-0">
+                    Solo con mensajes sin leer
+                </label>
             </form>
 
             <!-- Listado -->

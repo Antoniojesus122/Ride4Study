@@ -53,7 +53,20 @@
         </div>
         <?php if ($tab !== 'stats'): ?>
         <div class="flex items-center gap-3">
-            <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>&action=export_csv&estado=<?= urlencode($estadoFilter) ?>&motivo=<?= urlencode($_GET['motivo'] ?? '') ?>&date_from=<?= urlencode($_GET['date_from'] ?? '') ?>&date_to=<?= urlencode($_GET['date_to'] ?? '') ?>"
+            <?php
+                $exportQs = http_build_query(array_filter([
+                    'tab'       => $tab,
+                    'action'    => 'export_csv',
+                    'estado'    => $estadoFilter,
+                    'motivo'    => $_GET['motivo']    ?? '',
+                    'periodo'   => $_GET['periodo']   ?? '',
+                    'date_from' => $_GET['date_from'] ?? '',
+                    'date_to'   => $_GET['date_to']   ?? '',
+                    'prioridad' => $_GET['prioridad'] ?? '',
+                    'evidencia' => $_GET['evidencia'] ?? '',
+                ], fn($v) => $v !== '' && $v !== null));
+            ?>
+            <a href="<?= url('/admin/reports') ?>?<?= $exportQs ?>"
                class="px-4 py-2.5 text-base font-medium bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/20 transition border border-emerald-500/20">Exportar CSV</a>
         </div>
         <?php endif; ?>
@@ -69,7 +82,7 @@
     </div>
 
     <!-- Filtros -->
-    <form method="GET" action="<?= url('/admin/reports') ?>" class="flex flex-wrap items-center gap-4 mb-6">
+    <form method="GET" action="<?= url('/admin/reports') ?>" class="flex flex-wrap items-center gap-3 mb-6">
         <input type="hidden" name="tab" value="<?= $tab ?>">
         <?php if ($estadoFilter): ?><input type="hidden" name="estado" value="<?= htmlspecialchars($estadoFilter) ?>"><?php endif; ?>
         <select name="motivo" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
@@ -78,13 +91,22 @@
             <option value="<?= $key ?>" <?= ($_GET['motivo'] ?? '') === $key ? 'selected' : '' ?>><?= $label ?></option>
             <?php endforeach; ?>
         </select>
-        <input type="date" name="date_from" value="<?= htmlspecialchars($_GET['date_from'] ?? '') ?>"
-               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
-        <input type="date" name="date_to" value="<?= htmlspecialchars($_GET['date_to'] ?? '') ?>"
-               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
+        <select name="prioridad" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
+            <option value="">Cualquier prioridad</option>
+            <option value="urgente" <?= ($_GET['prioridad'] ?? '') === 'urgente' ? 'selected' : '' ?>>Urgente</option>
+            <option value="alta"    <?= ($_GET['prioridad'] ?? '') === 'alta'    ? 'selected' : '' ?>>Alta</option>
+            <option value="media"   <?= ($_GET['prioridad'] ?? '') === 'media'   ? 'selected' : '' ?>>Media</option>
+            <option value="baja"    <?= ($_GET['prioridad'] ?? '') === 'baja'    ? 'selected' : '' ?>>Baja</option>
+        </select>
+        <select name="evidencia" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
+            <option value="">Evidencia</option>
+            <option value="con" <?= ($_GET['evidencia'] ?? '') === 'con' ? 'selected' : '' ?>>Con evidencia</option>
+            <option value="sin" <?= ($_GET['evidencia'] ?? '') === 'sin' ? 'selected' : '' ?>>Sin evidencia</option>
+        </select>
+        <?php renderPeriodFilter($_GET); ?>
         <button type="submit" class="px-5 py-2.5 text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
-        <?php if (!empty($_GET['motivo']) || !empty($_GET['date_from']) || !empty($_GET['date_to'])): ?>
-        <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?><?= $estadoFilter ? '&estado=' . urlencode($estadoFilter) : '' ?>" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
+        <?php if (!empty($_GET['motivo']) || !empty($_GET['date_from']) || !empty($_GET['date_to']) || !empty($_GET['prioridad']) || !empty($_GET['evidencia']) || !empty($_GET['periodo'])): ?>
+            <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?><?= $estadoFilter ? '&estado=' . urlencode($estadoFilter) : '' ?>" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
         <?php endif; ?>
     </form>
     <?php endif; ?>

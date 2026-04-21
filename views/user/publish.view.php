@@ -558,25 +558,29 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
             const horaSalida    = document.getElementById('horaSalida').value;
             const horaRegreso   = document.getElementById('horaRegreso').value;
 
+            // Helper local para mostrar error de validacion con el modal global
+            const showValidationError = function (message, focusId) {
+                window.userAlert({ type: 'warning', title: '<?= t('publish.err_title') ?? 'Revisa los datos' ?>', message: message });
+                if (focusId) document.getElementById(focusId).focus();
+            };
+
             // Validar que se haya seleccionado ciudad del autocompletado
             if (!origenNombre || !origenLat) {
                 e.preventDefault();
-                alert('<?= t('publish.err_origin') ?>');
-                document.getElementById('origen').focus();
+                showValidationError('<?= t('publish.err_origin') ?>', 'origen');
                 return;
             }
 
             if (!destinoNombre || !destinoLat) {
                 e.preventDefault();
-                alert('<?= t('publish.err_destination') ?>');
-                document.getElementById('destino').focus();
+                showValidationError('<?= t('publish.err_destination') ?>', 'destino');
                 return;
             }
 
             // Validación Origen y Destino iguales
             if (origenNombre.toLowerCase() === destinoNombre.toLowerCase()) {
                 e.preventDefault();
-                alert('<?= t('publish.err_same') ?>');
+                showValidationError('<?= t('publish.err_same') ?>');
                 return;
             }
 
@@ -584,7 +588,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
             const today = new Date().toISOString().split('T')[0];
             if (fecha < today) {
                 e.preventDefault();
-                alert('<?= t('publish.err_past_date') ?>');
+                showValidationError('<?= t('publish.err_past_date') ?>');
                 return;
             }
 
@@ -595,7 +599,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
 
                 if (horaSalida <= horaActual) {
                     e.preventDefault();
-                    alert('<?= t('publish.err_past_time') ?>');
+                    showValidationError('<?= t('publish.err_past_time') ?>');
                     return;
                 }
             }
@@ -603,7 +607,7 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
             // Validación hora de regreso
             if (horaRegreso && horaRegreso <= horaSalida) {
                 e.preventDefault();
-                alert('<?= t('publish.err_return_before') ?>');
+                showValidationError('<?= t('publish.err_return_before') ?>');
                 return;
             }
         });

@@ -24,29 +24,58 @@
     <div class="flex items-center justify-between mb-6">
         <p class="text-base text-gray-400"><?= $totalAds ?> anuncios</p>
         <div class="flex items-center gap-3">
-            <a href="<?= url('/admin/ads') ?>?action=export_csv&tipo=<?= urlencode($filters['tipo'] ?? '') ?>&search=<?= urlencode($filters['search'] ?? '') ?>&date_from=<?= urlencode($filters['date_from'] ?? '') ?>&date_to=<?= urlencode($filters['date_to'] ?? '') ?>"
+            <?php
+                // Construimos el query string para exportar respetando todos los filtros
+                $exportQs = http_build_query(array_filter([
+                    'action'      => 'export_csv',
+                    'tipo'        => $filters['tipo'] ?? '',
+                    'search'      => $filters['search'] ?? '',
+                    'periodo'     => $_GET['periodo'] ?? '',
+                    'date_from'   => $filters['date_from'] ?? '',
+                    'date_to'     => $filters['date_to'] ?? '',
+                    'estado'      => $filters['estado'] ?? '',
+                    'precio'      => $filters['precio'] ?? '',
+                    'institucion' => $filters['institucion'] ?? '',
+                ], fn($v) => $v !== '' && $v !== null));
+            ?>
+            <a href="<?= url('/admin/ads') ?>?<?= $exportQs ?>"
                class="px-4 py-2.5 text-base font-medium bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/20 transition border border-emerald-500/20">Exportar CSV</a>
         </div>
     </div>
 
     <!-- Filtros -->
-    <form method="GET" action="<?= url('/admin/ads') ?>" class="flex flex-wrap items-center gap-4 mb-6">
+    <form method="GET" action="<?= url('/admin/ads') ?>" class="flex flex-wrap items-center gap-3 mb-6">
         <input type="text" name="search" value="<?= htmlspecialchars($filters['search'] ?? '') ?>" placeholder="Buscar usuario o localidad..."
-               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-72">
+               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-64">
         <select name="tipo" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
             <option value="">Todos los tipos</option>
             <option value="ofrezco" <?= ($filters['tipo'] ?? '') === 'ofrezco' ? 'selected' : '' ?>>Ofrezco</option>
             <option value="busco" <?= ($filters['tipo'] ?? '') === 'busco' ? 'selected' : '' ?>>Busco</option>
         </select>
-        <input type="date" name="date_from" value="<?= htmlspecialchars($filters['date_from'] ?? '') ?>"
-               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary"
-               placeholder="Desde">
-        <input type="date" name="date_to" value="<?= htmlspecialchars($filters['date_to'] ?? '') ?>"
-               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary"
-               placeholder="Hasta">
+        <select name="estado" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
+            <option value="">Cualquier estado</option>
+            <option value="futuros" <?= ($filters['estado'] ?? '') === 'futuros' ? 'selected' : '' ?>>Futuros</option>
+            <option value="activos" <?= ($filters['estado'] ?? '') === 'activos' ? 'selected' : '' ?>>Hoy</option>
+            <option value="pasados" <?= ($filters['estado'] ?? '') === 'pasados' ? 'selected' : '' ?>>Pasados</option>
+        </select>
+        <select name="precio" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
+            <option value="">Precio</option>
+            <option value="con_precio" <?= ($filters['precio'] ?? '') === 'con_precio' ? 'selected' : '' ?>>Con precio</option>
+            <option value="gratis" <?= ($filters['precio'] ?? '') === 'gratis' ? 'selected' : '' ?>>Gratis</option>
+        </select>
+        <select name="institucion" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary max-w-[200px]">
+            <option value="">Todas las instituciones</option>
+            <?php foreach (($instituciones ?? []) as $inst): ?>
+                <option value="<?= htmlspecialchars($inst['nombre']) ?>" <?= ($filters['institucion'] ?? '') === $inst['nombre'] ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($inst['nombre']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <?php renderPeriodFilter($_GET); ?>
         <button type="submit" class="px-5 py-2.5 text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
-        <?php if (!empty($filters['search']) || !empty($filters['tipo']) || !empty($filters['date_from']) || !empty($filters['date_to'])): ?>
-        <a href="<?= url('/admin/ads') ?>" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
+        <?php $hasFilters = array_filter([$filters['search'] ?? '', $filters['tipo'] ?? '', $filters['date_from'] ?? '', $filters['date_to'] ?? '', $filters['estado'] ?? '', $filters['precio'] ?? '', $filters['institucion'] ?? '']); ?>
+        <?php if (!empty($hasFilters)): ?>
+            <a href="<?= url('/admin/ads') ?>" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
         <?php endif; ?>
     </form>
 
@@ -104,8 +133,20 @@
         <!-- Pagicación -->
         <?php if ($totalPages > 1): ?>
         <div class="flex items-center justify-center gap-2 mt-6">
+            <?php
+                $pagQs = http_build_query(array_filter([
+                    'tipo'        => $filters['tipo'] ?? '',
+                    'search'      => $filters['search'] ?? '',
+                    'periodo'     => $_GET['periodo'] ?? '',
+                    'date_from'   => $filters['date_from'] ?? '',
+                    'date_to'     => $filters['date_to'] ?? '',
+                    'estado'      => $filters['estado'] ?? '',
+                    'precio'      => $filters['precio'] ?? '',
+                    'institucion' => $filters['institucion'] ?? '',
+                ], fn($v) => $v !== '' && $v !== null));
+            ?>
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-            <a href="<?= url('/admin/ads') ?>?page=<?= $i ?>&tipo=<?= urlencode($filters['tipo'] ?? '') ?>&search=<?= urlencode($filters['search'] ?? '') ?>&date_from=<?= urlencode($filters['date_from'] ?? '') ?>&date_to=<?= urlencode($filters['date_to'] ?? '') ?>"
+            <a href="<?= url('/admin/ads') ?>?page=<?= $i ?><?= $pagQs ? '&' . $pagQs : '' ?>"
                class="px-4 py-2 text-sm rounded-lg transition <?= $i === $page ? 'bg-primary text-gray-900 font-bold' : 'bg-gray-800 text-gray-400 hover:bg-gray-700' ?>">
                 <?= $i ?>
             </a>

@@ -128,6 +128,26 @@ class AdminLog
             $params[':admin_id'] = (int) $filters['admin_id'];
         }
 
+        // Busqueda por nombre de admin (LIKE sobre usuarios.nombre)
+        if (!empty($filters['admin_search'])) {
+            $sql .= " AND EXISTS (
+                SELECT 1 FROM usuarios u2
+                WHERE u2.idUsuario = l.idAdmin AND u2.nombre LIKE :admin_search
+            )";
+            $params[':admin_search'] = '%' . $filters['admin_search'] . '%';
+        }
+
         return $sql;
+    }
+
+    // Listado de admins que han generado al menos un log (para dropdown del filtro)
+    public function getAdminList(): array
+    {
+        $sql = "SELECT DISTINCT u.idUsuario, u.nombre
+                FROM {$this->table} l
+                INNER JOIN usuarios u ON l.idAdmin = u.idUsuario
+                ORDER BY u.nombre ASC";
+        $stmt = $this->conn->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

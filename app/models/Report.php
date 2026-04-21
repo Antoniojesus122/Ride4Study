@@ -162,8 +162,8 @@ class Report
         return (int)$row['total'];
     }
 
-    // Obtener reportes filtrados por tipo y opcionalmente por estado
-    public function getReportsByType(string $tipo, ?string $estado = null, ?string $motivo = null, ?string $dateFrom = null, ?string $dateTo = null): array
+    // Obtener reportes filtrados por tipo y opcionalmente por estado, motivo, fechas, prioridad y evidencia
+    public function getReportsByType(string $tipo, ?string $estado = null, ?string $motivo = null, ?string $dateFrom = null, ?string $dateTo = null, ?string $prioridad = null, ?string $evidencia = null): array
     {
         $sql = "SELECT r.*, u1.nombre AS reportado_nombre, u1.correo AS reportado_correo,
                        u2.nombre AS reporta_nombre, a.tipo AS anuncio_tipo,
@@ -194,6 +194,15 @@ class Report
         if ($dateTo) {
             $sql .= " AND r.creado_en <= :date_to";
             $params[':date_to'] = $dateTo . ' 23:59:59';
+        }
+        if ($prioridad && in_array($prioridad, ['baja', 'media', 'alta', 'urgente'], true)) {
+            $sql .= " AND r.prioridad = :prioridad";
+            $params[':prioridad'] = $prioridad;
+        }
+        if ($evidencia === 'con') {
+            $sql .= " AND r.evidencia_img IS NOT NULL AND r.evidencia_img <> ''";
+        } elseif ($evidencia === 'sin') {
+            $sql .= " AND (r.evidencia_img IS NULL OR r.evidencia_img = '')";
         }
 
         $sql .= " ORDER BY FIELD(r.estado, 'pendiente', 'en_revision', 'resuelto'), FIELD(r.prioridad, 'urgente', 'alta', 'media', 'baja'), r.creado_en DESC";

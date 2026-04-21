@@ -17,7 +17,9 @@ class AdminInstitucionController {
     }
 
     public function listAll(): void {
-        $instituciones = $this->institution->getAll();
+        $activo = $_GET['activo'] ?? '';
+        $search = trim($_GET['search'] ?? '');
+        $instituciones = $this->institution->getAll($activo, $search);
 
         // Contar estudiantes para cada institucion
         foreach ($instituciones as &$inst) {

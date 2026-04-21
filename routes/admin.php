@@ -173,15 +173,10 @@ $router->any('/admin/logs', function () use ($requireAdmin) {
     $controller->index();
 });
 
-$router->any('/admin/config', function () use ($requireAdmin) {
+$router->any('/admin/logs/export', function () use ($requireAdmin) {
     $requireAdmin();
-    require_once __DIR__ . '/../app/controllers/admin/AdminConfigController.php';
-    $controller = new AdminConfigController();
-    $action = $_POST['action'] ?? $_GET['action'] ?? null;
-    match ($action) {
-        'update' => $controller->update(),
-        default => $controller->index(),
-    };
+    require_once __DIR__ . '/../app/controllers/admin/AdminLogController.php';
+    (new AdminLogController())->export();
 });
 
 $router->any('/admin/premium', function () use ($requireAdmin) {

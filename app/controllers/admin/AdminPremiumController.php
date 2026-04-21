@@ -22,20 +22,28 @@ class AdminPremiumController {
 
     public function listAll(): void {
         $tab = $_GET['tab'] ?? 'usuarios';
-        $premiumUsers = $this->getPremiumUsers();
-        $totalPremium = count($premiumUsers);
-        $expiringSoon = array_filter($premiumUsers, function($u) {
+
+        // Filtro "Vence pronto" para la pestania de usuarios Premium
+        $vencePronto = $_GET['vence'] ?? '';
+        $premiumUsers = $this->getPremiumUsers($vencePronto);
+
+        // Contador global (sin filtrar) para la tarjeta superior
+        $allPremium = $this->getPremiumUsers('');
+        $totalPremium = count($allPremium);
+        $expiringSoon = array_filter($allPremium, function($u) {
             return $u['premium_hasta'] && strtotime($u['premium_hasta']) <= strtotime('+7 days');
         });
         $expiringCount = count($expiringSoon);
 
-        // Historial de pagos con filtros
+        // Historial de pagos con filtros (resolvemos el periodo con prefijo 'p')
         $paymentPage = max(1, (int)($_GET['ppage'] ?? 1));
+        $paymentPeriod = resolvePeriod($_GET, 'p');
         $paymentFilters = [
             'search'    => trim($_GET['psearch'] ?? ''),
-            'date_from' => $_GET['pdate_from'] ?? '',
-            'date_to'   => $_GET['pdate_to'] ?? '',
+            'date_from' => $paymentPeriod['from'],
+            'date_to'   => $paymentPeriod['to'],
             'origen'    => $_GET['porigen'] ?? '',
+            'estado'    => $_GET['pestado'] ?? '',
         ];
         $payments = $this->payment->getAll($paymentFilters, $paymentPage, 20);
         $totalPayments = $this->payment->countAll($paymentFilters);
@@ -108,11 +116,16 @@ class AdminPremiumController {
         redirectWithFlash(url('/admin/premium'), 'success', 'revoked');
     }
 
-    private function getPremiumUsers(): array {
-        $stmt = $this->db->query(
-            "SELECT idUsuario, nombre, correo, premium, premium_hasta, creado_en
-             FROM usuarios WHERE premium = 1 ORDER BY premium_hasta ASC"
-        );
+    private function getPremiumUsers(string $vence = ''): array {
+        $sql = "SELECT idUsuario, nombre, correo, premium, premium_hasta, creado_en
+                FROM usuarios WHERE premium = 1";
+        if ($vence === '7') {
+            $sql .= " AND premium_hasta IS NOT NULL AND premium_hasta <= DATE_ADD(NOW(), INTERVAL 7 DAY)";
+        } elseif ($vence === '30') {
+            $sql .= " AND premium_hasta IS NOT NULL AND premium_hasta <= DATE_ADD(NOW(), INTERVAL 30 DAY)";
+        }
+        $sql .= " ORDER BY premium_hasta ASC";
+        $stmt = $this->db->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

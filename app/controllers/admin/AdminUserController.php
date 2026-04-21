@@ -29,12 +29,23 @@ class AdminUserController {
         }
     }
 
+    // Lista de instituciones para poblar el dropdown del filtro de usuarios
+    private function getInstitutionList(): array {
+        $stmt = $this->db->query(
+            "SELECT DISTINCT institucion FROM usuarios
+             WHERE institucion IS NOT NULL AND institucion <> ''
+             ORDER BY institucion ASC"
+        );
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
     public function index(): void {
         $this->requireAdmin();
         $tab = $_GET['tab'] ?? 'todos';
         $pendingUsers = $this->user->getPendingVerifications();
         $allUsers = $this->getAllUsers();
         $bannedUsers = $this->user->getBannedUsers();
+        $instituciones = $this->getInstitutionList();
         require_once __DIR__ . '/../../../views/admin/users.view.php';
     }
 
@@ -43,6 +54,7 @@ class AdminUserController {
         $tab = 'verificaciones';
         $pendingUsers = $this->user->getPendingVerifications();
         $allUsers = $this->getAllUsers();
+        $instituciones = $this->getInstitutionList();
         require_once __DIR__ . '/../../../views/admin/users.view.php';
     }
 
@@ -52,6 +64,7 @@ class AdminUserController {
         $verificacionFilter = $_GET['verificacion'] ?? '';
         $premiumFilter = $_GET['premium_filter'] ?? '';
         $institucionFilter = trim($_GET['institucion'] ?? '');
+        $anunciosFilter    = $_GET['anuncios'] ?? ''; // con | sin
 
         $query = "SELECT u.idUsuario, u.nombre, u.correo, u.telefono, u.ciudad, u.institucion,
                          u.estado_verificacion, u.premium, u.premium_hasta, u.creado_en,
@@ -81,6 +94,12 @@ class AdminUserController {
         if ($institucionFilter !== '') {
             $query .= " AND u.institucion = :inst";
             $params[':inst'] = $institucionFilter;
+        }
+        // Con / sin anuncios publicados
+        if ($anunciosFilter === 'con') {
+            $query .= " AND EXISTS (SELECT 1 FROM anuncios a WHERE a.idUsuario = u.idUsuario)";
+        } elseif ($anunciosFilter === 'sin') {
+            $query .= " AND NOT EXISTS (SELECT 1 FROM anuncios a WHERE a.idUsuario = u.idUsuario)";
         }
 
         $query .= " ORDER BY u.idUsuario DESC";

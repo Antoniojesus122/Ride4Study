@@ -36,8 +36,9 @@ class AdminMessageController {
         $search         = trim($_GET['search'] ?? '');
         $idInstitucion  = (int)($_GET['institucion'] ?? 0);
         $asunto         = trim($_GET['asunto'] ?? '');
+        $soloNoLeidos   = !empty($_GET['no_leidos']);
 
-        $instituciones = $this->mensajes->listarBandeja($search);
+        $instituciones = $this->mensajes->listarBandeja($search, $soloNoLeidos);
 
         $institucionActiva = null;
         $hilos             = [];

@@ -73,27 +73,51 @@
     <div class="flex-1 p-10">
 
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center justify-between mb-6 gap-4">
         <p class="text-base text-gray-400"><?= $totalLogs ?> registro<?= $totalLogs !== 1 ? 's' : '' ?></p>
+        <?php
+            // Construir query string con los filtros actuales para pasarselos al export
+            $exportParams = array_filter([
+                'periodo'      => $_GET['periodo']         ?? '',
+                'date_from'    => $filters['date_from']    ?? '',
+                'date_to'      => $filters['date_to']      ?? '',
+                'entidad'      => $filters['entidad']      ?? '',
+                'accion'       => $filters['accion']       ?? '',
+                'admin_id'     => $filters['admin_id']     ?? '',
+                'admin_search' => $filters['admin_search'] ?? '',
+            ], fn($v) => $v !== '' && $v !== null);
+            $exportQs = !empty($exportParams) ? ('?' . http_build_query($exportParams)) : '';
+        ?>
+        <a href="<?= url('/admin/logs/export') . $exportQs ?>"
+           class="px-4 py-2.5 text-base font-medium bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/20 transition border border-emerald-500/20">
+            <i class="fas fa-file-csv mr-1" aria-hidden="true"></i> Exportar CSV
+        </a>
     </div>
 
     <!-- Filtros -->
-    <form method="GET" action="<?= url('/admin/logs') ?>" class="flex flex-wrap items-center gap-4 mb-6">
-        <input type="date" name="date_from" value="<?= htmlspecialchars($filters['date_from'] ?? '') ?>"
-               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
-        <input type="date" name="date_to" value="<?= htmlspecialchars($filters['date_to'] ?? '') ?>"
-               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
-        <select name="entidad" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
+    <form method="GET" action="<?= url('/admin/logs') ?>" class="flex flex-wrap items-center gap-3 mb-6">
+        <?php renderPeriodFilter($_GET); ?>
+        <select name="entidad" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm text-gray-200 focus:outline-none focus:border-primary">
             <option value="">Todas las entidades</option>
             <?php foreach ($entities as $key => $label): ?>
-            <option value="<?= $key ?>" <?= ($filters['entidad'] ?? '') === $key ? 'selected' : '' ?>><?= $label ?></option>
+                <option value="<?= $key ?>" <?= ($filters['entidad'] ?? '') === $key ? 'selected' : '' ?>><?= $label ?></option>
             <?php endforeach; ?>
         </select>
+        <select name="admin_id" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm text-gray-200 focus:outline-none focus:border-primary max-w-[200px]">
+            <option value="">Todos los admin</option>
+            <?php foreach (($adminList ?? []) as $a): ?>
+                <option value="<?= (int)$a['idUsuario'] ?>" <?= (int)($filters['admin_id'] ?? 0) === (int)$a['idUsuario'] ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($a['nombre']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <input type="text" name="admin_search" value="<?= htmlspecialchars($filters['admin_search'] ?? '') ?>" placeholder="Buscar admin por nombre..."
+               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-52">
         <input type="text" name="accion" value="<?= htmlspecialchars($filters['accion'] ?? '') ?>" placeholder="Buscar acción..."
-               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-52">
+               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-48">
         <button type="submit" class="px-5 py-2.5 text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
-        <?php if (!empty($filters['date_from']) || !empty($filters['date_to']) || !empty($filters['entidad']) || !empty($filters['accion']) || !empty($filters['admin_id'])): ?>
-        <a href="<?= url('/admin/logs') ?>" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
+        <?php if (!empty($filters['date_from']) || !empty($filters['date_to']) || !empty($filters['entidad']) || !empty($filters['accion']) || !empty($filters['admin_id']) || !empty($filters['admin_search'])): ?>
+            <a href="<?= url('/admin/logs') ?>" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
         <?php endif; ?>
     </form>
 

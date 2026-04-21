@@ -16,7 +16,22 @@ class AdminProfileController {
     }
 
     public function index(): void {
-        $adminData = $this->user->getUserById((int)$_SESSION['user_id']);
+        $userId = (int)$_SESSION['user_id'];
+        $adminData = $this->user->getUserById($userId);
+
+        // Estadisticas propias del admin (para el hero del perfil)
+        $totalAcciones = (int)$this->db->query(
+            "SELECT COUNT(*) FROM admin_logs WHERE idAdmin = " . $userId
+        )->fetchColumn();
+
+        $stmt = $this->db->prepare("SELECT creado_en FROM admin_logs WHERE idAdmin = :id ORDER BY creado_en DESC LIMIT 1");
+        $stmt->execute([':id' => $userId]);
+        $ultimaAccion = $stmt->fetchColumn() ?: null;
+
+        $stmt = $this->db->prepare("SELECT accion, entidad, creado_en FROM admin_logs WHERE idAdmin = :id ORDER BY creado_en DESC LIMIT 5");
+        $stmt->execute([':id' => $userId]);
+        $ultimasAcciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         $flash = getFlash();
         $successMsg = ($flash && $flash['type'] === 'success') ? $flash['message'] : null;
         $errorMsg = ($flash && $flash['type'] === 'error') ? $flash['message'] : null;

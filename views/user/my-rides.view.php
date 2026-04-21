@@ -187,7 +187,7 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
                         <p class="text-sm text-emerald-400/80"><?= t('myrides.trip_ended_desc') ?></p>
                     </div>
                 </div>
-                <form action="<?= url('/complete-trip') ?>" method="POST" onsubmit="return confirm('<?= t('myrides.complete_confirm') ?>')" class="relative z-10">
+                <form action="<?= url('/complete-trip') ?>" method="POST" data-confirm="<?= htmlspecialchars(t('myrides.complete_confirm')) ?>" data-confirm-title="<?= htmlspecialchars(t('myrides.complete_title') ?? 'Finalizar viaje') ?>" class="relative z-10">
                     <input type="hidden" name="ride_id" value="<?= $ride['idAnuncio'] ?>">
                     <button type="submit" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-gray-900 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-500/30 hover:shadow-emerald-400/40 flex items-center gap-2 hover:-translate-y-0.5">
                         <i class="fas fa-check-circle" aria-hidden="true"></i> <?= t('myrides.complete_trip') ?>
@@ -362,7 +362,7 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
                                 <i class="fas fa-check-double" aria-hidden="true"></i> <?= t('myrides.completed') ?>
                             </div>
                         <?php elseif ($hasAccepted): ?>
-                            <form action="<?= url('/complete-trip') ?>" method="POST" onsubmit="return confirm('<?= t('myrides.complete_confirm') ?>')">
+                            <form action="<?= url('/complete-trip') ?>" method="POST" data-confirm="<?= htmlspecialchars(t('myrides.complete_confirm')) ?>" data-confirm-title="<?= htmlspecialchars(t('myrides.complete_title') ?? 'Finalizar viaje') ?>">
                                 <input type="hidden" name="ride_id" value="<?= $ride['idAnuncio'] ?>">
                                 <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl text-sm font-medium border border-primary/30 transition-colors">
                                     <i class="fas fa-check-circle" aria-hidden="true"></i> <?= t('myrides.complete_trip') ?>

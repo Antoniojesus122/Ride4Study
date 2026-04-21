@@ -19,16 +19,29 @@ class AdminAdController {
     public function listAll(): void {
         $page = max(1, (int)($_GET['page'] ?? 1));
         $limit = 20;
+
+        $period = resolvePeriod($_GET);
         $filters = [
-            'tipo'      => $_GET['tipo'] ?? '',
-            'search'    => trim($_GET['search'] ?? ''),
-            'date_from' => $_GET['date_from'] ?? '',
-            'date_to'   => $_GET['date_to'] ?? '',
+            'tipo'       => $_GET['tipo'] ?? '',
+            'search'     => trim($_GET['search'] ?? ''),
+            'date_from'  => $period['from'],
+            'date_to'    => $period['to'],
+            'estado'     => $_GET['estado'] ?? '',
+            'precio'     => $_GET['precio'] ?? '',
+            'institucion'=> $_GET['institucion'] ?? '',
         ];
 
         $ads = $this->getAllAds($page, $limit, $filters);
         $totalAds = $this->countAllAds($filters);
         $totalPages = max(1, ceil($totalAds / $limit));
+
+        // Listado de instituciones para el dropdown del filtro
+        $instituciones = $this->db->query(
+            "SELECT DISTINCT u.institucion AS nombre
+             FROM anuncios a JOIN usuarios u ON a.idUsuario = u.idUsuario
+             WHERE u.institucion IS NOT NULL AND u.institucion <> ''
+             ORDER BY u.institucion ASC"
+        )->fetchAll(PDO::FETCH_ASSOC);
 
         require_once __DIR__ . '/../../../views/admin/ads.view.php';
     }
@@ -48,24 +61,15 @@ class AdminAdController {
         redirectWithFlash(url('/admin/ads'), 'success', 'deleted');
     }
 
-    private function getAllAds(int $page, int $limit, array $filters): array {
-        $offset = ($page - 1) * $limit;
-        $query = "SELECT a.*, u.nombre as usuario_nombre, u.correo as usuario_correo,
-                  lo.nombreLocalidad as nombreOrigen, ld.nombreLocalidad as nombreDestino
-                  FROM anuncios a
-                  JOIN usuarios u ON a.idUsuario = u.idUsuario
-                  JOIN localidades lo ON a.origen = lo.idLocalidad
-                  JOIN localidades ld ON a.destino = ld.idLocalidad
-                  WHERE 1=1";
-        $params = [];
-
+    // Construye las clausulas WHERE comunes para listar, contar y exportar
+    private function applyAdFilters(string &$query, array &$params, array $filters): void {
         if (!empty($filters['tipo'])) {
             $query .= " AND LOWER(a.tipo) = :tipo";
             $params[':tipo'] = strtolower($filters['tipo']);
         }
         if (!empty($filters['search'])) {
             $query .= " AND (u.nombre LIKE :search OR lo.nombreLocalidad LIKE :search2 OR ld.nombreLocalidad LIKE :search3)";
-            $params[':search'] = '%' . $filters['search'] . '%';
+            $params[':search']  = '%' . $filters['search'] . '%';
             $params[':search2'] = '%' . $filters['search'] . '%';
             $params[':search3'] = '%' . $filters['search'] . '%';
         }
@@ -77,6 +81,46 @@ class AdminAdController {
             $query .= " AND a.fechaSalida <= :date_to";
             $params[':date_to'] = $filters['date_to'];
         }
+        // Estado del viaje segun fechaSalida respecto a hoy
+        if (!empty($filters['estado'])) {
+            switch ($filters['estado']) {
+                case 'futuros':
+                    $query .= " AND a.fechaSalida > CURDATE()";
+                    break;
+                case 'activos':
+                    $query .= " AND a.fechaSalida = CURDATE()";
+                    break;
+                case 'pasados':
+                    $query .= " AND a.fechaSalida < CURDATE()";
+                    break;
+            }
+        }
+        // Con precio / gratis
+        if (!empty($filters['precio'])) {
+            if ($filters['precio'] === 'con_precio') {
+                $query .= " AND a.precio IS NOT NULL AND a.precio > 0";
+            } elseif ($filters['precio'] === 'gratis') {
+                $query .= " AND (a.precio IS NULL OR a.precio = 0)";
+            }
+        }
+        // Institucion del autor
+        if (!empty($filters['institucion'])) {
+            $query .= " AND u.institucion = :institucion";
+            $params[':institucion'] = $filters['institucion'];
+        }
+    }
+
+    private function getAllAds(int $page, int $limit, array $filters): array {
+        $offset = ($page - 1) * $limit;
+        $query = "SELECT a.*, u.nombre as usuario_nombre, u.correo as usuario_correo, u.institucion AS usuario_institucion,
+                  lo.nombreLocalidad as nombreOrigen, ld.nombreLocalidad as nombreDestino
+                  FROM anuncios a
+                  JOIN usuarios u ON a.idUsuario = u.idUsuario
+                  JOIN localidades lo ON a.origen = lo.idLocalidad
+                  JOIN localidades ld ON a.destino = ld.idLocalidad
+                  WHERE 1=1";
+        $params = [];
+        $this->applyAdFilters($query, $params, $filters);
 
         $query .= " ORDER BY a.fechaPublicacion DESC LIMIT :limit OFFSET :offset";
 
@@ -98,25 +142,7 @@ class AdminAdController {
                   JOIN localidades ld ON a.destino = ld.idLocalidad
                   WHERE 1=1";
         $params = [];
-
-        if (!empty($filters['tipo'])) {
-            $query .= " AND LOWER(a.tipo) = :tipo";
-            $params[':tipo'] = strtolower($filters['tipo']);
-        }
-        if (!empty($filters['search'])) {
-            $query .= " AND (u.nombre LIKE :search OR lo.nombreLocalidad LIKE :search2 OR ld.nombreLocalidad LIKE :search3)";
-            $params[':search'] = '%' . $filters['search'] . '%';
-            $params[':search2'] = '%' . $filters['search'] . '%';
-            $params[':search3'] = '%' . $filters['search'] . '%';
-        }
-        if (!empty($filters['date_from'])) {
-            $query .= " AND a.fechaSalida >= :date_from";
-            $params[':date_from'] = $filters['date_from'];
-        }
-        if (!empty($filters['date_to'])) {
-            $query .= " AND a.fechaSalida <= :date_to";
-            $params[':date_to'] = $filters['date_to'];
-        }
+        $this->applyAdFilters($query, $params, $filters);
 
         $stmt = $this->db->prepare($query);
         $stmt->execute($params);
@@ -125,13 +151,16 @@ class AdminAdController {
 
     public function exportCsv(): void {
         if (session_status() === PHP_SESSION_NONE) session_start();
+        $period = resolvePeriod($_GET);
         $filters = [
-            'tipo'      => $_GET['tipo'] ?? '',
-            'search'    => trim($_GET['search'] ?? ''),
-            'date_from' => $_GET['date_from'] ?? '',
-            'date_to'   => $_GET['date_to'] ?? '',
+            'tipo'       => $_GET['tipo'] ?? '',
+            'search'     => trim($_GET['search'] ?? ''),
+            'date_from'  => $period['from'],
+            'date_to'    => $period['to'],
+            'estado'     => $_GET['estado'] ?? '',
+            'precio'     => $_GET['precio'] ?? '',
+            'institucion'=> $_GET['institucion'] ?? '',
         ];
-        // Obtener todos los anuncios sin paginación para exportar
         $ads = $this->getAllAdsNoPagination($filters);
 
         header('Content-Type: text/csv; charset=utf-8');
@@ -139,7 +168,7 @@ class AdminAdController {
 
         $output = fopen('php://output', 'w');
         fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
-        fputcsv($output, ['ID', 'Tipo', 'Origen', 'Destino', 'Fecha Salida', 'Usuario', 'Correo', 'Precio', 'Plazas', 'Publicado'], ';');
+        fputcsv($output, ['ID', 'Tipo', 'Origen', 'Destino', 'Fecha Salida', 'Usuario', 'Correo', 'Institucion', 'Precio', 'Plazas', 'Publicado'], ';');
 
         foreach ($ads as $ad) {
             fputcsv($output, [
@@ -150,6 +179,7 @@ class AdminAdController {
                 $ad['fechaSalida'],
                 $ad['usuario_nombre'],
                 $ad['usuario_correo'],
+                $ad['usuario_institucion'] ?? '',
                 $ad['precio'] ?? '',
                 $ad['plazasDisponibles'] ?? '',
                 $ad['fechaPublicacion'],
@@ -160,7 +190,7 @@ class AdminAdController {
     }
 
     private function getAllAdsNoPagination(array $filters): array {
-        $query = "SELECT a.*, u.nombre as usuario_nombre, u.correo as usuario_correo,
+        $query = "SELECT a.*, u.nombre as usuario_nombre, u.correo as usuario_correo, u.institucion AS usuario_institucion,
                   lo.nombreLocalidad as nombreOrigen, ld.nombreLocalidad as nombreDestino
                   FROM anuncios a
                   JOIN usuarios u ON a.idUsuario = u.idUsuario
@@ -168,24 +198,8 @@ class AdminAdController {
                   JOIN localidades ld ON a.destino = ld.idLocalidad
                   WHERE 1=1";
         $params = [];
-        if (!empty($filters['tipo'])) {
-            $query .= " AND LOWER(a.tipo) = :tipo";
-            $params[':tipo'] = strtolower($filters['tipo']);
-        }
-        if (!empty($filters['search'])) {
-            $query .= " AND (u.nombre LIKE :search OR lo.nombreLocalidad LIKE :search2 OR ld.nombreLocalidad LIKE :search3)";
-            $params[':search'] = '%' . $filters['search'] . '%';
-            $params[':search2'] = '%' . $filters['search'] . '%';
-            $params[':search3'] = '%' . $filters['search'] . '%';
-        }
-        if (!empty($filters['date_from'])) {
-            $query .= " AND a.fechaSalida >= :date_from";
-            $params[':date_from'] = $filters['date_from'];
-        }
-        if (!empty($filters['date_to'])) {
-            $query .= " AND a.fechaSalida <= :date_to";
-            $params[':date_to'] = $filters['date_to'];
-        }
+        $this->applyAdFilters($query, $params, $filters);
+
         $query .= " ORDER BY a.fechaPublicacion DESC";
         $stmt = $this->db->prepare($query);
         $stmt->execute($params);

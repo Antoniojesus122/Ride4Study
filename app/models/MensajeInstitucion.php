@@ -11,7 +11,7 @@ class MensajeInstitucion {
     }
 
     // Listado de instituciones con resumen de conversacion (ultimo mensaje + no leidos)
-    public function listarBandeja(string $search = ''): array {
+    public function listarBandeja(string $search = '', bool $soloNoLeidos = false): array {
         $sql = "SELECT i.idInstitucion, i.nombre, i.correo, i.logo, i.activo,
                     (SELECT COUNT(*) FROM {$this->table} m
                         WHERE m.idInstitucion = i.idInstitucion
@@ -35,6 +35,16 @@ class MensajeInstitucion {
         if ($search !== '') {
             $sql .= " AND (i.nombre LIKE :s OR i.correo LIKE :s) ";
             $params[':s'] = '%' . $search . '%';
+        }
+
+        // Solo instituciones con mensajes sin leer desde el lado institucion
+        if ($soloNoLeidos) {
+            $sql .= " AND EXISTS (
+                SELECT 1 FROM {$this->table} mm
+                WHERE mm.idInstitucion = i.idInstitucion
+                  AND mm.emisor = 'institucion'
+                  AND mm.leido = 0
+            ) ";
         }
 
         $sql .= " ORDER BY (ultima_fecha IS NULL), ultima_fecha DESC, i.nombre ASC";

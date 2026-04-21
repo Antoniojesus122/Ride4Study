@@ -13,8 +13,24 @@ class Institution {
         return (int)$row['total'];
     }
 
-    public function getAll(): array {
-        $stmt = $this->conn->query("SELECT * FROM {$this->table} ORDER BY creado_en DESC");
+    // Listado con filtros opcionales. $activo: '' (todas), '1' (activas), '0' (inactivas)
+    public function getAll(string $activo = '', string $search = ''): array {
+        $sql = "SELECT * FROM {$this->table} WHERE 1=1";
+        $params = [];
+
+        if ($activo === '1' || $activo === '0') {
+            $sql .= " AND activo = :activo";
+            $params[':activo'] = (int)$activo;
+        }
+        if ($search !== '') {
+            $sql .= " AND (nombre LIKE :s1 OR correo LIKE :s2)";
+            $params[':s1'] = '%' . $search . '%';
+            $params[':s2'] = '%' . $search . '%';
+        }
+        $sql .= " ORDER BY creado_en DESC";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

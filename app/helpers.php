@@ -167,3 +167,71 @@ function redirectWithFlash(string $url, string $type, string $message, ?string $
     header('Location: ' . $url . $tabParam);
     exit;
 }
+
+// Resuelve un filtro de periodo (hoy, 7 dias, 30 dias, 90 dias, este año, personalizado)
+function resolvePeriod(array $get, string $prefix = ''): array
+{
+    $keyPeriodo = $prefix . 'periodo';
+    $keyFrom    = $prefix . 'date_from';
+    $keyTo      = $prefix . 'date_to';
+
+    $periodo = $get[$keyPeriodo] ?? '';
+    $from    = trim($get[$keyFrom] ?? '');
+    $to      = trim($get[$keyTo] ?? '');
+
+    // Si hay fechas explicitas pero no hay periodo elegido, forzamos "custom"
+    if ($periodo === '' && ($from !== '' || $to !== '')) {
+        $periodo = 'custom';
+    }
+
+    $today = date('Y-m-d');
+    switch ($periodo) {
+        case 'today':
+            return ['periodo' => 'today', 'from' => $today, 'to' => $today];
+        case '7d':
+            return ['periodo' => '7d', 'from' => date('Y-m-d', strtotime('-7 days')), 'to' => $today];
+        case '30d':
+            return ['periodo' => '30d', 'from' => date('Y-m-d', strtotime('-30 days')), 'to' => $today];
+        case '90d':
+            return ['periodo' => '90d', 'from' => date('Y-m-d', strtotime('-90 days')), 'to' => $today];
+        case 'year':
+            return ['periodo' => 'year', 'from' => date('Y') . '-01-01', 'to' => $today];
+        case 'custom':
+            return ['periodo' => 'custom', 'from' => $from, 'to' => $to];
+        default:
+            return ['periodo' => '', 'from' => '', 'to' => ''];
+    }
+}
+
+// Genera el <select> + inputs de fechas personalizadas. Uso en vistas.
+function renderPeriodFilter(array $get, string $prefix = ''): void
+{
+    $current = $get[$prefix . 'periodo'] ?? (
+        (!empty($get[$prefix . 'date_from']) || !empty($get[$prefix . 'date_to'])) ? 'custom' : ''
+    );
+    $from = htmlspecialchars($get[$prefix . 'date_from'] ?? '');
+    $to   = htmlspecialchars($get[$prefix . 'date_to']   ?? '');
+
+    $options = [
+        ''       => 'Todos los periodos',
+        'today'  => 'Hoy',
+        '7d'     => 'Últimos 7 días',
+        '30d'    => 'Últimos 30 días',
+        '90d'    => 'Últimos 90 días',
+        'year'   => 'Este año',
+        'custom' => 'Personalizado…',
+    ];
+
+    echo '<div class="flex items-center gap-2 period-filter" data-prefix="' . htmlspecialchars($prefix) . '">';
+    echo '<select name="' . $prefix . 'periodo" class="period-select px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">';
+    foreach ($options as $v => $label) {
+        $sel = $current === $v ? ' selected' : '';
+        echo '<option value="' . $v . '"' . $sel . '>' . $label . '</option>';
+    }
+    echo '</select>';
+
+    $hidden = $current === 'custom' ? '' : ' hidden';
+    echo '<input type="date" name="' . $prefix . 'date_from" value="' . $from . '" class="period-from px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary' . $hidden . '">';
+    echo '<input type="date" name="' . $prefix . 'date_to" value="' . $to . '" class="period-to px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary' . $hidden . '">';
+    echo '</div>';
+}

@@ -103,6 +103,7 @@
         </style>
     </head>
     <body class="min-h-screen text-gray-100 flex flex-col pt-28 bg-cover bg-center">
+        <?php require_once __DIR__ . '/modals.php'; ?>
         <a href="#main-content" class="skip-link"><?= t('a11y.skip_to_content') ?? 'Saltar al contenido principal' ?></a>
         <div class="fixed inset-0 bg-gray-900/90 z-[-1]" aria-hidden="true"></div>
             <nav class="fixed top-6 inset-x-0 mx-auto z-50 w-full max-w-6xl px-4 sm:px-6" aria-label="<?= t('a11y.main_nav') ?? 'Navegacion principal' ?>">

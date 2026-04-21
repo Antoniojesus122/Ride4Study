@@ -39,10 +39,19 @@ class ReportController
         if ($estado && !in_array($estado, ['pendiente', 'en_revision', 'resuelto'])) {
             $estado = null;
         }
-        $motivo = $_GET['motivo'] ?? null;
-        $dateFrom = $_GET['date_from'] ?? null;
-        $dateTo = $_GET['date_to'] ?? null;
-        return $this->report->getReportsByType($tipo, $estado, $motivo ?: null, $dateFrom ?: null, $dateTo ?: null);
+        $motivo    = $_GET['motivo'] ?? null;
+        $period    = resolvePeriod($_GET);
+        $prioridad = $_GET['prioridad'] ?? null;
+        $evidencia = $_GET['evidencia'] ?? null;
+        return $this->report->getReportsByType(
+            $tipo,
+            $estado,
+            $motivo ?: null,
+            $period['from'] ?: null,
+            $period['to']   ?: null,
+            $prioridad ?: null,
+            $evidencia ?: null
+        );
     }
 
     // Exportar reportes a CSV

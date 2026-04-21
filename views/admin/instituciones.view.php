@@ -52,6 +52,21 @@
         </div>
     </div>
 
+    <!-- Filtros -->
+    <form method="GET" action="<?= url('/admin/instituciones') ?>" class="flex flex-wrap items-center gap-3 mb-6">
+        <input type="text" name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" placeholder="Buscar por nombre o correo..."
+               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-64">
+        <select name="activo" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
+            <option value="">Todas</option>
+            <option value="1" <?= ($_GET['activo'] ?? '') === '1' ? 'selected' : '' ?>>Activas</option>
+            <option value="0" <?= ($_GET['activo'] ?? '') === '0' ? 'selected' : '' ?>>Inactivas</option>
+        </select>
+        <button type="submit" class="px-5 py-2.5 text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
+        <?php if (!empty($_GET['search']) || isset($_GET['activo']) && $_GET['activo'] !== ''): ?>
+            <a href="<?= url('/admin/instituciones') ?>" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
+        <?php endif; ?>
+    </form>
+
     <!-- Formulario para crear institucion -->
     <div id="create-form" class="hidden mb-6 bg-gray-800/50 border border-gray-700 rounded-xl p-7">
         <h3 class="text-lg font-semibold text-white mb-1">Nueva institucion</h3>

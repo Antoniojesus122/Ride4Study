@@ -4,6 +4,9 @@ require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../models/User.php';
 require_once __DIR__ . '/../../models/Report.php';
 require_once __DIR__ . '/../../models/Ride.php';
+require_once __DIR__ . '/../../models/AdminLog.php';
+require_once __DIR__ . '/../../models/MensajeInstitucion.php';
+require_once __DIR__ . '/../../models/Payment.php';
 
 class AdminDashboardController
 {
@@ -11,6 +14,9 @@ class AdminDashboardController
     private User $user;
     private Report $report;
     private Ride $ride;
+    private AdminLog $adminLog;
+    private MensajeInstitucion $mensajeInst;
+    private Payment $payment;
 
     public function __construct()
     {
@@ -19,6 +25,9 @@ class AdminDashboardController
         $this->user = new User($this->db);
         $this->report = new Report($this->db);
         $this->ride = new Ride($this->db);
+        $this->adminLog = new AdminLog($this->db);
+        $this->mensajeInst = new MensajeInstitucion($this->db);
+        $this->payment = new Payment($this->db);
 
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
@@ -32,18 +41,19 @@ class AdminDashboardController
 
     public function index()
     {
-        // Obtener estadísticas
+        // KPIs generales
         $stats = $this->getStats();
 
-        // Obtener datos para gráficos y tablas
+        // Datos para tablas y gráficos
         $recentUsers = $this->getRecentUsers();
         $pendingReports = $this->getPendingReports();
         $recentAds = $this->getRecentAds();
-        $usersByRole = $this->getUsersByRole();
+        $recentLogs = $this->adminLog->getRecent(6);
 
         $registrationsByMonth = $this->getRegistrationsByMonth();
         $ridesByMonth = $this->getRidesByMonth();
         $reportsByMonth = $this->getReportsByMonth();
+        $reportsByState = $this->getReportsByState();
 
         require __DIR__ . '/../../../views/admin/dashboard.view.php';
     }
@@ -52,33 +62,37 @@ class AdminDashboardController
     {
         $stats = [];
 
-        // Total de usuarios
-        $stmt = $this->db->query("SELECT COUNT(*) as total FROM usuarios WHERE idRol != 1");
-        $stats['users'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['total'];
+        // Totales base
+        $stats['users']       = (int)$this->db->query("SELECT COUNT(*) FROM usuarios WHERE idRol != 1")->fetchColumn();
+        $stats['ads']         = (int)$this->db->query("SELECT COUNT(*) FROM anuncios")->fetchColumn();
+        $stats['reports']     = (int)$this->db->query("SELECT COUNT(*) FROM reportes")->fetchColumn();
+        $stats['institutions']= (int)$this->db->query("SELECT COUNT(*) FROM instituciones")->fetchColumn();
 
-        // Total de anuncios
-        $stmt = $this->db->query("SELECT COUNT(*) as total FROM anuncios");
-        $stats['ads'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['total'];
+        // Estados de reportes
+        $stats['pending_reports'] = (int)$this->db->query("SELECT COUNT(*) FROM reportes WHERE estado = 'pendiente'")->fetchColumn();
 
-        // Total de reportes
-        $stmt = $this->db->query("SELECT COUNT(*) as total FROM reportes");
-        $stats['reports'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['total'];
+        // Verificaciones
+        $stats['verified_users']      = (int)$this->db->query("SELECT COUNT(*) FROM usuarios WHERE estado_verificacion = 2")->fetchColumn();
+        $stats['pending_verification']= (int)$this->db->query("SELECT COUNT(*) FROM usuarios WHERE estado_verificacion = 1")->fetchColumn();
 
-        // Reportes pendientes
-        $stmt = $this->db->query("SELECT COUNT(*) as total FROM reportes WHERE estado = 'pendiente'");
-        $stats['pending_reports'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['total'];
+        // Premium activos y expirando en 7 dias
+        $stats['premium_active']   = (int)$this->db->query("SELECT COUNT(*) FROM usuarios WHERE premium = 1")->fetchColumn();
+        $stats['premium_expiring'] = (int)$this->db->query(
+            "SELECT COUNT(*) FROM usuarios
+             WHERE premium = 1 AND premium_hasta IS NOT NULL
+               AND premium_hasta <= DATE_ADD(NOW(), INTERVAL 7 DAY)"
+        )->fetchColumn();
 
-        // Total de instituciones
-        $stmt = $this->db->query("SELECT COUNT(*) as total FROM instituciones");
-        $stats['institutions'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['total'];
+        // Ingresos del mes actual (pagos completados)
+        $stats['revenue_month'] = (float)$this->db->query(
+            "SELECT COALESCE(SUM(importe), 0) FROM pagos_premium
+             WHERE estado = 'completado'
+               AND YEAR(creado_en) = YEAR(NOW())
+               AND MONTH(creado_en) = MONTH(NOW())"
+        )->fetchColumn();
 
-        // Usuarios verificados
-        $stmt = $this->db->query("SELECT COUNT(*) as total FROM usuarios WHERE estado_verificacion = 2");
-        $stats['verified_users'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['total'];
-
-        // Usuarios pendientes de verificación
-        $stmt = $this->db->query("SELECT COUNT(*) as total FROM usuarios WHERE estado_verificacion = 1");
-        $stats['pending_verification'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['total'];
+        // Hilos de mensajes sin leer (institucion -> admin)
+        $stats['messages_unread'] = $this->mensajeInst->totalNoLeidos();
 
         return $stats;
     }
@@ -86,10 +100,10 @@ class AdminDashboardController
     private function getRecentUsers(): array
     {
         $stmt = $this->db->query("
-            SELECT idUsuario, nombre, correo, estado_verificacion, creado_en 
-            FROM usuarios 
-            WHERE idRol != 1 
-            ORDER BY idUsuario DESC 
+            SELECT idUsuario, nombre, correo, estado_verificacion, creado_en
+            FROM usuarios
+            WHERE idRol != 1
+            ORDER BY idUsuario DESC
             LIMIT 5
         ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?? [];
@@ -121,18 +135,6 @@ class AdminDashboardController
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?? [];
     }
 
-    private function getUsersByRole(): array
-    {
-        $stmt = $this->db->query("
-            SELECT rol.nombreRol, COUNT(u.idUsuario) as total
-            FROM usuarios u
-            LEFT JOIN roles rol ON u.idRol = rol.idRol
-            WHERE u.idRol != 1
-            GROUP BY u.idRol, rol.nombreRol
-        ");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?? [];
-    }
-
     private function getRegistrationsByMonth(): array
     {
         $stmt = $this->db->query("
@@ -140,8 +142,7 @@ class AdminDashboardController
             FROM usuarios WHERE idRol != 1
             GROUP BY mes ORDER BY mes DESC LIMIT 12
         ");
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return array_reverse($data);
+        return array_reverse($stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
     private function getRidesByMonth(): array
@@ -151,8 +152,7 @@ class AdminDashboardController
             FROM anuncios
             GROUP BY mes ORDER BY mes DESC LIMIT 12
         ");
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return array_reverse($data);
+        return array_reverse($stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
     private function getReportsByMonth(): array
@@ -162,7 +162,23 @@ class AdminDashboardController
             FROM reportes
             GROUP BY mes ORDER BY mes DESC LIMIT 12
         ");
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return array_reverse($data);
+        return array_reverse($stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    // Distribucion de reportes por estado (para donut)
+    private function getReportsByState(): array
+    {
+        $stmt = $this->db->query("
+            SELECT estado, COUNT(*) as total
+            FROM reportes
+            GROUP BY estado
+        ");
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = ['pendiente' => 0, 'en_revision' => 0, 'resuelto' => 0, 'descartado' => 0];
+        foreach ($rows as $r) {
+            $key = strtolower($r['estado']);
+            if (isset($result[$key])) $result[$key] = (int)$r['total'];
+        }
+        return $result;
     }
 }

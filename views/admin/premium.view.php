@@ -81,6 +81,20 @@
         </form>
     </div>
 
+    <!-- Filtro de vencimiento -->
+    <form method="GET" action="<?= url('/admin/premium') ?>" class="flex flex-wrap items-center gap-3 mb-6">
+        <input type="hidden" name="tab" value="usuarios">
+        <select name="vence" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
+            <option value="">Todos los Premium</option>
+            <option value="7"  <?= ($_GET['vence'] ?? '') === '7'  ? 'selected' : '' ?>>Vencen en 7 días</option>
+            <option value="30" <?= ($_GET['vence'] ?? '') === '30' ? 'selected' : '' ?>>Vencen en 30 días</option>
+        </select>
+        <button type="submit" class="px-5 py-2.5 text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
+        <?php if (!empty($_GET['vence'])): ?>
+            <a href="<?= url('/admin/premium') ?>?tab=usuarios" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
+        <?php endif; ?>
+    </form>
+
     <!-- Tabla de usuarios premium -->
     <?php if (empty($premiumUsers)): ?>
         <div class="text-center py-20">
@@ -166,22 +180,25 @@
     </div>
 
     <!-- Filtros de pagos -->
-    <form method="GET" action="<?= url('/admin/premium') ?>" class="flex flex-wrap items-center gap-4 mb-6">
+    <form method="GET" action="<?= url('/admin/premium') ?>" class="flex flex-wrap items-center gap-3 mb-6">
         <input type="hidden" name="tab" value="pagos">
         <input type="text" name="psearch" value="<?= htmlspecialchars($paymentFilters['search'] ?? '') ?>" placeholder="Buscar usuario..."
                class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-60">
-        <input type="date" name="pdate_from" value="<?= htmlspecialchars($paymentFilters['date_from'] ?? '') ?>"
-               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
-        <input type="date" name="pdate_to" value="<?= htmlspecialchars($paymentFilters['date_to'] ?? '') ?>"
-               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
         <select name="porigen" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
             <option value="">Todos los origenes</option>
             <option value="stripe" <?= ($paymentFilters['origen'] ?? '') === 'stripe' ? 'selected' : '' ?>>Stripe</option>
-            <option value="admin" <?= ($paymentFilters['origen'] ?? '') === 'admin' ? 'selected' : '' ?>>Admin (manual)</option>
+            <option value="admin"  <?= ($paymentFilters['origen'] ?? '') === 'admin'  ? 'selected' : '' ?>>Admin (manual)</option>
         </select>
+        <select name="pestado" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
+            <option value="">Cualquier estado</option>
+            <option value="completado" <?= ($paymentFilters['estado'] ?? '') === 'completado' ? 'selected' : '' ?>>Completado</option>
+            <option value="pendiente"  <?= ($paymentFilters['estado'] ?? '') === 'pendiente'  ? 'selected' : '' ?>>Pendiente</option>
+            <option value="fallido"    <?= ($paymentFilters['estado'] ?? '') === 'fallido'    ? 'selected' : '' ?>>Fallido</option>
+        </select>
+        <?php renderPeriodFilter($_GET, 'p'); ?>
         <button type="submit" class="px-5 py-2.5 text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
-        <?php if (!empty($paymentFilters['search']) || !empty($paymentFilters['date_from']) || !empty($paymentFilters['date_to']) || !empty($paymentFilters['origen'])): ?>
-        <a href="<?= url('/admin/premium') ?>?tab=pagos" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
+        <?php if (!empty($paymentFilters['search']) || !empty($paymentFilters['date_from']) || !empty($paymentFilters['date_to']) || !empty($paymentFilters['origen']) || !empty($paymentFilters['estado']) || !empty($_GET['pperiodo'])): ?>
+            <a href="<?= url('/admin/premium') ?>?tab=pagos" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
         <?php endif; ?>
     </form>
 
@@ -238,8 +255,19 @@
         <!-- Paginación de pagos -->
         <?php if ($totalPaymentPages > 1): ?>
         <div class="flex items-center justify-center gap-2 mt-6">
+            <?php
+                $ppagQs = http_build_query(array_filter([
+                    'tab'        => 'pagos',
+                    'psearch'    => $paymentFilters['search']  ?? '',
+                    'pperiodo'   => $_GET['pperiodo']          ?? '',
+                    'pdate_from' => $paymentFilters['date_from'] ?? '',
+                    'pdate_to'   => $paymentFilters['date_to']   ?? '',
+                    'porigen'    => $paymentFilters['origen']  ?? '',
+                    'pestado'    => $paymentFilters['estado']  ?? '',
+                ], fn($v) => $v !== '' && $v !== null));
+            ?>
             <?php for ($i = 1; $i <= $totalPaymentPages; $i++): ?>
-            <a href="<?= url('/admin/premium') ?>?tab=pagos&ppage=<?= $i ?>&psearch=<?= urlencode($paymentFilters['search'] ?? '') ?>&pdate_from=<?= urlencode($paymentFilters['date_from'] ?? '') ?>&pdate_to=<?= urlencode($paymentFilters['date_to'] ?? '') ?>&porigen=<?= urlencode($paymentFilters['origen'] ?? '') ?>"
+            <a href="<?= url('/admin/premium') ?>?ppage=<?= $i ?>&<?= $ppagQs ?>"
                class="px-4 py-2 text-sm rounded-lg transition <?= $i === $paymentPage ? 'bg-primary text-gray-900 font-bold' : 'bg-gray-800 text-gray-400 hover:bg-gray-700' ?>">
                 <?= $i ?>
             </a>

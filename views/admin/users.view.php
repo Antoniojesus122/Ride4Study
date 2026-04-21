@@ -64,13 +64,10 @@
         <?php endif; ?>
 
         <!-- Filtros -->
-        <form method="GET" action="<?= url('/admin/users') ?>" class="flex flex-wrap items-center gap-4 mb-6">
+        <form method="GET" action="<?= url('/admin/users') ?>" class="flex flex-wrap items-center gap-3 mb-6">
             <input type="hidden" name="tab" value="todos">
-            <?php if (!empty($_GET['institucion'])): ?>
-                <input type="hidden" name="institucion" value="<?= htmlspecialchars($_GET['institucion']) ?>">
-            <?php endif; ?>
             <input type="text" name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" placeholder="Buscar por nombre o correo..."
-                   class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-72">
+                   class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-64">
             <select name="rol" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
                 <option value="">Todos los roles</option>
                 <option value="2" <?= ($_GET['rol'] ?? '') === '2' ? 'selected' : '' ?>>Usuario</option>
@@ -87,9 +84,22 @@
                 <option value="1" <?= ($_GET['premium_filter'] ?? '') === '1' ? 'selected' : '' ?>>Si</option>
                 <option value="0" <?= ($_GET['premium_filter'] ?? '') === '0' ? 'selected' : '' ?>>No</option>
             </select>
+            <select name="institucion" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary max-w-[200px]">
+                <option value="">Todas las instituciones</option>
+                <?php foreach (($instituciones ?? []) as $inst): ?>
+                    <option value="<?= htmlspecialchars($inst) ?>" <?= ($_GET['institucion'] ?? '') === $inst ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($inst) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <select name="anuncios" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
+                <option value="">Anuncios</option>
+                <option value="con" <?= ($_GET['anuncios'] ?? '') === 'con' ? 'selected' : '' ?>>Con anuncios</option>
+                <option value="sin" <?= ($_GET['anuncios'] ?? '') === 'sin' ? 'selected' : '' ?>>Sin anuncios</option>
+            </select>
             <button type="submit" class="px-5 py-2.5 text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
-            <?php if (!empty($_GET['search']) || !empty($_GET['rol']) || isset($_GET['verificacion']) && $_GET['verificacion'] !== '' || isset($_GET['premium_filter']) && $_GET['premium_filter'] !== ''): ?>
-            <a href="<?= url('/admin/users') ?>?tab=todos" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
+            <?php if (!empty($_GET['search']) || !empty($_GET['rol']) || !empty($_GET['verificacion']) || !empty($_GET['premium_filter']) || !empty($_GET['institucion']) || !empty($_GET['anuncios'])): ?>
+                <a href="<?= url('/admin/users') ?>?tab=todos" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
             <?php endif; ?>
         </form>
 

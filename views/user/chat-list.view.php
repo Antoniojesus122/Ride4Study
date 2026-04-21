@@ -65,10 +65,17 @@
 
 <script>
     function confirmDeleteChat(userId) {
-        if(confirm('<?= t('chatlist.delete_confirm') ?>')) {
-            document.getElementById('delete-user-id').value = userId;
-            document.getElementById('delete-chat-form').submit();
-        }
+        window.userConfirm({
+            title: '<?= t('chatlist.delete_title') ?? 'Eliminar conversación' ?>',
+            message: '<?= t('chatlist.delete_confirm') ?>',
+            danger: true,
+            confirmText: '<?= t('common.delete') ?? 'Eliminar' ?>'
+        }).then(function (ok) {
+            if (ok) {
+                document.getElementById('delete-user-id').value = userId;
+                document.getElementById('delete-chat-form').submit();
+            }
+        });
     }
 
     // Buscador de conversaciones
