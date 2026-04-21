@@ -12,7 +12,7 @@
         $stmtV = $dbTopbar->query("SELECT COUNT(*) FROM usuarios WHERE estado_verificacion = 1");
         $pendingVerifications = (int)$stmtV->fetchColumn();
 
-        // Ultimos reportes pendientes (max 5)
+        // Últimos reportes pendientes (max 5)
         $stmtRecent = $dbTopbar->query(
             "SELECT r.tipo, r.motivo, r.creado_en, u.nombre AS reporta_nombre
              FROM reportes r
@@ -22,7 +22,7 @@
         );
         $recentNotifs = $stmtRecent->fetchAll(PDO::FETCH_ASSOC);
 
-        // Ultimas verificaciones pendientes (max 3)
+        // Últimas verificaciones pendientes (max 3)
         $stmtVerif = $dbTopbar->query(
             "SELECT nombre, correo, creado_en FROM usuarios WHERE estado_verificacion = 1 ORDER BY creado_en DESC LIMIT 3"
         );
@@ -41,7 +41,7 @@
 ?>
 
 <div class="sticky top-0 z-20 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 px-10 py-6 flex items-center justify-between">
-    <!-- Izquierda: Titulo de la pagina -->
+    <!-- Izquierda: Titulo de la página -->
     <div>
         <h1 class="text-3xl font-bold text-white"><?= htmlspecialchars($pageTitle) ?></h1>
     </div>
@@ -73,7 +73,7 @@
                     <?php if ($totalPending === 0): ?>
                     <div class="px-5 py-8 text-center">
                         <i class="fas fa-check-circle text-2xl text-green-400/50 mb-2" aria-hidden="true"></i>
-                        <p class="text-sm text-gray-500">Todo al dia, sin pendientes</p>
+                        <p class="text-sm text-gray-500">Todo al día, sin pendientes</p>
                     </div>
                     <?php else: ?>
 

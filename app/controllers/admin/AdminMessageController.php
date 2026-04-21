@@ -1,9 +1,14 @@
 <?php
 require_once __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../models/MensajeInstitucion.php';
+require_once __DIR__ . '/../../models/Institution.php';
 require_once __DIR__ . '/../../models/AdminLog.php';
 
+// Controlador de mensajeria admin <-> institucion 
 class AdminMessageController {
     private PDO $db;
+    private MensajeInstitucion $mensajes;
+    private Institution $instituciones;
     private AdminLog $adminLog;
 
     public function __construct() {
@@ -12,7 +17,9 @@ class AdminMessageController {
         }
         $database = new Database();
         $this->db = $database->connect();
-        $this->adminLog = new AdminLog($this->db);
+        $this->mensajes      = new MensajeInstitucion($this->db);
+        $this->instituciones = new Institution($this->db);
+        $this->adminLog      = new AdminLog($this->db);
     }
 
     private function requireAdmin(): void {
@@ -22,69 +29,31 @@ class AdminMessageController {
         }
     }
 
+    // Bandeja: listado de instituciones con resumen.
     public function index(): void {
         $this->requireAdmin();
 
-        $search = trim($_GET['search'] ?? '');
-        $page = max(1, (int)($_GET['page'] ?? 1));
-        $limit = 20;
-        $offset = ($page - 1) * $limit;
+        $search         = trim($_GET['search'] ?? '');
+        $idInstitucion  = (int)($_GET['institucion'] ?? 0);
+        $asunto         = trim($_GET['asunto'] ?? '');
 
-        // Obtener conversaciones con info de usuarios, total mensajes, último mensaje y fecha del último mensaje
-        $query = "SELECT c.*,
-                    u1.nombre as user1_nombre, u1.correo as user1_correo,
-                    u2.nombre as user2_nombre, u2.correo as user2_correo,
-                    (SELECT COUNT(*) FROM mensajes WHERE idConversation = c.idConversation) as total_mensajes,
-                    (SELECT mensaje FROM mensajes WHERE idConversation = c.idConversation ORDER BY fechaCreacion DESC LIMIT 1) as ultimo_mensaje,
-                    (SELECT fechaCreacion FROM mensajes WHERE idConversation = c.idConversation ORDER BY fechaCreacion DESC LIMIT 1) as ultima_fecha
-                  FROM conversations c
-                  JOIN usuarios u1 ON c.user1_id = u1.idUsuario
-                  JOIN usuarios u2 ON c.user2_id = u2.idUsuario
-                  WHERE 1=1";
-        $params = [];
+        $instituciones = $this->mensajes->listarBandeja($search);
 
-        if ($search !== '') {
-            $query .= " AND (u1.nombre LIKE :s1 OR u2.nombre LIKE :s2)";
-            $params[':s1'] = '%' . $search . '%';
-            $params[':s2'] = '%' . $search . '%';
-        }
+        $institucionActiva = null;
+        $hilos             = [];
+        $hiloMensajes      = [];
 
-        $query .= " ORDER BY ultima_fecha DESC";
+        if ($idInstitucion > 0) {
+            $institucionActiva = $this->instituciones->getById($idInstitucion);
+            if ($institucionActiva) {
+                $hilos = $this->mensajes->listarHilosInstitucion($idInstitucion);
 
-        // Contar total de conversaciones para paginación
-        $countQuery = "SELECT COUNT(*) FROM conversations c
-                       JOIN usuarios u1 ON c.user1_id = u1.idUsuario
-                       JOIN usuarios u2 ON c.user2_id = u2.idUsuario
-                       WHERE 1=1";
-        $countParams = [];
-
-        if ($search !== '') {
-            $countQuery .= " AND (u1.nombre LIKE :s1 OR u2.nombre LIKE :s2)";
-            $countParams[':s1'] = '%' . $search . '%';
-            $countParams[':s2'] = '%' . $search . '%';
-        }
-
-        $countStmt = $this->db->prepare($countQuery);
-        $countStmt->execute($countParams);
-        $totalConversations = (int)$countStmt->fetchColumn();
-        $totalPages = max(1, ceil($totalConversations / $limit));
-
-        // Paginación
-        $query .= " LIMIT :limit OFFSET :offset";
-        $stmt = $this->db->prepare($query);
-        foreach ($params as $k => $v) {
-            $stmt->bindValue($k, $v);
-        }
-        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $stmt->execute();
-        $conversations = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Obtener IDs de conversaciones reportadas para marcar en la vista
-        $reportedIds = [];
-        $repStmt = $this->db->query("SELECT DISTINCT idEntidad FROM reportes WHERE tipo = 'chat' AND estado != 'resuelto'");
-        if ($repStmt) {
-            $reportedIds = $repStmt->fetchAll(PDO::FETCH_COLUMN);
+                if ($asunto !== '') {
+                    $hiloMensajes = $this->mensajes->obtenerHilo($idInstitucion, $asunto);
+                    // Marcar los mensajes entrantes del hilo como leidos al abrirlos
+                    $this->mensajes->marcarLeidos($idInstitucion, $asunto);
+                }
+            }
         }
 
         $flashData = getFlash();
@@ -92,82 +61,8 @@ class AdminMessageController {
         require_once __DIR__ . '/../../../views/admin/messages.view.php';
     }
 
-    public function viewConversation(): void {
-        $this->requireAdmin();
-
-        $id = (int)($_GET['id'] ?? 0);
-        if ($id <= 0) {
-            http_response_code(400);
-            echo json_encode(['error' => 'ID de conversacion invalido']);
-            return;
-        }
-
-        // Recoger todos los mensajes
-        $msgStmt = $this->db->prepare(
-            "SELECT m.*, u.nombre as emisor_nombre
-             FROM mensajes m
-             JOIN usuarios u ON m.idEmisor = u.idUsuario
-             WHERE m.idConversation = :id
-             ORDER BY m.fechaCreacion ASC"
-        );
-        $msgStmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $msgStmt->execute();
-        $messages = $msgStmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Recoger info de la conversación y usuarios involucrados
-        $convStmt = $this->db->prepare(
-            "SELECT c.*, u1.nombre as user1_nombre, u2.nombre as user2_nombre
-             FROM conversations c
-             JOIN usuarios u1 ON c.user1_id = u1.idUsuario
-             JOIN usuarios u2 ON c.user2_id = u2.idUsuario
-             WHERE c.idConversation = :id"
-        );
-        $convStmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $convStmt->execute();
-        $conversation = $convStmt->fetch(PDO::FETCH_ASSOC);
-
-        header('Content-Type: application/json');
-        echo json_encode([
-            'conversation' => $conversation,
-            'messages' => $messages
-        ]);
-    }
-
-    public function deleteMessage(): void {
-        $this->requireAdmin();
-
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405);
-            echo json_encode(['error' => 'Metodo no permitido']);
-            return;
-        }
-
-        $messageId = (int)($_POST['message_id'] ?? 0);
-        if ($messageId <= 0) {
-            http_response_code(400);
-            echo json_encode(['error' => 'ID de mensaje invalido']);
-            return;
-        }
-
-        $stmt = $this->db->prepare("DELETE FROM mensajes WHERE idMensaje = :id");
-        $stmt->bindValue(':id', $messageId, PDO::PARAM_INT);
-        $success = $stmt->execute();
-
-        if ($success) {
-            $this->adminLog->log(
-                (int)$_SESSION['user_id'],
-                'eliminar',
-                'mensaje',
-                $messageId,
-                'Mensaje eliminado por admin'
-            );
-        }
-
-        header('Content-Type: application/json');
-        echo json_encode(['success' => $success]);
-    }
-
-    public function deleteConversation(): void {
+    // Enviar un mensaje nuevo (nuevo hilo si no existe ese asunto, respuesta si ya existe)
+    public function send(): void {
         $this->requireAdmin();
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -175,29 +70,42 @@ class AdminMessageController {
             exit;
         }
 
-        $conversationId = (int)($_POST['conversation_id'] ?? 0);
-        if ($conversationId <= 0) {
-            redirectWithFlash(url('/admin/messages'), 'error', 'invalid_id');
-            return;
+        $idInstitucion = (int)($_POST['idInstitucion'] ?? 0);
+        $asunto        = trim($_POST['asunto']  ?? '');
+        $mensaje       = trim($_POST['mensaje'] ?? '');
+
+        if ($idInstitucion <= 0 || $asunto === '' || $mensaje === '') {
+            redirectWithFlash(url('/admin/messages'), 'error', 'Faltan datos para enviar el mensaje');
         }
 
-        // Eliminar mensajes de la conversación
-        $msgStmt = $this->db->prepare("DELETE FROM mensajes WHERE idConversation = :id");
-        $msgStmt->bindValue(':id', $conversationId, PDO::PARAM_INT);
-        $msgStmt->execute();
+        // Validar que la institucion exista
+        $inst = $this->instituciones->getById($idInstitucion);
+        if (!$inst) {
+            redirectWithFlash(url('/admin/messages'), 'error', 'Institucion no encontrada');
+        }
 
-        $convStmt = $this->db->prepare("DELETE FROM conversations WHERE idConversation = :id");
-        $convStmt->bindValue(':id', $conversationId, PDO::PARAM_INT);
-        $convStmt->execute();
+        // Limites razonables
+        if (mb_strlen($asunto) > 255)   $asunto  = mb_substr($asunto, 0, 255);
+        if (mb_strlen($mensaje) > 5000) $mensaje = mb_substr($mensaje, 0, 5000);
+
+        $adminId = (int)$_SESSION['user_id'];
+        $id = $this->mensajes->enviar($idInstitucion, $adminId, $asunto, $mensaje, 'admin');
+
+        if ($id === false) {
+            redirectWithFlash(url('/admin/messages'), 'error', 'No se pudo guardar el mensaje');
+        }
 
         $this->adminLog->log(
-            (int)$_SESSION['user_id'],
-            'eliminar',
-            'conversacion',
-            $conversationId,
-            'Conversacion y sus mensajes eliminados por admin'
+            $adminId,
+            'enviar',
+            'mensaje_institucion',
+            $id,
+            "Institucion: {$inst['nombre']} | Asunto: {$asunto}"
         );
 
-        redirectWithFlash(url('/admin/messages'), 'success', 'conversation_deleted');
+        $redirect = url('/admin/messages')
+                  . '?institucion=' . $idInstitucion
+                  . '&asunto=' . urlencode($asunto);
+        redirectWithFlash($redirect, 'success', 'Mensaje enviado');
     }
 }

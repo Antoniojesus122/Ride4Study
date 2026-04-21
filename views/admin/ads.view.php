@@ -89,7 +89,7 @@
                         <td class="px-5 py-4 text-green-400 font-medium"><?= $ad['precio'] ? $ad['precio'] . '&euro;' : '-' ?></td>
                         <td class="px-5 py-4 text-gray-400"><?= $ad['plazasDisponibles'] ?? '-' ?></td>
                         <td class="px-5 py-4 text-right">
-                            <form method="POST" action="<?= url('/admin/ads') ?>" class="inline" onsubmit="return confirm('Eliminar este anuncio?');">
+                            <form method="POST" action="<?= url('/admin/ads') ?>" class="inline" data-confirm="Eliminar este anuncio?" data-danger>
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="id" value="<?= $ad['idAnuncio'] ?>">
                                 <button type="submit" class="px-3 py-1.5 text-sm font-medium bg-red-500/10 text-red-400 rounded-md hover:bg-red-500/20 transition border border-red-500/20">Eliminar</button>

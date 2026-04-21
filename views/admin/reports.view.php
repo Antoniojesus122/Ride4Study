@@ -43,7 +43,7 @@
     <!-- Pestañas + acciones -->
     <div class="flex items-center justify-between mb-6">
         <div class="flex space-x-1.5 bg-gray-800/50 rounded-lg p-1.5">
-            <?php foreach (['usuario' => 'Usuarios', 'anuncio' => 'Anuncios', 'chat' => 'Chats', 'stats' => 'Estadisticas'] as $key => $label): ?>
+            <?php foreach (['usuario' => 'Usuarios', 'anuncio' => 'Anuncios', 'chat' => 'Chats', 'stats' => 'Estadísticas'] as $key => $label): ?>
             <a href="<?= url('/admin/reports') ?>?tab=<?= $key ?>" class="px-5 py-2.5 text-base font-medium rounded-md transition flex items-center gap-2
                 <?= $tab === $key ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">
                 <?php if ($key === 'stats'): ?><i class="fas fa-chart-bar text-sm" aria-hidden="true"></i><?php endif; ?>
@@ -139,7 +139,7 @@
 
                 <!-- Por motivo -->
                 <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-7">
-                    <h4 class="text-lg font-semibold text-white mb-4 flex items-center gap-2"><i class="fas fa-tags text-cyan-400 text-sm" aria-hidden="true"></i> Motivos mas frecuentes</h4>
+                    <h4 class="text-lg font-semibold text-white mb-4 flex items-center gap-2"><i class="fas fa-tags text-cyan-400 text-sm" aria-hidden="true"></i> Motivos más frecuentes</h4>
                     <div class="space-y-3">
                         <?php
                         $totalMotivos = array_sum(array_column($stats['por_motivo'] ?? [], 'total'));
@@ -160,10 +160,10 @@
                 </div>
             </div>
 
-            <!-- Usuarios mas reportados -->
+            <!-- Usuarios más reportados -->
             <?php if (!empty($stats['usuarios_mas_reportados'])): ?>
             <div class="mt-8 bg-gray-800/50 border border-gray-700 rounded-xl p-7">
-                <h4 class="text-lg font-semibold text-white mb-5 flex items-center gap-2"><i class="fas fa-user-shield text-red-400 text-sm" aria-hidden="true"></i> Usuarios mas reportados</h4>
+                <h4 class="text-lg font-semibold text-white mb-5 flex items-center gap-2"><i class="fas fa-user-shield text-red-400 text-sm" aria-hidden="true"></i> Usuarios más reportados</h4>
                 <div class="overflow-x-auto">
                     <table class="w-full text-base">
                         <thead><tr class="text-gray-500 text-sm uppercase tracking-wider border-b border-gray-700">
@@ -359,7 +359,7 @@
                             </div>
                             <?php endif; ?>
 
-                            <!-- Boton historial del usuario reportado -->
+                            <!-- Botón historial del usuario reportado -->
                             <?php if (!empty($r['idUsuarioReportado'])): ?>
                             <div class="mb-5">
                                 <button onclick="loadHistory(<?= $r['idUsuarioReportado'] ?>, <?= $r['idReporte'] ?>)" class="text-sm text-purple-400 hover:text-purple-300 flex items-center gap-2 transition">
@@ -375,7 +375,7 @@
                                 <p class="text-xs text-green-400 uppercase tracking-wider mb-1 font-medium">Resuelto<?= !empty($r['resuelto_en']) ? ' el ' . date('d/m/Y H:i', strtotime($r['resuelto_en'])) : '' ?></p>
                                 <?php if (!empty($r['accion_tomada'])): ?>
                                 <p class="text-xs text-gray-300 mb-1">
-                                    Accion: <span class="font-medium text-gray-200"><?= match($r['accion_tomada']) {
+                                    Acción: <span class="font-medium text-gray-200"><?= match($r['accion_tomada']) {
                                         'advertir' => 'Advertencia enviada',
                                         'eliminar_contenido' => 'Contenido eliminado',
                                         'suspender' => 'Usuario suspendido',
@@ -393,7 +393,7 @@
                             <!-- Acciones -->
                             <?php if ($r['estado'] === 'pendiente'): ?>
                             <div class="border-t border-gray-700/30 pt-4">
-                                <!-- Boton "Tomar reporte" -->
+                                <!-- Botón "Tomar reporte" -->
                                 <form method="POST" action="<?= url('/admin/reports') ?>" class="mb-3">
                                     <input type="hidden" name="action" value="take">
                                     <input type="hidden" name="tab" value="<?= $tab ?>">
@@ -412,9 +412,9 @@
                                     <input type="hidden" name="tab" value="<?= $tab ?>">
                                     <input type="hidden" name="idReporte" value="<?= $r['idReporte'] ?>">
 
-                                    <!-- Accion a tomar -->
+                                    <!-- Acción a tomar -->
                                     <div>
-                                        <span class="text-sm text-gray-400 block mb-2.5">Accion a tomar:</span>
+                                        <span class="text-sm text-gray-400 block mb-2.5">Acción a tomar:</span>
                                         <div class="flex flex-wrap gap-2.5">
                                             <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition has-[:checked]:border-emerald-500/50 has-[:checked]:bg-emerald-500/5">
                                                 <input type="radio" name="accion" value="resolver" checked class="accent-emerald-500"> Solo resolver
@@ -467,7 +467,7 @@
                                             </button>
                                         </form>
                                         <!-- Descartar reporte -->
-                                        <form method="POST" action="<?= url('/admin/reports') ?>" class="inline" onsubmit="return confirm('Eliminar este reporte? Esta accion no se puede deshacer.');">
+                                        <form method="POST" action="<?= url('/admin/reports') ?>" class="inline" data-confirm="Eliminar este reporte? Esta accion no se puede deshacer." data-danger>
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="tab" value="<?= $tab ?>">
                                             <input type="hidden" name="idReporte" value="<?= $r['idReporte'] ?>">
@@ -664,8 +664,8 @@
                                 <div><p class="text-gray-500 text-xs mb-0.5">ID</p><p class="text-gray-300 font-medium">#${data.idUsuario}</p></div>
                                 <div><p class="text-gray-500 text-xs mb-0.5">Rol</p><p class="text-gray-300 font-medium">${data.nombreRol || 'Usuario'}</p></div>
                                 <div><p class="text-gray-500 text-xs mb-0.5">Ciudad</p><p class="text-gray-300 font-medium">${data.ciudad || '-'}</p></div>
-                                <div><p class="text-gray-500 text-xs mb-0.5">Telefono</p><p class="text-gray-300 font-medium">${data.telefono || '-'}</p></div>
-                                <div><p class="text-gray-500 text-xs mb-0.5">Institucion</p><p class="text-gray-300 font-medium">${data.institucion || '-'}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">Teléfono</p><p class="text-gray-300 font-medium">${data.teléfono || '-'}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">Institución</p><p class="text-gray-300 font-medium">${data.institucion || '-'}</p></div>
                                 <div><p class="text-gray-500 text-xs mb-0.5">Registro</p><p class="text-gray-300 font-medium">${data.creado_en ? new Date(data.creado_en).toLocaleDateString('es-ES') : '-'}</p></div>
                             </div>
                         </div>`;

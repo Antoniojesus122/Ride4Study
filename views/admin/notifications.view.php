@@ -12,7 +12,7 @@
     $iconOptions = [
         'fas fa-bullhorn'            => 'Megafono',
         'fas fa-bell'                => 'Campana',
-        'fas fa-info-circle'         => 'Informacion',
+        'fas fa-info-circle'         => 'Información',
         'fas fa-exclamation-triangle' => 'Advertencia',
         'fas fa-gift'                => 'Regalo',
         'fas fa-star'                => 'Estrella',
@@ -100,7 +100,7 @@
                     Se enviara a <strong id="previewCount" class="text-primary">0</strong> usuarios
                 </span>
 
-                <button type="submit" onclick="return confirmSend()"
+                <button type="button" onclick="confirmSend()"
                     class="ml-auto px-8 py-3 bg-primary hover:bg-primary-dark text-gray-900 text-base font-semibold rounded-lg transition flex items-center gap-2">
                     <i class="fas fa-paper-plane" aria-hidden="true"></i>
                     Enviar notificacion
@@ -121,7 +121,7 @@
                     <i class="fas fa-inbox text-xl text-gray-500" aria-hidden="true"></i>
                 </div>
                 <p class="text-gray-400 font-medium">No se han enviado notificaciones masivas todavia</p>
-                <p class="text-gray-500 text-sm mt-1">Las notificaciones enviadas apareceran aqui</p>
+                <p class="text-gray-500 text-sm mt-1">Las notificaciones enviadas aparecerán aquí</p>
             </div>
         <?php else: ?>
             <div class="overflow-x-auto">
@@ -181,6 +181,14 @@
 </div>
 
 <script>
+    // Mapa legible de filtros para los modales
+    const filtroNombres = {
+        'todos':          'Todos los usuarios',
+        'premium':        'Usuarios Premium',
+        'verificados':    'Usuarios Verificados',
+        'no_verificados': 'Usuarios No Verificados'
+    };
+
     function previewCount() {
         const filtro = document.querySelector('input[name="filtro_tipo"]:checked')?.value || 'todos';
         fetch('<?= url('/admin/notifications/preview') ?>?filtro_tipo=' + filtro)
@@ -190,7 +198,7 @@
                 document.getElementById('previewResult').classList.remove('hidden');
             })
             .catch(() => {
-                alert('Error al obtener la vista previa');
+                adminAlert({ message: 'Error al obtener la vista previa', type: 'danger' });
             });
     }
 
@@ -204,13 +212,23 @@
     function confirmSend() {
         const mensaje = document.getElementById('mensaje').value.trim();
         if (!mensaje) {
-            alert('Escribe un mensaje');
-            return false;
+            adminAlert({ title: 'Falta el mensaje', message: 'Escribe un mensaje antes de enviar', type: 'danger' });
+            return;
         }
-        const filtro = document.querySelector('input[name="filtro_tipo"]:checked')?.value || 'todos';
-        return confirm('¿Estas seguro de enviar esta notificacion a los usuarios con filtro "' + filtro + '"?');
+        const filtro       = document.querySelector('input[name="filtro_tipo"]:checked')?.value || 'todos';
+        const filtroNombre = filtroNombres[filtro] || filtro;
+
+        adminConfirm({
+            title:   'Enviar notificacion',
+            message: 'Se enviara a: ' + filtroNombre + '\n\n¿Confirmas el envio?',
+            confirmText: 'Enviar'
+        }).then(function (ok) {
+            if (ok) document.getElementById('notifForm').submit();
+        });
     }
 </script>
+
+<?php require_once __DIR__ . '/layout/modals.view.php'; ?>
 
 </body>
 </html>

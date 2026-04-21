@@ -69,20 +69,40 @@ class Config {
         $rows = $this->getAll();
         $grouped = [];
 
+        // Mapa directo de claves concretas a grupo 
+        $keyToGroup = [
+            'contacto_email'           => 'Contacto',
+            'mantenimiento'            => 'Sistema',
+            'motivos_reporte'          => 'Reportes',
+            'suspension_dias_defecto'  => 'Reportes',
+        ];
+
+        // Fallback por prefijo para claves no mapeadas explicitamente
         $prefixMap = [
             'premium' => 'Premium',
             'max'     => 'Limites',
         ];
 
-        foreach ($rows as $row) {
-            $parts = explode('_', $row['clave'], 2);
-            $prefix = $parts[0];
+        // Orden deseado de los grupos
+        $order = ['Premium', 'Limites', 'Reportes', 'Contacto', 'Sistema'];
+        foreach ($order as $g) $grouped[$g] = [];
 
-            $group = $prefixMap[$prefix] ?? ucfirst($prefix);
+        foreach ($rows as $row) {
+            if (isset($keyToGroup[$row['clave']])) {
+                $group = $keyToGroup[$row['clave']];
+            } else {
+                $prefix = explode('_', $row['clave'], 2)[0];
+                $group  = $prefixMap[$prefix] ?? ucfirst($prefix);
+            }
+
+            if (!isset($grouped[$group])) {
+                $grouped[$group] = [];
+            }
             $grouped[$group][] = $row;
         }
 
-        return $grouped;
+        // Quitar grupos vacios
+        return array_filter($grouped, fn($items) => !empty($items));
     }
 
     private function castValue(string $valor, ?string $tipo): mixed {

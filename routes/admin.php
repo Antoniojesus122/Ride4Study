@@ -132,29 +132,38 @@ $router->any('/admin/profile', function () use ($requireAdmin) {
     };
 });
 
+// Bandeja de mensajes admin <-> institucion
 $router->any('/admin/messages', function () use ($requireAdmin) {
     $requireAdmin();
     require_once __DIR__ . '/../app/controllers/admin/AdminMessageController.php';
-    $controller = new AdminMessageController();
-    $action = $_POST['action'] ?? $_GET['action'] ?? null;
-    match ($action) {
-        'view' => $controller->viewConversation(),
-        'delete_message' => $controller->deleteMessage(),
-        'delete_conversation' => $controller->deleteConversation(),
-        default => $controller->index(),
-    };
+    (new AdminMessageController())->index();
+});
+
+// Enviar mensaje a una institucion
+$router->any('/admin/messages/send', function () use ($requireAdmin) {
+    $requireAdmin();
+    require_once __DIR__ . '/../app/controllers/admin/AdminMessageController.php';
+    (new AdminMessageController())->send();
 });
 
 $router->any('/admin/notifications', function () use ($requireAdmin) {
     $requireAdmin();
     require_once __DIR__ . '/../app/controllers/admin/AdminNotificationController.php';
-    $controller = new AdminNotificationController();
-    $action = $_POST['action'] ?? $_GET['action'] ?? null;
-    match ($action) {
-        'send' => $controller->send(),
-        'preview' => $controller->preview(),
-        default => $controller->index(),
-    };
+    (new AdminNotificationController())->index();
+});
+
+// Envio de notificacion masiva
+$router->any('/admin/notifications/send', function () use ($requireAdmin) {
+    $requireAdmin();
+    require_once __DIR__ . '/../app/controllers/admin/AdminNotificationController.php';
+    (new AdminNotificationController())->send();
+});
+
+// Vista previa del numero de destinatarios
+$router->any('/admin/notifications/preview', function () use ($requireAdmin) {
+    $requireAdmin();
+    require_once __DIR__ . '/../app/controllers/admin/AdminNotificationController.php';
+    (new AdminNotificationController())->preview();
 });
 
 $router->any('/admin/logs', function () use ($requireAdmin) {

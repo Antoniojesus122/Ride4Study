@@ -6,7 +6,7 @@
     <?php require_once __DIR__ . '/layout/topbar.view.php'; ?>
     <div class="flex-1 p-10">
 
-    <!-- Tarjetas iniciales con estadisticas -->
+    <!-- Tarjetas iniciales con estadísticas -->
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         <!-- Usuarios -->
         <a href="<?= url('/admin/users') ?>" class="bg-gray-800/50 border border-gray-700 rounded-xl p-7 hover:border-gray-600 transition group">
@@ -92,7 +92,7 @@
     </div>
 
     <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-        <!-- Verificacion -->
+        <!-- Verificación -->
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-7">
             <h3 class="text-lg font-semibold text-white mb-6"><?= t('admin.verification_status') ?></h3>
             <div class="space-y-5">
@@ -156,7 +156,7 @@
     </section>
 
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Ultimos anuncios -->
+        <!-- Últimos anuncios -->
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-7">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-lg font-semibold text-white"><?= t('admin.latest_ads') ?></h3>
@@ -186,7 +186,7 @@
             <?php endif; ?>
         </div>
 
-        <!-- Ultimos usuarios -->
+        <!-- Últimos usuarios -->
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-7">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-lg font-semibold text-white"><?= t('admin.recent_users') ?></h3>

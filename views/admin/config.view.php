@@ -1,13 +1,59 @@
-<?php $pageTitle = 'Configuracion'; ?>
+<?php $pageTitle = 'Configuración'; ?>
 <?php require_once __DIR__ . '/layout/header.view.php'; ?>
 <?php require_once __DIR__ . '/layout/sidebar.view.php'; ?>
 
 <?php
+    // Metadatos visuales de cada grupo
     $categoryLabels = [
         'Premium'  => ['icon' => 'fas fa-star',       'color' => 'yellow'],
-        'Limites'  => ['icon' => 'fas fa-sliders-h',   'color' => 'blue'],
-        'Reportes' => ['icon' => 'fas fa-flag',        'color' => 'red'],
-        'Sistema'  => ['icon' => 'fas fa-cog',         'color' => 'purple'],
+        'Limites'  => ['icon' => 'fas fa-sliders-h',  'color' => 'blue'],
+        'Reportes' => ['icon' => 'fas fa-flag',       'color' => 'red'],
+        'Sistema'  => ['icon' => 'fas fa-cog',        'color' => 'purple'],
+        'Contacto' => ['icon' => 'fas fa-envelope',   'color' => 'emerald'],
+    ];
+
+    // Etiquetas amigables + ayuda + unidad por cada clave tecnica
+    $configMeta = [
+        'premium_precio_cents' => [
+            'label' => 'Precio Premium',
+            'hint'  => 'Se guarda en céntimos (499 = 4,99 EUR)',
+            'unit'  => 'céntimos',
+        ],
+        'premium_dias_defecto' => [
+            'label' => 'Duración de Premium por defecto',
+            'hint'  => 'Cuántos días dura el Premium al concederlo manualmente',
+            'unit'  => 'días',
+        ],
+        'max_anuncios_gratis' => [
+            'label' => 'Anuncios gratis por usuario',
+            'hint'  => 'Límite de anuncios que puede publicar un usuario no Premium',
+            'unit'  => 'anuncios',
+        ],
+        'max_evidencia_mb' => [
+            'label' => 'Tamaño máximo de evidencia',
+            'hint'  => 'Peso máximo permitido al adjuntar evidencia en un reporte',
+            'unit'  => 'MB',
+        ],
+        'suspension_dias_defecto' => [
+            'label' => 'Duración de suspensión por defecto',
+            'hint'  => 'Días que dura una suspensión estándar si no se especifica otra',
+            'unit'  => 'días',
+        ],
+        'motivos_reporte' => [
+            'label' => 'Motivos de reporte disponibles',
+            'hint'  => 'Lista JSON con los motivos que puede seleccionar el usuario al reportar',
+            'unit'  => '',
+        ],
+        'contacto_email' => [
+            'label' => 'Email de soporte',
+            'hint'  => 'Dirección visible en el footer y en los correos del sistema',
+            'unit'  => '',
+        ],
+        'mantenimiento' => [
+            'label' => 'Modo mantenimiento',
+            'hint'  => 'Bloquea el acceso a la web a usuarios no admin',
+            'unit'  => '',
+        ],
     ];
 ?>
 
@@ -48,16 +94,23 @@
                     </div>
 
                     <div class="space-y-3">
-                        <?php foreach ($configs as $cfg): ?>
+                        <?php foreach ($configs as $cfg):
+                            $meta  = $configMeta[$cfg['clave']] ?? null;
+                            $label = $meta['label'] ?? ($cfg['descripcion'] ?: ucfirst(str_replace('_', ' ', $cfg['clave'])));
+                            $hint  = $meta['hint']  ?? '';
+                            $unit  = $meta['unit']  ?? '';
+                        ?>
                             <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-5 flex items-center justify-between gap-6">
                                 <div class="flex-1 min-w-0">
                                     <label for="config_<?= htmlspecialchars($cfg['clave']) ?>" class="text-base font-medium text-white block">
-                                        <?= htmlspecialchars($cfg['descripcion'] ?? $cfg['clave']) ?>
+                                        <?= htmlspecialchars($label) ?>
                                     </label>
-                                    <span class="text-sm text-gray-500 mt-0.5 block"><?= htmlspecialchars($cfg['clave']) ?></span>
+                                    <?php if ($hint !== ''): ?>
+                                        <p class="text-sm text-gray-500 mt-0.5"><?= htmlspecialchars($hint) ?></p>
+                                    <?php endif; ?>
                                 </div>
 
-                                <div class="shrink-0">
+                                <div class="shrink-0 flex items-center gap-2">
                                     <?php if ($cfg['tipo'] === 'bool'): ?>
                                         <!-- Toggle switch para booleanos -->
                                         <input type="hidden" name="config[<?= htmlspecialchars($cfg['clave']) ?>]" value="0">
@@ -103,6 +156,10 @@
                                                class="w-64 bg-gray-800/60 border border-gray-700 rounded-lg px-4 py-2.5 text-base text-white
                                                       focus:border-primary focus:ring-1 focus:ring-primary outline-none transition">
                                     <?php endif; ?>
+
+                                    <?php if ($unit !== '' && $cfg['tipo'] !== 'bool'): ?>
+                                        <span class="text-sm text-gray-500 font-medium"><?= htmlspecialchars($unit) ?></span>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -110,7 +167,7 @@
                 </div>
             <?php endforeach; ?>
 
-            <!-- Boton guardar -->
+            <!-- Botón guardar -->
             <div class="pt-4 border-t border-gray-700">
                 <button type="submit"
                         class="px-8 py-3 bg-primary hover:bg-primary/90 text-white font-semibold text-base rounded-lg transition-colors">

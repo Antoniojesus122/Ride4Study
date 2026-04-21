@@ -12,7 +12,7 @@
         <div class="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-base flex items-center gap-2">
             <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
             <?php
-            $msgs = ['approved' => 'Verificacion aprobada', 'rejected' => 'Verificacion rechazada', 'role_updated' => 'Rol actualizado', 'banned' => 'Usuario suspendido', 'unbanned' => 'Usuario reactivado', 'deleted' => 'Usuario eliminado correctamente'];
+            $msgs = ['approved' => 'Verificación aprobada', 'rejected' => 'Verificación rechazada', 'role_updated' => 'Rol actualizado', 'banned' => 'Usuario suspendido', 'unbanned' => 'Usuario reactivado', 'deleted' => 'Usuario eliminado correctamente'];
             echo $msgs[$flashData['message']] ?? 'Operacion realizada';
             ?>
         </div>
@@ -49,18 +49,35 @@
     <!-- Pestaña 1: Todos los usuarios -->
     <?php if ($tab === 'todos'): ?>
     <div id="tab-todos">
+        <!-- Banner de filtro por institucion -->
+        <?php if (!empty($_GET['institucion'])): ?>
+        <div class="mb-5 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3 min-w-0">
+                <i class="fas fa-filter text-blue-400" aria-hidden="true"></i>
+                <p class="text-sm text-gray-200">
+                    Mostrando estudiantes de
+                    <strong class="text-white"><?= htmlspecialchars($_GET['institucion']) ?></strong>
+                </p>
+            </div>
+            <a href="<?= url('/admin/users') ?>?tab=todos" class="text-sm font-medium text-blue-400 hover:text-blue-300 transition">Quitar filtro</a>
+        </div>
+        <?php endif; ?>
+
         <!-- Filtros -->
         <form method="GET" action="<?= url('/admin/users') ?>" class="flex flex-wrap items-center gap-4 mb-6">
             <input type="hidden" name="tab" value="todos">
+            <?php if (!empty($_GET['institucion'])): ?>
+                <input type="hidden" name="institucion" value="<?= htmlspecialchars($_GET['institucion']) ?>">
+            <?php endif; ?>
             <input type="text" name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" placeholder="Buscar por nombre o correo..."
                    class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-72">
             <select name="rol" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
                 <option value="">Todos los roles</option>
                 <option value="2" <?= ($_GET['rol'] ?? '') === '2' ? 'selected' : '' ?>>Usuario</option>
-                <option value="4" <?= ($_GET['rol'] ?? '') === '4' ? 'selected' : '' ?>>Institucion</option>
+                <option value="4" <?= ($_GET['rol'] ?? '') === '4' ? 'selected' : '' ?>>Institución</option>
             </select>
             <select name="verificacion" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
-                <option value="">Verificacion</option>
+                <option value="">Verificación</option>
                 <option value="2" <?= ($_GET['verificacion'] ?? '') === '2' ? 'selected' : '' ?>>Verificado</option>
                 <option value="1" <?= ($_GET['verificacion'] ?? '') === '1' ? 'selected' : '' ?>>Pendiente</option>
                 <option value="0" <?= ($_GET['verificacion'] ?? '') === '0' ? 'selected' : '' ?>>No verificado</option>
@@ -94,7 +111,7 @@
                         <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Usuario</th>
                         <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Correo</th>
                         <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Rol</th>
-                        <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Verificacion</th>
+                        <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Verificación</th>
                         <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Premium</th>
                         <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Registro</th>
                         <th class="px-5 py-3.5 text-right text-xs text-gray-500 font-semibold uppercase tracking-wider">Acciones</th>
@@ -116,7 +133,7 @@
                                 <span class="px-2.5 py-1 text-sm rounded-full font-medium
                                     <?php
                                     $roleName = $u['nombreRol'] ?? 'Usuario';
-                                    if ($roleName === 'Institucion' || $roleName === 'Institución') echo 'bg-purple-500/10 text-purple-400';
+                                    if ($roleName === 'Institución' || $roleName === 'Institución') echo 'bg-purple-500/10 text-purple-400';
                                     else echo 'bg-gray-700 text-gray-300';
                                     ?>">
                                     <?= htmlspecialchars($roleName) ?>
@@ -145,7 +162,7 @@
                                             class="px-2.5 py-1.5 text-sm font-medium bg-red-500/10 text-red-400 rounded hover:bg-red-500/20 transition" title="Suspender">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" /></svg>
                                     </button>
-                                    <form method="POST" action="<?= url('/admin/users') ?>" class="inline" onsubmit="return confirm('¿Eliminar al usuario <?= htmlspecialchars(addslashes($u['nombre'])) ?>? Esta accion no se puede deshacer.')">
+                                    <form method="POST" action="<?= url('/admin/users') ?>" class="inline" data-confirm="¿Eliminar al usuario <?= htmlspecialchars($u['nombre'], ENT_QUOTES) ?>? Esta accion no se puede deshacer." data-danger>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="user_id" value="<?= $u['idUsuario'] ?>">
                                         <button type="submit" class="px-2.5 py-1.5 text-sm font-medium bg-red-500/10 text-red-400 rounded hover:bg-red-500/20 transition" title="Eliminar usuario">
@@ -173,7 +190,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
                 </div>
-                <p class="text-gray-400 font-medium">Todo al dia</p>
+                <p class="text-gray-400 font-medium">Todo al día</p>
                 <p class="text-gray-500 text-sm mt-1">No hay solicitudes de verificacion pendientes</p>
             </div>
         <?php else: ?>
@@ -198,10 +215,10 @@
                                class="px-3 py-1.5 text-xs font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition border border-gray-600">
                                 Ver documento
                             </a>
-                            <form method="POST" action="<?= url('/admin/users') ?>" class="inline">
+                            <form method="POST" action="<?= url('/admin/users') ?>" class="inline" data-confirm="Aprobar verificacion de <?= htmlspecialchars($u['nombre'], ENT_QUOTES) ?>?">
                                 <input type="hidden" name="action" value="approve">
                                 <input type="hidden" name="user_id" value="<?= (int)$u['idUsuario'] ?>">
-                                <button type="submit" onclick="return confirm('Aprobar verificacion de <?= htmlspecialchars(addslashes($u['nombre'])) ?>?')"
+                                <button type="submit"
                                         class="px-3 py-1.5 text-xs font-medium bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition border border-green-500/20">
                                     Aprobar
                                 </button>
@@ -212,12 +229,12 @@
                                     Rechazar
                                 </button>
                                 <div class="hidden absolute right-0 top-full mt-2 w-72 bg-gray-800 border border-gray-700 rounded-xl p-3 shadow-xl z-10">
-                                    <form method="POST" action="<?= url('/admin/users') ?>">
+                                    <form method="POST" action="<?= url('/admin/users') ?>" data-confirm="Rechazar verificacion?" data-danger>
                                         <input type="hidden" name="action" value="reject">
                                         <input type="hidden" name="user_id" value="<?= (int)$u['idUsuario'] ?>">
                                         <input type="text" name="reason" placeholder="Motivo del rechazo (opcional)"
                                                class="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-red-500 mb-2">
-                                        <button type="submit" onclick="return confirm('Rechazar verificacion?')"
+                                        <button type="submit"
                                                 class="w-full px-3 py-2 text-xs font-medium bg-red-600 text-white rounded-lg hover:bg-red-500 transition">
                                             Confirmar rechazo
                                         </button>
@@ -272,10 +289,10 @@
                                 <p class="text-xs text-red-400/70 mt-0.5">Permanente</p>
                             <?php endif; ?>
                         </div>
-                        <form method="POST" action="<?= url('/admin/users') ?>" class="shrink-0">
+                        <form method="POST" action="<?= url('/admin/users') ?>" class="shrink-0" data-confirm="Reactivar cuenta de <?= htmlspecialchars($u['nombre'], ENT_QUOTES) ?>?">
                             <input type="hidden" name="action" value="unban">
                             <input type="hidden" name="user_id" value="<?= (int)$u['idUsuario'] ?>">
-                            <button type="submit" onclick="return confirm('Reactivar cuenta de <?= htmlspecialchars(addslashes($u['nombre'])) ?>?')"
+                            <button type="submit"
                                     class="px-4 py-2 text-xs font-medium bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition border border-green-500/20">
                                 <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
                                 Reactivar
@@ -316,12 +333,12 @@
                               class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-red-500 resize-none"></textarea>
                 </div>
                 <div>
-                    <label class="block text-sm text-gray-300 mb-2">Duracion</label>
+                    <label class="block text-sm text-gray-300 mb-2">Duración</label>
                     <select name="duracion" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-xl text-sm text-white focus:outline-none focus:border-red-500">
-                        <option value="7">7 dias</option>
-                        <option value="15">15 dias</option>
-                        <option value="30" selected>30 dias</option>
-                        <option value="90">90 dias</option>
+                        <option value="7">7 días</option>
+                        <option value="15">15 días</option>
+                        <option value="30" selected>30 días</option>
+                        <option value="90">90 días</option>
                         <option value="permanente">Permanente</option>
                     </select>
                 </div>

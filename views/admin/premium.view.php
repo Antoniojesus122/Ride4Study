@@ -34,7 +34,7 @@
     </div>
 
     <?php if (($tab ?? 'usuarios') === 'usuarios'): ?>
-    <!-- Estadisticas -->
+    <!-- Estadísticas -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
         <div class="bg-yellow-500/5 border border-yellow-500/20 rounded-xl p-7">
             <div class="flex items-center gap-3">
@@ -58,7 +58,7 @@
                 </div>
                 <div>
                     <p class="text-4xl font-bold text-white"><?= $expiringCount ?></p>
-                    <p class="text-sm text-gray-400">Expiran en 7 dias</p>
+                    <p class="text-sm text-gray-400">Expiran en 7 días</p>
                 </div>
             </div>
         </div>
@@ -118,13 +118,13 @@
                         </td>
                         <td class="px-5 py-4">
                             <?php if ($isExpiring): ?>
-                                <span class="px-2 py-0.5 text-sm rounded-full bg-red-500/10 text-red-400 font-medium"><?= $daysLeft ?> dias</span>
+                                <span class="px-2 py-0.5 text-sm rounded-full bg-red-500/10 text-red-400 font-medium"><?= $daysLeft ?> días</span>
                             <?php else: ?>
                                 <span class="px-2 py-0.5 text-sm rounded-full bg-green-500/10 text-green-400 font-medium">Activo</span>
                             <?php endif; ?>
                         </td>
                         <td class="px-5 py-4 text-right">
-                            <form method="POST" action="<?= url('/admin/premium') ?>" class="inline" onsubmit="return confirm('Revocar Premium de <?= htmlspecialchars(addslashes($pu['nombre'])) ?>?');">
+                            <form method="POST" action="<?= url('/admin/premium') ?>" class="inline" data-confirm="Revocar Premium de <?= htmlspecialchars($pu['nombre'], ENT_QUOTES) ?>?" data-danger>
                                 <input type="hidden" name="action" value="revoke">
                                 <input type="hidden" name="user_id" value="<?= $pu['idUsuario'] ?>">
                                 <button type="submit" class="px-3 py-1.5 text-sm font-medium bg-red-500/10 text-red-400 rounded-md hover:bg-red-500/20 transition border border-red-500/20">Revocar</button>
@@ -194,7 +194,7 @@
                 </svg>
             </div>
             <p class="text-gray-400 font-medium">No hay pagos registrados</p>
-            <p class="text-sm text-gray-500">Los pagos apareceran aqui cuando se realicen</p>
+            <p class="text-sm text-gray-500">Los pagos aparecerán aquí cuando se realicen</p>
         </div>
     <?php else: ?>
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden">
@@ -235,7 +235,7 @@
             </table>
         </div>
 
-        <!-- Paginacion de pagos -->
+        <!-- Paginación de pagos -->
         <?php if ($totalPaymentPages > 1): ?>
         <div class="flex items-center justify-center gap-2 mt-6">
             <?php for ($i = 1; $i <= $totalPaymentPages; $i++): ?>

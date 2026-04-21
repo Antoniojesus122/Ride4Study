@@ -12,9 +12,9 @@
             <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
             <?php
             $msgs = [
-                'created' => 'Institucion creada correctamente. Se han enviado las credenciales por email.',
-                'updated' => 'Institucion actualizada correctamente.',
-                'deleted' => 'Institucion eliminada correctamente.',
+                'created' => 'Institución creada correctamente. Se han enviado las credenciales por email.',
+                'updated' => 'Institución actualizada correctamente.',
+                'deleted' => 'Institución eliminada correctamente.',
                 'password_reset' => 'Contraseña regenerada y enviada por email.',
                 'activated' => 'Cuenta de institucion activada.',
                 'deactivated' => 'Cuenta de institucion desactivada.',
@@ -32,7 +32,7 @@
                 'correo_duplicado' => 'Ya existe una institucion con ese correo electronico.',
                 'error_crear' => 'Error al crear la institucion. Intentalo de nuevo.',
                 'id_invalido' => 'ID de institucion no valido.',
-                'no_encontrada' => 'Institucion no encontrada.',
+                'no_encontrada' => 'Institución no encontrada.',
             ];
             echo $errMsgs[$flashData['message']] ?? htmlspecialchars($flashData['message']);
             ?>
@@ -74,20 +74,20 @@
             </div>
 
             <div>
-                <label class="block text-xs text-gray-500 mb-1">Telefono</label>
-                <input type="text" name="telefono" placeholder="959 000 000"
+                <label class="block text-xs text-gray-500 mb-1">Teléfono</label>
+                <input type="text" name="teléfono" placeholder="959 000 000"
                     class="w-full px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
             </div>
 
             <div>
-                <label class="block text-xs text-gray-500 mb-1">Direccion</label>
+                <label class="block text-xs text-gray-500 mb-1">Dirección</label>
                 <input type="text" name="direccion" placeholder="Calle, numero, ciudad"
                     class="w-full px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
             </div>
 
             <div class="md:col-span-2">
-                <label class="block text-xs text-gray-500 mb-1">Descripcion</label>
-                <textarea name="descripcion" placeholder="Descripcion breve de la institucion" rows="2"
+                <label class="block text-xs text-gray-500 mb-1">Descripción</label>
+                <textarea name="descripcion" placeholder="Descripción breve de la institucion" rows="2"
                     class="w-full px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary resize-none"></textarea>
             </div>
 
@@ -113,11 +113,11 @@
             <table class="w-full text-sm">
                 <thead><tr class="border-b border-gray-700">
                     <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">ID</th>
-                    <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Institucion</th>
+                    <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Institución</th>
                     <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Correo</th>
                     <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Estudiantes</th>
                     <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Estado</th>
-                    <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Ultimo acceso</th>
+                    <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Último acceso</th>
                     <th class="px-5 py-3.5 text-right text-xs text-gray-500 font-semibold uppercase tracking-wider">Acciones</th>
                 </tr></thead>
                 <tbody>
@@ -128,16 +128,24 @@
                         <td class="px-5 py-4">
                             <div>
                                 <p class="text-gray-200 font-medium"><?= htmlspecialchars($inst['nombre']) ?></p>
-                                <?php if ($inst['telefono']): ?>
-                                    <p class="text-xs text-gray-500 mt-0.5"><i class="fas fa-phone text-[10px] mr-1" aria-hidden="true"></i><?= htmlspecialchars($inst['telefono']) ?></p>
+                                <?php if ($inst['teléfono']): ?>
+                                    <p class="text-xs text-gray-500 mt-0.5"><i class="fas fa-phone text-[10px] mr-1" aria-hidden="true"></i><?= htmlspecialchars($inst['teléfono']) ?></p>
                                 <?php endif; ?>
                             </div>
                         </td>
                         <td class="px-5 py-4 text-gray-400"><?= htmlspecialchars($inst['correo']) ?></td>
                         <td class="px-5 py-4">
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-500/10 text-blue-400 rounded-full text-xs font-semibold border border-blue-500/20">
-                                <i class="fas fa-users text-[10px]" aria-hidden="true"></i> <?= $inst['num_estudiantes'] ?>
-                            </span>
+                            <?php if ((int)$inst['num_estudiantes'] > 0): ?>
+                                <a href="<?= url('/admin/users') ?>?tab=todos&institucion=<?= urlencode($inst['nombre']) ?>"
+                                   class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-500/10 text-blue-400 rounded-full text-xs font-semibold border border-blue-500/20 hover:bg-blue-500/20 transition"
+                                   title="Ver estudiantes de <?= htmlspecialchars($inst['nombre']) ?>">
+                                    <i class="fas fa-users text-[10px]" aria-hidden="true"></i> <?= $inst['num_estudiantes'] ?>
+                                </a>
+                            <?php else: ?>
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-700/40 text-gray-500 rounded-full text-xs font-semibold border border-gray-600/30">
+                                    <i class="fas fa-users text-[10px]" aria-hidden="true"></i> 0
+                                </span>
+                            <?php endif; ?>
                         </td>
                         <td class="px-5 py-4">
                             <?php if ($isActive): ?>
@@ -160,7 +168,7 @@
                                 </button>
 
                                 <!-- Regenerar contraseña -->
-                                <form method="POST" action="<?= url('/admin/instituciones') ?>" class="inline" onsubmit="return confirm('¿Regenerar contraseña para <?= htmlspecialchars($inst['nombre']) ?>?\n\nSe enviara la nueva contraseña por email.');">
+                                <form method="POST" action="<?= url('/admin/instituciones') ?>" class="inline" data-confirm="¿Regenerar contraseña para <?= htmlspecialchars($inst['nombre'], ENT_QUOTES) ?>?&#10;&#10;Se enviara la nueva contraseña por email.">
                                     <input type="hidden" name="action" value="reset_password">
                                     <input type="hidden" name="id" value="<?= $inst['idInstitucion'] ?>">
                                     <button type="submit" class="px-2.5 py-1.5 text-xs font-medium bg-yellow-500/10 text-yellow-400 rounded-md hover:bg-yellow-500/20 transition border border-yellow-500/20" title="Regenerar contraseña" aria-label="Regenerar contraseña">
@@ -169,7 +177,7 @@
                                 </form>
 
                                 <!-- Activar/Desactivar -->
-                                <form method="POST" action="<?= url('/admin/instituciones') ?>" class="inline" onsubmit="return confirm('<?= $isActive ? '¿Desactivar' : '¿Activar' ?> la cuenta de <?= htmlspecialchars($inst['nombre']) ?>?');">
+                                <form method="POST" action="<?= url('/admin/instituciones') ?>" class="inline" data-confirm="<?= $isActive ? '¿Desactivar' : '¿Activar' ?> la cuenta de <?= htmlspecialchars($inst['nombre'], ENT_QUOTES) ?>?">
                                     <input type="hidden" name="action" value="toggle_active">
                                     <input type="hidden" name="id" value="<?= $inst['idInstitucion'] ?>">
                                     <button type="submit" class="px-2.5 py-1.5 text-xs font-medium <?= $isActive ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20' ?> rounded-md hover:opacity-80 transition border" title="<?= $isActive ? 'Desactivar' : 'Activar' ?>">
@@ -178,7 +186,7 @@
                                 </form>
 
                                 <!-- Eliminar -->
-                                <form method="POST" action="<?= url('/admin/instituciones') ?>" class="inline" onsubmit="return confirm('¿Eliminar la institucion <?= htmlspecialchars($inst['nombre']) ?>?\n\nEsta accion no se puede deshacer.');">
+                                <form method="POST" action="<?= url('/admin/instituciones') ?>" class="inline" data-confirm="¿Eliminar la institucion <?= htmlspecialchars($inst['nombre'], ENT_QUOTES) ?>?&#10;&#10;Esta accion no se puede deshacer." data-danger>
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="id" value="<?= $inst['idInstitucion'] ?>">
                                     <button type="submit" class="px-2.5 py-1.5 text-xs font-medium bg-red-500/10 text-red-400 rounded-md hover:bg-red-500/20 transition border border-red-500/20" title="Eliminar" aria-label="Eliminar">
@@ -203,15 +211,15 @@
                                     <input type="email" name="correo" value="<?= htmlspecialchars($inst['correo']) ?>" class="w-full px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-gray-500 mb-1">Telefono</label>
-                                    <input type="text" name="telefono" value="<?= htmlspecialchars($inst['telefono'] ?? '') ?>" class="w-full px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
+                                    <label class="block text-xs text-gray-500 mb-1">Teléfono</label>
+                                    <input type="text" name="teléfono" value="<?= htmlspecialchars($inst['teléfono'] ?? '') ?>" class="w-full px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-gray-500 mb-1">Direccion</label>
+                                    <label class="block text-xs text-gray-500 mb-1">Dirección</label>
                                     <input type="text" name="direccion" value="<?= htmlspecialchars($inst['direccion'] ?? '') ?>" class="w-full px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-gray-500 mb-1">Descripcion</label>
+                                    <label class="block text-xs text-gray-500 mb-1">Descripción</label>
                                     <textarea name="descripcion" rows="1" class="w-full px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary resize-none"><?= htmlspecialchars($inst['descripcion'] ?? '') ?></textarea>
                                 </div>
                                 <div class="flex items-end gap-2">

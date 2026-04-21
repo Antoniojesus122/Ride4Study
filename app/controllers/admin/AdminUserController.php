@@ -51,6 +51,7 @@ class AdminUserController {
         $roleFilter = $_GET['rol'] ?? '';
         $verificacionFilter = $_GET['verificacion'] ?? '';
         $premiumFilter = $_GET['premium_filter'] ?? '';
+        $institucionFilter = trim($_GET['institucion'] ?? '');
 
         $query = "SELECT u.idUsuario, u.nombre, u.correo, u.telefono, u.ciudad, u.institucion,
                          u.estado_verificacion, u.premium, u.premium_hasta, u.creado_en,
@@ -76,6 +77,10 @@ class AdminUserController {
         if ($premiumFilter !== '') {
             $query .= " AND u.premium = :prem";
             $params[':prem'] = (int)$premiumFilter;
+        }
+        if ($institucionFilter !== '') {
+            $query .= " AND u.institucion = :inst";
+            $params[':inst'] = $institucionFilter;
         }
 
         $query .= " ORDER BY u.idUsuario DESC";
