@@ -82,18 +82,21 @@ class MensajeInstitucion {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Crear mensaje (emisor admin siempre desde el panel)
-    public function enviar(int $idInstitucion, int $idAdmin, string $asunto, string $mensaje, string $emisor = 'admin'): int|false {
+    // Crear mensaje. idAdmin puede ser null cuando el emisor es la institucion
+    public function enviar(int $idInstitucion, ?int $idAdmin, string $asunto, string $mensaje, string $emisor = 'admin'): int|false {
         $sql = "INSERT INTO {$this->table} (idInstitucion, idAdmin, asunto, mensaje, emisor)
                 VALUES (:id, :admin, :asunto, :mensaje, :emisor)";
         $stmt = $this->db->prepare($sql);
-        $ok = $stmt->execute([
-            ':id'      => $idInstitucion,
-            ':admin'   => $idAdmin,
-            ':asunto'  => $asunto,
-            ':mensaje' => $mensaje,
-            ':emisor'  => $emisor,
-        ]);
+        $stmt->bindValue(':id',      $idInstitucion, PDO::PARAM_INT);
+        if ($idAdmin === null || $idAdmin === 0) {
+            $stmt->bindValue(':admin', null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindValue(':admin', $idAdmin, PDO::PARAM_INT);
+        }
+        $stmt->bindValue(':asunto',  $asunto);
+        $stmt->bindValue(':mensaje', $mensaje);
+        $stmt->bindValue(':emisor',  $emisor);
+        $ok = $stmt->execute();
         return $ok ? (int)$this->db->lastInsertId() : false;
     }
 
@@ -106,11 +109,46 @@ class MensajeInstitucion {
         $stmt->execute([':id' => $idInstitucion, ':asunto' => $asunto]);
     }
 
+    // Marcar como leidos los mensajes del admin (lado institucion) dentro de un asunto
+    public function marcarLeidosAdmin(int $idInstitucion, string $asunto): void {
+        $sql = "UPDATE {$this->table}
+                SET leido = 1
+                WHERE idInstitucion = :id AND asunto = :asunto AND emisor = 'admin' AND leido = 0";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':id' => $idInstitucion, ':asunto' => $asunto]);
+    }
+
+    // Hilos de una institucion (vista lado institucion: cuenta no_leidos desde admin)
+    public function listarHilosInstitucionLado(int $idInstitucion): array {
+        $sql = "SELECT asunto,
+                    COUNT(*) AS total,
+                    SUM(CASE WHEN emisor = 'admin' AND leido = 0 THEN 1 ELSE 0 END) AS no_leidos,
+                    MAX(creado_en) AS ultima_fecha,
+                    SUBSTRING_INDEX(GROUP_CONCAT(emisor ORDER BY creado_en DESC SEPARATOR '|'), '|', 1) AS ultimo_emisor
+                FROM {$this->table}
+                WHERE idInstitucion = :id
+                GROUP BY asunto
+                ORDER BY ultima_fecha DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':id' => $idInstitucion]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     // Contador global de no leidos (para badge en el sidebar/topbar)
     public function totalNoLeidos(): int {
         $stmt = $this->db->query(
             "SELECT COUNT(*) FROM {$this->table} WHERE emisor = 'institucion' AND leido = 0"
         );
+        return (int)$stmt->fetchColumn();
+    }
+
+    // Contador de no leidos para una institucion (mensajes del admin hacia ella)
+    public function totalNoLeidosInstitucion(int $idInstitucion): int {
+        $stmt = $this->db->prepare(
+            "SELECT COUNT(*) FROM {$this->table}
+             WHERE idInstitucion = :id AND emisor = 'admin' AND leido = 0"
+        );
+        $stmt->execute([':id' => $idInstitucion]);
         return (int)$stmt->fetchColumn();
     }
 }

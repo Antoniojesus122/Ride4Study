@@ -52,3 +52,36 @@ $router->get('/institution/students', function () {
     $controller = new InstitucionController();
     $controller->students();
 });
+
+// Mensajeria institucion <-> admin
+$router->any('/institution/messages', function () {
+    require_once __DIR__ . '/../app/controllers/InstitucionMessageController.php';
+    (new InstitucionMessageController())->index();
+});
+
+$router->post('/institution/messages/send', function () {
+    require_once __DIR__ . '/../app/controllers/InstitucionMessageController.php';
+    (new InstitucionMessageController())->send();
+});
+
+// Perfil de la institucion
+$router->any('/institution/profile', function () {
+    require_once __DIR__ . '/../app/controllers/InstitucionProfileController.php';
+    (new InstitucionProfileController())->index();
+});
+
+$router->post('/institution/profile/update', function () {
+    require_once __DIR__ . '/../app/controllers/InstitucionProfileController.php';
+    (new InstitucionProfileController())->update();
+});
+
+$router->post('/institution/profile/password', function () {
+    require_once __DIR__ . '/../app/controllers/InstitucionProfileController.php';
+    (new InstitucionProfileController())->changePassword();
+});
+
+// Exportar estudiantes a CSV
+$router->get('/institution/students/export', function () {
+    require_once __DIR__ . '/../app/controllers/InstitucionController.php';
+    (new InstitucionController())->exportStudents();
+});

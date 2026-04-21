@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 20-04-2026 a las 08:33:44
+-- Tiempo de generación: 21-04-2026 a las 23:26:18
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.0.28
 
@@ -20,6 +20,41 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `if0_40294789_ride4study`
 --
+
+DELIMITER $$
+--
+-- Procedimientos
+--
+CREATE DEFINER=`root`@`localhost` PROCEDURE `add_fk_if_not_exists` (IN `p_table` VARCHAR(64), IN `p_fk` VARCHAR(64), IN `p_sql` TEXT)   BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = p_table
+          AND CONSTRAINT_NAME = p_fk
+          AND CONSTRAINT_TYPE = 'FOREIGN KEY'
+    ) THEN
+        SET @stmt = p_sql;
+        PREPARE s FROM @stmt;
+        EXECUTE s;
+        DEALLOCATE PREPARE s;
+    END IF;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `add_index_if_not_exists` (IN `p_table` VARCHAR(64), IN `p_index` VARCHAR(64), IN `p_sql` TEXT)   BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM INFORMATION_SCHEMA.STATISTICS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = p_table
+          AND INDEX_NAME = p_index
+    ) THEN
+        SET @stmt = p_sql;
+        PREPARE s FROM @stmt;
+        EXECUTE s;
+        DEALLOCATE PREPARE s;
+    END IF;
+END$$
+
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -64,7 +99,9 @@ INSERT INTO `admin_logs` (`idLog`, `idAdmin`, `accion`, `entidad`, `idEntidad`, 
 (19, 1, 'resolver_reporte', 'reporte', 8, 'Accion: resolver', '::1', '2026-03-31 21:01:19'),
 (20, 1, 'aprobar_verificacion', 'usuario', 1, 'Antonio Jesús', '::1', '2026-03-31 21:03:33'),
 (21, 1, 'eliminar', 'institucion', 1, '', '::1', '2026-03-31 23:46:39'),
-(22, 1, 'crear', 'institucion', 2, 'IES La Arboleda', '::1', '2026-04-01 00:11:25');
+(22, 1, 'crear', 'institucion', 2, 'IES La Arboleda', '::1', '2026-04-01 00:11:25'),
+(23, 1, 'enviar', 'mensaje_institucion', 1, 'Institucion: IES La Arboleda | Asunto: Prueba', '::1', '2026-04-21 18:58:06'),
+(24, 1, 'enviar_notificacion_masiva', 'notificacion', NULL, 'Filtro: todos, Enviadas: 5', '::1', '2026-04-21 19:15:19');
 
 -- --------------------------------------------------------
 
@@ -180,34 +217,6 @@ INSERT INTO `badges` (`id`, `clave`, `categoria`, `icono`, `color`, `nivel`, `co
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `configuracion`
---
-
-CREATE TABLE `configuracion` (
-  `clave` varchar(100) NOT NULL,
-  `valor` text NOT NULL,
-  `tipo` varchar(20) DEFAULT 'string',
-  `descripcion` varchar(255) DEFAULT NULL,
-  `actualizado_en` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `configuracion`
---
-
-INSERT INTO `configuracion` (`clave`, `valor`, `tipo`, `descripcion`, `actualizado_en`) VALUES
-('contacto_email', 'soporte@ride4study.com', 'string', 'Email soporte', '2026-03-29 17:44:55'),
-('mantenimiento', '0', 'bool', 'Modo mantenimiento', '2026-03-29 17:44:55'),
-('max_anuncios_gratis', '10', 'int', 'Max anuncios gratis', '2026-03-29 17:44:55'),
-('max_evidencia_mb', '5', 'int', 'Max MB evidencia', '2026-03-29 17:44:55'),
-('motivos_reporte', '[\"spam\",\"ofensivo\",\"suplantacion\",\"inapropiado\",\"fraude\",\"otro\"]', 'json', 'Motivos de reporte', '2026-03-29 17:44:55'),
-('premium_dias_defecto', '30', 'int', 'Dias de premium por defecto', '2026-03-29 17:44:55'),
-('premium_precio_cents', '499', 'int', 'Precio premium en centimos', '2026-03-29 17:44:55'),
-('suspension_dias_defecto', '7', 'int', 'Dias suspension defecto', '2026-03-29 17:44:55');
-
--- --------------------------------------------------------
-
---
 -- Estructura de tabla para la tabla `conversations`
 --
 
@@ -275,7 +284,7 @@ CREATE TABLE `instituciones` (
 --
 
 INSERT INTO `instituciones` (`idInstitucion`, `nombre`, `correo`, `telefono`, `direccion`, `logo`, `descripcion`, `contrasena`, `activo`, `ultimo_acceso`, `codigo_2fa`, `expiracion_2fa`, `intentos_2fa`, `creado_en`) VALUES
-(2, 'IES La Arboleda', 'antonio.jesus.gonzalez.domingo@ieslaarboleda.es', '624897163', 'Avenida Arboleda', '', 'Instituto IES La Arboleda de Lepe', '$2y$10$0zDjvQQQcrpkoPufGy8CSu8lisFhsUCNe5vHva4t/SkOIGrC1Hr.y', 1, '2026-04-01 16:19:59', NULL, NULL, 0, '2026-04-01 00:11:25');
+(2, 'IES La Arboleda', 'antonio.jesus.gonzalez.domingo@ieslaarboleda.es', '624897163', 'Avenida Arboleda', '', 'Instituto IES La Arboleda de Lepe', '$2y$10$0zDjvQQQcrpkoPufGy8CSu8lisFhsUCNe5vHva4t/SkOIGrC1Hr.y', 1, '2026-04-21 23:05:45', NULL, NULL, 0, '2026-04-01 00:11:25');
 
 -- --------------------------------------------------------
 
@@ -366,13 +375,22 @@ INSERT INTO `mensajes` (`idMensaje`, `idConversation`, `idEmisor`, `idReceptor`,
 CREATE TABLE `mensajes_instituciones` (
   `idMensaje` int(11) NOT NULL,
   `idInstitucion` int(11) NOT NULL,
-  `idAdmin` int(11) NOT NULL,
+  `idAdmin` int(11) DEFAULT NULL,
   `asunto` varchar(255) NOT NULL,
   `mensaje` text NOT NULL,
   `emisor` enum('admin','institucion') NOT NULL,
   `leido` tinyint(1) NOT NULL DEFAULT 0,
   `creado_en` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `mensajes_instituciones`
+--
+
+INSERT INTO `mensajes_instituciones` (`idMensaje`, `idInstitucion`, `idAdmin`, `asunto`, `mensaje`, `emisor`, `leido`, `creado_en`) VALUES
+(1, 2, 1, 'Prueba', 'Esto es una prueba', 'admin', 1, '2026-04-21 18:58:06'),
+(8, 2, NULL, 'Prueba', 'few', 'institucion', 1, '2026-04-21 23:24:19'),
+(9, 2, NULL, 'fer', 'fe', 'institucion', 1, '2026-04-21 23:24:22');
 
 -- --------------------------------------------------------
 
@@ -435,7 +453,13 @@ INSERT INTO `notificaciones` (`idNotificacion`, `idUsuario`, `tipoNotificacion`,
 (42, 30, 'sistema', 'Tu viaje Lepe → Huelva se ha completado. ¡Valora tu experiencia!', '2026-04-02 15:44:08', 1, 'fas fa-check-double', '/Ride4Study/rate?viaje=25'),
 (43, 29, 'sistema', 'Tu viaje Lepe → Huelva se ha completado. ¡Valora tu experiencia!', '2026-04-02 15:44:12', 1, 'fas fa-check-double', '/Ride4Study/rate?viaje=26'),
 (44, 30, 'sistema', 'Paco te ha dejado una valoracion en el viaje Lepe -> Huelva. (5/5)', '2026-04-02 16:01:22', 0, 'fas fa-star', '/Ride4Study/profile'),
-(45, 29, 'sistema', 'Manuel Hernandez ha solicitado plaza en tu viaje Lepe → Huelva.', '2026-04-19 19:15:06', 1, 'fas fa-user-plus', '/Ride4Study/my-rides?tab=requests');
+(45, 29, 'sistema', 'Manuel Hernandez ha solicitado plaza en tu viaje Lepe → Huelva.', '2026-04-19 19:15:06', 1, 'fas fa-user-plus', '/Ride4Study/my-rides?tab=requests'),
+(46, 9, 'sistema', 'Tu suscripcion Premium expira el 25/04/2026. Renuevala para seguir disfrutando de las ventajas.', '2026-04-21 18:13:39', 0, 'fas fa-exclamation-triangle', '/Ride4Study/premium'),
+(47, 9, 'sistema', 'bfsdv', '2026-04-21 19:15:19', 0, 'fas fa-bullhorn', ''),
+(48, 24, 'sistema', 'bfsdv', '2026-04-21 19:15:19', 0, 'fas fa-bullhorn', ''),
+(49, 29, 'sistema', 'bfsdv', '2026-04-21 19:15:19', 1, 'fas fa-bullhorn', ''),
+(50, 30, 'sistema', 'bfsdv', '2026-04-21 19:15:19', 0, 'fas fa-bullhorn', ''),
+(51, 31, 'sistema', 'bfsdv', '2026-04-21 19:15:19', 0, 'fas fa-bullhorn', '');
 
 -- --------------------------------------------------------
 
@@ -454,6 +478,13 @@ CREATE TABLE `notificaciones_masivas` (
   `total_enviados` int(11) DEFAULT 0,
   `creado_en` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `notificaciones_masivas`
+--
+
+INSERT INTO `notificaciones_masivas` (`idBroadcast`, `idAdmin`, `mensaje`, `icono`, `url`, `filtro_tipo`, `filtro_valor`, `total_enviados`, `creado_en`) VALUES
+(1, 1, 'bfsdv', 'fas fa-bullhorn', '', 'todos', '', 5, '2026-04-21 19:15:19');
 
 -- --------------------------------------------------------
 
@@ -750,12 +781,6 @@ ALTER TABLE `badges`
   ADD UNIQUE KEY `clave` (`clave`);
 
 --
--- Indices de la tabla `configuracion`
---
-ALTER TABLE `configuracion`
-  ADD PRIMARY KEY (`clave`);
-
---
 -- Indices de la tabla `conversations`
 --
 ALTER TABLE `conversations`
@@ -914,7 +939,7 @@ ALTER TABLE `viajes`
 -- AUTO_INCREMENT de la tabla `admin_logs`
 --
 ALTER TABLE `admin_logs`
-  MODIFY `idLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `idLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT de la tabla `anuncios`
@@ -962,19 +987,19 @@ ALTER TABLE `mensajes`
 -- AUTO_INCREMENT de la tabla `mensajes_instituciones`
 --
 ALTER TABLE `mensajes_instituciones`
-  MODIFY `idMensaje` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idMensaje` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
 --
 ALTER TABLE `notificaciones`
-  MODIFY `idNotificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+  MODIFY `idNotificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones_masivas`
 --
 ALTER TABLE `notificaciones_masivas`
-  MODIFY `idBroadcast` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idBroadcast` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `pagos_premium`
@@ -1062,7 +1087,7 @@ ALTER TABLE `mensajes`
 -- Filtros para la tabla `mensajes_instituciones`
 --
 ALTER TABLE `mensajes_instituciones`
-  ADD CONSTRAINT `fk_mensajes_inst_admin` FOREIGN KEY (`idAdmin`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_mensajes_inst_admin` FOREIGN KEY (`idAdmin`) REFERENCES `usuarios` (`idUsuario`) ON DELETE SET NULL,
   ADD CONSTRAINT `fk_mensajes_inst_institucion` FOREIGN KEY (`idInstitucion`) REFERENCES `instituciones` (`idInstitucion`) ON DELETE CASCADE;
 
 --

@@ -2,6 +2,7 @@
 
     require_once __DIR__ . '/../../config/database.php';
     require_once __DIR__ . '/../models/Institution.php';
+    require_once __DIR__ . '/../models/MensajeInstitucion.php';
 
     // Controlador principal del panel de instituciones
     class InstitucionController {
@@ -29,8 +30,19 @@
             // Estadisticas principales
             $stats = $this->getStats($instName);
 
-            // Datos para graficas (viajes por mes, ultimos 6 meses)
-            $chartData = $this->getMonthlyTripsData($instName);
+            // Nuevos estudiantes este mes + variacion vs mes anterior
+            $stats['newStudentsMonth'] = $this->getNewStudentsCount($instName, 'current');
+            $prev = $this->getNewStudentsCount($instName, 'prev');
+            $stats['newStudentsPrev']  = $prev;
+            $stats['newStudentsDelta'] = $stats['newStudentsMonth'] - $prev;
+
+            // Mensajes sin leer del admin
+            $mensajes = new MensajeInstitucion($this->db);
+            $stats['unreadMessages'] = $mensajes->totalNoLeidosInstitucion($instId);
+
+            // Periodo para la grafica de viajes
+            $periodo = resolvePeriod($_GET);
+            $chartData = $this->getTripsChartData($instName, $periodo);
 
             // Ultimos estudiantes registrados
             $recentStudents = $this->getRecentStudents($instName, 5);
@@ -39,6 +51,74 @@
             $topRoutes = $this->getTopRoutes($instName, 5);
 
             require_once __DIR__ . '/../../views/institucion/dashboard.view.php';
+        }
+
+        // Nuevos estudiantes registrados en el mes indicado
+        private function getNewStudentsCount(string $instName, string $mes): int {
+            if ($mes === 'prev') {
+                $where = "DATE_FORMAT(creado_en, '%Y-%m') = DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m')";
+            } else {
+                $where = "DATE_FORMAT(creado_en, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')";
+            }
+            $stmt = $this->db->prepare("SELECT COUNT(*) FROM usuarios WHERE institucion = :n AND {$where}");
+            $stmt->execute([':n' => $instName]);
+            return (int)$stmt->fetchColumn();
+        }
+
+        // Datos grafica de viajes segun periodo 
+        private function getTripsChartData(string $instName, array $periodo): array {
+            // Si no hay periodo o es rango corto, usamos dias; si es largo, meses
+            $from = $periodo['from'] ?: date('Y-m-d', strtotime('-6 months'));
+            $to   = $periodo['to']   ?: date('Y-m-d');
+
+            $daysDiff = (strtotime($to) - strtotime($from)) / 86400;
+            $groupByMonth = $daysDiff > 90;
+
+            if ($groupByMonth) {
+                $stmt = $this->db->prepare("
+                    SELECT DATE_FORMAT(a.fechaSalida, '%Y-%m') as bucket, COUNT(*) as total
+                    FROM anuncios a
+                    JOIN usuarios u ON a.idUsuario = u.idUsuario
+                    WHERE u.institucion = :n
+                      AND a.fechaSalida BETWEEN :f AND :t
+                    GROUP BY bucket ORDER BY bucket ASC
+                ");
+            } else {
+                $stmt = $this->db->prepare("
+                    SELECT DATE(a.fechaSalida) as bucket, COUNT(*) as total
+                    FROM anuncios a
+                    JOIN usuarios u ON a.idUsuario = u.idUsuario
+                    WHERE u.institucion = :n
+                      AND a.fechaSalida BETWEEN :f AND :t
+                    GROUP BY bucket ORDER BY bucket ASC
+                ");
+            }
+            $stmt->execute([':n' => $instName, ':f' => $from . ' 00:00:00', ':t' => $to . ' 23:59:59']);
+            $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+            $labels = []; $values = [];
+            $months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+            if ($groupByMonth) {
+                $cursor = strtotime(date('Y-m-01', strtotime($from)));
+                $end    = strtotime(date('Y-m-01', strtotime($to)));
+                while ($cursor <= $end) {
+                    $key = date('Y-m', $cursor);
+                    $labels[] = $months[(int)date('n', $cursor) - 1];
+                    $values[] = (int)($rows[$key] ?? 0);
+                    $cursor = strtotime('+1 month', $cursor);
+                }
+            } else {
+                $cursor = strtotime($from);
+                $end    = strtotime($to);
+                while ($cursor <= $end) {
+                    $key = date('Y-m-d', $cursor);
+                    $labels[] = date('d/m', $cursor);
+                    $values[] = (int)($rows[$key] ?? 0);
+                    $cursor = strtotime('+1 day', $cursor);
+                }
+            }
+            return ['labels' => $labels, 'values' => $values];
         }
 
         // Obtener estadisticas generales
@@ -169,22 +249,106 @@
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        // Lista de estudiantes
+        // Construir WHERE de filtros para estudiantes
+        private function buildStudentFilters(string $instName, array $get, array &$params): string {
+            $where = " WHERE u.institucion = :nombre ";
+            $params[':nombre'] = $instName;
+
+            $verif = $get['verificado'] ?? '';
+            if ($verif === 'verificado' || $verif === 'no_verificado') {
+                $where .= " AND u.estado_verificacion = :verif ";
+                $params[':verif'] = $verif;
+            } elseif ($verif === 'pendiente') {
+                $where .= " AND u.estado_verificacion = 'pendiente' ";
+            }
+
+            $anuncios = $get['anuncios'] ?? '';
+            if ($anuncios === 'con') {
+                $where .= " AND EXISTS (SELECT 1 FROM anuncios a WHERE a.idUsuario = u.idUsuario) ";
+            } elseif ($anuncios === 'sin') {
+                $where .= " AND NOT EXISTS (SELECT 1 FROM anuncios a WHERE a.idUsuario = u.idUsuario) ";
+            }
+
+            $search = trim($get['search'] ?? '');
+            if ($search !== '') {
+                $where .= " AND (u.nombre LIKE :s OR u.correo LIKE :s2) ";
+                $params[':s']  = '%' . $search . '%';
+                $params[':s2'] = '%' . $search . '%';
+            }
+
+            $periodo = resolvePeriod($get);
+            if ($periodo['from'] !== '') {
+                $where .= " AND u.creado_en >= :pfrom ";
+                $params[':pfrom'] = $periodo['from'] . ' 00:00:00';
+            }
+            if ($periodo['to'] !== '') {
+                $where .= " AND u.creado_en <= :pto ";
+                $params[':pto'] = $periodo['to'] . ' 23:59:59';
+            }
+
+            return $where;
+        }
+
+        // Lista de estudiantes con filtros server-side
         public function students(): void {
             $instName = $_SESSION['institution_name'] ?? '';
 
-            $stmt = $this->db->prepare("
-                SELECT u.idUsuario, u.nombre, u.correo, u.foto_perfil, u.creado_en,
-                    u.estado_verificacion,
-                    (SELECT COUNT(*) FROM anuncios a WHERE a.idUsuario = u.idUsuario) as num_viajes,
-                    (SELECT AVG(v.puntuacion) FROM valoraciones v WHERE v.idValorado = u.idUsuario) as valoracion_media
-                FROM usuarios u
-                WHERE u.institucion = :nombre
-                ORDER BY u.creado_en DESC
-            ");
-            $stmt->execute([':nombre' => $instName]);
+            $params = [];
+            $where = $this->buildStudentFilters($instName, $_GET, $params);
+
+            $sql = "SELECT u.idUsuario, u.nombre, u.correo, u.foto_perfil, u.creado_en,
+                        u.estado_verificacion,
+                        (SELECT COUNT(*) FROM anuncios a WHERE a.idUsuario = u.idUsuario) as num_viajes,
+                        (SELECT AVG(v.puntuacion) FROM valoraciones v WHERE v.idValorado = u.idUsuario) as valoracion_media
+                    FROM usuarios u
+                    {$where}
+                    ORDER BY u.creado_en DESC";
+
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute($params);
             $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             require_once __DIR__ . '/../../views/institucion/students.view.php';
+        }
+
+        // Exportar a CSV con los mismos filtros
+        public function exportStudents(): void {
+            $instName = $_SESSION['institution_name'] ?? '';
+
+            $params = [];
+            $where = $this->buildStudentFilters($instName, $_GET, $params);
+
+            $sql = "SELECT u.idUsuario, u.nombre, u.correo, u.telefono, u.creado_en,
+                        u.estado_verificacion,
+                        (SELECT COUNT(*) FROM anuncios a WHERE a.idUsuario = u.idUsuario) as num_viajes,
+                        (SELECT AVG(v.puntuacion) FROM valoraciones v WHERE v.idValorado = u.idUsuario) as valoracion_media
+                    FROM usuarios u
+                    {$where}
+                    ORDER BY u.creado_en DESC";
+
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute($params);
+
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="estudiantes_' . date('Y-m-d') . '.csv"');
+
+            $out = fopen('php://output', 'w');
+            fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fputcsv($out, ['ID', 'Nombre', 'Correo', 'Telefono', 'Verificacion', 'Anuncios', 'Valoracion media', 'Fecha registro'], ';');
+
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                fputcsv($out, [
+                    $row['idUsuario'],
+                    $row['nombre'],
+                    $row['correo'],
+                    $row['telefono'] ?? '',
+                    $row['estado_verificacion'] ?? '',
+                    (int)$row['num_viajes'],
+                    $row['valoracion_media'] ? number_format((float)$row['valoracion_media'], 1) : '',
+                    $row['creado_en'],
+                ], ';');
+            }
+            fclose($out);
+            exit;
         }
     }

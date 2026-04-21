@@ -6,8 +6,26 @@
     <?php require_once __DIR__ . '/layout/topbar.view.php'; ?>
     <div class="flex-1 p-10">
 
+    <!-- Widget de mensajes sin leer (si hay) -->
+    <?php if (!empty($stats['unreadMessages'])): ?>
+    <a href="<?= url('/institution/messages') ?>" class="block mb-6 bg-gradient-to-r from-red-500/10 to-red-500/5 border border-red-500/30 rounded-xl p-5 hover:from-red-500/15 transition group">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center shrink-0">
+                <i class="fas fa-envelope text-xl" aria-hidden="true"></i>
+            </div>
+            <div class="flex-1">
+                <p class="text-base font-semibold text-white">
+                    Tienes <?= (int)$stats['unreadMessages'] ?> mensaje<?= (int)$stats['unreadMessages'] !== 1 ? 's' : '' ?> sin leer del administrador
+                </p>
+                <p class="text-sm text-gray-400 mt-0.5">Pulsa para ver los hilos pendientes de respuesta.</p>
+            </div>
+            <i class="fas fa-arrow-right text-gray-400 group-hover:text-white transition" aria-hidden="true"></i>
+        </div>
+    </a>
+    <?php endif; ?>
+
     <!-- Tarjetas de estadisticas -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-10">
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
             <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center mb-3">
                 <i class="fas fa-users text-blue-400" aria-hidden="true"></i>
@@ -43,15 +61,36 @@
             <p class="text-3xl font-bold text-white"><?= $stats['co2Saved'] ?> <span class="text-lg text-gray-500">kg</span></p>
             <p class="text-xs text-gray-500 mt-1">CO2 ahorrado</p>
         </div>
+        <!-- Nuevos estudiantes este mes + delta -->
+        <?php $delta = (int)($stats['newStudentsDelta'] ?? 0); ?>
+        <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
+            <div class="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center mb-3">
+                <i class="fas fa-user-plus text-purple-400" aria-hidden="true"></i>
+            </div>
+            <p class="text-3xl font-bold text-white"><?= (int)$stats['newStudentsMonth'] ?></p>
+            <p class="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                <span>Nuevos este mes</span>
+                <?php if ($delta > 0): ?>
+                    <span class="text-green-400 font-semibold">+<?= $delta ?></span>
+                <?php elseif ($delta < 0): ?>
+                    <span class="text-red-400 font-semibold"><?= $delta ?></span>
+                <?php else: ?>
+                    <span class="text-gray-600">=</span>
+                <?php endif; ?>
+                <span class="text-gray-600">vs mes anterior</span>
+            </p>
+        </div>
     </div>
 
     <!-- Graficas y tablas -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-        <!-- Grafica: Viajes por mes -->
+        <!-- Grafica: Viajes (con filtro de periodo) -->
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-base font-semibold text-white">Viajes por mes</h3>
-                <span class="text-xs text-gray-500">Ultimos 6 meses</span>
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+                <h3 class="text-base font-semibold text-white">Viajes publicados</h3>
+                <form method="GET" action="<?= url('/institution/dashboard') ?>" class="flex items-center gap-2" onchange="this.submit()">
+                    <?php renderPeriodFilter($_GET); ?>
+                </form>
             </div>
             <div class="h-64">
                 <canvas id="chartTrips"></canvas>
