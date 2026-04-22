@@ -183,17 +183,24 @@ class MessageController {
 
         $userId         = (int) $_SESSION['user_id'];
         $conversationId = isset($_POST['conversation_id']) ? (int) $_POST['conversation_id'] : 0;
-        $receiverId     = isset($_POST['receiver_id'])     ? (int) $_POST['receiver_id']     : 0;
         $mensaje        = $_POST['message'] ?? '';
 
         // Validaciones
-        if ($conversationId <= 0 || $receiverId <= 0 || trim($mensaje) === '') {
+        if ($conversationId <= 0 || trim($mensaje) === '') {
             header('Location: ' . url('/messages'));
             exit;
         }
 
-        // Verificar que el usuario pertenece a la conversación
-        if (!$this->conversation->belongsToUser($conversationId, $userId)) {
+        // Cargar la conversación y derivar el receptor server-side
+        $conv = $this->conversation->getByIdForUser($conversationId, $userId);
+        if (!$conv) {
+            header('Location: ' . url('/messages'));
+            exit;
+        }
+        $user1 = (int) $conv['user1_id'];
+        $user2 = (int) $conv['user2_id'];
+        $receiverId = ($userId === $user1) ? $user2 : $user1;
+        if ($receiverId <= 0 || $receiverId === $userId) {
             header('Location: ' . url('/messages'));
             exit;
         }
@@ -410,7 +417,11 @@ class MessageController {
                 $driverName = $driver['nombre'] ?? 'Un conductor';
 
                 $rideStmt = $this->db->prepare(
-                    "SELECT nombreOrigen, nombreDestino FROM anuncios WHERE idAnuncio = :id"
+                    "SELECT lo.nombreLocalidad AS nombreOrigen, ld.nombreLocalidad AS nombreDestino
+                     FROM anuncios a
+                     JOIN localidades lo ON a.origen = lo.idLocalidad
+                     JOIN localidades ld ON a.destino = ld.idLocalidad
+                     WHERE a.idAnuncio = :id"
                 );
                 $rideStmt->execute([':id' => $anuncioId]);
                 $rideInfo = $rideStmt->fetch(PDO::FETCH_ASSOC);
@@ -419,7 +430,7 @@ class MessageController {
 
                 $this->notification->create(
                     (int)$anuncio['idUsuario'],
-                    htmlspecialchars($driverName) . ' ' . t('notif.ride_offered') . ' ' . $origen . ' → ' . $destino . '.',
+                    htmlspecialchars($driverName) . ' ' . t('notif.ride_offered') . ' ' . htmlspecialchars($origen) . ' → ' . htmlspecialchars($destino) . '.',
                     'fas fa-car',
                     url('/my-rides') . '?tab=requests'
                 );
