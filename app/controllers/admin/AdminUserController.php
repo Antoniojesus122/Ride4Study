@@ -154,7 +154,7 @@ class AdminUserController {
                 Nos complace informarte de que tu verificación de estudiante ha sido <strong style="color:#34d399;">aprobada</strong>.<br><br>
                 A partir de ahora aparecerás como estudiante verificado en Ride4Study, lo que generará más confianza en la comunidad.',
                 '✓ Estudiante verificado',
-                url('/dashboard'),
+                fullUrl('/dashboard'),
                 'Ir al panel'
             );
             $this->mailService->send($userData['correo'], $userData['nombre'], 'Verificación aprobada · Ride4Study', $html);
@@ -197,7 +197,7 @@ class AdminUserController {
                 Lamentamos informarte de que tu solicitud de verificación de estudiante no ha podido ser aprobada.' . $reasonText . '<br><br>
                 Puedes volver a enviar tu documentación desde tu perfil si lo deseas.',
                 null,
-                url('/profile') . '?tab=verification',
+                fullUrl('/profile') . '?tab=verification',
                 'Volver a intentarlo'
             );
             $this->mailService->send($userData['correo'], $userData['nombre'], 'Verificación no aprobada · Ride4Study', $html);
