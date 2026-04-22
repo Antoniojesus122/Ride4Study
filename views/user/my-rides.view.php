@@ -59,6 +59,42 @@
         </div>
     <?php endif; ?>
 
+    <!-- Barra de filtros -->
+    <div class="mb-6 bg-surface/40 border border-gray-700/60 rounded-2xl p-4 flex flex-wrap gap-3 items-end">
+        <div class="flex-1 min-w-[220px]">
+            <label for="mr-search" class="text-xs text-gray-500 font-medium mb-1.5 block uppercase tracking-wide">
+                <i class="fas fa-search mr-1" aria-hidden="true"></i> Buscar ciudad
+            </label>
+            <input id="mr-search" type="text" placeholder="Origen o destino..."
+                   class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:border-primary focus:outline-none transition-colors">
+        </div>
+        <div class="w-full sm:w-40">
+            <label for="mr-tipo" class="text-xs text-gray-500 font-medium mb-1.5 block uppercase tracking-wide">
+                <i class="fas fa-exchange-alt mr-1" aria-hidden="true"></i> Tipo
+            </label>
+            <select id="mr-tipo" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:border-primary focus:outline-none">
+                <option value="">Todos</option>
+                <option value="ofrezco">Conductor</option>
+                <option value="busco">Pasajero</option>
+            </select>
+        </div>
+        <div class="w-full sm:w-44 hidden" id="mr-estado-wrap">
+            <label for="mr-estado" class="text-xs text-gray-500 font-medium mb-1.5 block uppercase tracking-wide">
+                <i class="fas fa-clipboard-check mr-1" aria-hidden="true"></i> Estado
+            </label>
+            <select id="mr-estado" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:border-primary focus:outline-none">
+                <option value="">Todos</option>
+                <option value="pendiente">Pendiente</option>
+                <option value="aceptado">Confirmado</option>
+                <option value="completado">Completado</option>
+                <option value="rechazado">Rechazado</option>
+            </select>
+        </div>
+        <button type="button" id="mr-clear" class="px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors border border-gray-700">
+            <i class="fas fa-xmark mr-1" aria-hidden="true"></i> Limpiar
+        </button>
+    </div>
+
     <!-- Pestañas de los anuncios -->
     <div class="mb-8 border-b border-gray-700">
         <nav class="-mb-px flex space-x-8" aria-label="Tabs">
@@ -95,9 +131,15 @@
         <?php else: ?>
             <div class="grid grid-cols-1 gap-6" id="grid-active">
                 <?php foreach ($activeRides as $ride): ?>
-                    <div class="paginated-item-active"><?= renderRideCard($ride, true, $isPremium) ?></div>
+                    <div class="paginated-item-active"
+                         data-origin="<?= htmlspecialchars(mb_strtolower($ride['nombreOrigen'] ?? '')) ?>"
+                         data-dest="<?= htmlspecialchars(mb_strtolower($ride['nombreDestino'] ?? '')) ?>"
+                         data-tipo="<?= htmlspecialchars($ride['tipo']) ?>">
+                        <?= renderRideCard($ride, true, $isPremium) ?>
+                    </div>
                 <?php endforeach; ?>
             </div>
+            <div id="empty-active" class="hidden text-center py-10 text-gray-500 text-sm"><i class="fas fa-filter mr-2"></i><?= t('myrides.filter_no_results') ?? 'Sin resultados con estos filtros.' ?></div>
             <div id="pagination-active" class="mt-6"></div>
         <?php endif; ?>
     </div>
@@ -115,9 +157,15 @@
         <?php else: ?>
             <div class="grid grid-cols-1 gap-6" id="grid-past">
                 <?php foreach ($pastRides as $ride): ?>
-                    <div class="paginated-item-past"><?= renderRideCard($ride, false, false) ?></div>
+                    <div class="paginated-item-past"
+                         data-origin="<?= htmlspecialchars(mb_strtolower($ride['nombreOrigen'] ?? '')) ?>"
+                         data-dest="<?= htmlspecialchars(mb_strtolower($ride['nombreDestino'] ?? '')) ?>"
+                         data-tipo="<?= htmlspecialchars($ride['tipo']) ?>">
+                        <?= renderRideCard($ride, false, false) ?>
+                    </div>
                 <?php endforeach; ?>
             </div>
+            <div id="empty-past" class="hidden text-center py-10 text-gray-500 text-sm"><i class="fas fa-filter mr-2"></i><?= t('myrides.filter_no_results') ?? 'Sin resultados con estos filtros.' ?></div>
             <div id="pagination-past" class="mt-6"></div>
         <?php endif; ?>
     </div>
@@ -136,9 +184,16 @@
         <?php else: ?>
             <div class="grid grid-cols-1 gap-6" id="grid-bookings">
                 <?php foreach ($activeBookings as $booking): ?>
-                    <div class="paginated-item-bookings"><?= renderBookingCard($booking) ?></div>
+                    <div class="paginated-item-bookings"
+                         data-origin="<?= htmlspecialchars(mb_strtolower($booking['nombreOrigen'] ?? '')) ?>"
+                         data-dest="<?= htmlspecialchars(mb_strtolower($booking['nombreDestino'] ?? '')) ?>"
+                         data-tipo="<?= htmlspecialchars($booking['tipo']) ?>"
+                         data-estado="<?= htmlspecialchars($booking['estadoReserva']) ?>">
+                        <?= renderBookingCard($booking) ?>
+                    </div>
                 <?php endforeach; ?>
             </div>
+            <div id="empty-bookings" class="hidden text-center py-10 text-gray-500 text-sm"><i class="fas fa-filter mr-2"></i><?= t('myrides.filter_no_results') ?? 'Sin resultados con estos filtros.' ?></div>
             <div id="pagination-bookings" class="mt-6"></div>
         <?php endif; ?>
     </div>
@@ -156,9 +211,16 @@
         <?php else: ?>
             <div class="grid grid-cols-1 gap-6" id="grid-past-bookings">
                 <?php foreach ($pastBookings as $booking): ?>
-                    <div class="paginated-item-past-bookings"><?= renderPastBookingCard($booking) ?></div>
+                    <div class="paginated-item-past-bookings"
+                         data-origin="<?= htmlspecialchars(mb_strtolower($booking['nombreOrigen'] ?? '')) ?>"
+                         data-dest="<?= htmlspecialchars(mb_strtolower($booking['nombreDestino'] ?? '')) ?>"
+                         data-tipo="<?= htmlspecialchars($booking['tipo']) ?>"
+                         data-estado="<?= htmlspecialchars($booking['estadoReserva']) ?>">
+                        <?= renderPastBookingCard($booking) ?>
+                    </div>
                 <?php endforeach; ?>
             </div>
+            <div id="empty-past-bookings" class="hidden text-center py-10 text-gray-500 text-sm"><i class="fas fa-filter mr-2"></i><?= t('myrides.filter_no_results') ?? 'Sin resultados con estos filtros.' ?></div>
             <div id="pagination-past-bookings" class="mt-6"></div>
         <?php endif; ?>
     </div>
@@ -828,37 +890,87 @@ function renderPastBookingCard($booking) {
 </div>
 
 <script>
-// Paginación client-side para las 3 pestañas
-const ITEMS_PER_PAGE = 4;
+// Paginación + filtros client-side para las 4 pestañas
+const ITEMS_PER_PAGE = 6;
+const TABS_META = {
+    'active':        { cls: 'paginated-item-active',        pag: 'pagination-active',        empty: 'empty-active' },
+    'past':          { cls: 'paginated-item-past',          pag: 'pagination-past',          empty: 'empty-past' },
+    'bookings':      { cls: 'paginated-item-bookings',      pag: 'pagination-bookings',      empty: 'empty-bookings' },
+    'past-bookings': { cls: 'paginated-item-past-bookings', pag: 'pagination-past-bookings', empty: 'empty-past-bookings' }
+};
+const ESTADO_TABS = ['bookings', 'past-bookings']; // las que sí tienen estado
 const paginationState = {};
+
+function getActiveFilters() {
+    return {
+        search: (document.getElementById('mr-search')?.value || '').trim().toLowerCase(),
+        tipo:   document.getElementById('mr-tipo')?.value || '',
+        estado: document.getElementById('mr-estado')?.value || ''
+    };
+}
+
+function itemMatches(item, f, tab) {
+    if (f.search) {
+        const o = item.dataset.origin || '';
+        const d = item.dataset.dest || '';
+        if (!o.includes(f.search) && !d.includes(f.search)) return false;
+    }
+    if (f.tipo && item.dataset.tipo !== f.tipo) return false;
+    if (f.estado && ESTADO_TABS.includes(tab)) {
+        if ((item.dataset.estado || '') !== f.estado) return false;
+    }
+    return true;
+}
+
+function applyFiltersAndRebuild() {
+    const f = getActiveFilters();
+    Object.keys(TABS_META).forEach(tab => {
+        const meta = TABS_META[tab];
+        const all = Array.from(document.querySelectorAll('.' + meta.cls));
+        const filtered = all.filter(el => itemMatches(el, f, tab));
+
+        // ocultar los no-match
+        all.forEach(el => { if (!filtered.includes(el)) el.style.display = 'none'; });
+
+        const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+        paginationState[tab] = { items: filtered, totalPages, paginationId: meta.pag, currentPage: 1, emptyId: meta.empty };
+
+        goToPage(tab, 1);
+    });
+}
 
 function goToPage(tabKey, page) {
     const state = paginationState[tabKey];
     if (!state) return;
-
-    const { items, totalPages, paginationId } = state;
+    const { items, totalPages, paginationId, emptyId } = state;
     if (page < 1 || page > totalPages) return;
-
     state.currentPage = page;
 
-    // Mostrar/ocultar items
+    // Mostrar empty state si no hay resultados
+    const emptyEl = document.getElementById(emptyId);
+    if (emptyEl) emptyEl.classList.toggle('hidden', items.length > 0);
+
+    // Mostrar los ítems de la página actual
+    const start = (page - 1) * ITEMS_PER_PAGE;
     items.forEach((item, i) => {
-        const start = (page - 1) * ITEMS_PER_PAGE;
         item.style.display = (i >= start && i < start + ITEMS_PER_PAGE) ? '' : 'none';
     });
 
-    // Renderizar controles de paginación
+    // Controles de paginación
     const container = document.getElementById(paginationId);
     if (!container) return;
 
-    let html = '<div class="flex items-center justify-between bg-surface rounded-xl border border-gray-700 px-5 py-3">';
-    html += '<p class="text-sm text-gray-400"><?= t('myrides.page') ?> <span class="text-white font-semibold">' + page + '</span> <?= t('myrides.of') ?> ' + totalPages + ' <span class="text-gray-500 ml-1">(' + items.length + ' <?= t('myrides.total_items') ?>)</span></p>';
+    if (items.length <= ITEMS_PER_PAGE) {
+        container.innerHTML = '';
+        return;
+    }
+
+    let html = '<div class="flex items-center justify-between bg-surface rounded-xl border border-gray-700 px-5 py-3 flex-wrap gap-3">';
+    html += '<p class="text-sm text-gray-400"><?= t('myrides.page') ?? 'Página' ?> <span class="text-white font-semibold">' + page + '</span> <?= t('myrides.of') ?? 'de' ?> ' + totalPages + ' <span class="text-gray-500 ml-1">(' + items.length + ' <?= t('myrides.total_items') ?? 'resultados' ?>)</span></p>';
     html += '<div class="flex items-center gap-1">';
 
-    // Anterior
-    html += `<button type="button" onclick="goToPage('${tabKey}', ${page - 1})" ${page === 1 ? 'disabled' : ''} class="px-3 py-2 rounded-lg text-sm font-medium transition-colors ${page === 1 ? 'text-gray-600 cursor-not-allowed' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}" aria-label="Página anterior"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>`;
+    html += `<button type="button" onclick="goToPage('${tabKey}', ${page - 1})" ${page === 1 ? 'disabled' : ''} class="px-3 py-2 rounded-lg text-sm font-medium transition-colors ${page === 1 ? 'text-gray-600 cursor-not-allowed' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}"><i class="fas fa-chevron-left"></i></button>`;
 
-    // Números
     const maxVisible = 5;
     let startPage = Math.max(1, page - Math.floor(maxVisible / 2));
     let endPage = Math.min(totalPages, startPage + maxVisible - 1);
@@ -868,43 +980,64 @@ function goToPage(tabKey, page) {
         html += `<button onclick="goToPage('${tabKey}', 1)" class="w-10 h-10 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">1</button>`;
         if (startPage > 2) html += '<span class="px-1 text-gray-600">...</span>';
     }
-
     for (let i = startPage; i <= endPage; i++) {
         const isActive = i === page;
         html += `<button onclick="goToPage('${tabKey}', ${i})" class="w-10 h-10 rounded-lg text-sm font-medium transition-colors ${isActive ? 'bg-primary text-secondary font-bold shadow-lg shadow-primary/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}">${i}</button>`;
     }
-
     if (endPage < totalPages) {
         if (endPage < totalPages - 1) html += '<span class="px-1 text-gray-600">...</span>';
         html += `<button onclick="goToPage('${tabKey}', ${totalPages})" class="w-10 h-10 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">${totalPages}</button>`;
     }
 
-    // Siguiente
-    html += `<button type="button" onclick="goToPage('${tabKey}', ${page + 1})" ${page === totalPages ? 'disabled' : ''} class="px-3 py-2 rounded-lg text-sm font-medium transition-colors ${page === totalPages ? 'text-gray-600 cursor-not-allowed' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}" aria-label="Página siguiente"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>`;
+    html += `<button type="button" onclick="goToPage('${tabKey}', ${page + 1})" ${page === totalPages ? 'disabled' : ''} class="px-3 py-2 rounded-lg text-sm font-medium transition-colors ${page === totalPages ? 'text-gray-600 cursor-not-allowed' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}"><i class="fas fa-chevron-right"></i></button>`;
 
     html += '</div></div>';
     container.innerHTML = html;
-
-    // Scroll arriba suavemente
-    window.scrollTo({ top: 200, behavior: 'smooth' });
 }
 
-function initPagination(tabKey, itemClass, paginationId) {
-    const items = Array.from(document.querySelectorAll('.' + itemClass));
-    if (!items.length) return;
-
-    const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
-    paginationState[tabKey] = { items, totalPages, paginationId, currentPage: 1 };
-
-    if (totalPages <= 1) return;
-    goToPage(tabKey, 1);
+// Mostrar/ocultar selector de estado según pestaña activa
+function updateEstadoFilterVisibility(tab) {
+    const wrap = document.getElementById('mr-estado-wrap');
+    if (!wrap) return;
+    wrap.classList.toggle('hidden', !ESTADO_TABS.includes(tab));
 }
+
+// Hook al switchTab existente para reajustar filtros al cambiar de pestaña
+const _origSwitchTab = window.switchTab;
+window.switchTab = function(tab) {
+    _origSwitchTab(tab);
+    updateEstadoFilterVisibility(tab);
+};
 
 document.addEventListener('DOMContentLoaded', function() {
-    initPagination('active', 'paginated-item-active', 'pagination-active');
-    initPagination('past', 'paginated-item-past', 'pagination-past');
-    initPagination('bookings', 'paginated-item-bookings', 'pagination-bookings');
-    initPagination('past-bookings', 'paginated-item-past-bookings', 'pagination-past-bookings');
+    // Listeners de filtros
+    const search = document.getElementById('mr-search');
+    const tipo   = document.getElementById('mr-tipo');
+    const estado = document.getElementById('mr-estado');
+    const clear  = document.getElementById('mr-clear');
+
+    let debounce;
+    search?.addEventListener('input', () => {
+        clearTimeout(debounce);
+        debounce = setTimeout(applyFiltersAndRebuild, 200);
+    });
+    tipo?.addEventListener('change', applyFiltersAndRebuild);
+    estado?.addEventListener('change', applyFiltersAndRebuild);
+    clear?.addEventListener('click', () => {
+        if (search) search.value = '';
+        if (tipo)   tipo.value   = '';
+        if (estado) estado.value = '';
+        applyFiltersAndRebuild();
+    });
+
+    // Inicializar
+    applyFiltersAndRebuild();
+
+    // Ajustar visibilidad del estado según la pestaña inicial
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    const initialTab = ['bookings', 'past', 'past-bookings'].includes(tabParam) ? tabParam : 'active';
+    updateEstadoFilterVisibility(initialTab);
 });
 </script>
 

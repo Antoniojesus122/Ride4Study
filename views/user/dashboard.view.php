@@ -282,28 +282,33 @@
             <div class="flex items-center justify-center space-x-2 mt-12">
                 <?php
                     $paginationParams = http_build_query(array_filter([
-                        'origen'  => $_GET['origen'] ?? '',
-                        'destino' => $_GET['destino'] ?? '',
-                        'fecha'   => $_GET['fecha'] ?? '',
-                        'tipo'    => $_GET['tipo'] ?? '',
+                        'origen'     => $_GET['origen']     ?? '',
+                        'destino'    => $_GET['destino']    ?? '',
+                        'fecha'      => $_GET['fecha']      ?? '',
+                        'tipo'       => $_GET['tipo']       ?? '',
+                        'precio_max' => $_GET['precio_max'] ?? '',
+                        'plazas_min' => $_GET['plazas_min'] ?? '',
+                        'verificado' => $_GET['verificado'] ?? '',
+                        'orden'      => $_GET['orden']      ?? '',
                     ]));
                     $paginationBase = $paginationParams ? '&' . $paginationParams : '';
+                    $paginationPath = url('/dashboard');
                 ?>
                 <?php if ($currentPage > 1): ?>
-                    <a href="?page=<?= $currentPage - 1 ?><?= $paginationBase ?>" class="p-2 w-10 h-10 flex items-center justify-center rounded-lg border border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
+                    <a href="<?= $paginationPath ?>?page=<?= $currentPage - 1 ?><?= $paginationBase ?>" class="p-2 w-10 h-10 flex items-center justify-center rounded-lg border border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
                         <i class="fas fa-chevron-left" aria-hidden="true"></i>
                     </a>
                 <?php endif; ?>
 
                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="?page=<?= $i ?><?= $paginationBase ?>"
+                    <a href="<?= $paginationPath ?>?page=<?= $i ?><?= $paginationBase ?>"
                     class="w-10 h-10 flex items-center justify-center rounded-lg border <?= $i === $currentPage ? 'bg-primary border-primary text-secondary font-bold' : 'border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white' ?> transition-colors">
                         <?= $i ?>
                     </a>
                 <?php endfor; ?>
 
                 <?php if ($currentPage < $totalPages): ?>
-                    <a href="?page=<?= $currentPage + 1 ?><?= $paginationBase ?>" class="p-2 w-10 h-10 flex items-center justify-center rounded-lg border border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
+                    <a href="<?= $paginationPath ?>?page=<?= $currentPage + 1 ?><?= $paginationBase ?>" class="p-2 w-10 h-10 flex items-center justify-center rounded-lg border border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
                         <i class="fas fa-chevron-right" aria-hidden="true"></i>
                     </a>
                 <?php endif; ?>
