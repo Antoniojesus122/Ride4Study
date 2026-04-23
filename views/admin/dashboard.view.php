@@ -111,9 +111,9 @@
     }
 ?>
 
-<main class="ml-[72px] flex-1 min-h-screen flex flex-col">
+<main class="md:ml-[72px] flex-1 min-w-0 min-h-screen flex flex-col">
     <?php require_once __DIR__ . '/layout/topbar.view.php'; ?>
-    <div class="flex-1 p-10">
+    <div class="flex-1 p-4 sm:p-6 lg:p-10">
 
     <!-- Saludo -->
     <header class="mb-8 flex items-end justify-between flex-wrap gap-4">
@@ -150,7 +150,7 @@
                     </div>
                 </div>
                 <p class="text-3xl font-bold text-white leading-none"><?= (int)$k['value'] ?></p>
-                <p class="text-xs text-gray-400 mt-1.5"><?= htmlspecialchars($k['label']) ?></p>
+                <p class="text-sm text-gray-300 mt-2 font-medium"><?= htmlspecialchars($k['label']) ?></p>
                 <p class="text-xs mt-2 <?= !empty($k['badge_alert']) ? 'text-' . $k['color'] . '-400 font-semibold' : 'text-gray-500' ?>">
                     <?= htmlspecialchars($k['badge']) ?>
                 </p>
@@ -257,7 +257,7 @@
             <?php $pendingReports = is_array($pendingReports) ? $pendingReports : []; ?>
             <?php if (!empty($pendingReports)): ?>
                 <div class="overflow-x-auto">
-                    <table class="w-full">
+                    <table class="w-full min-w-[720px]">
                         <thead>
                             <tr class="border-b border-gray-700">
                                 <th class="pb-3 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">ID</th>

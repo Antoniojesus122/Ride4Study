@@ -2,9 +2,9 @@
 <?php require_once __DIR__ . '/layout/header.view.php'; ?>
 <?php require_once __DIR__ . '/layout/sidebar.view.php'; ?>
 
-<main class="ml-[72px] flex-1 min-h-screen flex flex-col">
+<main class="md:ml-[72px] flex-1 min-w-0 min-h-screen flex flex-col">
     <?php require_once __DIR__ . '/layout/topbar.view.php'; ?>
-    <div class="flex-1 p-10">
+    <div class="flex-1 p-4 sm:p-6 lg:p-10">
 
     <!-- Mensajes -->
     <?php $flashData = $flashData ?? getFlash(); ?>
@@ -22,26 +22,26 @@
     <?php endif; ?>
 
     <!-- Pestañas + boton exportar -->
-    <div class="flex items-center justify-between mb-6">
-        <div class="flex space-x-1.5 bg-gray-800/50 rounded-lg p-1.5 w-fit">
-            <a href="<?= url('/admin/users') ?>?tab=todos" class="px-5 py-2.5 text-base font-medium rounded-md transition <?= $tab === 'todos' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">
-                Todos los usuarios
-                <span class="ml-1.5 text-sm px-2 py-0.5 rounded-full bg-gray-600/50"><?= count($allUsers) ?></span>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <div class="flex flex-wrap space-x-1 sm:space-x-1.5 gap-y-1 bg-gray-800/50 rounded-lg p-1 sm:p-1.5 w-full sm:w-fit overflow-x-auto">
+            <a href="<?= url('/admin/users') ?>?tab=todos" class="shrink-0 px-3 sm:px-5 py-2 sm:py-2.5 text-sm sm:text-base font-medium rounded-md transition whitespace-nowrap <?= $tab === 'todos' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">
+                Todos
+                <span class="ml-1 sm:ml-1.5 text-xs sm:text-sm px-1.5 sm:px-2 py-0.5 rounded-full bg-gray-600/50"><?= count($allUsers) ?></span>
             </a>
-            <a href="<?= url('/admin/users') ?>?tab=verificaciones" class="px-5 py-2.5 text-base font-medium rounded-md transition <?= $tab === 'verificaciones' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">
+            <a href="<?= url('/admin/users') ?>?tab=verificaciones" class="shrink-0 px-3 sm:px-5 py-2 sm:py-2.5 text-sm sm:text-base font-medium rounded-md transition whitespace-nowrap <?= $tab === 'verificaciones' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">
                 Verificaciones
                 <?php if (!empty($pendingUsers)): ?>
-                <span class="ml-1.5 text-sm px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400"><?= count($pendingUsers) ?></span>
+                <span class="ml-1 sm:ml-1.5 text-xs sm:text-sm px-1.5 sm:px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400"><?= count($pendingUsers) ?></span>
                 <?php endif; ?>
             </a>
-            <a href="<?= url('/admin/users') ?>?tab=baneados" class="px-5 py-2.5 text-base font-medium rounded-md transition <?= $tab === 'baneados' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">
+            <a href="<?= url('/admin/users') ?>?tab=baneados" class="shrink-0 px-3 sm:px-5 py-2 sm:py-2.5 text-sm sm:text-base font-medium rounded-md transition whitespace-nowrap <?= $tab === 'baneados' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">
                 Suspendidos
                 <?php if (!empty($bannedUsers)): ?>
-                <span class="ml-1.5 text-sm px-2 py-0.5 rounded-full bg-red-500/20 text-red-400"><?= count($bannedUsers) ?></span>
+                <span class="ml-1 sm:ml-1.5 text-xs sm:text-sm px-1.5 sm:px-2 py-0.5 rounded-full bg-red-500/20 text-red-400"><?= count($bannedUsers) ?></span>
                 <?php endif; ?>
             </a>
         </div>
-        <a href="<?= url('/admin/users') ?>?action=export_csv" class="px-4 py-2.5 text-base font-medium bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/20 transition border border-emerald-500/20">
+        <a href="<?= url('/admin/users') ?>?action=export_csv" class="shrink-0 self-start sm:self-auto px-4 py-2.5 text-sm sm:text-base font-medium bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/20 transition border border-emerald-500/20 text-center">
             Exportar CSV
         </a>
     </div>
@@ -64,44 +64,81 @@
         <?php endif; ?>
 
         <!-- Filtros -->
-        <form method="GET" action="<?= url('/admin/users') ?>" class="flex flex-wrap items-center gap-3 mb-6">
+        <?php
+            $usersAdvFilters = [$_GET['rol'] ?? '', $_GET['verificacion'] ?? '', $_GET['premium_filter'] ?? '', $_GET['institucion'] ?? '', $_GET['anuncios'] ?? ''];
+            $usersActiveAdv = count(array_filter($usersAdvFilters, fn($v) => $v !== '' && $v !== null));
+        ?>
+        <form method="GET" action="<?= url('/admin/users') ?>" class="mb-8">
             <input type="hidden" name="tab" value="todos">
-            <input type="text" name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" placeholder="Buscar por nombre o correo..."
-                   class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-64">
-            <select name="rol" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
-                <option value="">Todos los roles</option>
-                <option value="2" <?= ($_GET['rol'] ?? '') === '2' ? 'selected' : '' ?>>Usuario</option>
-                <option value="4" <?= ($_GET['rol'] ?? '') === '4' ? 'selected' : '' ?>>Institución</option>
-            </select>
-            <select name="verificacion" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
-                <option value="">Verificación</option>
-                <option value="2" <?= ($_GET['verificacion'] ?? '') === '2' ? 'selected' : '' ?>>Verificado</option>
-                <option value="1" <?= ($_GET['verificacion'] ?? '') === '1' ? 'selected' : '' ?>>Pendiente</option>
-                <option value="0" <?= ($_GET['verificacion'] ?? '') === '0' ? 'selected' : '' ?>>No verificado</option>
-            </select>
-            <select name="premium_filter" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
-                <option value="">Premium</option>
-                <option value="1" <?= ($_GET['premium_filter'] ?? '') === '1' ? 'selected' : '' ?>>Si</option>
-                <option value="0" <?= ($_GET['premium_filter'] ?? '') === '0' ? 'selected' : '' ?>>No</option>
-            </select>
-            <select name="institucion" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary max-w-[200px]">
-                <option value="">Todas las instituciones</option>
-                <?php foreach (($instituciones ?? []) as $inst): ?>
-                    <option value="<?= htmlspecialchars($inst) ?>" <?= ($_GET['institucion'] ?? '') === $inst ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($inst) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <select name="anuncios" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
-                <option value="">Anuncios</option>
-                <option value="con" <?= ($_GET['anuncios'] ?? '') === 'con' ? 'selected' : '' ?>>Con anuncios</option>
-                <option value="sin" <?= ($_GET['anuncios'] ?? '') === 'sin' ? 'selected' : '' ?>>Sin anuncios</option>
-            </select>
-            <button type="submit" class="px-5 py-2.5 text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
-            <?php if (!empty($_GET['search']) || !empty($_GET['rol']) || !empty($_GET['verificacion']) || !empty($_GET['premium_filter']) || !empty($_GET['institucion']) || !empty($_GET['anuncios'])): ?>
-                <a href="<?= url('/admin/users') ?>?tab=todos" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
-            <?php endif; ?>
+
+            <!-- Barra principal: búsqueda + filtrar + más filtros (toggle móvil) -->
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <input type="text" name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" placeholder="Buscar por nombre o correo..."
+                       class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm sm:text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-full sm:w-64">
+                <button type="button" onclick="toggleUsersAdvFilters()"
+                        class="sm:hidden w-full flex items-center justify-between px-4 py-2.5 rounded-lg border border-gray-700 bg-gray-800/60 text-sm font-medium text-gray-300 hover:border-gray-600 transition-all"
+                        aria-expanded="<?= $usersActiveAdv > 0 ? 'true' : 'false' ?>" aria-controls="users-adv-filters">
+                    <span class="flex items-center gap-2">
+                        <i class="fas fa-sliders text-xs text-primary" aria-hidden="true"></i>
+                        Más filtros
+                        <?php if ($usersActiveAdv > 0): ?>
+                            <span class="bg-primary text-secondary text-[10px] font-bold px-1.5 py-0.5 rounded-full"><?= $usersActiveAdv ?></span>
+                        <?php endif; ?>
+                    </span>
+                    <i class="fas fa-chevron-down text-xs text-gray-500 transition-transform <?= $usersActiveAdv > 0 ? 'rotate-180' : '' ?>" id="users-adv-chevron" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <!-- Filtros avanzados colapsables -->
+            <div id="users-adv-filters" class="<?= $usersActiveAdv > 0 ? '' : 'hidden' ?> flex flex-col sm:!flex-row sm:flex-wrap sm:items-center gap-3 mt-4">
+                <select name="rol" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm sm:text-base text-gray-200 focus:outline-none focus:border-primary w-full sm:w-auto">
+                    <option value="">Todos los roles</option>
+                    <option value="2" <?= ($_GET['rol'] ?? '') === '2' ? 'selected' : '' ?>>Usuario</option>
+                    <option value="4" <?= ($_GET['rol'] ?? '') === '4' ? 'selected' : '' ?>>Institución</option>
+                </select>
+                <select name="verificacion" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm sm:text-base text-gray-200 focus:outline-none focus:border-primary w-full sm:w-auto">
+                    <option value="">Verificación</option>
+                    <option value="2" <?= ($_GET['verificacion'] ?? '') === '2' ? 'selected' : '' ?>>Verificado</option>
+                    <option value="1" <?= ($_GET['verificacion'] ?? '') === '1' ? 'selected' : '' ?>>Pendiente</option>
+                    <option value="0" <?= ($_GET['verificacion'] ?? '') === '0' ? 'selected' : '' ?>>No verificado</option>
+                </select>
+                <select name="premium_filter" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm sm:text-base text-gray-200 focus:outline-none focus:border-primary w-full sm:w-auto">
+                    <option value="">Premium</option>
+                    <option value="1" <?= ($_GET['premium_filter'] ?? '') === '1' ? 'selected' : '' ?>>Si</option>
+                    <option value="0" <?= ($_GET['premium_filter'] ?? '') === '0' ? 'selected' : '' ?>>No</option>
+                </select>
+                <select name="institucion" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm sm:text-base text-gray-200 focus:outline-none focus:border-primary w-full sm:max-w-[200px]">
+                    <option value="">Todas las instituciones</option>
+                    <?php foreach (($instituciones ?? []) as $inst): ?>
+                        <option value="<?= htmlspecialchars($inst) ?>" <?= ($_GET['institucion'] ?? '') === $inst ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($inst) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <select name="anuncios" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm sm:text-base text-gray-200 focus:outline-none focus:border-primary w-full sm:w-auto">
+                    <option value="">Anuncios</option>
+                    <option value="con" <?= ($_GET['anuncios'] ?? '') === 'con' ? 'selected' : '' ?>>Con anuncios</option>
+                    <option value="sin" <?= ($_GET['anuncios'] ?? '') === 'sin' ? 'selected' : '' ?>>Sin anuncios</option>
+                </select>
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <button type="submit" class="flex-1 sm:flex-none px-5 py-2.5 text-sm sm:text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
+                    <?php if (!empty($_GET['search']) || $usersActiveAdv > 0): ?>
+                        <a href="<?= url('/admin/users') ?>?tab=todos" class="text-sm text-gray-400 hover:text-gray-200 whitespace-nowrap">Limpiar</a>
+                    <?php endif; ?>
+                </div>
+            </div>
         </form>
+        <script>
+            function toggleUsersAdvFilters() {
+                const w = document.getElementById('users-adv-filters');
+                const c = document.getElementById('users-adv-chevron');
+                const b = document.querySelector('[aria-controls="users-adv-filters"]');
+                const open = w.classList.contains('hidden');
+                w.classList.toggle('hidden', !open);
+                if (c) c.classList.toggle('rotate-180', open);
+                if (b) b.setAttribute('aria-expanded', String(open));
+            }
+        </script>
 
         <?php if (empty($allUsers)): ?>
             <div class="text-center py-20">
@@ -114,8 +151,8 @@
                 <p class="text-gray-500 text-sm mt-1">No se encontraron usuarios</p>
             </div>
         <?php else: ?>
-            <div class="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden">
-                <table class="w-full text-sm">
+            <div class="bg-gray-800/50 border border-gray-700 rounded-xl overflow-x-auto">
+                <table class="w-full text-sm min-w-[720px]">
                     <thead><tr class="border-b border-gray-700">
                         <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">ID</th>
                         <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Usuario</th>
@@ -186,6 +223,20 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Paginación -->
+            <?php
+                $usersPagParams = array_filter([
+                    'tab'            => 'todos',
+                    'search'         => $_GET['search']         ?? '',
+                    'rol'            => $_GET['rol']            ?? '',
+                    'verificacion'   => $_GET['verificacion']   ?? '',
+                    'premium_filter' => $_GET['premium_filter'] ?? '',
+                    'institucion'    => $_GET['institucion']    ?? '',
+                    'anuncios'       => $_GET['anuncios']       ?? '',
+                ], fn($v) => $v !== '' && $v !== null);
+                renderPagination((int)($page ?? 1), (int)($totalPages ?? 1), url('/admin/users'), $usersPagParams);
+            ?>
         <?php endif; ?>
     </div>
     <?php endif; ?>

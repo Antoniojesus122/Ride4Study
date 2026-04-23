@@ -2,9 +2,9 @@
 <?php require_once __DIR__ . '/layout/header.view.php'; ?>
 <?php require_once __DIR__ . '/layout/sidebar.view.php'; ?>
 
-<main class="ml-[72px] flex-1 min-h-screen flex flex-col">
+<main class="md:ml-[72px] flex-1 min-w-0 min-h-screen flex flex-col">
     <?php require_once __DIR__ . '/layout/topbar.view.php'; ?>
-    <div class="flex-1 p-10">
+    <div class="flex-1 p-4 sm:p-6 lg:p-10">
 
     <!-- Flash messages -->
     <?php $flashData = $flashData ?? getFlash(); ?>

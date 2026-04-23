@@ -24,7 +24,8 @@
     ];
 ?>
 
-<aside class="admin-sidebar bg-gray-950 border-r border-gray-800 flex flex-col fixed top-0 left-0 h-screen z-30 overflow-hidden">
+<div id="admin-backdrop" class="admin-backdrop" onclick="toggleAdminSidebar(false)"></div>
+<aside id="admin-sidebar" class="admin-sidebar bg-gray-950 border-r border-gray-800 flex flex-col fixed top-0 left-0 h-screen z-30 overflow-hidden">
 
     <!-- Logo -->
     <div class="flex items-center h-[72px] border-b border-gray-800 shrink-0">

@@ -1,6 +1,11 @@
 <?php
 return [
     // NAV / HEADER
+    'nav.login' => 'Entrar',
+    'nav.register' => 'Registrarse',
+    'nav.report_evidence' => 'Adjuntar evidencia (opcional)',
+    'nav.report_evidence_preview' => 'Vista previa de la evidencia adjuntada',
+    'nav.report_evidence_upload' => 'Subir captura de pantalla',
     'nav.search' => 'Buscar',
     'nav.my_rides' => 'Mis viajes',
     'nav.messages' => 'Mensajes',
@@ -102,6 +107,7 @@ return [
 
     // AUTH: LOGIN
     'login.title' => 'Iniciar Sesión - Ride4Study',
+    'login.welcome_badge' => 'Bienvenido de nuevo',
     'login.hello' => '¡Hola de nuevo!',
     'login.no_account' => '¿Aún no tienes cuenta?',
     'login.register_free' => 'Regístrate gratis',
@@ -120,6 +126,7 @@ return [
 
     // AUTH: REGISTER
     'register.title' => 'Crear Cuenta - Ride4Study',
+    'register.badge' => 'Crea tu cuenta gratis',
     'register.hero' => 'Comienza tu viaje',
     'register.has_account' => '¿Ya eres miembro?',
     'register.login_here' => 'Inicia sesión aquí',
@@ -215,6 +222,7 @@ return [
     'dashboard.max_price' => 'Precio max.',
     'dashboard.min_seats' => 'Plazas min.',
     'dashboard.verified_only' => 'Verificados',
+    'dashboard.more_filters' => 'Más filtros',
     'dashboard.sort_relevance' => 'Ordenar por...',
     'dashboard.sort_price_asc' => 'Precio: menor a mayor',
     'dashboard.sort_price_desc' => 'Precio: mayor a menor',
@@ -349,11 +357,16 @@ return [
     'myrides.of' => 'de',
     'myrides.total_items' => 'elementos',
     'myrides.filter_no_results' => 'Sin resultados con estos filtros.',
+    'myrides.tab_active_short' => 'Activos',
+    'myrides.tab_history_short' => 'Historial',
+    'myrides.tab_bookings_short' => 'Reservas',
+    'myrides.tab_past_bookings_short' => 'Histórico',
     'myrides.filter_search_placeholder' => 'Buscar por ciudad (origen o destino)...',
     'myrides.filter_tipo_all' => 'Todos los tipos',
     'myrides.filter_estado_all' => 'Todos los estados',
     'myrides.filter_clear' => 'Limpiar',
     'myrides.complete_trip' => 'Completar viaje',
+    'myrides.complete_title' => 'Finalizar viaje',
     'myrides.complete_confirm' => '¿Marcar este viaje como completado? Los pasajeros aceptados recibirán una notificación.',
     'myrides.completed' => 'Completado',
     'myrides.success_completed' => '¡Viaje marcado como completado! Los pasajeros han sido notificados.',
@@ -405,6 +418,7 @@ return [
     'publish.comments_placeholder' => 'Punto de encuentro exacto, tamaño de equipaje permitido, si aceptas mascotas...',
     'publish.cancel' => 'Cancelar',
     'publish.no_results' => 'No se encontraron resultados',
+    'publish.err_title' => 'Revisa los datos',
     'publish.err_origin' => 'Selecciona una ciudad de origen de la lista de sugerencias.',
     'publish.err_destination' => 'Selecciona una ciudad de destino de la lista de sugerencias.',
     'publish.err_same' => 'El origen y el destino no pueden ser el mismo.',
@@ -414,6 +428,7 @@ return [
 
     // PROFILE
     'profile.change_photo' => 'Cambiar foto',
+    'profile.upload_photo' => 'Subir foto de perfil',
     'profile.premium' => 'Premium',
     'profile.no_location' => 'Sin localidad',
     'profile.report_user' => 'Reportar usuario',
@@ -560,6 +575,7 @@ return [
     'chat.accept_success' => '¡Oferta aceptada con éxito!',
 
     // CHAT LIST 
+    'chatlist.delete_title' => 'Eliminar conversación',
     'chatlist.title' => 'Mensajes',
     'chatlist.subtitle' => 'Tus conversaciones con otros usuarios.',
     'chatlist.no_messages' => 'No hay mensajes aún',
@@ -802,6 +818,7 @@ return [
     'safety.cta_button' => 'Contactar con soporte',
 
     // COOKIES
+    'cookies.banner_title' => 'Consentimiento de cookies',
     'cookies.banner_text' => 'Utilizamos cookies esenciales para el funcionamiento de la plataforma. No usamos cookies de seguimiento ni publicitarias. Puedes obtener más información en nuestra ',
     'cookies.banner_link' => 'Política de Cookies',
     'cookies.accept' => 'Aceptar',

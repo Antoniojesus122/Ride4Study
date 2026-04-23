@@ -2,43 +2,73 @@
 <?php require_once __DIR__ . '/layout/header.view.php'; ?>
 <?php require_once __DIR__ . '/layout/sidebar.view.php'; ?>
 
-<main class="ml-[72px] flex-1 min-h-screen flex flex-col">
+<main class="md:ml-[72px] flex-1 min-w-0 min-h-screen flex flex-col">
     <?php require_once __DIR__ . '/layout/topbar.view.php'; ?>
-    <div class="flex-1 p-10">
+    <div class="flex-1 p-4 sm:p-6 lg:p-10">
 
-    <div class="flex items-center justify-between mb-6">
-        <p class="text-base text-gray-400"><?= count($students) ?> estudiantes <?= !empty($_GET) ? 'filtrados' : 'registrados' ?></p>
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <p class="text-sm sm:text-base text-gray-400"><?= count($students) ?> estudiantes <?= !empty($_GET) ? 'filtrados' : 'registrados' ?></p>
         <a href="<?= url('/institution/students/export') ?><?= !empty($_GET) ? '?' . http_build_query(array_filter($_GET)) : '' ?>"
-           class="px-4 py-2.5 text-base font-medium bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/20 transition border border-emerald-500/20">
+           class="px-4 py-2.5 text-sm sm:text-base font-medium bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/20 transition border border-emerald-500/20">
             <i class="fas fa-file-csv mr-1" aria-hidden="true"></i> Exportar CSV
         </a>
     </div>
 
     <!-- Filtros -->
-    <form method="GET" action="<?= url('/institution/students') ?>" class="flex flex-wrap items-center gap-3 mb-6">
-        <input type="text" name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" placeholder="Buscar por nombre o correo..."
-               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500 w-64">
+    <?php
+        $stuAdvFilters = [$_GET['verificado'] ?? '', $_GET['anuncios'] ?? '', $_GET['date_from'] ?? '', $_GET['date_to'] ?? '', $_GET['periodo'] ?? ''];
+        $stuActiveAdv = count(array_filter($stuAdvFilters, fn($v) => $v !== '' && $v !== null));
+    ?>
+    <form method="GET" action="<?= url('/institution/students') ?>" class="mb-8">
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+            <input type="text" name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" placeholder="Buscar por nombre o correo..."
+                   class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm sm:text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500 w-full sm:w-64">
+            <button type="button" onclick="toggleStuAdvFilters()"
+                    class="sm:hidden w-full flex items-center justify-between px-4 py-2.5 rounded-lg border border-gray-700 bg-gray-800/60 text-sm font-medium text-gray-300 hover:border-gray-600 transition-all"
+                    aria-expanded="<?= $stuActiveAdv > 0 ? 'true' : 'false' ?>" aria-controls="stu-adv-filters">
+                <span class="flex items-center gap-2">
+                    <i class="fas fa-sliders text-xs text-blue-400" aria-hidden="true"></i>
+                    Más filtros
+                    <?php if ($stuActiveAdv > 0): ?>
+                        <span class="bg-blue-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full"><?= $stuActiveAdv ?></span>
+                    <?php endif; ?>
+                </span>
+                <i class="fas fa-chevron-down text-xs text-gray-500 transition-transform <?= $stuActiveAdv > 0 ? 'rotate-180' : '' ?>" id="stu-adv-chevron" aria-hidden="true"></i>
+            </button>
+        </div>
 
-        <select name="verificado" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-blue-500">
-            <option value="">Verificación: todos</option>
-            <option value="verificado"    <?= ($_GET['verificado'] ?? '') === 'verificado'    ? 'selected' : '' ?>>Verificados</option>
-            <option value="pendiente"     <?= ($_GET['verificado'] ?? '') === 'pendiente'     ? 'selected' : '' ?>>Pendientes</option>
-            <option value="no_verificado" <?= ($_GET['verificado'] ?? '') === 'no_verificado' ? 'selected' : '' ?>>No verificados</option>
-        </select>
-
-        <select name="anuncios" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-blue-500">
-            <option value="">Anuncios: todos</option>
-            <option value="con" <?= ($_GET['anuncios'] ?? '') === 'con' ? 'selected' : '' ?>>Con anuncios</option>
-            <option value="sin" <?= ($_GET['anuncios'] ?? '') === 'sin' ? 'selected' : '' ?>>Sin anuncios</option>
-        </select>
-
-        <?php renderPeriodFilter($_GET); ?>
-
-        <button type="submit" class="px-5 py-2.5 text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
-        <?php if (!empty(array_filter($_GET))): ?>
-            <a href="<?= url('/institution/students') ?>" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
-        <?php endif; ?>
+        <div id="stu-adv-filters" class="<?= $stuActiveAdv > 0 ? '' : 'hidden' ?> flex flex-col sm:!flex-row sm:flex-wrap sm:items-center gap-3 mt-4">
+            <select name="verificado" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm sm:text-base text-gray-200 focus:outline-none focus:border-blue-500 w-full sm:w-auto">
+                <option value="">Verificación: todos</option>
+                <option value="verificado"    <?= ($_GET['verificado'] ?? '') === 'verificado'    ? 'selected' : '' ?>>Verificados</option>
+                <option value="pendiente"     <?= ($_GET['verificado'] ?? '') === 'pendiente'     ? 'selected' : '' ?>>Pendientes</option>
+                <option value="no_verificado" <?= ($_GET['verificado'] ?? '') === 'no_verificado' ? 'selected' : '' ?>>No verificados</option>
+            </select>
+            <select name="anuncios" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm sm:text-base text-gray-200 focus:outline-none focus:border-blue-500 w-full sm:w-auto">
+                <option value="">Anuncios: todos</option>
+                <option value="con" <?= ($_GET['anuncios'] ?? '') === 'con' ? 'selected' : '' ?>>Con anuncios</option>
+                <option value="sin" <?= ($_GET['anuncios'] ?? '') === 'sin' ? 'selected' : '' ?>>Sin anuncios</option>
+            </select>
+            <?php renderPeriodFilter($_GET); ?>
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <button type="submit" class="flex-1 sm:flex-none px-5 py-2.5 text-sm sm:text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
+                <?php if (!empty(array_filter($_GET))): ?>
+                    <a href="<?= url('/institution/students') ?>" class="text-sm text-gray-400 hover:text-gray-200 whitespace-nowrap">Limpiar</a>
+                <?php endif; ?>
+            </div>
+        </div>
     </form>
+    <script>
+        function toggleStuAdvFilters() {
+            const w = document.getElementById('stu-adv-filters');
+            const c = document.getElementById('stu-adv-chevron');
+            const b = document.querySelector('[aria-controls="stu-adv-filters"]');
+            const open = w.classList.contains('hidden');
+            w.classList.toggle('hidden', !open);
+            if (c) c.classList.toggle('rotate-180', open);
+            if (b) b.setAttribute('aria-expanded', String(open));
+        }
+    </script>
 
     <?php if (empty($students)): ?>
         <div class="text-center py-20">
@@ -49,8 +79,8 @@
             <p class="text-gray-500 text-sm mt-1">Prueba a ajustar los filtros</p>
         </div>
     <?php else: ?>
-        <div class="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden">
-            <table class="w-full text-sm">
+        <div class="bg-gray-800/50 border border-gray-700 rounded-xl overflow-x-auto">
+            <table class="w-full text-sm min-w-[720px]">
                 <thead><tr class="border-b border-gray-700">
                     <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Estudiante</th>
                     <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Email</th>
@@ -122,6 +152,19 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Paginación -->
+        <?php
+            $stuPagParams = array_filter([
+                'search'     => $_GET['search']     ?? '',
+                'verificado' => $_GET['verificado'] ?? '',
+                'anuncios'   => $_GET['anuncios']   ?? '',
+                'periodo'    => $_GET['periodo']    ?? '',
+                'date_from'  => $_GET['date_from']  ?? '',
+                'date_to'    => $_GET['date_to']    ?? '',
+            ], fn($v) => $v !== '' && $v !== null);
+            renderPagination((int)($page ?? 1), (int)($totalPages ?? 1), url('/institution/students'), $stuPagParams);
+        ?>
     <?php endif; ?>
 
     </div>

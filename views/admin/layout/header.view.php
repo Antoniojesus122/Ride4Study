@@ -39,25 +39,54 @@
             }
         </script>
         <style>
-            html { font-size: 18px; }
+            /* Base font size: reducido en móvil para dar más espacio, 18px en pantallas grandes */
+            html { font-size: 16px; }
+            @media (min-width: 1024px) { html { font-size: 18px; } }
 
+            /* Sidebar: oculto por defecto en móvil */
             .admin-sidebar {
-                width: 72px;
-                transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-            .admin-sidebar:hover {
                 width: 280px;
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
-            .admin-sidebar .nav-label {
-                opacity: 0;
-                white-space: nowrap;
-                transition: opacity 0.15s ease;
-                pointer-events: none;
+            .admin-sidebar.is-open {
+                transform: translateX(0);
             }
-            .admin-sidebar:hover .nav-label {
-                opacity: 1;
-                pointer-events: auto;
+            @media (min-width: 768px) {
+                .admin-sidebar {
+                    width: 72px;
+                    transform: translateX(0);
+                }
+                .admin-sidebar:hover {
+                    width: 280px;
+                }
+                .admin-sidebar .nav-label {
+                    opacity: 0;
+                    white-space: nowrap;
+                    transition: opacity 0.15s ease;
+                    pointer-events: none;
+                }
+                .admin-sidebar:hover .nav-label {
+                    opacity: 1;
+                    pointer-events: auto;
+                }
             }
+            /* En móvil siempre mostrar labels */
+            @media (max-width: 767px) {
+                .admin-sidebar .nav-label { opacity: 1; pointer-events: auto; }
+            }
+
+            /* Backdrop móvil */
+            .admin-backdrop {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.55);
+                z-index: 25;
+            }
+            .admin-backdrop.is-open { display: block; }
+            @media (min-width: 768px) { .admin-backdrop { display: none !important; } }
+
             ::-webkit-scrollbar { width: 6px; }
             ::-webkit-scrollbar-track { background: transparent; }
             ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }

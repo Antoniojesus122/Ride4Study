@@ -20,9 +20,9 @@
     ];
 ?>
 
-<main class="ml-[72px] flex-1 min-h-screen flex flex-col">
+<main class="md:ml-[72px] flex-1 min-w-0 min-h-screen flex flex-col">
     <?php require_once __DIR__ . '/layout/topbar.view.php'; ?>
-    <div class="flex-1 p-10">
+    <div class="flex-1 p-4 sm:p-6 lg:p-10">
 
     <!-- Mensajes flash -->
     <?php if (!empty($successMsg)): ?>
@@ -89,22 +89,29 @@
             </div>
 
             <!-- Preview y envio -->
-            <div class="flex items-center gap-4 pt-2">
-                <button type="button" onclick="previewCount()"
-                    class="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white text-base font-medium rounded-lg transition flex items-center gap-2">
-                    <i class="fas fa-eye" aria-hidden="true"></i>
-                    Vista previa
-                </button>
+            <div class="flex flex-col gap-3 pt-2">
+                <!-- Resultado del preview (arriba, centrado en móvil) -->
+                <div id="previewResult" class="hidden">
+                    <div class="flex items-center gap-2 px-4 py-2.5 bg-primary/10 border border-primary/20 rounded-lg text-sm text-gray-200">
+                        <i class="fas fa-users text-primary" aria-hidden="true"></i>
+                        Se enviará a <strong id="previewCount" class="text-primary">0</strong> usuarios
+                    </div>
+                </div>
 
-                <span id="previewResult" class="text-base text-gray-400 hidden">
-                    Se enviara a <strong id="previewCount" class="text-primary">0</strong> usuarios
-                </span>
+                <!-- Botones: apilados en móvil, en fila en desktop -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+                    <button type="button" onclick="previewCount()"
+                            class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-gray-700 hover:bg-gray-600 text-white text-sm sm:text-base font-medium rounded-lg transition sm:order-1">
+                        <i class="fas fa-eye" aria-hidden="true"></i>
+                        Vista previa
+                    </button>
 
-                <button type="button" onclick="confirmSend()"
-                    class="ml-auto px-8 py-3 bg-primary hover:bg-primary-dark text-gray-900 text-base font-semibold rounded-lg transition flex items-center gap-2">
-                    <i class="fas fa-paper-plane" aria-hidden="true"></i>
-                    Enviar notificacion
-                </button>
+                    <button type="button" onclick="confirmSend()"
+                            class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-gray-900 text-sm sm:text-base font-bold rounded-lg transition shadow-lg shadow-primary/20 sm:order-3 sm:ml-auto">
+                        <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                        Enviar notificación
+                    </button>
+                </div>
             </div>
         </form>
     </div>
@@ -125,7 +132,7 @@
             </div>
         <?php else: ?>
             <div class="overflow-x-auto">
-                <table class="w-full">
+                <table class="w-full min-w-[720px]">
                     <thead>
                         <tr class="border-b border-gray-700">
                             <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Fecha</th>

@@ -7,7 +7,7 @@
         </div>  
 
         <div class="flex flex-col md:flex-row items-start gap-8">
-            <div class="flex-1 w-full">
+            <div class="flex-1 min-w-0 w-full">
                 <div class="bg-surface rounded-2xl mb-6 sm:mb-8 border border-gray-700/50 shadow-lg overflow-hidden">
 
                 <form action="" method="GET">
@@ -89,8 +89,32 @@
                     </div>
 
                     <!-- Fila secundaria: Filtros avanzados + accesos rápidos -->
+                    <?php
+                        $advancedFilters = [
+                            $_GET['precio_max'] ?? '',
+                            $_GET['plazas_min'] ?? '',
+                            $_GET['verificado'] ?? '',
+                            $_GET['orden'] ?? '',
+                        ];
+                        $activeAdvanced = count(array_filter($advancedFilters, fn($v) => $v !== '' && $v !== null));
+                        $hasActiveAdvanced = $activeAdvanced > 0;
+                    ?>
                     <div class="px-5 sm:px-6 pb-5 pt-3 border-t border-gray-700/30">
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5">
+                        <!-- Toggle "Más filtros" (solo móvil) -->
+                        <button type="button" onclick="toggleAdvancedFilters()"
+                                class="sm:hidden w-full flex items-center justify-between mb-3 px-4 py-2.5 rounded-xl border border-gray-600/60 bg-gray-800/70 text-sm font-medium text-gray-300 hover:border-gray-500 transition-all"
+                                aria-expanded="<?= $hasActiveAdvanced ? 'true' : 'false' ?>" aria-controls="advanced-filters-wrap">
+                            <span class="flex items-center gap-2">
+                                <i class="fas fa-sliders text-xs text-primary" aria-hidden="true"></i>
+                                <?= t('dashboard.more_filters') ?? 'Más filtros' ?>
+                                <?php if ($hasActiveAdvanced): ?>
+                                    <span class="bg-primary text-secondary text-[10px] font-bold px-1.5 py-0.5 rounded-full"><?= $activeAdvanced ?></span>
+                                <?php endif; ?>
+                            </span>
+                            <i class="fas fa-chevron-down text-xs text-gray-500 transition-transform <?= $hasActiveAdvanced ? 'rotate-180' : '' ?>" id="adv-filters-chevron" aria-hidden="true"></i>
+                        </button>
+
+                        <div id="advanced-filters-wrap" class="<?= $hasActiveAdvanced ? '' : 'hidden' ?> sm:!flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5">
                             <!-- Filtros avanzados -->
                             <div class="flex flex-wrap items-center gap-3 flex-1">
                                 <!-- Precio máximo -->
@@ -418,10 +442,10 @@
     <div class="fixed inset-0 bg-black/70 backdrop-blur-md transition-opacity duration-300 opacity-0" id="modal-backdrop"></div>
 
     <div class="fixed inset-0 z-10 flex items-center justify-center p-3 sm:p-5">
-        <div class="relative transform overflow-y-auto max-h-[92vh] rounded-3xl bg-gray-900 text-left shadow-2xl shadow-black/50 transition-all duration-300 w-full max-w-[76rem] border border-gray-700/40 opacity-0 translate-y-4 sm:scale-95" id="modal-panel">
+        <div class="relative flex flex-col max-h-[92vh] rounded-3xl bg-gray-900 text-left shadow-2xl shadow-black/50 transition-all duration-300 w-full max-w-[76rem] border border-gray-700/40 opacity-0 translate-y-4 sm:scale-95 overflow-hidden" id="modal-panel">
 
             <!-- Header -->
-            <div class="sticky top-0 z-20 px-6 sm:px-8 py-4 bg-gray-900/95 backdrop-blur-xl border-b border-gray-800/80 flex items-center justify-between">
+            <div class="shrink-0 px-6 sm:px-8 py-4 bg-gray-900/95 backdrop-blur-xl border-b border-gray-800/80 flex items-center justify-between">
                 <div class="flex items-center gap-4">
                     <div class="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-lg shadow-primary/5">
                         <i class="fas fa-route text-primary text-lg" aria-hidden="true"></i>
@@ -441,6 +465,9 @@
                     <i class="fas fa-times text-lg" aria-hidden="true"></i>
                 </button>
             </div>
+
+            <!-- Body scrollable -->
+            <div class="flex-1 overflow-y-auto overscroll-contain">
 
             <!-- Barra de usuario (horizontal, debajo del header) -->
             <div class="px-6 sm:px-8 py-3.5 border-b border-gray-800/60 bg-gray-800/20">
@@ -554,8 +581,10 @@
                 </div>
             </div>
 
+            </div><!-- /body scrollable -->
+
             <!-- Footer: Cerrar | Reportar | Solicitar -->
-            <div class="sticky bottom-0 px-6 sm:px-8 py-4 border-t border-gray-800/80 bg-gray-900/95 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center gap-3">
+            <div class="shrink-0 px-6 sm:px-8 py-4 border-t border-gray-800/80 bg-gray-900/95 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center gap-3">
                 <button type="button"
                         class="w-full sm:w-auto px-6 py-3 rounded-xl border border-gray-700 bg-gray-800/50 text-sm font-semibold text-gray-300 hover:bg-gray-800 hover:text-white transition-all order-3 sm:order-1"
                         onclick="closeRideModal()">
@@ -584,6 +613,18 @@
 </div>
 
 <script>
+    // Toggle de "Más filtros" en móvil
+    function toggleAdvancedFilters() {
+        const wrap = document.getElementById('advanced-filters-wrap');
+        const btn = document.querySelector('[aria-controls="advanced-filters-wrap"]');
+        const chev = document.getElementById('adv-filters-chevron');
+        if (!wrap) return;
+        const willOpen = wrap.classList.contains('hidden');
+        wrap.classList.toggle('hidden', !willOpen);
+        if (btn) btn.setAttribute('aria-expanded', String(willOpen));
+        if (chev) chev.classList.toggle('rotate-180', willOpen);
+    }
+
     const MAPTILER_KEY = '<?= $_ENV['MAPTILER_KEY'] ?? '' ?>';
     const modal = document.getElementById('ride-modal');
     const backdrop = document.getElementById('modal-backdrop');

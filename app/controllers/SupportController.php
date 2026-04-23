@@ -16,7 +16,7 @@ class SupportController {
             require_once __DIR__ . '/../../services/MailService.php';
             $mailService = new MailService();
 
-            $to = 'ride4study@outlook.es';
+            $to = 'info@ride4study.es';
 
             $contenido = "
                 <p>Has recibido un nuevo mensaje de soporte desde la plataforma Ride4Study.</p>

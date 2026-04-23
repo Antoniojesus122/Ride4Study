@@ -43,7 +43,12 @@ class AdminUserController {
         $this->requireAdmin();
         $tab = $_GET['tab'] ?? 'todos';
         $pendingUsers = $this->user->getPendingVerifications();
-        $allUsers = $this->getAllUsers();
+        $page = max(1, (int)($_GET['page'] ?? 1));
+        $perPage = 20;
+        $totalUsers = $this->countAllUsers();
+        $totalPages = max(1, (int)ceil($totalUsers / $perPage));
+        if ($page > $totalPages) $page = $totalPages;
+        $allUsers = $this->getAllUsers($perPage, ($page - 1) * $perPage);
         $bannedUsers = $this->user->getBannedUsers();
         $instituciones = $this->getInstitutionList();
         require_once __DIR__ . '/../../../views/admin/users.view.php';
@@ -53,12 +58,62 @@ class AdminUserController {
         $this->requireAdmin();
         $tab = 'verificaciones';
         $pendingUsers = $this->user->getPendingVerifications();
-        $allUsers = $this->getAllUsers();
+        $page = 1;
+        $perPage = 20;
+        $totalUsers = $this->countAllUsers();
+        $totalPages = max(1, (int)ceil($totalUsers / $perPage));
+        $allUsers = $this->getAllUsers($perPage, 0);
         $instituciones = $this->getInstitutionList();
         require_once __DIR__ . '/../../../views/admin/users.view.php';
     }
 
-    private function getAllUsers(): array {
+    private function countAllUsers(): int {
+        [$where, $params] = $this->buildUserFiltersWhere();
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM usuarios u WHERE u.idRol != 1" . $where);
+        $stmt->execute($params);
+        return (int)$stmt->fetchColumn();
+    }
+
+    private function buildUserFiltersWhere(): array {
+        $search = trim($_GET['search'] ?? '');
+        $roleFilter = $_GET['rol'] ?? '';
+        $verificacionFilter = $_GET['verificacion'] ?? '';
+        $premiumFilter = $_GET['premium_filter'] ?? '';
+        $institucionFilter = trim($_GET['institucion'] ?? '');
+        $anunciosFilter    = $_GET['anuncios'] ?? '';
+
+        $where = '';
+        $params = [];
+        if ($search !== '') {
+            $where .= " AND (u.nombre LIKE :s1 OR u.correo LIKE :s2)";
+            $params[':s1'] = "%$search%";
+            $params[':s2'] = "%$search%";
+        }
+        if ($roleFilter !== '') {
+            $where .= " AND u.idRol = :rol";
+            $params[':rol'] = (int)$roleFilter;
+        }
+        if ($verificacionFilter !== '') {
+            $where .= " AND u.estado_verificacion = :verif";
+            $params[':verif'] = (int)$verificacionFilter;
+        }
+        if ($premiumFilter !== '') {
+            $where .= " AND u.premium = :prem";
+            $params[':prem'] = (int)$premiumFilter;
+        }
+        if ($institucionFilter !== '') {
+            $where .= " AND u.institucion = :inst";
+            $params[':inst'] = $institucionFilter;
+        }
+        if ($anunciosFilter === 'con') {
+            $where .= " AND EXISTS (SELECT 1 FROM anuncios a WHERE a.idUsuario = u.idUsuario)";
+        } elseif ($anunciosFilter === 'sin') {
+            $where .= " AND NOT EXISTS (SELECT 1 FROM anuncios a WHERE a.idUsuario = u.idUsuario)";
+        }
+        return [$where, $params];
+    }
+
+    private function getAllUsers(int $limit = 0, int $offset = 0): array {
         $search = trim($_GET['search'] ?? '');
         $roleFilter = $_GET['rol'] ?? '';
         $verificacionFilter = $_GET['verificacion'] ?? '';
@@ -103,6 +158,9 @@ class AdminUserController {
         }
 
         $query .= " ORDER BY u.idUsuario DESC";
+        if ($limit > 0) {
+            $query .= " LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+        }
 
         $stmt = $this->db->prepare($query);
         $stmt->execute($params);

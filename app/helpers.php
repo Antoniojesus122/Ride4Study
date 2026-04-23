@@ -235,3 +235,72 @@ function renderPeriodFilter(array $get, string $prefix = ''): void
     echo '<input type="date" name="' . $prefix . 'date_to" value="' . $to . '" class="period-to px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary' . $hidden . '">';
     echo '</div>';
 }
+ 
+// Renderiza una barra de paginación con enlaces a páginas anteriores/siguientes y números de página. Uso en vistas.
+function renderPagination(int $currentPage, int $totalPages, string $baseUrl, array $queryParams = [], string $pageParam = 'page'): void {
+    if ($totalPages <= 1) return;
+
+    // Construir URL para una página
+    $makeUrl = function(int $p) use ($baseUrl, $queryParams, $pageParam): string {
+        $qs = array_merge($queryParams, [$pageParam => $p]);
+        return htmlspecialchars($baseUrl . '?' . http_build_query($qs));
+    };
+
+    // Calcular páginas visibles con elipsis (max 5 en móvil, 7 en desktop)
+    $pages = [];
+    $maxVisible = 5;
+    $half = (int) floor($maxVisible / 2);
+    $start = max(1, $currentPage - $half);
+    $end   = min($totalPages, $start + $maxVisible - 1);
+    if ($end - $start < $maxVisible - 1) {
+        $start = max(1, $end - $maxVisible + 1);
+    }
+
+    echo '<nav class="flex items-center justify-between sm:justify-center gap-2 mt-6 flex-wrap" aria-label="Paginación">';
+
+    // Botón anterior
+    $prevDisabled = $currentPage <= 1;
+    echo '<a href="' . ($prevDisabled ? '#' : $makeUrl($currentPage - 1)) . '" '
+        . 'class="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors '
+        . ($prevDisabled ? 'bg-gray-800/40 text-gray-600 cursor-not-allowed pointer-events-none' : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white') . '" '
+        . ($prevDisabled ? 'aria-disabled="true"' : 'aria-label="Anterior"') . '>'
+        . '<i class="fas fa-chevron-left text-xs" aria-hidden="true"></i>'
+        . '<span class="hidden sm:inline">Anterior</span>'
+        . '</a>';
+
+    // Números de página
+    echo '<div class="flex items-center gap-1">';
+
+    // Primera página + elipsis si hace falta
+    if ($start > 1) {
+        echo '<a href="' . $makeUrl(1) . '" class="w-9 h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">1</a>';
+        if ($start > 2) echo '<span class="px-1 text-gray-600 text-sm">…</span>';
+    }
+
+    for ($i = $start; $i <= $end; $i++) {
+        if ($i === $currentPage) {
+            echo '<span class="w-9 h-9 inline-flex items-center justify-center rounded-lg text-sm font-bold bg-primary text-secondary shadow-lg shadow-primary/20" aria-current="page">' . $i . '</span>';
+        } else {
+            echo '<a href="' . $makeUrl($i) . '" class="w-9 h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">' . $i . '</a>';
+        }
+    }
+
+    // Última página + elipsis si hace falta
+    if ($end < $totalPages) {
+        if ($end < $totalPages - 1) echo '<span class="px-1 text-gray-600 text-sm">…</span>';
+        echo '<a href="' . $makeUrl($totalPages) . '" class="w-9 h-9 inline-flex items-center justify-center rounded-lg text-sm font-medium bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">' . $totalPages . '</a>';
+    }
+    echo '</div>';
+
+    // Botón siguiente
+    $nextDisabled = $currentPage >= $totalPages;
+    echo '<a href="' . ($nextDisabled ? '#' : $makeUrl($currentPage + 1)) . '" '
+        . 'class="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors '
+        . ($nextDisabled ? 'bg-gray-800/40 text-gray-600 cursor-not-allowed pointer-events-none' : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white') . '" '
+        . ($nextDisabled ? 'aria-disabled="true"' : 'aria-label="Siguiente"') . '>'
+        . '<span class="hidden sm:inline">Siguiente</span>'
+        . '<i class="fas fa-chevron-right text-xs" aria-hidden="true"></i>'
+        . '</a>';
+
+    echo '</nav>';
+}

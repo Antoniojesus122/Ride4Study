@@ -105,7 +105,7 @@ class InstitutionContactController {
         );
 
         $response = $mailService->send(
-            'ride4study@outlook.es',
+            'info@ride4study.es',
             'Ride4Study Instituciones',
             "Solicitud de acceso: {$instNombre}",
             $html

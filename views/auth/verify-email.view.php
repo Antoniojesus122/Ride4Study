@@ -1,264 +1,200 @@
 <!DOCTYPE html>
 <html lang="<?= currentLang() ?>" class="h-full bg-secondary">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title><?= t('auth.verify_title') ?> - Ride4Study</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script src="public/js/tailwind-config.js"></script>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title><?= t('auth.verify_title') ?> - Ride4Study</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="public/js/tailwind-config.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" href="public/favicon.ico" sizes="any">
-    <link rel="icon" type="image/png" sizes="32x32" href="public/favicon-32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="public/favicon-16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="public/apple-touch-icon.png">
     <link rel="manifest" href="public/site.webmanifest">
-    <meta name="theme-color" content="#fde047">
-      <link rel="stylesheet" href="public/css/accessibility.css">
-        <style>
-            body { font-family: 'Inter', sans-serif; }
-            .code-input {
-                width: 44px;
-                height: 52px;
-                text-align: center;
-                font-size: 1.25rem;
-                font-weight: 700;
-                caret-color: #34d399;
-                transition: all 0.2s;
-            }
-            .code-input:focus {
-                border-color: #34d399 !important;
-                box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.2);
-                transform: translateY(-1px);
-            }
-            .code-input.filled {
-                border-color: #34d399 !important;
-                background: rgba(52, 211, 153, 0.05) !important;
-            }
-            @media (min-width: 640px) {
-                .code-input { width: 48px; height: 56px; font-size: 1.5rem; }
-            }
-            @keyframes fadeInUp {
-                from { opacity: 0; transform: translateY(20px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes pulse-glow {
-                0%, 100% { box-shadow: 0 0 15px rgba(52, 211, 153, 0.1); }
-                50% { box-shadow: 0 0 30px rgba(52, 211, 153, 0.2); }
-            }
-            .animate-fade-in { animation: fadeInUp 0.5s ease-out; }
-            .animate-fade-in-delay { animation: fadeInUp 0.5s ease-out 0.15s both; }
-            .icon-glow { animation: pulse-glow 3s ease-in-out infinite; }
-        </style>
-    </head>
-    <body class="h-full text-text">
-        <div class="flex min-h-full">
-            <!-- Formulario -->
-            <div class="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24 bg-secondary">
-                <div class="mx-auto w-full max-w-sm lg:w-96">
+    <meta name="theme-color" content="#111827">
+    <link rel="stylesheet" href="public/css/accessibility.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        @keyframes blob { 0%,100% { transform: translate(0,0) scale(1) } 33% { transform: translate(20px,-20px) scale(1.05) } 66% { transform: translate(-10px,10px) scale(0.98) } }
+        .blob { animation: blob 14s ease-in-out infinite; }
+        .grid-pattern {
+            background-image:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+        .code-input {
+            width: 48px; height: 56px;
+            text-align: center;
+            font-size: 1.5rem; font-weight: 700;
+            caret-color: #34d399;
+            transition: all 0.2s;
+        }
+        .code-input:focus {
+            border-color: #34d399 !important;
+            box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.25);
+            transform: translateY(-1px);
+        }
+        .code-input.filled {
+            border-color: #34d399 !important;
+            background: rgba(52, 211, 153, 0.08) !important;
+        }
+        @media (min-width: 640px) { .code-input { width: 54px; height: 62px; font-size: 1.75rem; } }
+    </style>
+</head>
+<body class="min-h-full text-text relative overflow-x-hidden">
 
-                    <!-- Logo -->
-                    <div class="text-center lg:text-left animate-fade-in">
-                        <a href="<?= url('/') ?>" class="inline-flex items-center gap-2 group">
-                            <img src="public/img/logo.png" alt="" aria-hidden="true" class="h-10 w-10 object-contain">
-                            <span class="text-2xl font-bold tracking-tighter text-white group-hover:text-primary transition-colors">Ride4Study</span>
-                        </a>
-                        <h2 class="mt-8 text-3xl font-bold leading-9 tracking-tight text-white"><?= t('auth.verify_title') ?></h2>
-                        <p class="mt-2 text-sm leading-6 text-text-muted"><?= t('auth.verify_subtitle') ?></p>
+    <div class="absolute inset-0 grid-pattern opacity-50 pointer-events-none"></div>
+    <div class="absolute -top-40 -left-20 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl pointer-events-none blob"></div>
+    <div class="absolute -bottom-40 -right-20 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none blob" style="animation-delay: -7s;"></div>
+
+    <div class="relative min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 py-10">
+
+        <a href="<?= url('/') ?>" class="inline-flex items-center gap-2.5 mb-8 group">
+            <img src="public/img/logo.png" alt="" aria-hidden="true" class="h-11 w-11 object-contain transition-transform group-hover:rotate-6">
+            <span class="text-2xl font-extrabold tracking-tight text-white group-hover:text-primary transition-colors">Ride4Study</span>
+        </a>
+
+        <div class="w-full max-w-md">
+            <div class="bg-gradient-to-b from-surface to-surface/80 rounded-2xl shadow-2xl ring-1 ring-white/10 backdrop-blur-sm p-7 sm:p-9">
+
+                <!-- Icono hero -->
+                <div class="flex justify-center mb-5">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-primary/30 rounded-2xl blur-xl animate-pulse"></div>
+                        <div class="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-emerald-400/10 border border-primary/30 flex items-center justify-center shadow-lg">
+                            <i class="fas fa-envelope-open-text text-primary text-2xl" aria-hidden="true"></i>
+                        </div>
                     </div>
+                </div>
 
-                    <div class="mt-10 animate-fade-in-delay">
-                        <div class="bg-surface px-6 py-8 shadow-2xl ring-1 ring-white/5 sm:rounded-xl sm:px-10">
+                <!-- Título -->
+                <div class="text-center mb-6">
+                    <h1 class="text-3xl font-extrabold text-white tracking-tight"><?= t('auth.verify_title') ?></h1>
+                    <p class="mt-3 text-base text-gray-400 leading-relaxed"><?= t('auth.verify_subtitle') ?></p>
+                    <div class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-sm text-gray-300">
+                        <i class="fas fa-at text-primary/70 text-[10px]" aria-hidden="true"></i>
+                        <span class="truncate max-w-[220px]"><?= htmlspecialchars($correo) ?></span>
+                    </div>
+                </div>
 
-                            <!-- Icono -->
-                            <div class="text-center mb-8">
-                                <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/10 to-green-500/10 border border-primary/20 mb-4 icon-glow">
-                                    <i class="fas fa-envelope-open-text text-primary text-3xl" aria-hidden="true"></i>
-                                </div>
-                                <div class="flex items-center justify-center gap-2 text-xs text-gray-500">
-                                    <i class="fas fa-at text-primary/60" aria-hidden="true"></i>
-                                    <span class="truncate max-w-[200px]"><?= htmlspecialchars($correo) ?></span>
-                                </div>
-                            </div>
+                <!-- Error -->
+                <?php if ($error): ?>
+                    <div class="mb-5 rounded-xl bg-red-500/10 border border-red-500/30 p-3.5 flex items-start gap-3" role="alert">
+                        <div class="w-7 h-7 rounded-lg bg-red-500/20 flex items-center justify-center shrink-0">
+                            <i class="fas fa-exclamation text-red-400 text-xs" aria-hidden="true"></i>
+                        </div>
+                        <p class="text-base font-medium text-red-200 leading-snug"><?= htmlspecialchars($error) ?></p>
+                    </div>
+                <?php endif; ?>
 
-                            <!-- Error -->
-                            <?php if ($error): ?>
-                            <div class="mb-6 rounded-xl bg-red-900/20 border border-red-500/20 p-4 animate-fade-in">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
-                                        <i class="fas fa-times text-red-400 text-sm" aria-hidden="true"></i>
-                                    </div>
-                                    <p class="text-sm font-medium text-red-200"><?= htmlspecialchars($error) ?></p>
-                                </div>
-                            </div>
+                <form method="POST" action="<?= url('/verify-email') ?>" id="verifyForm">
+                    <!-- Inputs del código con separador al medio -->
+                    <div class="flex justify-center gap-2 sm:gap-2.5 mb-6">
+                        <?php for ($i = 0; $i < 6; $i++): ?>
+                            <?php if ($i === 3): ?>
+                                <div class="flex items-center px-1"><div class="w-2 h-0.5 bg-gray-600 rounded-full"></div></div>
                             <?php endif; ?>
+                            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"
+                                   class="code-input rounded-xl border-2 border-gray-700 bg-secondary/70 text-white outline-none"
+                                   data-index="<?= $i ?>" autocomplete="off">
+                        <?php endfor; ?>
+                    </div>
+                    <input type="hidden" name="code" id="codeInput">
 
-                            <form method="POST" action="<?= url('/verify-email') ?>" id="verifyForm">
-                                <!-- Inputs del codigo -->
-                                <div class="flex justify-center gap-2.5 mb-8">
-                                    <?php for ($i = 0; $i < 6; $i++): ?>
-                                    <?php if ($i === 3): ?>
-                                    <div class="flex items-center px-1">
-                                        <div class="w-2 h-0.5 bg-gray-600 rounded-full"></div>
-                                    </div>
-                                    <?php endif; ?>
-                                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"
-                                           class="code-input rounded-xl border-2 border-gray-700 bg-gray-800/50 text-white outline-none"
-                                           data-index="<?= $i ?>" autocomplete="off">
-                                    <?php endfor; ?>
-                                </div>
+                    <!-- Intentos -->
+                    <div class="flex items-center justify-center gap-1.5 mb-6">
+                        <?php for ($j = 0; $j < 5; $j++): ?>
+                            <div class="w-2 h-2 rounded-full <?= $j < $attemptsLeft ? 'bg-primary shadow-sm shadow-primary/50' : 'bg-gray-700' ?> transition-colors"></div>
+                        <?php endfor; ?>
+                        <span class="text-xs text-gray-400 ml-2"><?= $attemptsLeft ?> <?= t('auth.2fa_attempts') ?></span>
+                    </div>
 
-                                <!-- Campo oculto -->
-                                <input type="hidden" name="code" id="codeInput">
+                    <button type="submit" id="submitBtn" disabled
+                            class="group relative flex w-full justify-center items-center gap-2 rounded-xl bg-primary/30 px-3 py-3 text-base font-bold text-secondary/50 cursor-not-allowed transition-all">
+                        <i class="fas fa-check-circle" aria-hidden="true"></i>
+                        <span><?= t('auth.verify_btn') ?></span>
+                    </button>
+                </form>
 
-                                <!-- Intentos restantes -->
-                                <div class="flex items-center justify-center gap-1.5 mb-6">
-                                    <?php for ($j = 0; $j < 5; $j++): ?>
-                                    <div class="w-2 h-2 rounded-full <?= $j < $attemptsLeft ? 'bg-primary' : 'bg-gray-700' ?> transition-colors"></div>
-                                    <?php endfor; ?>
-                                    <span class="text-xs text-gray-500 ml-2"><?= $attemptsLeft ?> <?= t('auth.2fa_attempts') ?></span>
-                                </div>
-
-                                <button type="submit" id="submitBtn" disabled
-                                    class="flex w-full justify-center items-center gap-2 rounded-xl bg-primary/30 px-3 py-3 text-sm font-semibold leading-6 text-secondary/50 cursor-not-allowed transition-all">
-                                    <i class="fas fa-check-circle text-xs" aria-hidden="true"></i>
-                                    <span><?= t('auth.verify_btn') ?></span>
-                                </button>
-                            </form>
-
-                            <!-- Reenviar codigo -->
-                            <div class="mt-6 pt-6 border-t border-gray-800">
-                                <form method="POST" action="<?= url('/verify-email') ?>" class="text-center">
-                                    <input type="hidden" name="resend" value="1">
-                                    <button type="submit" class="text-sm text-gray-400 hover:text-primary transition-colors">
-                                        <i class="fas fa-redo text-xs mr-1" aria-hidden="true"></i> <?= t('auth.verify_resend') ?>
-                                    </button>
-                                </form>
-                                <div class="text-center mt-4">
-                                    <a href="<?= url('/register') ?>" class="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-primary transition-colors">
-                                        <i class="fas fa-arrow-left text-xs" aria-hidden="true"></i> <?= t('auth.verify_back') ?>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                <div class="mt-6 pt-5 border-t border-white/5 space-y-3 text-center">
+                    <form method="POST" action="<?= url('/verify-email') ?>">
+                        <input type="hidden" name="resend" value="1">
+                        <button type="submit" class="inline-flex items-center gap-1.5 text-base text-gray-400 hover:text-primary transition-colors">
+                            <i class="fas fa-redo text-[11px]" aria-hidden="true"></i> <?= t('auth.verify_resend') ?>
+                        </button>
+                    </form>
+                    <div>
+                        <a href="<?= url('/register') ?>" class="inline-flex items-center gap-1.5 text-base text-gray-400 hover:text-primary transition-colors">
+                            <i class="fas fa-arrow-left text-[10px]" aria-hidden="true"></i> <?= t('auth.verify_back') ?>
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Imagen lateral -->
-            <div class="relative hidden w-0 flex-1 lg:block">
-                <div class="absolute inset-0 flex flex-col justify-between p-12 text-white" style="background-image: url('public/img/imgRegister.jpg'); background-size: cover; background-position: center;">
-                    <div class="absolute inset-0 bg-gradient-to-r from-secondary/90 via-secondary/60 to-secondary/30"></div>
-                    <div class="z-10 relative">
-                        <h1 class="text-5xl font-bold leading-tight tracking-tight drop-shadow-lg">
-                            <?= t('auth.verify_hero_1') ?><br>
-                            <span class="text-primary"><?= t('auth.verify_hero_2') ?></span>
-                        </h1>
-                        <p class="mt-6 text-xl max-w-md text-gray-300 drop-shadow-md"><?= t('auth.verify_hero_desc') ?></p>
-
-                        <div class="mt-10 space-y-3 max-w-sm">
-                            <div class="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
-                                <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-                                    <i class="fas fa-envelope-circle-check text-primary text-sm" aria-hidden="true"></i>
-                                </div>
-                                <p class="text-sm text-gray-300"><?= t('auth.verify_feature_1') ?></p>
-                            </div>
-                            <div class="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
-                                <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-                                    <i class="fas fa-user-shield text-primary text-sm" aria-hidden="true"></i>
-                                </div>
-                                <p class="text-sm text-gray-300"><?= t('auth.verify_feature_2') ?></p>
-                            </div>
-                            <div class="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
-                                <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-                                    <i class="fas fa-clock text-primary text-sm" aria-hidden="true"></i>
-                                </div>
-                                <p class="text-sm text-gray-300"><?= t('auth.verify_feature_3') ?></p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="z-10 relative text-sm text-gray-500">
-                        &copy; <?= date('Y') ?> Ride4Study. <?= t('register.rights') ?>
-                    </div>
-                </div>
-            </div>
+            <p class="mt-6 text-center text-[11px] text-gray-600">
+                &copy; <?= date('Y') ?> Ride4Study
+            </p>
         </div>
+    </div>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const inputs = document.querySelectorAll('.code-input');
-                const form = document.getElementById('verifyForm');
-                const hiddenInput = document.getElementById('codeInput');
-                const submitBtn = document.getElementById('submitBtn');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('.code-input');
+            const form = document.getElementById('verifyForm');
+            const hiddenInput = document.getElementById('codeInput');
+            const submitBtn = document.getElementById('submitBtn');
+            const enabledClasses = 'group relative flex w-full justify-center items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-emerald-400 px-3 py-3 text-base font-bold text-secondary shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5 active:translate-y-0 transition-all overflow-hidden cursor-pointer';
+            const disabledClasses = 'group relative flex w-full justify-center items-center gap-2 rounded-xl bg-primary/30 px-3 py-3 text-base font-bold text-secondary/50 cursor-not-allowed transition-all';
 
-                function updateButton() {
+            function updateButton() {
+                let code = '';
+                inputs.forEach(inp => code += inp.value);
+                const complete = code.length === 6;
+                submitBtn.disabled = !complete;
+                submitBtn.className = complete ? enabledClasses : disabledClasses;
+            }
+
+            form.addEventListener('submit', function() {
+                let code = '';
+                inputs.forEach(input => code += input.value);
+                hiddenInput.value = code;
+            });
+
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', function() {
+                    const val = this.value.replace(/[^0-9]/g, '');
+                    this.value = val.charAt(0) || '';
+                    this.classList.toggle('filled', !!this.value);
+                    if (val && index < inputs.length - 1) inputs[index + 1].focus();
+                    updateButton();
                     let code = '';
                     inputs.forEach(inp => code += inp.value);
-                    const complete = code.length === 6;
-                    submitBtn.disabled = !complete;
-                    if (complete) {
-                        submitBtn.className = 'flex w-full justify-center items-center gap-2 rounded-xl bg-primary px-3 py-3 text-sm font-semibold leading-6 text-secondary shadow-lg shadow-primary/20 hover:bg-primary-dark hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5 cursor-pointer';
-                    } else {
-                        submitBtn.className = 'flex w-full justify-center items-center gap-2 rounded-xl bg-primary/30 px-3 py-3 text-sm font-semibold leading-6 text-secondary/50 cursor-not-allowed transition-all';
-                    }
-                }
-
-                form.addEventListener('submit', function() {
-                    let code = '';
-                    inputs.forEach(input => code += input.value);
-                    hiddenInput.value = code;
+                    if (code.length === 6) { hiddenInput.value = code; form.submit(); }
                 });
-
-                inputs.forEach((input, index) => {
-                    input.addEventListener('input', function() {
-                        const val = this.value.replace(/[^0-9]/g, '');
-                        this.value = val.charAt(0) || '';
-                        this.classList.toggle('filled', !!this.value);
-
-                        if (val && index < inputs.length - 1) {
-                            inputs[index + 1].focus();
-                        }
-
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && !this.value && index > 0) {
+                        inputs[index - 1].focus();
+                        inputs[index - 1].value = '';
+                        inputs[index - 1].classList.remove('filled');
                         updateButton();
-
-                        let code = '';
-                        inputs.forEach(inp => code += inp.value);
-                        if (code.length === 6) {
-                            hiddenInput.value = code;
-                            form.submit();
-                        }
-                    });
-
-                    input.addEventListener('keydown', function(e) {
-                        if (e.key === 'Backspace' && !this.value && index > 0) {
-                            inputs[index - 1].focus();
-                            inputs[index - 1].value = '';
-                            inputs[index - 1].classList.remove('filled');
-                            updateButton();
-                        }
-                    });
-
-                    input.addEventListener('paste', function(e) {
-                        e.preventDefault();
-                        const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '');
-                        if (paste.length >= 6) {
-                            for (let i = 0; i < 6; i++) {
-                                inputs[i].value = paste[i];
-                                inputs[i].classList.add('filled');
-                            }
-                            updateButton();
-                            hiddenInput.value = paste.substring(0, 6);
-                            form.submit();
-                        }
-                    });
-
-                    input.addEventListener('focus', function() {
-                        this.select();
-                    });
+                    }
                 });
-
-                inputs[0].focus();
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '');
+                    if (paste.length >= 6) {
+                        for (let i = 0; i < 6; i++) { inputs[i].value = paste[i]; inputs[i].classList.add('filled'); }
+                        updateButton();
+                        hiddenInput.value = paste.substring(0, 6);
+                        form.submit();
+                    }
+                });
+                input.addEventListener('focus', function() { this.select(); });
             });
-        </script>
-    </body>
+
+            inputs[0].focus();
+        });
+    </script>
+</body>
 </html>

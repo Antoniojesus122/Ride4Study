@@ -1,6 +1,11 @@
 <?php
-// Este script se ejecuta periódicamente para enviar notificaciones de valoración a los usuarios que han completado un viaje recientemente.
-// Por ahora lo voy a poner para que se ejecute cada vez que se inice sesión
+// Cron: Envía notificaciones de valoración a los usuarios que han completado un viaje recientemente.
+// Configurado como cron job diario en IONOS. Solo ejecutable por CLI.
+
+if (PHP_SAPI !== 'cli') {
+    http_response_code(403);
+    exit('Forbidden: este script solo puede ejecutarse desde la línea de comandos.');
+}
 
 require_once __DIR__ . '/../services/RatingNotificationService.php';
 

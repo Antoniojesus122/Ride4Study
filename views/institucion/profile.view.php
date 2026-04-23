@@ -2,9 +2,9 @@
 <?php require_once __DIR__ . '/layout/header.view.php'; ?>
 <?php require_once __DIR__ . '/layout/sidebar.view.php'; ?>
 
-<main class="ml-[72px] flex-1 min-h-screen flex flex-col">
+<main class="md:ml-[72px] flex-1 min-w-0 min-h-screen flex flex-col">
     <?php require_once __DIR__ . '/layout/topbar.view.php'; ?>
-    <div class="flex-1 p-10">
+    <div class="flex-1 p-4 sm:p-6 lg:p-10">
 
     <?php if ($flashData && $flashData['type'] === 'success'): ?>
         <div class="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-base flex items-center gap-2">
@@ -20,23 +20,23 @@
     <?php endif; ?>
 
     <!-- Hero -->
-    <div class="bg-gradient-to-br from-blue-500/10 via-gray-800/50 to-gray-800/50 border border-gray-700 rounded-2xl p-8 mb-8 flex items-center gap-6">
+    <div class="bg-gradient-to-br from-blue-500/10 via-gray-800/50 to-gray-800/50 border border-gray-700 rounded-2xl p-4 sm:p-6 lg:p-8 mb-8 flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
         <?php if (!empty($inst['logo']) && is_file(__DIR__ . '/../../public/uploads/institutions/' . $inst['logo'])): ?>
             <img src="<?= url('/public/uploads/institutions/' . htmlspecialchars($inst['logo'])) ?>"
-                 alt="Logo" class="w-24 h-24 rounded-2xl object-cover border-2 border-blue-500/40 shrink-0">
+                 alt="Logo" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-blue-500/40 shrink-0">
         <?php else: ?>
-            <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-3xl font-bold shrink-0">
+            <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-3xl font-bold shrink-0">
                 <?= strtoupper(substr($inst['nombre'], 0, 2)) ?>
             </div>
         <?php endif; ?>
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0 text-center sm:text-left w-full">
             <span class="inline-block px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/30 mb-2">
                 <i class="fas fa-university mr-1" aria-hidden="true"></i> Institución
             </span>
-            <h1 class="text-2xl font-bold text-white truncate"><?= htmlspecialchars($inst['nombre']) ?></h1>
-            <p class="text-sm text-gray-400 mt-1"><i class="fas fa-envelope mr-2 text-gray-500"></i><?= htmlspecialchars($inst['correo']) ?></p>
+            <h1 class="text-xl sm:text-2xl font-bold text-white truncate"><?= htmlspecialchars($inst['nombre']) ?></h1>
+            <p class="text-sm text-gray-400 mt-1 break-all"><i class="fas fa-envelope mr-2 text-gray-500"></i><?= htmlspecialchars($inst['correo']) ?></p>
             <?php if (!empty($inst['telefono'])): ?>
-                <p class="text-sm text-gray-400 mt-0.5"><i class="fas fa-phone mr-2 text-gray-500"></i><?= htmlspecialchars($inst['telefono']) ?></p>
+                <p class="text-sm text-gray-400 mt-0.5 break-all"><i class="fas fa-phone mr-2 text-gray-500"></i><?= htmlspecialchars($inst['telefono']) ?></p>
             <?php endif; ?>
             <p class="text-xs text-gray-500 mt-2">
                 Registrada el <?= !empty($inst['creado_en']) ? date('d/m/Y', strtotime($inst['creado_en'])) : '-' ?>

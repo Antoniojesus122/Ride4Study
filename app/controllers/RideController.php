@@ -73,12 +73,6 @@ class RideController {
         $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
 
         require_once __DIR__ . '/../../views/user/dashboard.view.php';
-
-        // Pseudo-crons: se ejecutan al cargar el dashboard
-        require_once __DIR__ . '/../../scripts/cron_send_rating_notifications.php';
-        require_once __DIR__ . '/../../scripts/cron_premium_expiration.php';
-        require_once __DIR__ . '/../../scripts/cron_trip_reminders.php';
-        require_once __DIR__ . '/../../scripts/cron_update_co2.php';
     }
 
     public function myRides() {

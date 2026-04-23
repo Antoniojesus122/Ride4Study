@@ -2,9 +2,9 @@
 <?php require_once __DIR__ . '/layout/header.view.php'; ?>
 <?php require_once __DIR__ . '/layout/sidebar.view.php'; ?>
 
-<main class="ml-[72px] flex-1 min-h-screen flex flex-col">
+<main class="md:ml-[72px] flex-1 min-w-0 min-h-screen flex flex-col">
     <?php require_once __DIR__ . '/layout/topbar.view.php'; ?>
-    <div class="flex-1 p-10">
+    <div class="flex-1 p-4 sm:p-6 lg:p-10">
 
     <?php $flashData = $flashData ?? getFlash(); ?>
     <?php if ($flashData && $flashData['type'] === 'success'): ?>
@@ -20,18 +20,29 @@
         <div class="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-base"><?= htmlspecialchars($flashData['message']) ?></div>
     <?php endif; ?>
 
-    <!-- Pestañas -->
-    <div class="flex items-center justify-between mb-6">
-        <div class="flex space-x-1.5 bg-gray-800/50 rounded-lg p-1.5">
-            <a href="<?= url('/admin/premium') ?>?tab=usuarios" class="px-5 py-2.5 text-base font-medium rounded-md transition <?= ($tab ?? 'usuarios') === 'usuarios' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">
+    <!-- Pestañas estilo pill scrollable -->
+    <div class="mb-6">
+        <nav class="flex gap-2 overflow-x-auto scrollbar-hide pb-1" aria-label="Secciones Premium" style="scrollbar-width: none; -ms-overflow-style: none;">
+            <?php $currentTab = $tab ?? 'usuarios'; ?>
+            <a href="<?= url('/admin/premium') ?>?tab=usuarios"
+               class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors border
+                      <?= $currentTab === 'usuarios' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 'bg-transparent text-gray-400 border-transparent hover:text-white hover:bg-gray-800' ?>">
+                <i class="fas fa-crown text-xs" aria-hidden="true"></i>
                 Usuarios Premium
-                <span class="ml-1.5 text-sm px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400"><?= $totalPremium ?></span>
+                <span class="text-[11px] px-1.5 py-0.5 rounded-full <?= $currentTab === 'usuarios' ? 'bg-yellow-500/20' : 'bg-gray-700/60' ?>"><?= $totalPremium ?></span>
             </a>
-            <a href="<?= url('/admin/premium') ?>?tab=pagos" class="px-5 py-2.5 text-base font-medium rounded-md transition <?= ($tab ?? '') === 'pagos' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">
+            <a href="<?= url('/admin/premium') ?>?tab=pagos"
+               class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors border
+                      <?= $currentTab === 'pagos' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-transparent text-gray-400 border-transparent hover:text-white hover:bg-gray-800' ?>">
+                <i class="fas fa-receipt text-xs" aria-hidden="true"></i>
                 Historial de pagos
             </a>
-        </div>
+        </nav>
     </div>
+    <style>
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
+    </style>
 
     <?php if (($tab ?? 'usuarios') === 'usuarios'): ?>
     <!-- Estadísticas -->
@@ -107,8 +118,8 @@
             <p class="text-sm text-gray-500">Concede Premium manualmente desde el formulario superior</p>
         </div>
     <?php else: ?>
-        <div class="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden">
-            <table class="w-full text-sm">
+        <div class="bg-gray-800/50 border border-gray-700 rounded-xl overflow-x-auto">
+            <table class="w-full text-sm min-w-[720px]">
                 <thead><tr class="border-b border-gray-700">
                     <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">ID</th>
                     <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Usuario</th>
@@ -176,31 +187,66 @@
 
     <!-- Header pagos -->
     <div class="flex items-center justify-between mb-6">
-        <p class="text-base text-gray-400"><?= $totalPayments ?> pagos</p>
+        <p class="text-sm sm:text-base text-gray-400"><?= $totalPayments ?> pagos</p>
     </div>
 
     <!-- Filtros de pagos -->
-    <form method="GET" action="<?= url('/admin/premium') ?>" class="flex flex-wrap items-center gap-3 mb-6">
+    <?php
+        $payAdvFilters = [$paymentFilters['origen'] ?? '', $paymentFilters['estado'] ?? '', $paymentFilters['date_from'] ?? '', $paymentFilters['date_to'] ?? '', $_GET['pperiodo'] ?? ''];
+        $payActiveAdv = count(array_filter($payAdvFilters, fn($v) => $v !== '' && $v !== null));
+    ?>
+    <form method="GET" action="<?= url('/admin/premium') ?>" class="mb-8">
         <input type="hidden" name="tab" value="pagos">
-        <input type="text" name="psearch" value="<?= htmlspecialchars($paymentFilters['search'] ?? '') ?>" placeholder="Buscar usuario..."
-               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-60">
-        <select name="porigen" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
-            <option value="">Todos los origenes</option>
-            <option value="stripe" <?= ($paymentFilters['origen'] ?? '') === 'stripe' ? 'selected' : '' ?>>Stripe</option>
-            <option value="admin"  <?= ($paymentFilters['origen'] ?? '') === 'admin'  ? 'selected' : '' ?>>Admin (manual)</option>
-        </select>
-        <select name="pestado" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
-            <option value="">Cualquier estado</option>
-            <option value="completado" <?= ($paymentFilters['estado'] ?? '') === 'completado' ? 'selected' : '' ?>>Completado</option>
-            <option value="pendiente"  <?= ($paymentFilters['estado'] ?? '') === 'pendiente'  ? 'selected' : '' ?>>Pendiente</option>
-            <option value="fallido"    <?= ($paymentFilters['estado'] ?? '') === 'fallido'    ? 'selected' : '' ?>>Fallido</option>
-        </select>
-        <?php renderPeriodFilter($_GET, 'p'); ?>
-        <button type="submit" class="px-5 py-2.5 text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
-        <?php if (!empty($paymentFilters['search']) || !empty($paymentFilters['date_from']) || !empty($paymentFilters['date_to']) || !empty($paymentFilters['origen']) || !empty($paymentFilters['estado']) || !empty($_GET['pperiodo'])): ?>
-            <a href="<?= url('/admin/premium') ?>?tab=pagos" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
-        <?php endif; ?>
+
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+            <input type="text" name="psearch" value="<?= htmlspecialchars($paymentFilters['search'] ?? '') ?>" placeholder="Buscar usuario..."
+                   class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm sm:text-base text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-full sm:w-60">
+            <button type="button" onclick="togglePayAdvFilters()"
+                    class="sm:hidden w-full flex items-center justify-between px-4 py-2.5 rounded-lg border border-gray-700 bg-gray-800/60 text-sm font-medium text-gray-300 hover:border-gray-600 transition-all"
+                    aria-expanded="<?= $payActiveAdv > 0 ? 'true' : 'false' ?>" aria-controls="pay-adv-filters">
+                <span class="flex items-center gap-2">
+                    <i class="fas fa-sliders text-xs text-primary" aria-hidden="true"></i>
+                    Más filtros
+                    <?php if ($payActiveAdv > 0): ?>
+                        <span class="bg-primary text-secondary text-[10px] font-bold px-1.5 py-0.5 rounded-full"><?= $payActiveAdv ?></span>
+                    <?php endif; ?>
+                </span>
+                <i class="fas fa-chevron-down text-xs text-gray-500 transition-transform <?= $payActiveAdv > 0 ? 'rotate-180' : '' ?>" id="pay-adv-chevron" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <div id="pay-adv-filters" class="<?= $payActiveAdv > 0 ? '' : 'hidden' ?> flex flex-col sm:!flex-row sm:flex-wrap sm:items-center gap-3 mt-4">
+            <select name="porigen" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm sm:text-base text-gray-200 focus:outline-none focus:border-primary w-full sm:w-auto">
+                <option value="">Todos los orígenes</option>
+                <option value="stripe" <?= ($paymentFilters['origen'] ?? '') === 'stripe' ? 'selected' : '' ?>>Stripe</option>
+                <option value="admin"  <?= ($paymentFilters['origen'] ?? '') === 'admin'  ? 'selected' : '' ?>>Admin (manual)</option>
+            </select>
+            <select name="pestado" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm sm:text-base text-gray-200 focus:outline-none focus:border-primary w-full sm:w-auto">
+                <option value="">Cualquier estado</option>
+                <option value="completado" <?= ($paymentFilters['estado'] ?? '') === 'completado' ? 'selected' : '' ?>>Completado</option>
+                <option value="pendiente"  <?= ($paymentFilters['estado'] ?? '') === 'pendiente'  ? 'selected' : '' ?>>Pendiente</option>
+                <option value="fallido"    <?= ($paymentFilters['estado'] ?? '') === 'fallido'    ? 'selected' : '' ?>>Fallido</option>
+            </select>
+            <?php renderPeriodFilter($_GET, 'p'); ?>
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <button type="submit" class="flex-1 sm:flex-none px-5 py-2.5 text-sm sm:text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
+                <?php if (!empty($paymentFilters['search']) || $payActiveAdv > 0): ?>
+                    <a href="<?= url('/admin/premium') ?>?tab=pagos" class="text-sm text-gray-400 hover:text-gray-200 whitespace-nowrap">Limpiar</a>
+                <?php endif; ?>
+            </div>
+        </div>
     </form>
+    <script>
+        function togglePayAdvFilters() {
+            const w = document.getElementById('pay-adv-filters');
+            const c = document.getElementById('pay-adv-chevron');
+            const b = document.querySelector('[aria-controls="pay-adv-filters"]');
+            const open = w.classList.contains('hidden');
+            w.classList.toggle('hidden', !open);
+            if (c) c.classList.toggle('rotate-180', open);
+            if (b) b.setAttribute('aria-expanded', String(open));
+        }
+    </script>
 
     <!-- Tabla de pagos -->
     <?php if (empty($payments)): ?>
@@ -214,8 +260,8 @@
             <p class="text-sm text-gray-500">Los pagos aparecerán aquí cuando se realicen</p>
         </div>
     <?php else: ?>
-        <div class="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden">
-            <table class="w-full text-sm">
+        <div class="bg-gray-800/50 border border-gray-700 rounded-xl overflow-x-auto">
+            <table class="w-full text-sm min-w-[720px]">
                 <thead><tr class="border-b border-gray-700">
                     <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">ID</th>
                     <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Usuario</th>
@@ -253,27 +299,18 @@
         </div>
 
         <!-- Paginación de pagos -->
-        <?php if ($totalPaymentPages > 1): ?>
-        <div class="flex items-center justify-center gap-2 mt-6">
-            <?php
-                $ppagQs = http_build_query(array_filter([
-                    'tab'        => 'pagos',
-                    'psearch'    => $paymentFilters['search']  ?? '',
-                    'pperiodo'   => $_GET['pperiodo']          ?? '',
-                    'pdate_from' => $paymentFilters['date_from'] ?? '',
-                    'pdate_to'   => $paymentFilters['date_to']   ?? '',
-                    'porigen'    => $paymentFilters['origen']  ?? '',
-                    'pestado'    => $paymentFilters['estado']  ?? '',
-                ], fn($v) => $v !== '' && $v !== null));
-            ?>
-            <?php for ($i = 1; $i <= $totalPaymentPages; $i++): ?>
-            <a href="<?= url('/admin/premium') ?>?ppage=<?= $i ?>&<?= $ppagQs ?>"
-               class="px-4 py-2 text-sm rounded-lg transition <?= $i === $paymentPage ? 'bg-primary text-gray-900 font-bold' : 'bg-gray-800 text-gray-400 hover:bg-gray-700' ?>">
-                <?= $i ?>
-            </a>
-            <?php endfor; ?>
-        </div>
-        <?php endif; ?>
+        <?php
+            $payPagParams = array_filter([
+                'tab'        => 'pagos',
+                'psearch'    => $paymentFilters['search']  ?? '',
+                'pperiodo'   => $_GET['pperiodo']          ?? '',
+                'pdate_from' => $paymentFilters['date_from'] ?? '',
+                'pdate_to'   => $paymentFilters['date_to']   ?? '',
+                'porigen'    => $paymentFilters['origen']  ?? '',
+                'pestado'    => $paymentFilters['estado']  ?? '',
+            ], fn($v) => $v !== '' && $v !== null);
+            renderPagination((int)$paymentPage, (int)$totalPaymentPages, url('/admin/premium'), $payPagParams, 'ppage');
+        ?>
     <?php endif; ?>
 
     <?php endif; ?>

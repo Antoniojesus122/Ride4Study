@@ -1,7 +1,19 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
 
+<?php $isChatOpen = !empty($selectedConversationId); ?>
+
+<?php if ($isChatOpen): ?>
+<style>
+    @media (max-width: 767px) {
+        body { padding-top: 0 !important; }
+        body > nav[aria-label] { display: none !important; }
+        #chat-fullscreen-wrapper { height: 100vh !important; height: 100dvh !important; }
+    }
+</style>
+<?php endif; ?>
+
 <!-- Vista completa del chat -->
-<div class="h-[calc(100vh-80px)] flex flex-col md:flex-row overflow-hidden bg-secondary">
+<div id="chat-fullscreen-wrapper" class="h-[calc(100vh-80px)] flex flex-col md:flex-row overflow-hidden bg-secondary">
 
     <!-- Barra lateral de chats -->
     <div class="w-full md:w-80 lg:w-96 xl:w-[26rem] border-r border-gray-700 bg-surface flex flex-col shrink-0 <?= $selectedConversationId ? 'hidden md:flex' : 'flex' ?>">
@@ -308,15 +320,15 @@
             <?php endif; ?>
 
             <!-- Area de mensajes -->
-            <div class="flex-1 overflow-y-auto px-4 lg:px-8 py-4 space-y-3" id="messages-container">
+            <div class="flex-1 overflow-y-auto px-4 lg:px-8 py-4" id="messages-container">
                 <?php if (!empty($hasMore)): ?>
-                <div id="load-more-wrap" class="text-center py-3">
+                <div id="load-more-wrap" class="text-center py-3 mb-2">
                     <button onclick="loadOlderMessages()" id="load-more-btn" class="px-5 py-2 text-xs font-medium bg-white/5 text-gray-400 rounded-full hover:bg-white/10 hover:text-gray-200 transition border border-gray-700/50">
                         <i class="fas fa-arrow-up mr-1.5" aria-hidden="true"></i> <?= t('chat.load_older') ?>
                     </button>
                 </div>
                 <?php endif; ?>
-                <div id="messages-list">
+                <div id="messages-list" class="space-y-2">
                     <?php require __DIR__ . '/chat-messages.partial.php'; ?>
                 </div>
             </div>

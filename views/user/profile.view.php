@@ -20,40 +20,75 @@
     <!-- Encabezado del perfil -->
     <div class="bg-surface rounded-2xl border border-gray-700 shadow-xl overflow-hidden mb-8">
 
+        <?php
+            // Split nombre en primer nombre + resto (apellidos) para mostrar en dos líneas en móvil
+            $fullName = trim($profileUser['nombre'] ?? '');
+            $spacePos = strpos($fullName, ' ');
+            if ($spacePos !== false) {
+                $firstName = substr($fullName, 0, $spacePos);
+                $lastName  = substr($fullName, $spacePos + 1);
+            } else {
+                $firstName = $fullName;
+                $lastName  = '';
+            }
+            $isPremiumUser = !empty($profileUser['premium']) && (!empty($profileUser['premium_hasta']) ? $profileUser['premium_hasta'] > date('Y-m-d H:i:s') : true);
+        ?>
         <div class="px-4 sm:px-8 pt-6 sm:pt-8 pb-6 sm:pb-8 flex flex-col md:flex-row items-start gap-4 sm:gap-6 relative">
-             <!-- Avatar -->
-             <div class="relative group">
-                <div id="profile-avatar" class="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-2 border-gray-700 bg-gray-800 flex items-center justify-center overflow-hidden shadow-xl">
-                    <?php if (!empty($profileUser['foto_perfil']) && file_exists(__DIR__ . '/../../public/uploads/profiles/' . $profileUser['foto_perfil'])): ?>
-                        <?php $pf = htmlspecialchars($profileUser['foto_perfil']); $ver = filemtime(__DIR__ . '/../../public/uploads/profiles/' . $profileUser['foto_perfil']); ?>
-                        <img src="public/uploads/profiles/<?= $pf ?>?v=<?= $ver ?>" alt="Profile" class="w-full h-full object-cover">
-                    <?php else: ?>
-                        <span class="text-3xl sm:text-5xl font-bold text-white"><?= strtoupper(substr($profileUser['nombre'], 0, 2)) ?></span>
+
+             <!-- Móvil: foto + nombre + premium en fila. Desktop: solo foto aquí. -->
+             <div class="flex flex-row md:flex-col items-center md:items-start gap-4 w-full md:w-auto">
+                 <!-- Avatar -->
+                 <div class="relative group shrink-0">
+                    <div id="profile-avatar" class="w-20 h-20 sm:w-32 sm:h-32 rounded-2xl border-2 border-gray-700 bg-gray-800 flex items-center justify-center overflow-hidden shadow-xl">
+                        <?php if (!empty($profileUser['foto_perfil']) && file_exists(__DIR__ . '/../../public/uploads/profiles/' . $profileUser['foto_perfil'])): ?>
+                            <?php $pf = htmlspecialchars($profileUser['foto_perfil']); $ver = filemtime(__DIR__ . '/../../public/uploads/profiles/' . $profileUser['foto_perfil']); ?>
+                            <img src="public/uploads/profiles/<?= $pf ?>?v=<?= $ver ?>" alt="Profile" class="w-full h-full object-cover">
+                        <?php else: ?>
+                            <span class="text-3xl sm:text-5xl font-bold text-white"><?= strtoupper(substr($profileUser['nombre'], 0, 2)) ?></span>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Insignia de verificación -->
+                    <?php if($profileUser['estado_verificacion'] == 2): ?>
+                    <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center border-4 border-surface shadow-lg">
+                        <i class="fas fa-check text-white text-sm" aria-hidden="true"></i>
+                    </div>
                     <?php endif; ?>
-                </div>
-                
-                <!-- Insignia de verificación -->
-                <?php if($profileUser['estado_verificacion'] == 2): ?>
-                <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center border-4 border-surface shadow-lg">
-                    <i class="fas fa-check text-white text-sm" aria-hidden="true"></i>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($isOwnProfile): ?>
-                <button onclick="document.getElementById('photo-input').click()" class="absolute bottom-0 right-0 bg-primary text-secondary p-2.5 rounded-full border-2 border-surface hover:bg-primary-dark transition-colors cursor-pointer shadow-lg opacity-0 group-hover:opacity-100" title="<?= t('profile.change_photo') ?>" aria-label="<?= t('profile.change_photo') ?>">
-                    <i class="fas fa-camera text-sm" aria-hidden="true"></i>
-                </button>
-                <?php endif; ?>
+
+                    <?php if ($isOwnProfile): ?>
+                    <button onclick="document.getElementById('photo-input').click()" class="absolute bottom-0 right-0 bg-primary text-secondary p-2.5 rounded-full border-2 border-surface hover:bg-primary-dark transition-colors cursor-pointer shadow-lg opacity-0 group-hover:opacity-100" title="<?= t('profile.change_photo') ?>" aria-label="<?= t('profile.change_photo') ?>">
+                        <i class="fas fa-camera text-sm" aria-hidden="true"></i>
+                    </button>
+                    <?php endif; ?>
+                 </div>
+
+                 <!-- Nombre + Premium (solo móvil, a la derecha de la foto) -->
+                 <div class="flex-1 min-w-0 md:hidden flex flex-wrap items-start gap-x-3 gap-y-2">
+                     <h1 class="text-2xl sm:text-3xl font-bold text-white leading-tight break-words">
+                         <span class="block"><?= htmlspecialchars($firstName) ?></span>
+                         <?php if ($lastName !== ''): ?>
+                             <span class="block"><?= htmlspecialchars($lastName) ?></span>
+                         <?php endif; ?>
+                     </h1>
+                     <?php if ($isPremiumUser): ?>
+                         <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full border border-yellow-500/30 flex items-center gap-1 flex-shrink-0 mt-1">
+                             <i class="fas fa-crown" aria-hidden="true"></i> <?= t('profile.premium') ?>
+                         </span>
+                     <?php endif; ?>
+                 </div>
              </div>
-             
-             <!-- Información del usuario -->
-             <div class="flex-1 pt-6">
+
+             <!-- Información del usuario (ciudad, stats, etc.) -->
+             <div class="flex-1 min-w-0 w-full md:pt-6">
                  <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
-                     <div>
-                         <div class="flex items-center gap-3 mb-2">
-                             <h1 class="text-3xl lg:text-4xl font-bold text-white"><?= htmlspecialchars($profileUser['nombre']) ?></h1>
-                             <?php if (!empty($profileUser['premium']) && (!empty($profileUser['premium_hasta']) ? $profileUser['premium_hasta'] > date('Y-m-d H:i:s') : true)): ?>
-                                 <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full border border-yellow-500/30 flex items-center gap-1 flex-shrink-0">
+                     <div class="min-w-0">
+                         <!-- Nombre + Premium (solo desktop) -->
+                         <div class="hidden md:flex flex-wrap items-start gap-x-3 gap-y-2 mb-2">
+                             <h1 class="text-3xl lg:text-4xl font-bold text-white leading-tight break-words">
+                                 <?= htmlspecialchars($fullName) ?>
+                             </h1>
+                             <?php if ($isPremiumUser): ?>
+                                 <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full border border-yellow-500/30 flex items-center gap-1 flex-shrink-0 mt-1">
                                      <i class="fas fa-crown" aria-hidden="true"></i> <?= t('profile.premium') ?>
                                  </span>
                              <?php endif; ?>
@@ -448,17 +483,17 @@
                                      'musica'   => ['icon' => 'fa-music',       'color' => 'pink'],
                                  ];
                                  ?>
-                                 <div class="flex flex-wrap gap-3">
+                                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
                                      <?php foreach ($allPrefs as $key => $pref):
                                          $isActive = in_array($key, $userPrefs);
                                          $activeClasses = 'bg-' . $pref['color'] . '-500/10 border-' . $pref['color'] . '-500/30';
                                          $inactiveClasses = 'bg-gray-800/50 border-gray-700 hover:border-gray-600';
                                      ?>
-                                     <label class="pref-toggle flex items-center gap-2.5 px-4 py-2.5 rounded-xl border cursor-pointer transition-all select-none <?= $isActive ? $activeClasses : $inactiveClasses ?>"
+                                     <label class="pref-toggle flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl border cursor-pointer transition-all select-none text-center <?= $isActive ? $activeClasses : $inactiveClasses ?>"
                                             data-color="<?= $pref['color'] ?>">
                                          <input type="checkbox" name="preferencias_viaje[]" value="<?= $key ?>" <?= $isActive ? 'checked' : '' ?> class="hidden">
-                                         <i class="fas <?= $pref['icon'] ?> text-<?= $pref['color'] ?>-400" aria-hidden="true"></i>
-                                         <span class="text-sm text-gray-300 whitespace-nowrap"><?= t('pref.' . $key) ?></span>
+                                         <i class="fas <?= $pref['icon'] ?> text-<?= $pref['color'] ?>-400 shrink-0" aria-hidden="true"></i>
+                                         <span class="text-xs sm:text-sm text-gray-300 leading-tight"><?= t('pref.' . $key) ?></span>
                                      </label>
                                      <?php endforeach; ?>
                                  </div>
@@ -928,10 +963,10 @@
 <div id="profile-ride-modal" class="fixed inset-0 z-[100] hidden" role="dialog" aria-modal="true">
     <div class="fixed inset-0 bg-black/70 backdrop-blur-md transition-opacity duration-300 opacity-0" id="profile-modal-backdrop"></div>
     <div class="fixed inset-0 z-10 flex items-center justify-center p-3 sm:p-5">
-        <div class="relative transform overflow-y-auto max-h-[92vh] rounded-3xl bg-gray-900 text-left shadow-2xl shadow-black/50 transition-all duration-300 w-full max-w-[76rem] border border-gray-700/40 opacity-0 translate-y-4 sm:scale-95" id="profile-modal-panel">
+        <div class="relative flex flex-col max-h-[92vh] rounded-3xl bg-gray-900 text-left shadow-2xl shadow-black/50 transition-all duration-300 w-full max-w-[76rem] border border-gray-700/40 opacity-0 translate-y-4 sm:scale-95 overflow-hidden" id="profile-modal-panel">
 
             <!-- Header -->
-            <div class="sticky top-0 z-20 px-6 sm:px-8 py-4 bg-gray-900/95 backdrop-blur-xl border-b border-gray-800/80 flex items-center justify-between">
+            <div class="shrink-0 px-6 sm:px-8 py-4 bg-gray-900/95 backdrop-blur-xl border-b border-gray-800/80 flex items-center justify-between">
                 <div class="flex items-center gap-4">
                     <div class="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-lg shadow-primary/5">
                         <i class="fas fa-route text-primary text-lg" aria-hidden="true"></i>
@@ -951,6 +986,8 @@
                     <i class="fas fa-times text-lg" aria-hidden="true"></i>
                 </button>
             </div>
+
+            <div class="flex-1 overflow-y-auto overscroll-contain">
 
             <!-- Barra de usuario horizontal -->
             <div class="px-6 sm:px-8 py-3.5 border-b border-gray-800/60 bg-gray-800/20">
@@ -1047,8 +1084,10 @@
                 </div>
             </div>
 
+            </div>
+
             <!-- Footer -->
-            <div class="sticky bottom-0 px-6 sm:px-8 py-4 border-t border-gray-800/80 bg-gray-900/95 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center gap-3">
+            <div class="shrink-0 px-6 sm:px-8 py-4 border-t border-gray-800/80 bg-gray-900/95 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center gap-3">
                 <button type="button"
                         class="w-full sm:w-auto px-6 py-3 rounded-xl border border-gray-700 bg-gray-800/50 text-sm font-semibold text-gray-300 hover:bg-gray-800 hover:text-white transition-all order-3 sm:order-1"
                         onclick="closeProfileRideModal()">

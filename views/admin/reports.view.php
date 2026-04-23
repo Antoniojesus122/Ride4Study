@@ -2,6 +2,11 @@
 <?php require_once __DIR__ . '/layout/header.view.php'; ?>
 <?php require_once __DIR__ . '/layout/sidebar.view.php'; ?>
 
+<style>
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
+</style>
+
 <?php
     $motivoLabels = [
         'spam' => 'Spam', 'ofensivo' => 'Contenido ofensivo', 'suplantacion' => 'Suplantacion',
@@ -17,9 +22,9 @@
     $adminId = $_SESSION['user_id'] ?? 0;
 ?>
 
-<main class="ml-[72px] flex-1 min-h-screen flex flex-col">
+<main class="md:ml-[72px] flex-1 min-w-0 min-h-screen flex flex-col">
     <?php require_once __DIR__ . '/layout/topbar.view.php'; ?>
-    <div class="flex-1 p-10">
+    <div class="flex-1 p-4 sm:p-6 lg:p-10">
 
     <!-- Mensajes -->
     <?php if ($successMsg): ?>
@@ -40,75 +45,128 @@
         <div class="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-base">Error: <?= htmlspecialchars($errorMsg) ?></div>
     <?php endif; ?>
 
-    <!-- Pestañas + acciones -->
-    <div class="flex items-center justify-between mb-6">
-        <div class="flex space-x-1.5 bg-gray-800/50 rounded-lg p-1.5">
-            <?php foreach (['usuario' => 'Usuarios', 'anuncio' => 'Anuncios', 'chat' => 'Chats', 'stats' => 'Estadísticas'] as $key => $label): ?>
-            <a href="<?= url('/admin/reports') ?>?tab=<?= $key ?>" class="px-5 py-2.5 text-base font-medium rounded-md transition flex items-center gap-2
-                <?= $tab === $key ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">
-                <?php if ($key === 'stats'): ?><i class="fas fa-chart-bar text-sm" aria-hidden="true"></i><?php endif; ?>
-                <?= $label ?>
+    <!-- Pestañas principales-->
+    <div class="mb-5">
+        <nav class="flex gap-2 overflow-x-auto scrollbar-hide pb-1" aria-label="Secciones de reportes" style="scrollbar-width: none; -ms-overflow-style: none;">
+            <?php
+                $tabsConfig = [
+                    'usuario' => ['label' => 'Usuarios', 'icon' => 'fas fa-user'],
+                    'anuncio' => ['label' => 'Anuncios', 'icon' => 'fas fa-car-side'],
+                    'chat'    => ['label' => 'Chats',    'icon' => 'fas fa-comment-dots'],
+                    'stats'   => ['label' => 'Estadísticas', 'icon' => 'fas fa-chart-bar'],
+                ];
+                foreach ($tabsConfig as $key => $cfg):
+                    $isActive = ($tab === $key);
+            ?>
+            <a href="<?= url('/admin/reports') ?>?tab=<?= $key ?>"
+               class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors border
+                      <?= $isActive ? 'bg-primary/10 text-primary border-primary/20' : 'bg-transparent text-gray-400 border-transparent hover:text-white hover:bg-gray-800' ?>">
+                <i class="<?= $cfg['icon'] ?> text-xs" aria-hidden="true"></i>
+                <?= $cfg['label'] ?>
             </a>
             <?php endforeach; ?>
-        </div>
-        <?php if ($tab !== 'stats'): ?>
-        <div class="flex items-center gap-3">
-            <?php
-                $exportQs = http_build_query(array_filter([
-                    'tab'       => $tab,
-                    'action'    => 'export_csv',
-                    'estado'    => $estadoFilter,
-                    'motivo'    => $_GET['motivo']    ?? '',
-                    'periodo'   => $_GET['periodo']   ?? '',
-                    'date_from' => $_GET['date_from'] ?? '',
-                    'date_to'   => $_GET['date_to']   ?? '',
-                    'prioridad' => $_GET['prioridad'] ?? '',
-                    'evidencia' => $_GET['evidencia'] ?? '',
-                ], fn($v) => $v !== '' && $v !== null));
-            ?>
-            <a href="<?= url('/admin/reports') ?>?<?= $exportQs ?>"
-               class="px-4 py-2.5 text-base font-medium bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/20 transition border border-emerald-500/20">Exportar CSV</a>
-        </div>
-        <?php endif; ?>
+        </nav>
     </div>
 
-    <!-- Filtro de estado -->
+    <!-- Filtro de estado + Exportar CSV -->
     <?php if ($tab !== 'stats'): ?>
-    <div class="flex space-x-1.5 bg-gray-800/50 rounded-lg p-1.5 w-fit mb-6">
-        <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>" class="px-4 py-2 text-sm font-medium rounded-md transition <?= !$estadoFilter ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200' ?>">Todos</a>
-        <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>&estado=pendiente" class="px-4 py-2 text-sm font-medium rounded-md transition <?= $estadoFilter === 'pendiente' ? 'bg-yellow-500/20 text-yellow-400' : 'text-gray-400 hover:text-gray-200' ?>">Pendientes</a>
-        <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>&estado=en_revision" class="px-4 py-2 text-sm font-medium rounded-md transition <?= $estadoFilter === 'en_revision' ? 'bg-blue-500/20 text-blue-400' : 'text-gray-400 hover:text-gray-200' ?>">En revision</a>
-        <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>&estado=resuelto" class="px-4 py-2 text-sm font-medium rounded-md transition <?= $estadoFilter === 'resuelto' ? 'bg-green-500/20 text-green-400' : 'text-gray-400 hover:text-gray-200' ?>">Resueltos</a>
+    <div class="flex flex-col gap-3 mb-5">
+        <!-- Pills de estado con scroll horizontal en móvil -->
+        <div class="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1" aria-label="Filtro de estado" style="scrollbar-width: none; -ms-overflow-style: none;">
+            <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>" class="shrink-0 px-4 py-2 text-sm font-medium rounded-lg transition whitespace-nowrap <?= !$estadoFilter ? 'bg-gray-700 text-white' : 'bg-gray-800/50 text-gray-400 hover:text-gray-200' ?>">Todos</a>
+            <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>&estado=pendiente" class="shrink-0 px-4 py-2 text-sm font-medium rounded-lg transition whitespace-nowrap <?= $estadoFilter === 'pendiente' ? 'bg-yellow-500/20 text-yellow-400 ring-1 ring-yellow-500/30' : 'bg-gray-800/50 text-gray-400 hover:text-gray-200' ?>">
+                <i class="fas fa-clock text-[10px] mr-1" aria-hidden="true"></i> Pendientes
+            </a>
+            <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>&estado=en_revision" class="shrink-0 px-4 py-2 text-sm font-medium rounded-lg transition whitespace-nowrap <?= $estadoFilter === 'en_revision' ? 'bg-blue-500/20 text-blue-400 ring-1 ring-blue-500/30' : 'bg-gray-800/50 text-gray-400 hover:text-gray-200' ?>">
+                <i class="fas fa-eye text-[10px] mr-1" aria-hidden="true"></i> En revisión
+            </a>
+            <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?>&estado=resuelto" class="shrink-0 px-4 py-2 text-sm font-medium rounded-lg transition whitespace-nowrap <?= $estadoFilter === 'resuelto' ? 'bg-green-500/20 text-green-400 ring-1 ring-green-500/30' : 'bg-gray-800/50 text-gray-400 hover:text-gray-200' ?>">
+                <i class="fas fa-check text-[10px] mr-1" aria-hidden="true"></i> Resueltos
+            </a>
+        </div>
+
+        <!-- Exportar CSV (debajo en móvil, a la derecha en desktop si hay espacio) -->
+        <?php
+            $exportQs = http_build_query(array_filter([
+                'tab'       => $tab,
+                'action'    => 'export_csv',
+                'estado'    => $estadoFilter,
+                'motivo'    => $_GET['motivo']    ?? '',
+                'periodo'   => $_GET['periodo']   ?? '',
+                'date_from' => $_GET['date_from'] ?? '',
+                'date_to'   => $_GET['date_to']   ?? '',
+                'prioridad' => $_GET['prioridad'] ?? '',
+                'evidencia' => $_GET['evidencia'] ?? '',
+            ], fn($v) => $v !== '' && $v !== null));
+        ?>
+        <a href="<?= url('/admin/reports') ?>?<?= $exportQs ?>"
+           class="inline-flex items-center justify-center gap-2 self-start px-4 py-2 text-sm font-semibold bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/20 transition border border-emerald-500/20">
+            <i class="fas fa-file-csv" aria-hidden="true"></i> Exportar CSV
+        </a>
     </div>
 
     <!-- Filtros -->
-    <form method="GET" action="<?= url('/admin/reports') ?>" class="flex flex-wrap items-center gap-3 mb-6">
+    <?php
+        $reportsAdvFilters = [$_GET['motivo'] ?? '', $_GET['prioridad'] ?? '', $_GET['evidencia'] ?? '', $_GET['date_from'] ?? '', $_GET['date_to'] ?? '', $_GET['periodo'] ?? ''];
+        $reportsActiveAdv = count(array_filter($reportsAdvFilters, fn($v) => $v !== '' && $v !== null));
+    ?>
+    <form method="GET" action="<?= url('/admin/reports') ?>" class="mb-8">
         <input type="hidden" name="tab" value="<?= $tab ?>">
         <?php if ($estadoFilter): ?><input type="hidden" name="estado" value="<?= htmlspecialchars($estadoFilter) ?>"><?php endif; ?>
-        <select name="motivo" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
-            <option value="">Todos los motivos</option>
-            <?php foreach ($motivoLabels as $key => $label): ?>
-            <option value="<?= $key ?>" <?= ($_GET['motivo'] ?? '') === $key ? 'selected' : '' ?>><?= $label ?></option>
-            <?php endforeach; ?>
-        </select>
-        <select name="prioridad" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
-            <option value="">Cualquier prioridad</option>
-            <option value="urgente" <?= ($_GET['prioridad'] ?? '') === 'urgente' ? 'selected' : '' ?>>Urgente</option>
-            <option value="alta"    <?= ($_GET['prioridad'] ?? '') === 'alta'    ? 'selected' : '' ?>>Alta</option>
-            <option value="media"   <?= ($_GET['prioridad'] ?? '') === 'media'   ? 'selected' : '' ?>>Media</option>
-            <option value="baja"    <?= ($_GET['prioridad'] ?? '') === 'baja'    ? 'selected' : '' ?>>Baja</option>
-        </select>
-        <select name="evidencia" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-base text-gray-200 focus:outline-none focus:border-primary">
-            <option value="">Evidencia</option>
-            <option value="con" <?= ($_GET['evidencia'] ?? '') === 'con' ? 'selected' : '' ?>>Con evidencia</option>
-            <option value="sin" <?= ($_GET['evidencia'] ?? '') === 'sin' ? 'selected' : '' ?>>Sin evidencia</option>
-        </select>
-        <?php renderPeriodFilter($_GET); ?>
-        <button type="submit" class="px-5 py-2.5 text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
-        <?php if (!empty($_GET['motivo']) || !empty($_GET['date_from']) || !empty($_GET['date_to']) || !empty($_GET['prioridad']) || !empty($_GET['evidencia']) || !empty($_GET['periodo'])): ?>
-            <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?><?= $estadoFilter ? '&estado=' . urlencode($estadoFilter) : '' ?>" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
-        <?php endif; ?>
+
+        <!-- Toggle móvil "Más filtros" -->
+        <button type="button" onclick="toggleReportsAdvFilters()"
+                class="sm:hidden w-full flex items-center justify-between px-4 py-2.5 rounded-lg border border-gray-700 bg-gray-800/60 text-sm font-medium text-gray-300 hover:border-gray-600 transition-all"
+                aria-expanded="<?= $reportsActiveAdv > 0 ? 'true' : 'false' ?>" aria-controls="reports-adv-filters">
+            <span class="flex items-center gap-2">
+                <i class="fas fa-sliders text-xs text-primary" aria-hidden="true"></i>
+                Más filtros
+                <?php if ($reportsActiveAdv > 0): ?>
+                    <span class="bg-primary text-secondary text-[10px] font-bold px-1.5 py-0.5 rounded-full"><?= $reportsActiveAdv ?></span>
+                <?php endif; ?>
+            </span>
+            <i class="fas fa-chevron-down text-xs text-gray-500 transition-transform <?= $reportsActiveAdv > 0 ? 'rotate-180' : '' ?>" id="reports-adv-chevron" aria-hidden="true"></i>
+        </button>
+
+        <div id="reports-adv-filters" class="<?= $reportsActiveAdv > 0 ? '' : 'hidden' ?> flex flex-col sm:!flex-row sm:flex-wrap sm:items-center gap-3 mt-4 sm:mt-0">
+            <select name="motivo" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm sm:text-base text-gray-200 focus:outline-none focus:border-primary w-full sm:w-auto">
+                <option value="">Todos los motivos</option>
+                <?php foreach ($motivoLabels as $key => $label): ?>
+                    <option value="<?= $key ?>" <?= ($_GET['motivo'] ?? '') === $key ? 'selected' : '' ?>><?= $label ?></option>
+                <?php endforeach; ?>
+            </select>
+            <select name="prioridad" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm sm:text-base text-gray-200 focus:outline-none focus:border-primary w-full sm:w-auto">
+                <option value="">Cualquier prioridad</option>
+                <option value="urgente" <?= ($_GET['prioridad'] ?? '') === 'urgente' ? 'selected' : '' ?>>Urgente</option>
+                <option value="alta"    <?= ($_GET['prioridad'] ?? '') === 'alta'    ? 'selected' : '' ?>>Alta</option>
+                <option value="media"   <?= ($_GET['prioridad'] ?? '') === 'media'   ? 'selected' : '' ?>>Media</option>
+                <option value="baja"    <?= ($_GET['prioridad'] ?? '') === 'baja'    ? 'selected' : '' ?>>Baja</option>
+            </select>
+            <select name="evidencia" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm sm:text-base text-gray-200 focus:outline-none focus:border-primary w-full sm:w-auto">
+                <option value="">Evidencia</option>
+                <option value="con" <?= ($_GET['evidencia'] ?? '') === 'con' ? 'selected' : '' ?>>Con evidencia</option>
+                <option value="sin" <?= ($_GET['evidencia'] ?? '') === 'sin' ? 'selected' : '' ?>>Sin evidencia</option>
+            </select>
+            <?php renderPeriodFilter($_GET); ?>
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <button type="submit" class="flex-1 sm:flex-none px-5 py-2.5 text-sm sm:text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
+                <?php if ($reportsActiveAdv > 0): ?>
+                    <a href="<?= url('/admin/reports') ?>?tab=<?= $tab ?><?= $estadoFilter ? '&estado=' . urlencode($estadoFilter) : '' ?>" class="text-sm text-gray-400 hover:text-gray-200 whitespace-nowrap">Limpiar</a>
+                <?php endif; ?>
+            </div>
+        </div>
     </form>
+    <script>
+        function toggleReportsAdvFilters() {
+            const w = document.getElementById('reports-adv-filters');
+            const c = document.getElementById('reports-adv-chevron');
+            const b = document.querySelector('[aria-controls="reports-adv-filters"]');
+            const open = w.classList.contains('hidden');
+            w.classList.toggle('hidden', !open);
+            if (c) c.classList.toggle('rotate-180', open);
+            if (b) b.setAttribute('aria-expanded', String(open));
+        }
+    </script>
     <?php endif; ?>
 
     <!-- Contenido de la pestaña activa -->

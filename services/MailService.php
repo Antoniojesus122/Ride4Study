@@ -5,16 +5,20 @@ require_once __DIR__ . '/../config/env.php';
 class MailService
 {
     private $apiKey;
+    private string $fromEmail;
+    private string $fromName;
 
     public function __construct()
     {
+        $this->apiKey = $_ENV['BREVO_API_KEY'] ?? null;
 
-    $this->apiKey = $_ENV['BREVO_API_KEY'] ?? null;
+        if (!$this->apiKey) {
+            throw new Exception("API Key no encontrada en variables de entorno.");
+        }
 
-    if (!$this->apiKey) {
-        throw new Exception("API Key no encontrada en variables de entorno.");
-    }
-
+        // Remitente por defecto 
+        $this->fromEmail = $_ENV['MAIL_FROM']      ?? 'info@ride4study.es';
+        $this->fromName  = $_ENV['MAIL_FROM_NAME'] ?? 'Ride4Study';
     }
     
     // Genera una plantilla genérica HTML para los emails, evidentemente con el diseño del proyecto
@@ -98,6 +102,7 @@ class MailService
                                     <!-- FOOTER -->
                                     <tr>
                                         <td style=\"padding:24px; text-align:center; background-color:#0f172a; color:#475569; font-size:12px; line-height:1.7;\">
+                                            ¿Necesitas ayuda? Escríbenos a <a href=\"mailto:info@ride4study.es\" style=\"color:#34d399; text-decoration:none;\">info@ride4study.es</a><br>
                                             &copy; {$anio} Ride4Study &middot; Conectando estudiantes, compartiendo trayectos.
                                         </td>
                                     </tr>
@@ -113,17 +118,22 @@ class MailService
         ";
     }
 
-    public function send($toEmail, $toName, $subject, $html)
+    // Envía email usando la API de Brevo
+    public function send($toEmail, $toName, $subject, $html, ?string $senderName = null)
     {
         $data = [
             "sender" => [
-                "name" => "Ride4Study",
-                "email" => "ride4study@outlook.es"
+                "name"  => $senderName ?: $this->fromName,
+                "email" => $this->fromEmail
             ],
             "to" => [[
                 "email" => $toEmail,
                 "name" => $toName
             ]],
+            "replyTo" => [
+                "email" => $this->fromEmail,
+                "name"  => $this->fromName
+            ],
             "subject" => $subject,
             "htmlContent" => $html
         ];

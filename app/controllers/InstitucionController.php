@@ -296,13 +296,25 @@
             $params = [];
             $where = $this->buildStudentFilters($instName, $_GET, $params);
 
+            // Total para paginación
+            $countStmt = $this->db->prepare("SELECT COUNT(*) FROM usuarios u {$where}");
+            $countStmt->execute($params);
+            $totalStudents = (int)$countStmt->fetchColumn();
+
+            $page = max(1, (int)($_GET['page'] ?? 1));
+            $perPage = 20;
+            $totalPages = max(1, (int)ceil($totalStudents / $perPage));
+            if ($page > $totalPages) $page = $totalPages;
+            $offset = ($page - 1) * $perPage;
+
             $sql = "SELECT u.idUsuario, u.nombre, u.correo, u.foto_perfil, u.creado_en,
                         u.estado_verificacion,
                         (SELECT COUNT(*) FROM anuncios a WHERE a.idUsuario = u.idUsuario) as num_viajes,
                         (SELECT AVG(v.puntuacion) FROM valoraciones v WHERE v.idValorado = u.idUsuario) as valoracion_media
                     FROM usuarios u
                     {$where}
-                    ORDER BY u.creado_en DESC";
+                    ORDER BY u.creado_en DESC
+                    LIMIT {$perPage} OFFSET {$offset}";
 
             $stmt = $this->db->prepare($sql);
             $stmt->execute($params);

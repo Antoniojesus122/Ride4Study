@@ -3,6 +3,8 @@
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="theme-color" content="#111827">
+            <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
             <title>Ride4Study - Tu viaje, tu comunidad</title>
 
             <script src="https://cdn.tailwindcss.com"></script>
@@ -18,43 +20,123 @@
         <body class="h-full text-white flex flex-col">
 
             <!-- Barra de navegación -->
-            <nav class="absolute w-full z-10 px-4 sm:px-6 py-4 sm:py-6 flex justify-between items-center max-w-7xl mx-auto left-0 right-0">
-                <div class="flex items-center gap-2">
-                    <img src="public/img/logo.png" alt="" aria-hidden="true" class="w-8 h-8 sm:w-10 sm:h-10 object-contain">
-                    <span class="font-bold text-lg sm:text-2xl tracking-tight">
-                        Ride4Study
-                    </span>
-                </div>
+            <nav class="absolute w-full z-20 px-4 sm:px-6 py-4 sm:py-6 max-w-7xl mx-auto left-0 right-0">
+                <div class="flex justify-between items-center gap-3">
+                    <a href="<?= url('/') ?>" class="flex items-center gap-2 shrink-0">
+                        <img src="public/img/logo.png" alt="" aria-hidden="true" class="w-8 h-8 sm:w-10 sm:h-10 object-contain">
+                        <span class="font-bold text-lg sm:text-2xl tracking-tight">Ride4Study</span>
+                    </a>
 
-                <div class="hidden md:flex gap-8 items-center">
-                    <a href="#como-funciona" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">
-                        <?= t('landing.how_it_works') ?>
-                    </a>
-                    <a href="#ventajas" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">
-                        <?= t('landing.benefits') ?>
-                    </a>
-                    <a href="<?= url('/instituciones') ?>" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">
-                        <?= t('landing.institutions') ?>
-                    </a>
-                    <a href="<?= SURVEY_URL ?>" target="_blank" rel="noopener" class="text-sm font-medium text-primary hover:text-green-300 transition-colors flex items-center gap-1.5">
-                        <i class="fas fa-poll" aria-hidden="true"></i>
-                        <?= t('landing.survey') ?>
-                    </a>
-                </div>
-
-                <div class="flex items-center gap-2 sm:gap-4">
-                    <div class="flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/5">
-                        <a href="<?= url('/set-lang') ?>?lang=es" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'es' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">ES</a>
-                        <a href="<?= url('/set-lang') ?>?lang=en" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'en' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">EN</a>
+                    <!-- Enlaces (solo escritorio) -->
+                    <div class="hidden md:flex gap-6 items-center">
+                        <a href="#como-funciona" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                            <?= t('landing.how_it_works') ?>
+                        </a>
+                        <a href="#ventajas" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                            <?= t('landing.benefits') ?>
+                        </a>
+                        <a href="<?= url('/instituciones') ?>" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                            <?= t('landing.institutions') ?>
+                        </a>
+                        <a href="<?= SURVEY_URL ?>" target="_blank" rel="noopener" class="text-sm font-medium text-primary hover:text-green-300 transition-colors flex items-center gap-1.5">
+                            <i class="fas fa-poll" aria-hidden="true"></i>
+                            <?= t('landing.survey') ?>
+                        </a>
                     </div>
-                    <a href="<?= url('/login') ?>" class="text-xs sm:text-sm md:text-base text-white hover:text-primary font-medium px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 transition-colors whitespace-nowrap">
-                        <?= t('landing.login') ?>
-                    </a>
-                    <a href="<?= url('/register') ?>" class="bg-white text-secondary hover:bg-gray-200 text-xs sm:text-sm md:text-base font-bold px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-full transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
-                        <?= t('landing.register') ?>
-                    </a>
+
+                    <!-- Acciones derechas -->
+                    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                        <!-- Selector de idioma SOLO escritorio (en móvil va dentro del hamburguesa) -->
+                        <div class="hidden md:flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/5">
+                            <a href="<?= url('/set-lang') ?>?lang=es" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'es' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">ES</a>
+                            <a href="<?= url('/set-lang') ?>?lang=en" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'en' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">EN</a>
+                        </div>
+                        <a href="<?= url('/login') ?>" class="hidden sm:inline-flex text-sm md:text-base text-white hover:text-primary font-medium px-3 md:px-4 py-2 transition-colors whitespace-nowrap">
+                            <?= t('landing.login') ?>
+                        </a>
+                        <a href="<?= url('/register') ?>" class="bg-white text-secondary hover:bg-gray-200 text-sm md:text-base font-bold px-4 sm:px-5 md:px-6 py-2 md:py-2.5 rounded-full transition-all duration-200 transform hover:scale-105 whitespace-nowrap shadow-md">
+                            <?= t('landing.register') ?>
+                        </a>
+                        <!-- Hamburguesa móvil -->
+                        <button
+                            type="button"
+                            id="landing-menu-btn"
+                            onclick="toggleLandingMenu()"
+                            class="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:bg-white/20 transition-all text-white border border-white/15 shrink-0"
+                            aria-label="<?= t('a11y.open_menu') ?? 'Abrir menu' ?>"
+                            aria-expanded="false"
+                            aria-controls="landing-menu"
+                        >
+                            <i class="fas fa-bars text-lg" id="landing-menu-icon" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Menú móvil desplegable -->
+                <div id="landing-menu" class="hidden md:hidden mt-3 rounded-2xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden">
+                    <nav class="p-2 space-y-1">
+                        <a href="#como-funciona" onclick="closeLandingMenu()" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-gray-200 hover:bg-white/10 transition-all">
+                            <i class="fas fa-circle-question w-5 text-center text-primary/80" aria-hidden="true"></i><?= t('landing.how_it_works') ?>
+                        </a>
+                        <a href="#ventajas" onclick="closeLandingMenu()" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-gray-200 hover:bg-white/10 transition-all">
+                            <i class="fas fa-star w-5 text-center text-primary/80" aria-hidden="true"></i><?= t('landing.benefits') ?>
+                        </a>
+                        <a href="<?= url('/instituciones') ?>" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-gray-200 hover:bg-white/10 transition-all">
+                            <i class="fas fa-university w-5 text-center text-primary/80" aria-hidden="true"></i><?= t('landing.institutions') ?>
+                        </a>
+                        <a href="<?= SURVEY_URL ?>" target="_blank" rel="noopener" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-primary hover:bg-white/10 transition-all">
+                            <i class="fas fa-poll w-5 text-center" aria-hidden="true"></i><?= t('landing.survey') ?>
+                            <i class="fas fa-external-link-alt text-[10px] text-gray-500 ml-auto" aria-hidden="true"></i>
+                        </a>
+                    </nav>
+                    <div class="border-t border-white/10 p-2 space-y-1">
+                        <a href="<?= url('/login') ?>" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-gray-200 hover:bg-white/10 transition-all">
+                            <i class="fas fa-sign-in-alt w-5 text-center text-gray-400" aria-hidden="true"></i><?= t('landing.login') ?>
+                        </a>
+                        <a href="<?= url('/institution-login') ?>" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-gray-200 hover:bg-white/10 transition-all">
+                            <i class="fas fa-building-columns w-5 text-center text-gray-400" aria-hidden="true"></i><?= t('login.institution_access') ?>
+                        </a>
+                    </div>
+                    <!-- Idioma -->
+                    <div class="border-t border-white/10 p-3 flex items-center justify-between gap-3">
+                        <span class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Idioma</span>
+                        <div class="flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/10">
+                            <a href="<?= url('/set-lang') ?>?lang=es" hreflang="es" lang="es" class="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all <?= currentLang() === 'es' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">
+                                <span class="text-sm leading-none">🇪🇸</span> ES
+                            </a>
+                            <a href="<?= url('/set-lang') ?>?lang=en" hreflang="en" lang="en" class="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all <?= currentLang() === 'en' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">
+                                <span class="text-sm leading-none">🇬🇧</span> EN
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </nav>
+
+            <script>
+                function toggleLandingMenu() {
+                    const m = document.getElementById('landing-menu');
+                    const b = document.getElementById('landing-menu-btn');
+                    const i = document.getElementById('landing-menu-icon');
+                    const open = m.classList.contains('hidden');
+                    m.classList.toggle('hidden', !open);
+                    if (b) b.setAttribute('aria-expanded', String(open));
+                    if (i) { i.classList.toggle('fa-bars', !open); i.classList.toggle('fa-times', open); }
+                }
+                function closeLandingMenu() {
+                    const m = document.getElementById('landing-menu');
+                    const b = document.getElementById('landing-menu-btn');
+                    const i = document.getElementById('landing-menu-icon');
+                    if (m) m.classList.add('hidden');
+                    if (b) b.setAttribute('aria-expanded', 'false');
+                    if (i) { i.classList.remove('fa-times'); i.classList.add('fa-bars'); }
+                }
+                document.addEventListener('click', function(e) {
+                    const m = document.getElementById('landing-menu');
+                    const b = document.getElementById('landing-menu-btn');
+                    if (m && b && !m.classList.contains('hidden') && !m.contains(e.target) && !b.contains(e.target)) closeLandingMenu();
+                });
+                document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLandingMenu(); });
+            </script>
 
             <!-- Contenido Principal -->
             <main class="flex-grow">

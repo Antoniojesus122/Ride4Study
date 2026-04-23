@@ -17,8 +17,8 @@
         <div class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/20 text-yellow-400 text-sm font-bold rounded-full border border-yellow-500/30 mb-4">
             <i class="fas fa-crown" aria-hidden="true"></i> <?= t('premium.active_title') ?>
         </div>
-        <h1 class="text-4xl font-bold text-white mb-3"><?= t('premium.already_premium') ?></h1>
-        <p class="text-gray-400 text-lg"><?= t('premium.active_desc') ?><?= $premiumHasta ? ' ' . t('premium.active_until') . ' <strong class="text-white">' . date('d/m/Y', strtotime($premiumHasta)) . '</strong>' : '' ?>.</p>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3"><?= t('premium.already_premium') ?></h1>
+        <p class="text-gray-400 text-base sm:text-lg"><?= t('premium.active_desc') ?><?= $premiumHasta ? ' ' . t('premium.active_until') . ' <strong class="text-white">' . date('d/m/Y', strtotime($premiumHasta)) . '</strong>' : '' ?>.</p>
     </div>
 
     <div class="bg-gradient-to-br from-yellow-500/10 to-amber-500/5 border border-yellow-500/20 rounded-2xl p-8 mb-8 text-center">
@@ -58,8 +58,8 @@
         <div class="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary text-sm font-medium rounded-full border border-primary/20 mb-4">
             <i class="fas fa-star" aria-hidden="true"></i> <?= t('premium.improve_title') ?>
         </div>
-        <h1 class="text-4xl lg:text-5xl font-bold text-white mb-3"><?= t('premium.title') ?></h1>
-        <p class="text-gray-400 text-lg lg:text-xl max-w-2xl mx-auto"><?= t('premium.subtitle') ?></p>
+        <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3"><?= t('premium.title') ?></h1>
+        <p class="text-gray-400 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto"><?= t('premium.subtitle') ?></p>
     </div>
 
     <?php if ($flashData && $flashData['type'] === 'success'): ?>

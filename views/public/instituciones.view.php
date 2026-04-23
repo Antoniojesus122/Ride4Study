@@ -3,6 +3,8 @@
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="theme-color" content="#111827">
+            <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
             <title><?= t('inst_public.page_title') ?> - Ride4Study</title>
 
             <script src="https://cdn.tailwindcss.com"></script>
@@ -33,35 +35,87 @@
 
             <!-- Barra de navegacion -->
             <nav class="fixed w-full z-50 px-4 sm:px-6 py-4 sm:py-5 bg-gray-900/80 backdrop-blur-xl border-b border-white/5">
-                <div class="flex justify-between items-center max-w-7xl mx-auto">
-                    <a href="<?= url('/') ?>" class="flex items-center gap-2">
+                <div class="flex justify-between items-center max-w-7xl mx-auto gap-3">
+                    <a href="<?= url('/') ?>" class="flex items-center gap-2 shrink-0">
                         <img src="public/img/logo.png" alt="" aria-hidden="true" class="w-8 h-8 sm:w-10 sm:h-10 object-contain">
-                        <span class="font-bold text-lg sm:text-2xl tracking-tight">
-                            Ride4Study
-                        </span>
+                        <span class="font-bold text-lg sm:text-2xl tracking-tight">Ride4Study</span>
                     </a>
-                    
-                    <div class="hidden md:flex gap-8 items-center">
+
+                    <div class="hidden md:flex gap-6 items-center">
                         <a href="<?= url('/') ?>" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">
                             <?= t('landing.estudiantes') ?>
                         </a>
                         <a href="<?= SURVEY_URL ?>" target="_blank" rel="noopener" class="text-sm font-medium text-primary hover:text-green-300 transition-colors flex items-center gap-1.5">
-                            <i class="fas fa-poll" aria-hidden="true"></i>
-                            <?= t('landing.survey') ?>
+                            <i class="fas fa-poll" aria-hidden="true"></i><?= t('landing.survey') ?>
                         </a>
                     </div>
 
-                    <div class="flex items-center gap-2 sm:gap-4">
-                        <div class="flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/5">
+                    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                        <div class="hidden md:flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/5">
                             <a href="<?= url('/set-lang') ?>?lang=es" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'es' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">ES</a>
                             <a href="<?= url('/set-lang') ?>?lang=en" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'en' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">EN</a>
                         </div>
-                        <a href="#formulario" class="bg-white text-secondary hover:bg-gray-200 text-xs sm:text-sm md:text-base font-bold px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-full transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
+                        <a href="#formulario" class="bg-white text-secondary hover:bg-gray-200 text-sm md:text-base font-bold px-4 sm:px-5 md:px-6 py-2 md:py-2.5 rounded-full transition-all duration-200 transform hover:scale-105 whitespace-nowrap shadow-md">
                             <?= t('landing.register') ?>
                         </a>
+                        <!-- Hamburguesa móvil -->
+                        <button type="button" id="inst-landing-menu-btn" onclick="toggleInstLandingMenu()" class="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 transition-all text-white border border-white/15 shrink-0" aria-label="Abrir menú" aria-expanded="false">
+                            <i class="fas fa-bars text-lg" id="inst-landing-menu-icon" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Menú móvil -->
+                <div id="inst-landing-menu" class="hidden md:hidden max-w-7xl mx-auto mt-3 rounded-2xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden">
+                    <nav class="p-2 space-y-1">
+                        <a href="<?= url('/') ?>" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-gray-200 hover:bg-white/10 transition-all">
+                            <i class="fas fa-graduation-cap w-5 text-center text-primary/80" aria-hidden="true"></i><?= t('landing.estudiantes') ?>
+                        </a>
+                        <a href="<?= SURVEY_URL ?>" target="_blank" rel="noopener" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-primary hover:bg-white/10 transition-all">
+                            <i class="fas fa-poll w-5 text-center" aria-hidden="true"></i><?= t('landing.survey') ?>
+                            <i class="fas fa-external-link-alt text-[10px] text-gray-500 ml-auto" aria-hidden="true"></i>
+                        </a>
+                    </nav>
+                    <div class="border-t border-white/10 p-2 space-y-1">
+                        <a href="<?= url('/institution-login') ?>" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-gray-200 hover:bg-white/10 transition-all">
+                            <i class="fas fa-building-columns w-5 text-center text-gray-400" aria-hidden="true"></i><?= t('login.institution_access') ?>
+                        </a>
+                    </div>
+                    <!-- Idioma -->
+                    <div class="border-t border-white/10 p-3 flex items-center justify-between gap-3">
+                        <span class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Idioma</span>
+                        <div class="flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/10">
+                            <a href="<?= url('/set-lang') ?>?lang=es" class="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all <?= currentLang() === 'es' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">
+                                <span class="text-sm leading-none">🇪🇸</span> ES
+                            </a>
+                            <a href="<?= url('/set-lang') ?>?lang=en" class="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all <?= currentLang() === 'en' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>">
+                                <span class="text-sm leading-none">🇬🇧</span> EN
+                            </a>
+                        </div>
                     </div>
                 </div>
             </nav>
+            <script>
+                function toggleInstLandingMenu() {
+                    const m = document.getElementById('inst-landing-menu');
+                    const b = document.getElementById('inst-landing-menu-btn');
+                    const i = document.getElementById('inst-landing-menu-icon');
+                    const open = m.classList.contains('hidden');
+                    m.classList.toggle('hidden', !open);
+                    if (b) b.setAttribute('aria-expanded', String(open));
+                    if (i) { i.classList.toggle('fa-bars', !open); i.classList.toggle('fa-times', open); }
+                }
+                document.addEventListener('click', function(e) {
+                    const m = document.getElementById('inst-landing-menu');
+                    const b = document.getElementById('inst-landing-menu-btn');
+                    if (m && b && !m.classList.contains('hidden') && !m.contains(e.target) && !b.contains(e.target)) {
+                        m.classList.add('hidden');
+                        b.setAttribute('aria-expanded', 'false');
+                        const i = document.getElementById('inst-landing-menu-icon');
+                        if (i) { i.classList.remove('fa-times'); i.classList.add('fa-bars'); }
+                    }
+                });
+            </script>
 
             <!-- Hero -->
             <header class="relative shrink-0 pt-36 pb-24 lg:pt-48 lg:pb-32 overflow-hidden">
@@ -496,7 +550,7 @@
                             <div class="p-6 rounded-2xl bg-gray-900/50 border border-white/5 hover:border-blue-500/20 transition-colors">
                                 <i class="fas fa-envelope text-2xl text-primary mb-3" aria-hidden="true"></i>
                                 <p class="font-semibold mb-1"><?= t('inst_public.contact_email') ?></p>
-                                <p class="text-sm text-gray-400">ride4study@outlook.es</p>
+                                <p class="text-sm text-gray-400">info@ride4study.es</p>
                             </div>
                             <div class="p-6 rounded-2xl bg-gray-900/50 border border-white/5 hover:border-primary/20 transition-colors">
                                 <i class="fas fa-clock text-2xl text-primary mb-3" aria-hidden="true"></i>

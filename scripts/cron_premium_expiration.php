@@ -1,6 +1,11 @@
 <?php
 // Cron: Aviso de expiración de premium (3 días antes) y desactivación automática de premium expirado.
-// Se ejecuta cada vez que un usuario inicia sesión.
+// Configurado como cron job diario en IONOS. Solo ejecutable por CLI.
+
+if (PHP_SAPI !== 'cli') {
+    http_response_code(403);
+    exit('Forbidden: este script solo puede ejecutarse desde la línea de comandos.');
+}
 
 require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../app/helpers.php';

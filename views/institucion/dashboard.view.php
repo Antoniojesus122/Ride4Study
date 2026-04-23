@@ -2,9 +2,9 @@
 <?php require_once __DIR__ . '/layout/header.view.php'; ?>
 <?php require_once __DIR__ . '/layout/sidebar.view.php'; ?>
 
-<main class="ml-[72px] flex-1 min-h-screen flex flex-col">
+<main class="md:ml-[72px] flex-1 min-w-0 min-h-screen flex flex-col">
     <?php require_once __DIR__ . '/layout/topbar.view.php'; ?>
-    <div class="flex-1 p-10">
+    <div class="flex-1 p-4 sm:p-6 lg:p-10">
 
     <!-- Widget de mensajes sin leer (si hay) -->
     <?php if (!empty($stats['unreadMessages'])): ?>
@@ -31,35 +31,35 @@
                 <i class="fas fa-users text-blue-400" aria-hidden="true"></i>
             </div>
             <p class="text-3xl font-bold text-white"><?= $stats['totalStudents'] ?></p>
-            <p class="text-xs text-gray-500 mt-1">Estudiantes registrados</p>
+            <p class="text-sm text-gray-400 mt-1">Estudiantes registrados</p>
         </div>
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
             <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mb-3">
                 <i class="fas fa-route text-primary" aria-hidden="true"></i>
             </div>
             <p class="text-3xl font-bold text-white"><?= $stats['totalTrips'] ?></p>
-            <p class="text-xs text-gray-500 mt-1">Viajes publicados</p>
+            <p class="text-sm text-gray-400 mt-1">Viajes publicados</p>
         </div>
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
             <div class="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center mb-3">
                 <i class="fas fa-check-double text-green-400" aria-hidden="true"></i>
             </div>
             <p class="text-3xl font-bold text-white"><?= $stats['completedTrips'] ?></p>
-            <p class="text-xs text-gray-500 mt-1">Viajes completados</p>
+            <p class="text-sm text-gray-400 mt-1">Viajes completados</p>
         </div>
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
             <div class="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center mb-3">
                 <i class="fas fa-star text-yellow-400" aria-hidden="true"></i>
             </div>
             <p class="text-3xl font-bold text-white"><?= $stats['avgRating'] ?: '-' ?> <span class="text-lg text-gray-500">/ 5</span></p>
-            <p class="text-xs text-gray-500 mt-1">Valoracion media</p>
+            <p class="text-sm text-gray-400 mt-1">Valoración media</p>
         </div>
         <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
             <div class="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center mb-3">
                 <i class="fas fa-leaf text-emerald-400" aria-hidden="true"></i>
             </div>
             <p class="text-3xl font-bold text-white"><?= $stats['co2Saved'] ?> <span class="text-lg text-gray-500">kg</span></p>
-            <p class="text-xs text-gray-500 mt-1">CO2 ahorrado</p>
+            <p class="text-sm text-gray-400 mt-1">CO₂ ahorrado</p>
         </div>
         <!-- Nuevos estudiantes este mes + delta -->
         <?php $delta = (int)($stats['newStudentsDelta'] ?? 0); ?>
@@ -68,7 +68,7 @@
                 <i class="fas fa-user-plus text-purple-400" aria-hidden="true"></i>
             </div>
             <p class="text-3xl font-bold text-white"><?= (int)$stats['newStudentsMonth'] ?></p>
-            <p class="text-xs text-gray-500 mt-1 flex items-center gap-1">
+            <p class="text-sm text-gray-400 mt-1 flex items-center gap-1 flex-wrap">
                 <span>Nuevos este mes</span>
                 <?php if ($delta > 0): ?>
                     <span class="text-green-400 font-semibold">+<?= $delta ?></span>
@@ -126,11 +126,11 @@
     </div>
 
     <!-- Ultimos estudiantes -->
-    <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-base font-semibold text-white">Ultimos estudiantes registrados</h3>
-            <a href="<?= url('/institution/students') ?>" class="text-sm text-blue-400 hover:text-blue-300 transition-colors">
-                Ver todos <i class="fas fa-arrow-right text-xs ml-1" aria-hidden="true"></i>
+    <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-5 sm:p-6">
+        <div class="flex items-center justify-between mb-5 gap-3">
+            <h3 class="text-base sm:text-lg font-semibold text-white">Últimos estudiantes registrados</h3>
+            <a href="<?= url('/institution/students') ?>" class="inline-flex items-center gap-1.5 text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors whitespace-nowrap shrink-0">
+                Ver todos <i class="fas fa-arrow-right text-xs" aria-hidden="true"></i>
             </a>
         </div>
         <?php if (empty($recentStudents)): ?>
@@ -141,15 +141,15 @@
         <?php else: ?>
             <div class="space-y-3">
                 <?php foreach ($recentStudents as $student): ?>
-                    <div class="flex items-center gap-4 bg-gray-900/50 p-4 rounded-lg">
+                    <div class="flex items-center gap-3 sm:gap-4 bg-gray-900/50 p-3 sm:p-4 rounded-lg">
                         <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
                             <?= strtoupper(substr($student['nombre'], 0, 2)) ?>
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm text-gray-200 font-medium truncate"><?= htmlspecialchars($student['nombre']) ?></p>
-                            <p class="text-xs text-gray-500"><?= htmlspecialchars($student['correo']) ?></p>
+                            <p class="text-xs text-gray-500 truncate" title="<?= htmlspecialchars($student['correo']) ?>"><?= htmlspecialchars($student['correo']) ?></p>
                         </div>
-                        <span class="text-xs text-gray-500"><?= date('d/m/Y', strtotime($student['creado_en'])) ?></span>
+                        <span class="text-xs text-gray-500 shrink-0 whitespace-nowrap"><?= date('d/m/Y', strtotime($student['creado_en'])) ?></span>
                     </div>
                 <?php endforeach; ?>
             </div>

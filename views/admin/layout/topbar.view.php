@@ -40,14 +40,19 @@
     $tipoLabelsTopbar = ['usuario' => 'Usuario', 'anuncio' => 'Anuncio', 'chat' => 'Chat'];
 ?>
 
-<div class="sticky top-0 z-20 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 px-10 py-6 flex items-center justify-between">
-    <!-- Izquierda: Titulo de la página -->
-    <div>
-        <h1 class="text-3xl font-bold text-white"><?= htmlspecialchars($pageTitle) ?></h1>
+<div class="sticky top-0 z-20 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 px-4 sm:px-6 lg:px-10 py-4 sm:py-5 lg:py-6 flex items-center justify-between gap-3">
+    <!-- Izquierda: Hamburguesa móvil + Titulo de la página -->
+    <div class="flex items-center gap-3 min-w-0">
+        <button type="button" onclick="toggleAdminSidebar()" class="md:hidden p-2 -ml-2 text-gray-300 hover:text-white rounded-lg hover:bg-gray-800 transition-colors shrink-0" aria-label="Abrir menú">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+        </button>
+        <h1 class="text-lg sm:text-2xl lg:text-3xl font-bold text-white truncate"><?= htmlspecialchars($pageTitle) ?></h1>
     </div>
 
     <!-- Derecha: Notificaciones + Usuario Admin -->
-    <div class="flex items-center gap-5">
+    <div class="flex items-center gap-2 sm:gap-3 lg:gap-5 shrink-0">
 
         <!-- Notificaciones admin -->
         <div class="relative">
@@ -61,7 +66,7 @@
             </button>
 
             <!-- Dropdown de notificaciones -->
-            <div id="admin-notif-dropdown" class="hidden absolute right-0 top-full mt-2 w-96 bg-gray-800 border border-gray-700 rounded-xl shadow-2xl z-30 overflow-hidden">
+            <div id="admin-notif-dropdown" class="hidden fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-[4.5rem] sm:top-full sm:mt-2 sm:w-96 sm:max-w-none bg-gray-800 border border-gray-700 rounded-xl shadow-2xl z-[60] overflow-hidden">
                 <div class="px-5 py-3.5 border-b border-gray-700 flex items-center justify-between">
                     <h3 class="text-sm font-semibold text-white">Notificaciones</h3>
                     <?php if ($totalPending > 0): ?>
@@ -137,7 +142,7 @@
         </div>
 
         <!-- Avatar de admin + desplegable -->
-        <div class="relative pl-4 border-l border-gray-700/50">
+        <div class="relative sm:pl-4 sm:border-l sm:border-gray-700/50">
             <button onclick="document.getElementById('admin-dropdown').classList.toggle('hidden')" class="flex items-center gap-3 hover:opacity-80 transition cursor-pointer">
                 <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
                     <span class="text-primary text-base font-bold"><?= mb_strtoupper(mb_substr($_SESSION['user_name'] ?? 'A', 0, 1)) ?></span>
@@ -166,7 +171,7 @@
     </div>
 </div>
 
-<!-- Cerrar desplegables si se hace click fuera -->
+<!-- Cerrar desplegables si se hace click fuera + toggle sidebar móvil -->
 <script>
     document.addEventListener('click', function(e) {
         const dd = document.getElementById('admin-dropdown');
@@ -176,6 +181,33 @@
         const nd = document.getElementById('admin-notif-dropdown');
         if (nd && !nd.parentElement.contains(e.target)) {
             nd.classList.add('hidden');
+        }
+    });
+    window.toggleAdminSidebar = function(force) {
+        const sb = document.getElementById('admin-sidebar');
+        const bd = document.getElementById('admin-backdrop');
+        if (!sb) return;
+        const willOpen = typeof force === 'boolean' ? force : !sb.classList.contains('is-open');
+        sb.classList.toggle('is-open', willOpen);
+        if (bd) bd.classList.toggle('is-open', willOpen);
+        document.body.style.overflow = willOpen ? 'hidden' : '';
+    };
+    // Cerrar sidebar al navegar (links dentro) en móvil
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth >= 768) return;
+        const sb = document.getElementById('admin-sidebar');
+        if (sb && sb.classList.contains('is-open') && e.target.closest('#admin-sidebar a')) {
+            setTimeout(() => toggleAdminSidebar(false), 50);
+        }
+    });
+    // Reset al cambiar a desktop
+    window.addEventListener('resize', function() {
+        if (window.innerWidth >= 768) {
+            const sb = document.getElementById('admin-sidebar');
+            const bd = document.getElementById('admin-backdrop');
+            if (sb) sb.classList.remove('is-open');
+            if (bd) bd.classList.remove('is-open');
+            document.body.style.overflow = '';
         }
     });
 </script>

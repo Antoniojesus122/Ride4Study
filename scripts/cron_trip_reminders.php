@@ -1,7 +1,12 @@
 <?php
 // Cron: Recordatorio de viaje (día antes de la salida)
-// Envía email y notificación in-app a conductores y pasajeros con viajes programados para el día siguiente
-// Se ejecuta cada vez que un usuario inicia sesión.
+// Envía email y notificación in-app a conductores y pasajeros con viajes programados para el día siguiente.
+// Configurado como cron job diario en IONOS. Solo ejecutable por CLI.
+
+if (PHP_SAPI !== 'cli') {
+    http_response_code(403);
+    exit('Forbidden: este script solo puede ejecutarse desde la línea de comandos.');
+}
 
 require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../app/helpers.php';

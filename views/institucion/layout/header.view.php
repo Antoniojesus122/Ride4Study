@@ -41,17 +41,32 @@
             }
         </script>
         <style>
-            html { font-size: 18px; }
+            html { font-size: 16px; }
+            @media (min-width: 1024px) { html { font-size: 18px; } }
+
             .inst-sidebar {
-                width: 72px;
-                transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                width: 280px;
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
-            .inst-sidebar:hover { width: 280px; }
-            .inst-sidebar .nav-label {
-                opacity: 0; white-space: nowrap;
-                transition: opacity 0.15s ease; pointer-events: none;
+            .inst-sidebar.is-open { transform: translateX(0); }
+            @media (min-width: 768px) {
+                .inst-sidebar { width: 72px; transform: translateX(0); }
+                .inst-sidebar:hover { width: 280px; }
+                .inst-sidebar .nav-label {
+                    opacity: 0; white-space: nowrap;
+                    transition: opacity 0.15s ease; pointer-events: none;
+                }
+                .inst-sidebar:hover .nav-label { opacity: 1; pointer-events: auto; }
             }
-            .inst-sidebar:hover .nav-label { opacity: 1; pointer-events: auto; }
+            @media (max-width: 767px) {
+                .inst-sidebar .nav-label { opacity: 1; pointer-events: auto; }
+            }
+
+            .inst-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 25; }
+            .inst-backdrop.is-open { display: block; }
+            @media (min-width: 768px) { .inst-backdrop { display: none !important; } }
+
             ::-webkit-scrollbar { width: 6px; }
             ::-webkit-scrollbar-track { background: transparent; }
             ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }

@@ -68,15 +68,19 @@
     }
 ?>
 
-<main class="ml-[72px] flex-1 min-h-screen flex flex-col">
+<main class="md:ml-[72px] flex-1 min-w-0 min-h-screen flex flex-col">
     <?php require_once __DIR__ . '/layout/topbar.view.php'; ?>
-    <div class="flex-1 p-10">
+    <div class="flex-1 p-4 sm:p-6 lg:p-10">
+
+    <style>
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
+    </style>
 
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6 gap-4">
-        <p class="text-base text-gray-400"><?= $totalLogs ?> registro<?= $totalLogs !== 1 ? 's' : '' ?></p>
+    <div class="flex flex-wrap items-center justify-between mb-6 gap-3">
+        <p class="text-sm sm:text-base text-gray-400"><?= $totalLogs ?> registro<?= $totalLogs !== 1 ? 's' : '' ?></p>
         <?php
-            // Construir query string con los filtros actuales para pasarselos al export
             $exportParams = array_filter([
                 'periodo'      => $_GET['periodo']         ?? '',
                 'date_from'    => $filters['date_from']    ?? '',
@@ -89,37 +93,70 @@
             $exportQs = !empty($exportParams) ? ('?' . http_build_query($exportParams)) : '';
         ?>
         <a href="<?= url('/admin/logs/export') . $exportQs ?>"
-           class="px-4 py-2.5 text-base font-medium bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/20 transition border border-emerald-500/20">
-            <i class="fas fa-file-csv mr-1" aria-hidden="true"></i> Exportar CSV
+           class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/20 transition border border-emerald-500/20">
+            <i class="fas fa-file-csv" aria-hidden="true"></i> Exportar CSV
         </a>
     </div>
 
     <!-- Filtros -->
-    <form method="GET" action="<?= url('/admin/logs') ?>" class="flex flex-wrap items-center gap-3 mb-6">
-        <?php renderPeriodFilter($_GET); ?>
-        <select name="entidad" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm text-gray-200 focus:outline-none focus:border-primary">
-            <option value="">Todas las entidades</option>
-            <?php foreach ($entities as $key => $label): ?>
-                <option value="<?= $key ?>" <?= ($filters['entidad'] ?? '') === $key ? 'selected' : '' ?>><?= $label ?></option>
-            <?php endforeach; ?>
-        </select>
-        <select name="admin_id" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm text-gray-200 focus:outline-none focus:border-primary max-w-[200px]">
-            <option value="">Todos los admin</option>
-            <?php foreach (($adminList ?? []) as $a): ?>
-                <option value="<?= (int)$a['idUsuario'] ?>" <?= (int)($filters['admin_id'] ?? 0) === (int)$a['idUsuario'] ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($a['nombre']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-        <input type="text" name="admin_search" value="<?= htmlspecialchars($filters['admin_search'] ?? '') ?>" placeholder="Buscar admin por nombre..."
-               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-52">
-        <input type="text" name="accion" value="<?= htmlspecialchars($filters['accion'] ?? '') ?>" placeholder="Buscar acción..."
-               class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-48">
-        <button type="submit" class="px-5 py-2.5 text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
-        <?php if (!empty($filters['date_from']) || !empty($filters['date_to']) || !empty($filters['entidad']) || !empty($filters['accion']) || !empty($filters['admin_id']) || !empty($filters['admin_search'])): ?>
-            <a href="<?= url('/admin/logs') ?>" class="text-sm text-gray-400 hover:text-gray-200">Limpiar</a>
-        <?php endif; ?>
+    <?php
+        $logsAdvFilters = [$filters['entidad'] ?? '', $filters['admin_id'] ?? '', $filters['admin_search'] ?? '', $filters['accion'] ?? '', $filters['date_from'] ?? '', $filters['date_to'] ?? '', $_GET['periodo'] ?? ''];
+        $logsActiveAdv = count(array_filter($logsAdvFilters, fn($v) => $v !== '' && $v !== null));
+    ?>
+    <form method="GET" action="<?= url('/admin/logs') ?>" class="mb-8">
+        <!-- Toggle móvil "Más filtros" -->
+        <button type="button" onclick="toggleLogsAdvFilters()"
+                class="sm:hidden w-full flex items-center justify-between px-4 py-2.5 rounded-lg border border-gray-700 bg-gray-800/60 text-sm font-medium text-gray-300 hover:border-gray-600 transition-all"
+                aria-expanded="<?= $logsActiveAdv > 0 ? 'true' : 'false' ?>" aria-controls="logs-adv-filters">
+            <span class="flex items-center gap-2">
+                <i class="fas fa-sliders text-xs text-primary" aria-hidden="true"></i>
+                Más filtros
+                <?php if ($logsActiveAdv > 0): ?>
+                    <span class="bg-primary text-secondary text-[10px] font-bold px-1.5 py-0.5 rounded-full"><?= $logsActiveAdv ?></span>
+                <?php endif; ?>
+            </span>
+            <i class="fas fa-chevron-down text-xs text-gray-500 transition-transform <?= $logsActiveAdv > 0 ? 'rotate-180' : '' ?>" id="logs-adv-chevron" aria-hidden="true"></i>
+        </button>
+
+        <div id="logs-adv-filters" class="<?= $logsActiveAdv > 0 ? '' : 'hidden' ?> flex flex-col sm:!flex-row sm:flex-wrap sm:items-center gap-3 mt-4 sm:mt-0">
+            <?php renderPeriodFilter($_GET); ?>
+            <select name="entidad" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm text-gray-200 focus:outline-none focus:border-primary w-full sm:w-auto">
+                <option value="">Todas las entidades</option>
+                <?php foreach ($entities as $key => $label): ?>
+                    <option value="<?= $key ?>" <?= ($filters['entidad'] ?? '') === $key ? 'selected' : '' ?>><?= $label ?></option>
+                <?php endforeach; ?>
+            </select>
+            <select name="admin_id" class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm text-gray-200 focus:outline-none focus:border-primary w-full sm:max-w-[200px]">
+                <option value="">Todos los admin</option>
+                <?php foreach (($adminList ?? []) as $a): ?>
+                    <option value="<?= (int)$a['idUsuario'] ?>" <?= (int)($filters['admin_id'] ?? 0) === (int)$a['idUsuario'] ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($a['nombre']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <input type="text" name="admin_search" value="<?= htmlspecialchars($filters['admin_search'] ?? '') ?>" placeholder="Buscar admin por nombre..."
+                   class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-full sm:w-52">
+            <input type="text" name="accion" value="<?= htmlspecialchars($filters['accion'] ?? '') ?>" placeholder="Buscar acción..."
+                   class="px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary w-full sm:w-48">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <button type="submit" class="flex-1 sm:flex-none px-5 py-2.5 text-sm sm:text-base font-medium bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition">Filtrar</button>
+                <?php if ($logsActiveAdv > 0): ?>
+                    <a href="<?= url('/admin/logs') ?>" class="text-sm text-gray-400 hover:text-gray-200 whitespace-nowrap">Limpiar</a>
+                <?php endif; ?>
+            </div>
+        </div>
     </form>
+    <script>
+        function toggleLogsAdvFilters() {
+            const w = document.getElementById('logs-adv-filters');
+            const c = document.getElementById('logs-adv-chevron');
+            const b = document.querySelector('[aria-controls="logs-adv-filters"]');
+            const open = w.classList.contains('hidden');
+            w.classList.toggle('hidden', !open);
+            if (c) c.classList.toggle('rotate-180', open);
+            if (b) b.setAttribute('aria-expanded', String(open));
+        }
+    </script>
 
     <!-- Tabla -->
     <?php if (empty($logs)): ?>
@@ -133,8 +170,8 @@
             <p class="text-gray-500 text-sm mt-1">No se encontraron acciones con los filtros seleccionados</p>
         </div>
     <?php else: ?>
-        <div class="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden">
-            <table class="w-full text-base">
+        <div class="bg-gray-800/50 border border-gray-700 rounded-xl overflow-x-auto">
+            <table class="w-full text-sm min-w-[860px]">
                 <thead><tr class="border-b border-gray-700">
                     <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Fecha</th>
                     <th class="px-5 py-3.5 text-left text-xs text-gray-500 font-semibold uppercase tracking-wider">Admin</th>
@@ -151,7 +188,7 @@
                             <span class="text-gray-200 font-medium"><?= htmlspecialchars($log['admin_nombre'] ?? 'Desconocido') ?></span>
                         </td>
                         <td class="px-5 py-4">
-                            <span class="px-2.5 py-1 text-sm rounded-full font-medium border <?= getActionColor($log['accion']) ?>">
+                            <span class="inline-flex items-center px-2.5 py-1 text-sm rounded-full font-medium border whitespace-nowrap <?= getActionColor($log['accion']) ?>">
                                 <?= htmlspecialchars(formatAction($log['accion'], $log['entidad'] ?? '')) ?>
                             </span>
                         </td>
@@ -175,20 +212,12 @@
         </div>
 
         <!-- Paginación -->
-        <?php if ($totalPages > 1): ?>
-        <div class="flex items-center justify-center gap-2 mt-6">
-            <?php
-            $queryParams = $filters;
-            $queryParams = array_filter($queryParams, fn($v) => $v !== '');
-            ?>
-            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-            <a href="<?= url('/admin/logs') ?>?<?= http_build_query(array_merge($queryParams, ['page' => $i])) ?>"
-               class="px-4 py-2 text-sm rounded-lg transition <?= $i === $page ? 'bg-primary text-gray-900 font-bold' : 'bg-gray-800 text-gray-400 hover:bg-gray-700' ?>">
-                <?= $i ?>
-            </a>
-            <?php endfor; ?>
-        </div>
-        <?php endif; ?>
+        <?php
+            $queryParams = array_filter($filters, fn($v) => $v !== '' && $v !== null);
+            // Incluir periodo si no está en $filters
+            if (!empty($_GET['periodo'])) $queryParams['periodo'] = $_GET['periodo'];
+            renderPagination((int)$page, (int)$totalPages, url('/admin/logs'), $queryParams);
+        ?>
     <?php endif; ?>
 
     </div>

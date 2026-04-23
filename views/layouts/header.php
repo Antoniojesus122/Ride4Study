@@ -37,7 +37,8 @@
         <link rel="icon" type="image/png" sizes="16x16" href="public/favicon-16.png">
         <link rel="apple-touch-icon" sizes="180x180" href="public/apple-touch-icon.png">
         <link rel="manifest" href="public/site.webmanifest">
-        <meta name="theme-color" content="#fde047">
+        <meta name="theme-color" content="#111827">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="public/js/tailwind-config.js"></script>
@@ -141,8 +142,8 @@
                             <!-- Acciones derechas -->
                             <div class="flex items-center gap-2 sm:gap-3">
 
-                                <!-- Selector de idioma -->
-                                <div class="flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/5" role="group" aria-label="<?= t('a11y.lang_selector') ?? 'Seleccionar idioma' ?>">
+                                <!-- Selector de idioma (oculto en móvil, está en el menú hamburguesa) -->
+                                <div class="hidden sm:flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/5" role="group" aria-label="<?= t('a11y.lang_selector') ?? 'Seleccionar idioma' ?>">
                                     <a href="<?= url('/set-lang') ?>?lang=es" hreflang="es" lang="es" class="px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'es' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>"<?= currentLang() === 'es' ? ' aria-current="true"' : '' ?>>ES</a>
                                     <a href="<?= url('/set-lang') ?>?lang=en" hreflang="en" lang="en" class="px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'en' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>"<?= currentLang() === 'en' ? ' aria-current="true"' : '' ?>>EN</a>
                                 </div>
@@ -162,7 +163,7 @@
                                     </button>
 
                                     <!-- Panel de notificaciones -->
-                                    <div id="notif-panel" class="hidden absolute right-0 top-full mt-3 w-80 max-w-[calc(100vw-2rem)] origin-top-right rounded-2xl bg-[#1a1b26]/95 backdrop-blur-xl border border-white/10 shadow-2xl z-50" role="region" aria-label="<?= t('nav.notifications') ?>">
+                                    <div id="notif-panel" class="hidden fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-[4.5rem] sm:top-full sm:mt-3 sm:w-80 sm:max-w-none origin-top-right rounded-2xl bg-[#1a1b26]/95 backdrop-blur-xl border border-white/10 shadow-2xl z-50" role="region" aria-label="<?= t('nav.notifications') ?>">
                                         <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
                                             <span class="text-sm font-semibold text-white"><?= t('nav.notifications') ?></span>
                                             <button onclick="markAllRead()" class="text-xs text-primary hover:underline"><?= t('nav.mark_all_read') ?></button>
@@ -248,31 +249,59 @@
                                     type="button"
                                     id="mobile-menu-btn"
                                     onclick="toggleMobileMenu()"
-                                    class="md:hidden flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/10 transition-all text-gray-300 hover:text-white border border-transparent hover:border-white/10"
+                                    class="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:bg-white/20 transition-all text-white border border-white/15"
                                     aria-label="<?= t('a11y.open_menu') ?? 'Abrir menu' ?>"
                                     aria-expanded="false"
                                     aria-controls="mobile-menu"
                                 >
-                                    <i class="fas fa-bars text-base" id="mobile-menu-icon" aria-hidden="true"></i>
+                                    <i class="fas fa-bars text-lg" id="mobile-menu-icon" aria-hidden="true"></i>
                                 </button>
 
                             </div>
 
                         <?php else: ?>
-                            <!-- Usuario NO logueado: botones CTA + idioma -->
+                            <!-- Usuario NO logueado: enlaces + CTA + idioma -->
                             <div class="flex items-center gap-2">
-                                <div class="flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/5" role="group" aria-label="<?= t('a11y.lang_selector') ?? 'Seleccionar idioma' ?>">
+
+                                <!-- Enlaces navegación pública (solo escritorio) -->
+                                <div class="hidden md:flex items-center gap-1">
+                                    <a href="<?= url('/instituciones') ?>" class="px-4 py-2 rounded-full text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all <?= isActive('/instituciones') ? 'bg-white/10 text-white' : '' ?>">
+                                        <i class="fas fa-university mr-1.5 opacity-70" aria-hidden="true"></i><?= t('landing.institutions') ?>
+                                    </a>
+                                    <a href="<?= SURVEY_URL ?>" target="_blank" rel="noopener" class="px-4 py-2 rounded-full text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all">
+                                        <i class="fas fa-comment-dots mr-1.5 opacity-70" aria-hidden="true"></i><?= t('landing.survey') ?>
+                                    </a>
+                                </div>
+
+                                <div class="hidden md:block h-7 w-px bg-white/10"></div>
+
+                                <!-- Idioma (oculto en móvil, está en el menú hamburguesa) -->
+                                <div class="hidden sm:flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/5" role="group" aria-label="<?= t('a11y.lang_selector') ?? 'Seleccionar idioma' ?>">
                                     <a href="<?= url('/set-lang') ?>?lang=es" hreflang="es" lang="es" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'es' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>"<?= currentLang() === 'es' ? ' aria-current="true"' : '' ?>>ES</a>
                                     <a href="<?= url('/set-lang') ?>?lang=en" hreflang="en" lang="en" class="px-2 py-1 rounded-full text-xs font-semibold transition-all <?= currentLang() === 'en' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-white' ?>"<?= currentLang() === 'en' ? ' aria-current="true"' : '' ?>>EN</a>
                                 </div>
 
-                                <a href="<?= url('/login') ?>" class="px-3 sm:px-4 py-2 rounded-full text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all">
+                                <!-- Login/Register: en escritorio ambos visibles; en móvil solo Registrarse -->
+                                <a href="<?= url('/login') ?>" class="hidden sm:inline-flex px-3 sm:px-4 py-2 rounded-full text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all">
                                     <?= t('nav.login') ?>
                                 </a>
 
-                                <a href="<?= url('/register') ?>" class="px-3 sm:px-4 py-2 rounded-full text-sm font-semibold bg-primary text-secondary hover:opacity-90 transition-all shadow-lg shadow-primary/25">
+                                <a href="<?= url('/register') ?>" class="px-3 sm:px-4 py-2 rounded-full text-sm font-semibold bg-primary text-secondary hover:opacity-90 transition-all shadow-lg shadow-primary/25 whitespace-nowrap">
                                     <?= t('nav.register') ?>
                                 </a>
+
+                                <!-- Hamburguesa móvil para guest -->
+                                <button
+                                    type="button"
+                                    id="guest-menu-btn"
+                                    onclick="toggleGuestMenu()"
+                                    class="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:bg-white/20 transition-all text-white border border-white/15 shrink-0"
+                                    aria-label="<?= t('a11y.open_menu') ?? 'Abrir menu' ?>"
+                                    aria-expanded="false"
+                                    aria-controls="guest-menu"
+                                >
+                                    <i class="fas fa-bars text-lg" id="guest-menu-icon" aria-hidden="true"></i>
+                                </button>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -283,28 +312,49 @@
                     <div id="mobile-menu" class="hidden md:hidden mt-2 mx-0 rounded-2xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden" aria-label="<?= t('a11y.mobile_menu') ?? 'Menu movil' ?>">
 
                         <!-- Cabecera del menú móvil -->
-                        <div class="px-4 py-4 border-b border-white/10 bg-white/5 flex items-center gap-3">
-                            <div class="h-10 w-10 rounded-full overflow-hidden ring-2 ring-gray-700 bg-gray-800 flex items-center justify-center flex-shrink-0">
-                                <?php if (!empty($_SESSION['user_photo']) && file_exists(__DIR__ . '/../../public/uploads/profiles/' . $_SESSION['user_photo'])): ?>
-                                    <img src="<?= 'public/uploads/profiles/' . $_SESSION['user_photo'] ?>?v=<?= filemtime(__DIR__ . '/../../public/uploads/profiles/' . $_SESSION['user_photo']) ?>" alt="" aria-hidden="true" class="w-full h-full object-cover">
-
-                                <?php else: ?>
-                                <div class="w-full h-full bg-gradient-to-tr from-gray-700 to-gray-600 flex items-center justify-center text-white font-bold text-sm" aria-hidden="true">
-                                    <?= $userInitial ?>
+                        <?php
+                            $currentLangCode = currentLang();
+                            $langFlags = ['es' => '🇪🇸', 'en' => '🇬🇧'];
+                            $otherLang = $currentLangCode === 'es' ? 'en' : 'es';
+                        ?>
+                        <div class="px-4 py-4 border-b border-white/10 bg-white/5 flex items-start gap-3">
+                            <!-- Columna: avatar + insignia PRO -->
+                            <div class="flex flex-col items-center gap-1.5 flex-shrink-0">
+                                <div class="h-12 w-12 rounded-full overflow-hidden ring-2 ring-gray-700 bg-gray-800 flex items-center justify-center">
+                                    <?php if (!empty($_SESSION['user_photo']) && file_exists(__DIR__ . '/../../public/uploads/profiles/' . $_SESSION['user_photo'])): ?>
+                                        <img src="<?= 'public/uploads/profiles/' . $_SESSION['user_photo'] ?>?v=<?= filemtime(__DIR__ . '/../../public/uploads/profiles/' . $_SESSION['user_photo']) ?>" alt="" aria-hidden="true" class="w-full h-full object-cover">
+                                    <?php else: ?>
+                                        <div class="w-full h-full bg-gradient-to-tr from-gray-700 to-gray-600 flex items-center justify-center text-white font-bold text-sm" aria-hidden="true">
+                                            <?= $userInitial ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
+                                <?php if ($userIsPremium): ?>
+                                    <span class="px-1.5 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold rounded-full border border-yellow-500/30 flex items-center gap-0.5 leading-none">
+                                        <i class="fas fa-crown text-[9px]" aria-hidden="true"></i> PRO
+                                    </span>
                                 <?php endif; ?>
                             </div>
 
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-2">
-                                    <p class="text-sm font-bold text-white truncate"><?= htmlspecialchars($userName) ?></p>
-                                    <?php if ($userIsPremium): ?>
-                                        <span class="px-1.5 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold rounded-full border border-yellow-500/30 flex-shrink-0">
-                                            <i class="fas fa-crown mr-0.5" aria-hidden="true"></i> PRO
-                                        </span>
-                                    <?php endif; ?>
+                            <!-- Info del usuario -->
+                            <div class="flex-1 min-w-0 pt-0.5">
+                                <p class="text-[11px] text-gray-500 leading-none mb-1"><?= t('nav.connected_as') ?></p>
+                                <p class="text-[15px] font-bold text-white leading-tight break-words"><?= htmlspecialchars($userName) ?></p>
+                            </div>
+
+                            <!-- Selector de idioma desplegable (bandera + dropdown) -->
+                            <div class="relative flex-shrink-0" id="lang-dropdown-wrap">
+                                <button type="button" onclick="toggleLangDropdown(event)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all" aria-label="<?= t('a11y.lang_selector') ?? 'Seleccionar idioma' ?>" aria-expanded="false" aria-haspopup="true">
+                                    <span class="text-base leading-none"><?= $langFlags[$currentLangCode] ?></span>
+                                    <span class="text-[11px] font-bold text-white uppercase"><?= $currentLangCode ?></span>
+                                    <i class="fas fa-chevron-down text-[9px] text-gray-400" aria-hidden="true"></i>
+                                </button>
+                                <div id="lang-dropdown" class="hidden absolute right-0 top-full mt-1.5 bg-gray-800 border border-white/10 rounded-xl shadow-2xl overflow-hidden z-[60] min-w-[96px]">
+                                    <a href="<?= url('/set-lang') ?>?lang=<?= $otherLang ?>" hreflang="<?= $otherLang ?>" lang="<?= $otherLang ?>" class="flex items-center gap-2 px-3 py-2 text-[11px] font-bold text-white uppercase hover:bg-white/5 transition">
+                                        <span class="text-base leading-none"><?= $langFlags[$otherLang] ?></span>
+                                        <span><?= $otherLang ?></span>
+                                    </a>
                                 </div>
-                                <p class="text-xs text-gray-500"><?= t('nav.connected_as') ?></p>
                             </div>
                         </div>
 
@@ -348,10 +398,44 @@
                         </nav>
 
                         <!-- Logout -->
-                        <div class="px-3 py-3">
+                        <div class="px-3 py-3 border-t border-white/10">
                             <a href="<?= url('/logout') ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all">
                                 <i class="fas fa-sign-out-alt w-5 text-center text-sm opacity-70" aria-hidden="true"></i><?= t('nav.logout') ?>
                             </a>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Menú móvil guest (no logueado) -->
+                <?php if (!$isLoggedIn): ?>
+                    <div id="guest-menu" class="hidden md:hidden mt-2 mx-0 rounded-2xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden" aria-label="<?= t('a11y.mobile_menu') ?? 'Menu movil' ?>">
+                        <nav class="p-2 space-y-1">
+                            <a href="<?= url('/instituciones') ?>" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-gray-200 hover:bg-white/10 transition-all">
+                                <i class="fas fa-university w-5 text-center text-primary/80" aria-hidden="true"></i><?= t('landing.institutions') ?>
+                            </a>
+                            <a href="<?= SURVEY_URL ?>" target="_blank" rel="noopener" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-gray-200 hover:bg-white/10 transition-all">
+                                <i class="fas fa-comment-dots w-5 text-center text-primary/80" aria-hidden="true"></i><?= t('landing.survey') ?>
+                                <i class="fas fa-external-link-alt text-[10px] text-gray-500 ml-auto" aria-hidden="true"></i>
+                            </a>
+                            <a href="<?= url('/support') ?>" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-gray-200 hover:bg-white/10 transition-all">
+                                <i class="fas fa-life-ring w-5 text-center text-primary/80" aria-hidden="true"></i><?= t('footer.support') ?? 'Soporte' ?>
+                            </a>
+                        </nav>
+                        <div class="border-t border-white/10 p-2 space-y-1">
+                            <a href="<?= url('/login') ?>" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-gray-200 hover:bg-white/10 transition-all">
+                                <i class="fas fa-sign-in-alt w-5 text-center text-gray-400" aria-hidden="true"></i><?= t('nav.login') ?>
+                            </a>
+                            <a href="<?= url('/institution-login') ?>" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-gray-200 hover:bg-white/10 transition-all">
+                                <i class="fas fa-building-columns w-5 text-center text-gray-400" aria-hidden="true"></i><?= t('login.institution_access') ?>
+                            </a>
+                        </div>
+                        <!-- Idioma -->
+                        <div class="border-t border-white/10 p-3">
+                            <p class="px-1 pb-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider"><?= t('a11y.lang_selector') ?? 'Idioma' ?></p>
+                            <div class="flex gap-2">
+                                <a href="<?= url('/set-lang') ?>?lang=es" hreflang="es" lang="es" class="flex-1 px-3 py-2 rounded-xl text-sm font-semibold text-center transition-all <?= currentLang() === 'es' ? 'bg-primary text-secondary' : 'bg-white/5 text-gray-300 hover:bg-white/10' ?>"<?= currentLang() === 'es' ? ' aria-current="true"' : '' ?>>Español</a>
+                                <a href="<?= url('/set-lang') ?>?lang=en" hreflang="en" lang="en" class="flex-1 px-3 py-2 rounded-xl text-sm font-semibold text-center transition-all <?= currentLang() === 'en' ? 'bg-primary text-secondary' : 'bg-white/5 text-gray-300 hover:bg-white/10' ?>"<?= currentLang() === 'en' ? ' aria-current="true"' : '' ?>>English</a>
+                            </div>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -360,6 +444,25 @@
         <!-- Scripts -->
         <?php if ($isLoggedIn): ?>
             <script>
+                /* Desplegable de idioma (dentro del menú móvil) */
+                function toggleLangDropdown(e) {
+                    if (e) e.stopPropagation();
+                    const dd = document.getElementById('lang-dropdown');
+                    const btn = document.querySelector('#lang-dropdown-wrap button');
+                    if (!dd) return;
+                    const open = dd.classList.toggle('hidden');
+                    if (btn) btn.setAttribute('aria-expanded', String(!open));
+                }
+                document.addEventListener('click', function(e) {
+                    const wrap = document.getElementById('lang-dropdown-wrap');
+                    const dd = document.getElementById('lang-dropdown');
+                    if (wrap && dd && !dd.classList.contains('hidden') && !wrap.contains(e.target)) {
+                        dd.classList.add('hidden');
+                        const btn = wrap.querySelector('button');
+                        if (btn) btn.setAttribute('aria-expanded', 'false');
+                    }
+                });
+
                 /* Escritorio: desplegable de usuario */
                 function toggleUserMenu() {
                     const menu  = document.getElementById('user-menu');
@@ -730,6 +833,49 @@
                 <i id="global-toast-icon" class="fas fa-check-circle flex-shrink-0" aria-hidden="true"></i>
                 <span id="global-toast-msg"></span>
             </div>
+            <?php require_once __DIR__ . '/cookie-banner.php'; ?>
+        <?php endif; ?>
+
+        <?php if (!$isLoggedIn): ?>
+            <script>
+                /* Móvil guest: hamburguesa */
+                function toggleGuestMenu() {
+                    const menu = document.getElementById('guest-menu');
+                    const btn  = document.getElementById('guest-menu-btn');
+                    const icon = document.getElementById('guest-menu-icon');
+                    if (!menu) return;
+                    const willOpen = menu.classList.contains('hidden');
+                    menu.classList.toggle('hidden', !willOpen);
+                    if (btn) btn.setAttribute('aria-expanded', String(willOpen));
+                    if (icon) {
+                        icon.classList.toggle('fa-bars', !willOpen);
+                        icon.classList.toggle('fa-times', willOpen);
+                    }
+                }
+                /* Cerrar al hacer click fuera */
+                document.addEventListener('click', function(event) {
+                    const btn  = document.getElementById('guest-menu-btn');
+                    const menu = document.getElementById('guest-menu');
+                    const icon = document.getElementById('guest-menu-icon');
+                    if (btn && menu && !menu.classList.contains('hidden') && !btn.contains(event.target) && !menu.contains(event.target)) {
+                        menu.classList.add('hidden');
+                        btn.setAttribute('aria-expanded', 'false');
+                        if (icon) { icon.classList.remove('fa-times'); icon.classList.add('fa-bars'); }
+                    }
+                });
+                /* Escape para cerrar */
+                document.addEventListener('keydown', function(event) {
+                    if (event.key !== 'Escape') return;
+                    const menu = document.getElementById('guest-menu');
+                    const btn  = document.getElementById('guest-menu-btn');
+                    const icon = document.getElementById('guest-menu-icon');
+                    if (menu && !menu.classList.contains('hidden')) {
+                        menu.classList.add('hidden');
+                        if (btn) { btn.setAttribute('aria-expanded', 'false'); btn.focus(); }
+                        if (icon) { icon.classList.remove('fa-times'); icon.classList.add('fa-bars'); }
+                    }
+                });
+            </script>
             <?php require_once __DIR__ . '/cookie-banner.php'; ?>
         <?php endif; ?>
         <main id="main-content" tabindex="-1" class="flex-grow flex flex-col h-full">

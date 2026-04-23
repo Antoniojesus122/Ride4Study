@@ -1,6 +1,11 @@
 <?php
 // Cron: Recalcular CO2 ahorrado para todos los usuarios con viajes completados.
-// Se ejecuta cada vez que un usuario carga el dashboard.
+// Configurado como cron job diario en IONOS. Solo ejecutable por CLI.
+
+if (PHP_SAPI !== 'cli') {
+    http_response_code(403);
+    exit('Forbidden: este script solo puede ejecutarse desde la línea de comandos.');
+}
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../app/models/Ride.php';

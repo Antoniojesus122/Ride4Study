@@ -1,5 +1,10 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
 
+<style>
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
+</style>
+
 <div class="w-full mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-6 sm:py-8">
     
     <div class="mb-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -96,23 +101,27 @@
     </div>
 
     <!-- Pestañas de los anuncios -->
-    <div class="mb-8 border-b border-gray-700">
-        <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-            <button onclick="switchTab('active')" id="tab-active" class="border-primary text-primary whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm lg:text-base transition-colors flex items-center gap-2">
-                <i class="fas fa-route" aria-hidden="true"></i> <?= t('myrides.tab_active') ?>
-                <span class="bg-gray-800 text-gray-300 py-0.5 px-2 rounded-full text-xs ml-1"><?= count($activeRides) ?></span>
+    <div class="mb-8">
+        <nav class="flex gap-2 overflow-x-auto scrollbar-hide pb-1" aria-label="Tabs" style="scrollbar-width: none; -ms-overflow-style: none;" onscroll="event.stopPropagation()">
+            <button onclick="switchTab('active')" id="tab-active" class="shrink-0 px-4 py-2 rounded-lg bg-primary/10 text-primary font-medium border border-primary/20 whitespace-nowrap transition-colors flex items-center gap-2">
+                <i class="fas fa-route" aria-hidden="true"></i>
+                <span><?= t('myrides.tab_active') ?></span>
+                <span class="bg-primary/20 text-primary py-0.5 px-2 rounded-full text-xs"><?= count($activeRides) ?></span>
             </button>
-            <button onclick="switchTab('past')" id="tab-past" class="border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm lg:text-base transition-colors flex items-center gap-2">
-                <i class="fas fa-history" aria-hidden="true"></i> <?= t('myrides.tab_history') ?>
-                <span class="bg-gray-800 text-gray-500 py-0.5 px-2 rounded-full text-xs ml-1"><?= count($pastRides) ?></span>
+            <button onclick="switchTab('past')" id="tab-past" class="shrink-0 px-4 py-2 rounded-lg bg-transparent text-gray-400 font-medium hover:text-white hover:bg-gray-800 transition-colors whitespace-nowrap border border-transparent flex items-center gap-2">
+                <i class="fas fa-history" aria-hidden="true"></i>
+                <span><?= t('myrides.tab_history') ?></span>
+                <span class="bg-gray-800 text-gray-500 py-0.5 px-2 rounded-full text-xs"><?= count($pastRides) ?></span>
             </button>
-            <button onclick="switchTab('bookings')" id="tab-bookings" class="border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm lg:text-base transition-colors flex items-center gap-2">
-                <i class="fas fa-ticket-alt" aria-hidden="true"></i> <?= t('myrides.tab_bookings') ?>
-                <span class="bg-gray-800 text-gray-500 py-0.5 px-2 rounded-full text-xs ml-1"><?= count($activeBookings) ?></span>
+            <button onclick="switchTab('bookings')" id="tab-bookings" class="shrink-0 px-4 py-2 rounded-lg bg-transparent text-gray-400 font-medium hover:text-white hover:bg-gray-800 transition-colors whitespace-nowrap border border-transparent flex items-center gap-2">
+                <i class="fas fa-ticket-alt" aria-hidden="true"></i>
+                <span><?= t('myrides.tab_bookings') ?></span>
+                <span class="bg-gray-800 text-gray-500 py-0.5 px-2 rounded-full text-xs"><?= count($activeBookings) ?></span>
             </button>
-            <button onclick="switchTab('past-bookings')" id="tab-past-bookings" class="border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm lg:text-base transition-colors flex items-center gap-2">
-                <i class="fas fa-clipboard-check" aria-hidden="true"></i> <?= t('myrides.tab_past_bookings') ?>
-                <span class="bg-gray-800 text-gray-500 py-0.5 px-2 rounded-full text-xs ml-1"><?= count($pastBookings) ?></span>
+            <button onclick="switchTab('past-bookings')" id="tab-past-bookings" class="shrink-0 px-4 py-2 rounded-lg bg-transparent text-gray-400 font-medium hover:text-white hover:bg-gray-800 transition-colors whitespace-nowrap border border-transparent flex items-center gap-2">
+                <i class="fas fa-clipboard-check" aria-hidden="true"></i>
+                <span><?= t('myrides.tab_past_bookings') ?></span>
+                <span class="bg-gray-800 text-gray-500 py-0.5 px-2 rounded-full text-xs"><?= count($pastBookings) ?></span>
             </button>
         </nav>
     </div>
@@ -262,24 +271,24 @@ function renderRideCard($ride, $isActive, $isPremium = false) {
         <?php endif; ?>
 
         <!-- Header con tipo, fecha, precio y badges -->
-        <div class="px-6 py-4 border-b border-gray-700/50 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="px-3 py-1 bg-<?= $ride['tipo'] === 'ofrezco' ? 'blue' : 'purple' ?>-500/10 text-<?= $ride['tipo'] === 'ofrezco' ? 'blue' : 'purple' ?>-400 rounded-full text-xs font-bold border border-<?= $ride['tipo'] === 'ofrezco' ? 'blue' : 'purple' ?>-500/20 uppercase tracking-wide">
+        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-700/50 flex flex-wrap items-center justify-between gap-y-2 gap-x-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3 min-w-0">
+                <div class="px-2.5 sm:px-3 py-1 bg-<?= $ride['tipo'] === 'ofrezco' ? 'blue' : 'purple' ?>-500/10 text-<?= $ride['tipo'] === 'ofrezco' ? 'blue' : 'purple' ?>-400 rounded-full text-[10px] sm:text-xs font-bold border border-<?= $ride['tipo'] === 'ofrezco' ? 'blue' : 'purple' ?>-500/20 uppercase tracking-wide whitespace-nowrap">
                     <?= $ride['tipo'] === 'ofrezco' ? t('common.driver') : t('common.passenger') ?>
                 </div>
                 <?php if ($isFeatured): ?>
-                    <span class="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold rounded-full border border-yellow-500/30 flex items-center gap-1">
+                    <span class="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold rounded-full border border-yellow-500/30 flex items-center gap-1 whitespace-nowrap">
                         <i class="fas fa-star text-[8px]" aria-hidden="true"></i> <?= t('myrides.featured') ?>
                     </span>
                 <?php endif; ?>
-                <span class="text-sm text-gray-400 flex items-center gap-2">
+                <span class="text-xs sm:text-sm text-gray-400 flex items-center gap-1.5 whitespace-nowrap">
                     <i class="far fa-calendar" aria-hidden="true"></i>
-                    <?= date('d M, Y', strtotime($ride['fechaSalida'])) ?>
+                    <?= date('d M Y', strtotime($ride['fechaSalida'])) ?>
                 </span>
             </div>
-            <div class="text-right">
-                <span class="text-2xl font-bold text-primary"><?= number_format($ride['precio'], 2) ?>€</span>
-                <p class="text-xs text-gray-500"><?= t('myrides.per_seat') ?></p>
+            <div class="text-right shrink-0">
+                <span class="text-xl sm:text-2xl font-bold text-primary"><?= number_format($ride['precio'], 2) ?>€</span>
+                <p class="text-[10px] sm:text-xs text-gray-500"><?= t('myrides.per_seat') ?></p>
             </div>
         </div>
 
@@ -449,31 +458,31 @@ function renderBookingCard($booking) {
     ?>
     <div class="bg-surface rounded-2xl border border-gray-700 overflow-hidden hover:border-gray-600 transition-colors shadow-lg">
         <!-- Header -->
-        <div class="px-6 py-4 border-b border-gray-700/50 flex items-center justify-between">
-            <div class="flex items-center gap-3">
+        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-700/50 flex flex-wrap items-center justify-between gap-y-2 gap-x-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3 min-w-0">
                 <?php if ($booking['tipo'] === 'ofrezco'): ?>
-                    <div class="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-xs font-bold border border-blue-500/20 uppercase tracking-wide">
+                    <div class="px-2.5 sm:px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-[10px] sm:text-xs font-bold border border-blue-500/20 uppercase tracking-wide whitespace-nowrap">
                         <i class="fas fa-user-friends mr-1" aria-hidden="true"></i> <?= t('common.passenger') ?>
                     </div>
                 <?php else: ?>
-                    <div class="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full text-xs font-bold border border-purple-500/20 uppercase tracking-wide">
+                    <div class="px-2.5 sm:px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full text-[10px] sm:text-xs font-bold border border-purple-500/20 uppercase tracking-wide whitespace-nowrap">
                         <i class="fas fa-car mr-1" aria-hidden="true"></i> <?= t('common.driver') ?>
                     </div>
                 <?php endif; ?>
-                <span class="text-sm text-gray-400 flex items-center gap-2">
-                    <i class="far fa-calendar" aria-hidden="true"></i> <?= date('d M, Y', strtotime($booking['fechaSalida'])) ?>
+                <span class="text-xs sm:text-sm text-gray-400 flex items-center gap-1.5 whitespace-nowrap">
+                    <i class="far fa-calendar" aria-hidden="true"></i> <?= date('d M Y', strtotime($booking['fechaSalida'])) ?>
                 </span>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                 <?php if ($booking['estadoReserva'] === 'pendiente'): ?>
-                    <span class="px-3 py-1.5 bg-yellow-500/10 text-yellow-500 rounded-full text-xs font-bold border border-yellow-500/20"><i class="fas fa-clock mr-1" aria-hidden="true"></i> <?= t('myrides.status_pending') ?></span>
+                    <span class="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-yellow-500/10 text-yellow-500 rounded-full text-[10px] sm:text-xs font-bold border border-yellow-500/20 whitespace-nowrap"><i class="fas fa-clock mr-1" aria-hidden="true"></i> <?= t('myrides.status_pending') ?></span>
                 <?php elseif ($booking['estadoReserva'] === 'aceptado'): ?>
-                    <span class="px-3 py-1.5 bg-green-500/10 text-green-500 rounded-full text-xs font-bold border border-green-500/20"><i class="fas fa-check mr-1" aria-hidden="true"></i> <?= t('myrides.status_confirmed') ?></span>
+                    <span class="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-green-500/10 text-green-500 rounded-full text-[10px] sm:text-xs font-bold border border-green-500/20 whitespace-nowrap"><i class="fas fa-check mr-1" aria-hidden="true"></i> <?= t('myrides.status_confirmed') ?></span>
                 <?php else: ?>
-                    <span class="px-3 py-1.5 bg-red-500/10 text-red-500 rounded-full text-xs font-bold border border-red-500/20"><i class="fas fa-times mr-1" aria-hidden="true"></i> <?= t('myrides.status_rejected') ?></span>
+                    <span class="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-red-500/10 text-red-500 rounded-full text-[10px] sm:text-xs font-bold border border-red-500/20 whitespace-nowrap"><i class="fas fa-times mr-1" aria-hidden="true"></i> <?= t('myrides.status_rejected') ?></span>
                 <?php endif; ?>
                 <?php if ($booking['tipo'] === 'ofrezco' && $booking['precio']): ?>
-                    <span class="text-xl font-bold text-primary"><?= number_format($booking['precio'], 2) ?>€</span>
+                    <span class="text-lg sm:text-xl font-bold text-primary whitespace-nowrap"><?= number_format($booking['precio'], 2) ?>€</span>
                 <?php endif; ?>
             </div>
         </div>
@@ -562,31 +571,31 @@ function renderPastBookingCard($booking) {
     ?>
     <div class="bg-surface rounded-2xl border border-gray-700 overflow-hidden hover:border-gray-600 transition-colors shadow-lg">
         <!-- Header -->
-        <div class="px-6 py-4 border-b border-gray-700/50 flex items-center justify-between">
-            <div class="flex items-center gap-3">
+        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-700/50 flex flex-wrap items-center justify-between gap-y-2 gap-x-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3 min-w-0">
                 <?php if ($booking['tipo'] === 'ofrezco'): ?>
-                    <div class="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-xs font-bold border border-blue-500/20 uppercase tracking-wide">
+                    <div class="px-2.5 sm:px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-[10px] sm:text-xs font-bold border border-blue-500/20 uppercase tracking-wide whitespace-nowrap">
                         <i class="fas fa-user-friends mr-1" aria-hidden="true"></i> <?= t('common.passenger') ?>
                     </div>
                 <?php else: ?>
-                    <div class="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full text-xs font-bold border border-purple-500/20 uppercase tracking-wide">
+                    <div class="px-2.5 sm:px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full text-[10px] sm:text-xs font-bold border border-purple-500/20 uppercase tracking-wide whitespace-nowrap">
                         <i class="fas fa-car mr-1" aria-hidden="true"></i> <?= t('common.driver') ?>
                     </div>
                 <?php endif; ?>
-                <span class="text-sm text-gray-400 flex items-center gap-2">
-                    <i class="far fa-calendar" aria-hidden="true"></i> <?= date('d M, Y', strtotime($booking['fechaSalida'])) ?>
+                <span class="text-xs sm:text-sm text-gray-400 flex items-center gap-1.5 whitespace-nowrap">
+                    <i class="far fa-calendar" aria-hidden="true"></i> <?= date('d M Y', strtotime($booking['fechaSalida'])) ?>
                 </span>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                 <?php if ($isCompleted): ?>
-                    <span class="px-3 py-1.5 bg-green-500/10 text-green-500 rounded-full text-xs font-bold border border-green-500/20"><i class="fas fa-check-double mr-1" aria-hidden="true"></i> <?= t('myrides.completed') ?></span>
+                    <span class="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-green-500/10 text-green-500 rounded-full text-[10px] sm:text-xs font-bold border border-green-500/20 whitespace-nowrap"><i class="fas fa-check-double mr-1" aria-hidden="true"></i> <?= t('myrides.completed') ?></span>
                 <?php elseif ($isAccepted): ?>
-                    <span class="px-3 py-1.5 bg-green-500/10 text-green-500 rounded-full text-xs font-bold border border-green-500/20"><i class="fas fa-check mr-1" aria-hidden="true"></i> <?= t('myrides.status_confirmed') ?></span>
+                    <span class="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-green-500/10 text-green-500 rounded-full text-[10px] sm:text-xs font-bold border border-green-500/20 whitespace-nowrap"><i class="fas fa-check mr-1" aria-hidden="true"></i> <?= t('myrides.status_confirmed') ?></span>
                 <?php else: ?>
-                    <span class="px-3 py-1.5 bg-gray-500/10 text-gray-400 rounded-full text-xs font-bold border border-gray-500/20"><i class="fas fa-archive mr-1" aria-hidden="true"></i> <?= t('myrides.archived') ?></span>
+                    <span class="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gray-500/10 text-gray-400 rounded-full text-[10px] sm:text-xs font-bold border border-gray-500/20 whitespace-nowrap"><i class="fas fa-archive mr-1" aria-hidden="true"></i> <?= t('myrides.archived') ?></span>
                 <?php endif; ?>
                 <?php if ($booking['tipo'] === 'ofrezco' && $booking['precio']): ?>
-                    <span class="text-xl font-bold text-primary"><?= number_format($booking['precio'], 2) ?>€</span>
+                    <span class="text-lg sm:text-xl font-bold text-primary whitespace-nowrap"><?= number_format($booking['precio'], 2) ?>€</span>
                 <?php endif; ?>
             </div>
         </div>
@@ -669,23 +678,36 @@ function renderPastBookingCard($booking) {
     function switchTab(tab) {
         const tabs = ['active', 'past', 'bookings', 'past-bookings'];
 
-        // Restablecer todas las pestañas
+        // Restablecer todas las pestañas (estilo pill inactivo)
         tabs.forEach(t => {
             const btn = document.getElementById('tab-' + t);
             const content = document.getElementById('content-' + t);
             if (btn) {
-                btn.classList.remove('border-primary', 'text-primary');
-                btn.classList.add('border-transparent', 'text-gray-400');
+                btn.classList.remove('bg-primary/10', 'text-primary', 'border-primary/20');
+                btn.classList.add('bg-transparent', 'text-gray-400', 'border-transparent');
+                // Ajuste del contador (badge) a color "inactivo"
+                const badge = btn.querySelector('span:last-child');
+                if (badge) {
+                    badge.classList.remove('bg-primary/20', 'text-primary');
+                    badge.classList.add('bg-gray-800', 'text-gray-500');
+                }
             }
             if (content) content.classList.add('hidden');
         });
 
-        // Mostrar la pestaña seleccionada
+        // Pestaña activa (estilo pill activo)
         const selectedBtn = document.getElementById('tab-' + tab);
         const selectedContent = document.getElementById('content-' + tab);
         if (selectedBtn) {
-            selectedBtn.classList.replace('border-transparent', 'border-primary');
-            selectedBtn.classList.replace('text-gray-400', 'text-primary');
+            selectedBtn.classList.remove('bg-transparent', 'text-gray-400', 'border-transparent');
+            selectedBtn.classList.add('bg-primary/10', 'text-primary', 'border-primary/20');
+            const badge = selectedBtn.querySelector('span:last-child');
+            if (badge) {
+                badge.classList.remove('bg-gray-800', 'text-gray-500');
+                badge.classList.add('bg-primary/20', 'text-primary');
+            }
+            // Auto-scroll para que la pestaña activa sea visible
+            selectedBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
         if (selectedContent) selectedContent.classList.remove('hidden');
     }
