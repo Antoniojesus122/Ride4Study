@@ -24,7 +24,7 @@ $router->any('/institution-verify', function () {
     }
 });
 
-$router->get('/institution-logout', function () {
+$router->post('/institution-logout', function () {
     if (session_status() === PHP_SESSION_NONE) session_start();
     require_once __DIR__ . '/../app/controllers/InstitutionAuthController.php';
     $controller = new InstitutionAuthController();

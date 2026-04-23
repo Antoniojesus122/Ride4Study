@@ -4,7 +4,7 @@
 
 $router->any('/login', [AuthController::class, 'login']);
 $router->any('/register', [AuthController::class, 'register']);
-$router->get('/logout', [AuthController::class, 'logout']);
+$router->post('/logout', [AuthController::class, 'logout']);
 $router->any('/forgot-password', [AuthController::class, 'forgotPassword']);
 $router->any('/reset-password', [AuthController::class, 'resetPassword']);
 $router->any('/verify-email', [AuthController::class, 'verifyEmail']);

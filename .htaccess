@@ -1,5 +1,23 @@
 RewriteEngine On
 
+# BLOQUEOS DE SEGURIDAD (antes de cualquier rewrite)
+
+# Bloquear ficheros ocultos (.env, .git, .htaccess, .gitignore, etc.)
+RedirectMatch 404 /\.(?!well-known)[^/]+$
+
+# Bloquear directorios internos del proyecto
+RedirectMatch 404 ^/(bbdd|config|app|services|routes|scripts|views)(/|$)
+
+# Bloquear extensiones peligrosas expuestas accidentalmente
+<FilesMatch "\.(sql|sqlite|db|log|bak|backup|old|orig|swp|tmp|ini|conf|yml|yaml|lock|dist|example|md|sh|env)$">
+    Require all denied
+</FilesMatch>
+
+# Bloquear archivos de git/composer/etc. por nombre
+<FilesMatch "^(composer\.(json|lock)|package(-lock)?\.json|yarn\.lock|Gemfile(\.lock)?|\.env.*|\.git.*|\.DS_Store|Thumbs\.db|README.*|CHANGELOG.*|LICENSE.*)$">
+    Require all denied
+</FilesMatch>
+
 # No reescribir archivos y directorios que existen (assets estáticos)
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
@@ -13,3 +31,14 @@ RewriteRule ^(.*)$ index.php [QSA,L]
 # Desarrollo local (XAMPP): reescribe desde /Ride4Study/ a index.php
 RewriteCond %{HTTP_HOST} !^(www\.)?ride4study\.es$ [NC]
 RewriteRule ^(.*)$ /Ride4Study/index.php [QSA,L]
+
+# -------------------------------------------------------------------
+# HEADERS DE SEGURIDAD (aplican a todas las respuestas de Apache)
+# -------------------------------------------------------------------
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header always set Permissions-Policy "geolocation=(self), camera=(), microphone=()"
+</IfModule>

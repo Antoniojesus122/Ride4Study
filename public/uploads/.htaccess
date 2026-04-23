@@ -1,0 +1,19 @@
+# Bloquear ejecución de scripts en carpeta de uploads (defensa en profundidad por si un bypass de MIME cuela un fichero peligroso)
+<FilesMatch "\.(php|phtml|phar|pl|py|jsp|asp|aspx|sh|cgi|rb|exe)$">
+    Require all denied
+</FilesMatch>
+
+# Desactivar motor PHP en todo el directorio (Apache mod_php)
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# No ejecutar handlers CGI
+Options -ExecCGI
+RemoveHandler .php .phtml .phar .pl .py .jsp .asp .sh .cgi

@@ -144,6 +144,57 @@ function checkRateLimit(string $action, int $maxAttempts = 5, int $windowSeconds
     return ['limited' => false, 'remaining_seconds' => 0];
 }
 
+// CSRF — protección contra cross-site request forgery
+// Obtiene (o genera) el token CSRF actual para el usuario. Se guarda en sesión.
+function csrfToken(): string
+{
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    if (empty($_SESSION['_csrf_token'])) {
+        $_SESSION['_csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['_csrf_token'];
+}
+
+// Input hidden listo para pegar dentro de <form>
+function csrfField(): string
+{
+    return '<input type="hidden" name="_csrf" value="' . htmlspecialchars(csrfToken()) . '">';
+}
+
+// Meta tag para leer el token desde JS (fetch/ajax) via X-CSRF-Token
+function csrfMeta(): string
+{
+    return '<meta name="csrf-token" content="' . htmlspecialchars(csrfToken()) . '">';
+}
+
+// Valida el token en peticiones POST. Si falla, corta la ejecución con 419.
+// Se puede desactivar por request concreto con $skip = true cuando la ruta es legitimamente cross-origin (stripe webhooks, etc.)
+function csrfVerify(bool $skip = false): void
+{
+    if ($skip) return;
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') return;
+
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    $expected = $_SESSION['_csrf_token'] ?? '';
+    $received = $_POST['_csrf'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+
+    if (!is_string($received) || $expected === '' || !hash_equals($expected, $received)) {
+        http_response_code(419);
+        // Respuesta mínima para AJAX y usuarios
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'CSRF token inválido']);
+        } else {
+            echo '<!doctype html><meta charset="utf-8"><title>Sesión expirada</title>'
+               . '<div style="font-family:system-ui;padding:40px;text-align:center;">'
+               . '<h1>Sesión expirada</h1>'
+               . '<p>La acción ha sido cancelada por seguridad (token CSRF inválido). Vuelve a la página anterior y reinténtalo.</p>'
+               . '</div>';
+        }
+        exit;
+    }
+}
+
 // Flash messages en sesión (esto para que no puedan manipular los GET params)
 function flash(string $type, string $message, ?string $tab = null): void
 {

@@ -190,21 +190,44 @@ class User {
     }
 
 
-    // Validar codigo
-    public function validateResetCode(string $code): array|false {
-
+    // Validar codigo vinculando con el correo del usuario. Incrementa el contador de intentos
+    public function validateResetCode(string $code, string $email): array|false {
+        // Buscar la fila activa del usuario por correo (no por código)
         $stmt = $this->conn->prepare("
-            SELECT pr.user_id, u.nombre, u.correo
+            SELECT pr.id, pr.user_id, pr.code, pr.attempts, u.nombre, u.correo
             FROM password_resets pr
             JOIN usuarios u ON u.idUsuario = pr.user_id
-            WHERE pr.code = ?
-            AND pr.expires_at > NOW()
+            WHERE u.correo = ?
+              AND pr.expires_at > NOW()
+            ORDER BY pr.created_at DESC
             LIMIT 1
         ");
+        $stmt->execute([$email]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $stmt->execute([$code]);
+        if (!$row) return false;
 
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $maxAttempts = 5;
+        if ((int)$row['attempts'] >= $maxAttempts) {
+            // Demasiados intentos: invalidar el reset
+            $this->conn->prepare("DELETE FROM password_resets WHERE id = ?")->execute([$row['id']]);
+            return false;
+        }
+
+        // Comparar código en tiempo constante
+        if (!hash_equals((string)$row['code'], $code)) {
+            // Fallo: incrementar contador
+            $this->conn->prepare("UPDATE password_resets SET attempts = attempts + 1 WHERE id = ?")
+                ->execute([$row['id']]);
+            return false;
+        }
+
+        // Éxito
+        return [
+            'user_id' => $row['user_id'],
+            'nombre'  => $row['nombre'],
+            'correo'  => $row['correo'],
+        ];
     }
 
 

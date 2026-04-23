@@ -237,9 +237,12 @@
                                         </div>
 
                                         <div class="mt-2 pt-2 border-t border-white/5 px-2">
-                                            <a href="<?= url('/logout') ?>" role="menuitem" class="group flex items-center px-3 py-2.5 text-sm font-medium text-red-400 rounded-lg hover:bg-red-500/10 hover:text-red-300 transition-all">
-                                                <i class="fas fa-sign-out-alt w-6 text-center opacity-70" aria-hidden="true"></i><?= t('nav.logout') ?>
-                                            </a>
+                                            <form method="POST" action="<?= url('/logout') ?>" class="block">
+                                                <?= csrfField() ?>
+                                                <button type="submit" role="menuitem" class="w-full group flex items-center px-3 py-2.5 text-sm font-medium text-red-400 rounded-lg hover:bg-red-500/10 hover:text-red-300 transition-all text-left">
+                                                    <i class="fas fa-sign-out-alt w-6 text-center opacity-70" aria-hidden="true"></i><?= t('nav.logout') ?>
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -399,9 +402,12 @@
 
                         <!-- Logout -->
                         <div class="px-3 py-3 border-t border-white/10">
-                            <a href="<?= url('/logout') ?>" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all">
-                                <i class="fas fa-sign-out-alt w-5 text-center text-sm opacity-70" aria-hidden="true"></i><?= t('nav.logout') ?>
-                            </a>
+                            <form method="POST" action="<?= url('/logout') ?>" class="block">
+                                <?= csrfField() ?>
+                                <button type="submit" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all text-left">
+                                    <i class="fas fa-sign-out-alt w-5 text-center text-sm opacity-70" aria-hidden="true"></i><?= t('nav.logout') ?>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 <?php endif; ?>

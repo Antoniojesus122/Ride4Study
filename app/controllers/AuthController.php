@@ -496,7 +496,7 @@ class AuthController {
 
                         if ($code) {
                             $subject = "Código de recuperación - Ride4Study";
-                            
+
                             $mail = new MailService();
                             $contenido = "
                                 <p>Has solicitado recuperar tu contraseña. Utiliza el siguiente código de verificación para continuar con el proceso:</p>
@@ -507,7 +507,7 @@ class AuthController {
                                     Si no solicitaste este cambio, puedes ignorar este mensaje de forma segura.
                                 </p>
                             ";
-                            
+
                             $html = $mail->generarPlantilla(
                                 $userData['nombre'],
                                 "Hola {$userData['nombre']},",
@@ -516,12 +516,16 @@ class AuthController {
                                 null,
                                 null
                             );
-                            
+
                             $mail->send($correo, $userData['nombre'], $subject, $html);
                         }
                     }
 
-                    $_SESSION['last_reset'] = time();
+                    // Guardar el correo en sesión para vincular el código en el siguiente paso.
+                    // Nunca confirmamos si el correo existe 
+                    $_SESSION['reset_email']   = $correo;
+                    $_SESSION['reset_attempts'] = 0;
+                    $_SESSION['last_reset']    = time();
                     header("Location: " . url('/reset-password') . "?sent=1");
                     exit;
                 }
@@ -537,19 +541,18 @@ class AuthController {
         $error = '';
         $success = '';
 
-        // Obtener código desde GET si existe
-        $resetData = null;
-        if (isset($_GET['code'])) {
-            $resetData = $this->user->validateResetCode($_GET['code']);
-        }
+        // Email del reset: solo desde sesión 
+        $resetEmail = $_SESSION['reset_email'] ?? null;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $code = trim($_POST['code'] ?? '');
-            $pass = $_POST['contrasena'] ?? '';
+            $code    = trim($_POST['code'] ?? '');
+            $pass    = $_POST['contrasena'] ?? '';
             $confirm = $_POST['confirmar_contrasena'] ?? '';
 
             // Validaciones básicas
-            if (!$code || !$pass || !$confirm) {
+            if (!$resetEmail) {
+                $error = 'Sesión caducada. Solicita el código de nuevo.';
+            } elseif (!$code || !$pass || !$confirm) {
                 $error = 'Completa todos los campos.';
             } elseif (!preg_match('/^\d{6}$/', $code)) {
                 $error = 'Código inválido.';
@@ -558,20 +561,17 @@ class AuthController {
             } elseif ($pass !== $confirm) {
                 $error = 'Las contraseñas no coinciden.';
             } else {
-                $_SESSION['reset_attempts'] = ($_SESSION['reset_attempts'] ?? 0) + 1;
-
-                if ($_SESSION['reset_attempts'] > 5) {
-                    $error = 'Demasiados intentos. Solicita un nuevo código.';
+                $data = $this->user->validateResetCode($code, $resetEmail);
+                if (!$data) {
+                    $error = 'Código inválido, expirado o demasiados intentos. Solicita uno nuevo si hace falta.';
                 } else {
-                    $data = $this->user->validateResetCode($code);
-                    if (!$data) {
-                        $error = 'Código inválido o expirado.';
-                    } else {
-                        $this->user->resetPasswordWithCode((int)$data['user_id'], $pass);
-                        unset($_SESSION['reset_attempts']);
-                        $success = 'Contraseña cambiada correctamente. Redirigiendo...';
-                        header("Refresh:3; url=" . url('/login'));
-                    }
+                    $this->user->resetPasswordWithCode((int)$data['user_id'], $pass);
+                    // Limpiar contexto de reset
+                    unset($_SESSION['reset_email'], $_SESSION['reset_attempts'], $_SESSION['last_reset']);
+                    // Regenerar id de sesión tras cambio de contraseña
+                    session_regenerate_id(true);
+                    $success = 'Contraseña cambiada correctamente. Redirigiendo...';
+                    header("Refresh:3; url=" . url('/login'));
                 }
             }
         }

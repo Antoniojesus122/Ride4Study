@@ -7,6 +7,8 @@ if (PHP_SAPI !== 'cli') {
     exit('Forbidden: este script solo puede ejecutarse desde la línea de comandos.');
 }
 
+require_once __DIR__ . '/../config/env.php';
+require_once __DIR__ . '/../app/helpers.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../app/models/Ride.php';
 

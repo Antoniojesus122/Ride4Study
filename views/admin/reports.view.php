@@ -599,6 +599,14 @@
 <?php require_once __DIR__ . '/layout/footer.view.php'; ?>
 
 <script>
+    // Escape HTML para evitar XSS al inyectar datos controlados por el usuario en innerHTML
+    function esc(v) {
+        if (v === null || v === undefined) return '';
+        return String(v).replace(/[&<>"']/g, function(c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+
     // Toggle detalle expandible
     function toggleDetail(id) {
         const detail = document.getElementById('detail-' + id);
@@ -677,12 +685,12 @@
                         <div class="w-2 h-2 rounded-full bg-${color}-400 mt-1.5 shrink-0"></div>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
-                                <span class="text-xs font-medium text-gray-200">#${h.idReporte}</span>
-                                <span class="px-1.5 py-0.5 text-xs rounded-full bg-${color}-500/10 text-${color}-400">${h.estado}</span>
-                                ${h.motivo ? `<span class="text-xs text-gray-400">${motivoLabels[h.motivo] || h.motivo}</span>` : ''}
-                                ${h.accion_tomada ? `<span class="text-xs text-red-400 font-medium">${accionLabels[h.accion_tomada] || h.accion_tomada}</span>` : ''}
+                                <span class="text-xs font-medium text-gray-200">#${esc(h.idReporte)}</span>
+                                <span class="px-1.5 py-0.5 text-xs rounded-full bg-${color}-500/10 text-${color}-400">${esc(h.estado)}</span>
+                                ${h.motivo ? `<span class="text-xs text-gray-400">${esc(motivoLabels[h.motivo] || h.motivo)}</span>` : ''}
+                                ${h.accion_tomada ? `<span class="text-xs text-red-400 font-medium">${esc(accionLabels[h.accion_tomada] || h.accion_tomada)}</span>` : ''}
                             </div>
-                            <p class="text-xs text-gray-500 mt-0.5">por ${h.reporta_nombre || 'N/A'} - ${fecha}</p>
+                            <p class="text-xs text-gray-500 mt-0.5">por ${esc(h.reporta_nombre || 'N/A')} - ${fecha}</p>
                         </div>
                     </div>`;
                 });
@@ -728,50 +736,51 @@
                     const premium = data.premium == 1 ? '<span class="px-2.5 py-1 text-xs rounded-full bg-yellow-500/10 text-yellow-400 font-medium">Premium</span>' : '';
                     const baneado = data.baneado == 1 ? '<span class="px-2.5 py-1 text-xs rounded-full bg-red-500/10 text-red-400 font-medium">Baneado</span>' : '';
                     const fotoHtml = data.fotoPerfil
-                        ? `<img src="<?= url('/') ?>public/uploads/profile/${encodeURIComponent(data.fotoPerfil)}" alt="${(data.nombre||'Usuario').replace(/"/g,'&quot;')}" class="w-14 h-14 rounded-full object-cover border-2 border-gray-700">`
-                        : `<div class="w-14 h-14 rounded-full bg-gray-700 flex items-center justify-center text-xl font-bold text-primary">${(data.nombre||'?')[0].toUpperCase()}</div>`;
+                        ? `<img src="<?= url('/') ?>public/uploads/profile/${encodeURIComponent(data.fotoPerfil)}" alt="${esc(data.nombre||'Usuario')}" class="w-14 h-14 rounded-full object-cover border-2 border-gray-700">`
+                        : `<div class="w-14 h-14 rounded-full bg-gray-700 flex items-center justify-center text-xl font-bold text-primary">${esc((data.nombre||'?')[0].toUpperCase())}</div>`;
                     body.innerHTML = `
                         <div class="space-y-4">
                             <div class="flex items-center gap-4">
                                 ${fotoHtml}
                                 <div>
-                                    <p class="text-white font-semibold text-lg">${data.nombre || 'Sin nombre'}</p>
-                                    <p class="text-gray-400 text-sm">${data.correo || ''}</p>
+                                    <p class="text-white font-semibold text-lg">${esc(data.nombre || 'Sin nombre')}</p>
+                                    <p class="text-gray-400 text-sm">${esc(data.correo || '')}</p>
                                 </div>
                             </div>
                             <div class="flex flex-wrap gap-1.5">${verificado}${premium}${baneado}</div>
                             <div class="bg-gray-900/60 rounded-xl p-4 grid grid-cols-2 gap-3 text-sm">
-                                <div><p class="text-gray-500 text-xs mb-0.5">ID</p><p class="text-gray-300 font-medium">#${data.idUsuario}</p></div>
-                                <div><p class="text-gray-500 text-xs mb-0.5">Rol</p><p class="text-gray-300 font-medium">${data.nombreRol || 'Usuario'}</p></div>
-                                <div><p class="text-gray-500 text-xs mb-0.5">Ciudad</p><p class="text-gray-300 font-medium">${data.ciudad || '-'}</p></div>
-                                <div><p class="text-gray-500 text-xs mb-0.5">Teléfono</p><p class="text-gray-300 font-medium">${data.teléfono || '-'}</p></div>
-                                <div><p class="text-gray-500 text-xs mb-0.5">Institución</p><p class="text-gray-300 font-medium">${data.institucion || '-'}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">ID</p><p class="text-gray-300 font-medium">#${esc(data.idUsuario)}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">Rol</p><p class="text-gray-300 font-medium">${esc(data.nombreRol || 'Usuario')}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">Ciudad</p><p class="text-gray-300 font-medium">${esc(data.ciudad || '-')}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">Teléfono</p><p class="text-gray-300 font-medium">${esc(data.teléfono || '-')}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">Institución</p><p class="text-gray-300 font-medium">${esc(data.institucion || '-')}</p></div>
                                 <div><p class="text-gray-500 text-xs mb-0.5">Registro</p><p class="text-gray-300 font-medium">${data.creado_en ? new Date(data.creado_en).toLocaleDateString('es-ES') : '-'}</p></div>
                             </div>
                         </div>`;
                 } else if (data._tipo === 'anuncio') {
                     title.textContent = 'Detalle del anuncio';
+                    const tipoAnuncio = (data.tipo === 'ofrezco' || data.tipo === 'busco') ? data.tipo : 'ofrezco';
                     body.innerHTML = `
                         <div class="space-y-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-lg ${data.tipo === 'ofrezco' ? 'bg-green-500/10' : 'bg-emerald-500/10'} flex items-center justify-center">
-                                    <i class="fas fa-car ${data.tipo === 'ofrezco' ? 'text-green-400' : 'text-emerald-400'}" aria-hidden="true"></i>
+                                <div class="w-10 h-10 rounded-lg ${tipoAnuncio === 'ofrezco' ? 'bg-green-500/10' : 'bg-emerald-500/10'} flex items-center justify-center">
+                                    <i class="fas fa-car ${tipoAnuncio === 'ofrezco' ? 'text-green-400' : 'text-emerald-400'}" aria-hidden="true"></i>
                                 </div>
                                 <div>
-                                    <span class="px-2.5 py-1 text-xs rounded-full font-medium ${data.tipo === 'ofrezco' ? 'bg-green-500/10 text-green-400' : 'bg-emerald-500/10 text-emerald-400'}">${data.tipo}</span>
-                                    <span class="text-gray-500 text-sm ml-1">#${data.idAnuncio}</span>
+                                    <span class="px-2.5 py-1 text-xs rounded-full font-medium ${tipoAnuncio === 'ofrezco' ? 'bg-green-500/10 text-green-400' : 'bg-emerald-500/10 text-emerald-400'}">${esc(tipoAnuncio)}</span>
+                                    <span class="text-gray-500 text-sm ml-1">#${esc(data.idAnuncio)}</span>
                                 </div>
                             </div>
                             <div class="bg-gray-900/60 rounded-xl p-4">
-                                <p class="text-white font-semibold text-base flex items-center gap-2">${data.nombreOrigen} <i class="fas fa-arrow-right text-xs text-gray-500" aria-hidden="true"></i> ${data.nombreDestino}</p>
-                                <p class="text-gray-400 text-sm mt-2">${data.descripcion || 'Sin descripcion'}</p>
+                                <p class="text-white font-semibold text-base flex items-center gap-2">${esc(data.nombreOrigen)} <i class="fas fa-arrow-right text-xs text-gray-500" aria-hidden="true"></i> ${esc(data.nombreDestino)}</p>
+                                <p class="text-gray-400 text-sm mt-2 whitespace-pre-wrap">${esc(data.descripcion || 'Sin descripcion')}</p>
                             </div>
                             <div class="bg-gray-900/60 rounded-xl p-4 grid grid-cols-2 gap-3 text-sm">
-                                <div><p class="text-gray-500 text-xs mb-0.5">Publicado por</p><p class="text-gray-300 font-medium">${data.usuario_nombre}</p></div>
-                                <div><p class="text-gray-500 text-xs mb-0.5">Precio</p><p class="text-green-400 font-semibold">${data.precio ? data.precio + '\u20ac' : 'Gratis'}</p></div>
-                                <div><p class="text-gray-500 text-xs mb-0.5">Plazas</p><p class="text-gray-300 font-medium">${data.plazasDisponibles ?? '-'}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">Publicado por</p><p class="text-gray-300 font-medium">${esc(data.usuario_nombre)}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">Precio</p><p class="text-green-400 font-semibold">${data.precio ? esc(data.precio) + '\u20ac' : 'Gratis'}</p></div>
+                                <div><p class="text-gray-500 text-xs mb-0.5">Plazas</p><p class="text-gray-300 font-medium">${esc(data.plazasDisponibles ?? '-')}</p></div>
                                 <div><p class="text-gray-500 text-xs mb-0.5">Fecha salida</p><p class="text-gray-300 font-medium">${data.fechaSalida ? new Date(data.fechaSalida).toLocaleDateString('es-ES') : '-'}</p></div>
-                                ${data.horaSalida ? `<div><p class="text-gray-500 text-xs mb-0.5">Hora</p><p class="text-gray-300 font-medium">${data.horaSalida.substring(0,5)}</p></div>` : ''}
+                                ${data.horaSalida ? `<div><p class="text-gray-500 text-xs mb-0.5">Hora</p><p class="text-gray-300 font-medium">${esc(data.horaSalida.substring(0,5))}</p></div>` : ''}
                             </div>
                         </div>`;
                 } else if (data._tipo === 'chat') {
@@ -787,10 +796,10 @@
                             <div class="rounded-lg px-3 py-2.5 ${borderClass}">
                                 ${isReported ? '<p class="text-[10px] text-red-400 font-semibold uppercase tracking-wider mb-1">Mensaje reportado</p>' : ''}
                                 <div class="flex items-center justify-between mb-1">
-                                    <span class="text-xs font-semibold text-primary">${m.emisor_nombre}</span>
-                                    <span class="text-[10px] text-gray-600">${m.fechaCreacion}</span>
+                                    <span class="text-xs font-semibold text-primary">${esc(m.emisor_nombre)}</span>
+                                    <span class="text-[10px] text-gray-600">${esc(m.fechaCreacion)}</span>
                                 </div>
-                                <p class="text-gray-300 text-sm leading-relaxed">${m.mensaje}</p>
+                                <p class="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">${esc(m.mensaje)}</p>
                             </div>`;
                         }).join('');
                     } else {
@@ -800,9 +809,9 @@
                         <div class="space-y-3">
                             <div class="flex items-center gap-2 text-sm text-gray-400">
                                 <i class="fas fa-comments text-gray-500" aria-hidden="true"></i>
-                                <span class="font-medium text-gray-300">${data.user1_nombre || '?'}</span>
+                                <span class="font-medium text-gray-300">${esc(data.user1_nombre || '?')}</span>
                                 <span>&harr;</span>
-                                <span class="font-medium text-gray-300">${data.user2_nombre || '?'}</span>
+                                <span class="font-medium text-gray-300">${esc(data.user2_nombre || '?')}</span>
                             </div>
                             <p class="text-xs text-gray-500">${isConvReport ? 'Mostrando mensajes recientes de la conversacion' : 'Mostrando mensajes alrededor del mensaje reportado'}</p>
                             <div class="max-h-72 overflow-y-auto space-y-2 pr-1">${msgsHtml}</div>

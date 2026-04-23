@@ -57,13 +57,16 @@
 
     <!-- Cerrar sesion -->
     <div class="border-t border-gray-800 shrink-0">
-        <a href="<?= url('/logout') ?>" class="flex items-center h-12 text-gray-500 hover:text-red-400 transition-colors" title="Cerrar sesion">
-            <div class="w-[72px] flex items-center justify-center shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-[22px] h-[22px]">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
-                </svg>
-            </div>
-            <span class="nav-label text-sm whitespace-nowrap">Cerrar sesion</span>
-        </a>
+        <form method="POST" action="<?= url('/logout') ?>" class="block">
+            <?= csrfField() ?>
+            <button type="submit" class="w-full flex items-center h-12 text-gray-500 hover:text-red-400 transition-colors text-left" title="Cerrar sesion">
+                <div class="w-[72px] flex items-center justify-center shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-[22px] h-[22px]">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                    </svg>
+                </div>
+                <span class="nav-label text-sm whitespace-nowrap">Cerrar sesion</span>
+            </button>
+        </form>
     </div>
 </aside>

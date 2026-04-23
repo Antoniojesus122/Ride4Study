@@ -115,8 +115,83 @@ $router->post('/report', function () {
         exit;
     }
 
+    $reporterId = (int)$_SESSION['user_id'];
+
+    // Validaciones de seguridad
+
+    // No puede reportarse a sí mismo
+    if ($tipo === Report::TIPO_USUARIO && $idUsuarioReportado === $reporterId) {
+        echo json_encode(['success' => false, 'message' => 'No puedes reportarte a ti mismo.']);
+        exit;
+    }
+
+    // Validar que el usuario reportado existe y no es admin
+    if ($tipo === Report::TIPO_USUARIO) {
+        if (!$idUsuarioReportado) {
+            echo json_encode(['success' => false, 'message' => 'Usuario no especificado.']);
+            exit;
+        }
+        $chk = $db->prepare("SELECT idRol FROM usuarios WHERE idUsuario = :id LIMIT 1");
+        $chk->execute([':id' => $idUsuarioReportado]);
+        $reportedRow = $chk->fetch(PDO::FETCH_ASSOC);
+        if (!$reportedRow) {
+            echo json_encode(['success' => false, 'message' => 'Usuario no existe.']);
+            exit;
+        }
+        if ((int)$reportedRow['idRol'] === 1) {
+            // No se puede reportar a un admin
+            echo json_encode(['success' => false, 'message' => 'Acción no permitida.']);
+            exit;
+        }
+    }
+
+    // Validar anuncio: existe y no pertenece al propio usuario
+    if ($tipo === Report::TIPO_ANUNCIO) {
+        if (!$idAnuncio) {
+            echo json_encode(['success' => false, 'message' => 'Anuncio no especificado.']);
+            exit;
+        }
+        $chk = $db->prepare("SELECT idUsuario FROM anuncios WHERE idAnuncio = :id LIMIT 1");
+        $chk->execute([':id' => $idAnuncio]);
+        $anuncioRow = $chk->fetch(PDO::FETCH_ASSOC);
+        if (!$anuncioRow) {
+            echo json_encode(['success' => false, 'message' => 'Anuncio no existe.']);
+            exit;
+        }
+        if ((int)$anuncioRow['idUsuario'] === $reporterId) {
+            echo json_encode(['success' => false, 'message' => 'No puedes reportar tu propio anuncio.']);
+            exit;
+        }
+    }
+
+    // Validar chat: existe y el reporter es participante
+    if ($tipo === Report::TIPO_CHAT) {
+        if (!$idChat) {
+            echo json_encode(['success' => false, 'message' => 'Conversación no especificada.']);
+            exit;
+        }
+        $chk = $db->prepare("SELECT user1_id, user2_id FROM conversations WHERE id = :id LIMIT 1");
+        $chk->execute([':id' => $idChat]);
+        $convRow = $chk->fetch(PDO::FETCH_ASSOC);
+        if (!$convRow) {
+            echo json_encode(['success' => false, 'message' => 'Conversación no existe.']);
+            exit;
+        }
+        if ((int)$convRow['user1_id'] !== $reporterId && (int)$convRow['user2_id'] !== $reporterId) {
+            echo json_encode(['success' => false, 'message' => 'No participas en esta conversación.']);
+            exit;
+        }
+    }
+
+    // Rate limit: máximo 5 reportes por usuario cada 10 minutos (evitar spam a admins)
+    $rate = checkRateLimit('report_' . $reporterId, 5, 600);
+    if ($rate['limited']) {
+        echo json_encode(['success' => false, 'message' => 'Has enviado demasiados reportes. Inténtalo más tarde.']);
+        exit;
+    }
+
     // Prevenir duplicados
-    if ($report->existsPending($tipo, $idUsuarioReportado, $idAnuncio, $idChat, (int)$_SESSION['user_id'])) {
+    if ($report->existsPending($tipo, $idUsuarioReportado, $idAnuncio, $idChat, $reporterId)) {
         echo json_encode(['success' => false, 'message' => t('nav.report_duplicate')]);
         exit;
     }

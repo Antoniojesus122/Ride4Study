@@ -80,11 +80,14 @@
 
     <!-- Cerrar sesion -->
     <div class="border-t border-gray-800 shrink-0">
-        <a href="<?= url('/institution-logout') ?>" class="flex items-center h-12 text-gray-500 hover:text-red-400 transition-colors" title="Cerrar sesion">
-            <div class="w-[72px] flex items-center justify-center shrink-0">
-                <i class="fas fa-sign-out-alt text-lg" aria-hidden="true"></i>
-            </div>
-            <span class="nav-label text-sm whitespace-nowrap">Cerrar sesion</span>
-        </a>
+        <form method="POST" action="<?= url('/institution-logout') ?>" class="block">
+            <?= csrfField() ?>
+            <button type="submit" class="w-full flex items-center h-12 text-gray-500 hover:text-red-400 transition-colors text-left" title="Cerrar sesion">
+                <div class="w-[72px] flex items-center justify-center shrink-0">
+                    <i class="fas fa-sign-out-alt text-lg" aria-hidden="true"></i>
+                </div>
+                <span class="nav-label text-sm whitespace-nowrap">Cerrar sesion</span>
+            </button>
+        </form>
     </div>
 </aside>
