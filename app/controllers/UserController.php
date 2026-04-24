@@ -42,9 +42,27 @@ class UserController {
         $userStats['valoracion_promedio'] = round($ratingModel->getAverage($viewUserId), 1);
         $ratings = $ratingModel->getByUser($viewUserId, 10);
 
-        // CO2 ahorrado
+        // CO2 ahorrado (cálculo dinámico basado en viajes aceptados/completados)
         $rideModel = new Ride($this->db);
         $userStats['co2_ahorrado'] = $rideModel->calculateUserCO2($viewUserId);
+
+        // Estadísticas de viajes (como conductor / pasajero / completados)
+        $statsQ = $this->db->prepare("
+            SELECT
+                SUM(CASE WHEN v.idConductor = :u1 THEN 1 ELSE 0 END) AS como_conductor,
+                SUM(CASE WHEN v.idPasajero = :u2 THEN 1 ELSE 0 END) AS como_pasajero,
+                SUM(CASE WHEN v.estado IN ('aceptado','completado') THEN 1 ELSE 0 END) AS completados,
+                COUNT(*) AS total
+            FROM viajes v
+            WHERE (v.idConductor = :u3 OR v.idPasajero = :u4)
+              AND v.estado IN ('aceptado','completado')
+        ");
+        $statsQ->execute([':u1'=>$viewUserId, ':u2'=>$viewUserId, ':u3'=>$viewUserId, ':u4'=>$viewUserId]);
+        $rowStats = $statsQ->fetch(PDO::FETCH_ASSOC) ?: [];
+        $userStats['viajes_como_conductor'] = (int)($rowStats['como_conductor'] ?? 0);
+        $userStats['viajes_como_pasajero']  = (int)($rowStats['como_pasajero']  ?? 0);
+        $userStats['viajes_completados']    = (int)($rowStats['completados']    ?? 0);
+        $userStats['total_viajes']          = (int)($rowStats['total']          ?? 0);
 
         // Anuncios activos del usuario visitado (para mostrar en su perfil)
         $stmt = $this->db->prepare("

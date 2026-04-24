@@ -96,6 +96,7 @@ ob_start(function ($buffer) {
             . 'if(f.querySelector(\'input[name=_csrf]\'))return;'
             . 'var i=document.createElement(\'input\');i.type=\'hidden\';i.name=\'_csrf\';i.value=t;f.appendChild(i);});}'
             . 'if(document.readyState===\'loading\'){document.addEventListener(\'DOMContentLoaded\',addToForms);}else{addToForms();}'
+            . 'document.addEventListener(\'submit\',function(ev){var f=ev.target;if(!f||f.tagName!==\'FORM\')return;var mth=(f.getAttribute(\'method\')||\'\').toUpperCase();if(mth!==\'POST\')return;if(f.querySelector(\'input[name=_csrf]\'))return;var i=document.createElement(\'input\');i.type=\'hidden\';i.name=\'_csrf\';i.value=t;f.appendChild(i);},true);'
             . 'var of=window.fetch;window.fetch=function(u,o){o=o||{};var mth=(o.method||\'GET\').toUpperCase();'
             . 'if([\'POST\',\'PUT\',\'PATCH\',\'DELETE\'].indexOf(mth)>=0){'
             . 'var h=o.headers||{};if(h instanceof Headers){h.set(\'X-CSRF-Token\',t);}else{h[\'X-CSRF-Token\']=t;}o.headers=h;}'

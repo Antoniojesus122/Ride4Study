@@ -421,6 +421,15 @@ $preDestinoLng = $_POST['destino_lng'] ?? ($isEdit && isset($destinoLoc) ? ($des
             _renderResults(results) {
                 this.dropdown.innerHTML = '';
 
+                // Deduplicar por nombre de ciudad + subtítulo (Nominatim a veces
+                const seen = new Set();
+                results = (results || []).filter(place => {
+                    const key = (this._extractCityName(place) + '|' + this._extractSubtitle(place)).toLowerCase();
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+
                 if (!results.length) {
                     this.dropdown.innerHTML = `
                         <div class="px-4 py-3 text-sm text-gray-500 flex items-center gap-2">

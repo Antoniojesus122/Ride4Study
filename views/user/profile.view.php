@@ -1153,6 +1153,12 @@
         prmCurrentRide = ride;
         const btnReserve = document.getElementById('prm-btn-reserve');
         const btnReport  = document.getElementById('prm-btn-report');
+        const prmBtnContactEarly = document.getElementById('prm-btn-contact');
+        if (prmBtnContactEarly) {
+            prmBtnContactEarly.href = '<?= url("/chat") ?>?anuncio_id=' + ride.idAnuncio + '&other_user_id=' + ride.idUsuario;
+            // Ocultar si el anuncio es del propio usuario
+            prmBtnContactEarly.classList.toggle('hidden', ride.idUsuario == prmCurrentUserId);
+        }
 
         // Mostrar boton de reporte solo para anuncios de otros usuarios
         if (btnReport) btnReport.classList.toggle('hidden', ride.idUsuario == prmCurrentUserId);
@@ -1177,16 +1183,17 @@
         document.getElementById('prm-dest').textContent   = ride.nombreDestino;
 
         const prmTimeStart = document.getElementById('prm-time-start');
-        prmTimeStart.innerHTML = '<i class="far fa-clock text-xs" aria-hidden="true"></i> <?= t('dashboard.departure') ?>: ' + ride.horaSalida.substring(0, 5);
+        const prmStart = ride.horaSalida ? String(ride.horaSalida).substring(0, 5) : '--:--';
+        prmTimeStart.innerHTML = '<i class="far fa-clock text-xs" aria-hidden="true"></i> <?= t('dashboard.departure') ?>: ' + prmStart;
 
         const prmTimeEnd = document.getElementById('prm-time-end');
-        const prmArrival = ride.horaLlegada ? ride.horaLlegada.substring(0, 5) : '--:--';
+        const prmArrival = ride.horaLlegada ? String(ride.horaLlegada).substring(0, 5) : '--:--';
         prmTimeEnd.innerHTML = '<i class="far fa-clock text-xs" aria-hidden="true"></i> <?= t('dashboard.arrival_label') ?>: ' + prmArrival;
 
         // Hora de regreso
         const prmReturnContainer = document.getElementById('prm-return-container');
         if (ride.horaRegreso) {
-            document.getElementById('prm-return-time').textContent = ride.horaRegreso.substring(0, 5);
+            document.getElementById('prm-return-time').textContent = String(ride.horaRegreso).substring(0, 5);
             prmReturnContainer.style.display = '';
         } else {
             prmReturnContainer.style.display = 'none';
@@ -1214,7 +1221,7 @@
             avatarEl.appendChild(img);
             avatarEl.className = 'w-20 h-20 rounded-xl mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 ring-2 ring-gray-700/50';
         } else {
-            avatarEl.textContent = ride.nombreUsuario.substring(0, 2).toUpperCase();
+            avatarEl.textContent = String(ride.nombreUsuario || '??').substring(0, 2).toUpperCase();
             avatarEl.className = 'w-20 h-20 rounded-xl mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg bg-gradient-to-br from-primary to-primary-dark ring-2 ring-primary/20';
         }
 

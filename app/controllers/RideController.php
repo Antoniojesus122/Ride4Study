@@ -262,41 +262,50 @@ class RideController {
             return;
         }
 
-        // Resolver nombres de ciudad a idLocalidad (buscar o crear en la tabla localidades)
-        $data['origen']  = $this->ride->findOrCreateLocation($origenNombre, $origenLat, $origenLng);
-        $data['destino'] = $this->ride->findOrCreateLocation($destinoNombre, $destinoLat, $destinoLng);
+        try {
+            // Resolver nombres de ciudad a idLocalidad (buscar o crear en la tabla localidades)
+            $data['origen']  = $this->ride->findOrCreateLocation($origenNombre, $origenLat, $origenLng);
+            $data['destino'] = $this->ride->findOrCreateLocation($destinoNombre, $destinoLat, $destinoLng);
 
-        // Indice de ruta alternativa elegida por el usuario en el mapa (0 = principal)
-        $routeIdx = isset($_POST['route_index']) ? max(0, (int)$_POST['route_index']) : 0;
+            // Indice de ruta alternativa elegida por el usuario en el mapa 
+            $routeIdx = isset($_POST['route_index']) ? max(0, (int)$_POST['route_index']) : 0;
 
-        // Calcular ruta, hora de llegada, distancia y polyline
-        $routeInfo = $this->calculateRouteData($origenLat, $origenLng, $destinoLat, $destinoLng, $data['fechaSalida'], $data['horaSalida'], $routeIdx);
-        $data['horaLlegada']   = $routeInfo['horaLlegada'];
-        $data['ruta_polyline'] = $routeInfo['ruta_polyline'];
-        $data['distancia_km']  = $routeInfo['distancia_km'];
-        $data['duracion_min']  = $routeInfo['duracion_min'];
+            // Calcular ruta, hora de llegada, distancia y polyline.
+            // Si ORS falla, el método ya devuelve nulls y no rompe el guardado.
+            $routeInfo = $this->calculateRouteData($origenLat, $origenLng, $destinoLat, $destinoLng, $data['fechaSalida'], $data['horaSalida'], $routeIdx);
+            $data['horaLlegada']   = $routeInfo['horaLlegada'];
+            $data['ruta_polyline'] = $routeInfo['ruta_polyline'];
+            $data['distancia_km']  = $routeInfo['distancia_km'];
+            $data['duracion_min']  = $routeInfo['duracion_min'];
 
-        // Comprobar límite de anuncios para usuarios gratuitos (máximo 4 activos)
-        $userData = $this->db->prepare("SELECT premium, premium_hasta FROM usuarios WHERE idUsuario = :id");
-        $userData->execute([':id' => $_SESSION['user_id']]);
-        $user = $userData->fetch(PDO::FETCH_ASSOC);
-        $isPremium = $user && $user['premium'] && (!$user['premium_hasta'] || $user['premium_hasta'] > date('Y-m-d H:i:s'));
+            // Comprobar límite de anuncios para usuarios gratuitos (máximo 4 activos)
+            $userData = $this->db->prepare("SELECT premium, premium_hasta FROM usuarios WHERE idUsuario = :id");
+            $userData->execute([':id' => $_SESSION['user_id']]);
+            $user = $userData->fetch(PDO::FETCH_ASSOC);
+            $isPremium = $user && $user['premium'] && (!$user['premium_hasta'] || $user['premium_hasta'] > date('Y-m-d H:i:s'));
 
-        if (!$isPremium && $this->ride->getActiveCount((int)$_SESSION['user_id']) >= 4) {
-            $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
-            $errors[]    = t('publish.err_limit_free');
-            require_once __DIR__ . '/../../views/user/publish.view.php';
-            return;
+            if (!$isPremium && $this->ride->getActiveCount((int)$_SESSION['user_id']) >= 4) {
+                $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
+                $errors[]    = t('publish.err_limit_free');
+                require_once __DIR__ . '/../../views/user/publish.view.php';
+                return;
+            }
+
+            // Creación de viaje
+            if ($this->ride->createRide($data)) {
+                redirectWithFlash(url('/my-rides'), 'success', 'created');
+                return;
+            }
+
+            $errors[] = t('publish.err_create');
+        } catch (\Throwable $e) {
+            // Log detallado para debug, pero mostrar mensaje genérico al usuario
+            error_log('[publish.store] ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+            $errors[] = t('publish.err_create');
         }
 
-        // Creación de viaje
-        if ($this->ride->createRide($data)) {
-            redirectWithFlash(url('/my-rides'), 'success', 'created');
-        } else {
-             $errors[] = t('publish.err_create');
-             $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
-             require_once __DIR__ . '/../../views/user/publish.view.php';
-        }
+        $userInitial = isset($_SESSION['user_name']) ? strtoupper(substr($_SESSION['user_name'], 0, 1)) : 'U';
+        require_once __DIR__ . '/../../views/user/publish.view.php';
     }
 
 
@@ -1102,7 +1111,9 @@ class RideController {
 
         $ranking = $this->ride->getCO2Ranking(50);
         $totalCO2 = $this->ride->getTotalCO2();
-        $userCO2 = $this->ride->calculateUserCO2((int)$_SESSION['user_id']);
+        // Usar la misma fuente que la tabla del ranking (columna co2_ahorrado)
+        // para evitar inconsistencias entre "Tu posición" y la fila del usuario.
+        $userCO2 = $this->ride->getCachedUserCO2((int)$_SESSION['user_id']);
 
         // Encontrar posición del usuario actual
         $userPosition = 0;

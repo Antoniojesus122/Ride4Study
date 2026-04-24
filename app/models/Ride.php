@@ -571,7 +571,7 @@ class Ride {
                   JOIN localidades lo ON a.origen = lo.idLocalidad
                   JOIN localidades ld ON a.destino = ld.idLocalidad
                   WHERE (v.idConductor = :uid1 OR v.idPasajero = :uid2)
-                    AND v.estado = '" . self::ESTADO_ACEPTADO . "'
+                    AND v.estado IN ('" . self::ESTADO_ACEPTADO . "','" . self::ESTADO_COMPLETADO . "')
                     AND a.fechaSalida < CURDATE()";
 
         $stmt = $this->conn->prepare($query);

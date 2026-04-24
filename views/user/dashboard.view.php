@@ -658,6 +658,14 @@
         input.name = 'ride_id';
         input.value = rideId;
         form.appendChild(input);
+        const meta = document.querySelector('meta[name=csrf-token]');
+        if (meta) {
+            const csrf = document.createElement('input');
+            csrf.type = 'hidden';
+            csrf.name = '_csrf';
+            csrf.value = meta.getAttribute('content');
+            form.appendChild(csrf);
+        }
         document.body.appendChild(form);
         form.submit();
     }
@@ -666,9 +674,15 @@
         currentModalRide = ride;
         const btnReserve = document.getElementById('btn-reserve');
         const btnReport  = document.getElementById('btn-report');
+        const btnContactEarly = document.getElementById('btn-contact');
+        if (btnContactEarly) {
+            btnContactEarly.href = '<?= url("/chat") ?>?anuncio_id=' + ride.idAnuncio + '&other_user_id=' + ride.idUsuario;
+        }
 
         // Mostrar botón de reporte solo para anuncios de otros usuarios
         if (btnReport) btnReport.classList.toggle('hidden', ride.idUsuario == currentUserId);
+        // Ocultar "Contactar" si el anuncio es del propio usuario (no puede hablar consigo)
+        if (btnContactEarly) btnContactEarly.classList.toggle('hidden', ride.idUsuario == currentUserId);
 
         // Tipo badge
         const badge = document.getElementById('modal-tipo-badge');
@@ -690,16 +704,17 @@
         document.getElementById('modal-dest').textContent = ride.nombreDestino;
 
         const timeStartEl = document.getElementById('modal-time-start');
-        timeStartEl.innerHTML = '<i class="far fa-clock text-xs" aria-hidden="true"></i> <?= t('dashboard.departure') ?>: ' + ride.horaSalida.substring(0, 5);
+        const startTime = ride.horaSalida ? String(ride.horaSalida).substring(0, 5) : '--:--';
+        timeStartEl.innerHTML = '<i class="far fa-clock text-xs" aria-hidden="true"></i> <?= t('dashboard.departure') ?>: ' + startTime;
 
         const timeEndEl = document.getElementById('modal-time-end');
-        const arrivalTime = ride.horaLlegada ? ride.horaLlegada.substring(0, 5) : '--:--';
+        const arrivalTime = ride.horaLlegada ? String(ride.horaLlegada).substring(0, 5) : '--:--';
         timeEndEl.innerHTML = '<i class="far fa-clock text-xs" aria-hidden="true"></i> <?= t('dashboard.arrival_label') ?>: ' + arrivalTime;
 
         // Hora de regreso (card separada)
         const returnContainer = document.getElementById('modal-return-container');
         if (ride.horaRegreso) {
-            document.getElementById('modal-return-time').textContent = ride.horaRegreso.substring(0, 5);
+            document.getElementById('modal-return-time').textContent = String(ride.horaRegreso).substring(0, 5);
             returnContainer.style.display = '';
         } else {
             returnContainer.style.display = 'none';
@@ -731,7 +746,7 @@
             avatarEl.appendChild(img);
             avatarEl.className = 'w-20 h-20 rounded-xl mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg overflow-hidden bg-gradient-to-br from-gray-600 to-gray-700 ring-2 ring-gray-700/50';
         } else {
-            avatarEl.textContent = ride.nombreUsuario.substring(0, 2).toUpperCase();
+            avatarEl.textContent = String(ride.nombreUsuario || '??').substring(0, 2).toUpperCase();
             avatarEl.className = 'w-20 h-20 rounded-xl mx-auto mb-3 flex items-center justify-center text-2xl font-bold text-secondary shadow-lg bg-gradient-to-br from-primary to-primary-dark ring-2 ring-primary/20';
         }
 
@@ -1017,6 +1032,17 @@
 
         _render(results) {
             this.dropdown.innerHTML = '';
+            // Deduplicar por nombre+subtítulo
+            const seen = new Set();
+            results = (results || []).filter(place => {
+                const addr = place.address || {};
+                const name = addr.city || addr.town || addr.village || addr.municipality || addr.hamlet || place.name || (place.display_name || '').split(',')[0];
+                const sub = [addr.province, addr.state].filter((v, i, a) => v && a.indexOf(v) === i).join(', ');
+                const key = (name + '|' + sub).toLowerCase();
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
             if (!results.length) {
                 this.dropdown.innerHTML = '<div class="px-4 py-2 text-xs text-gray-500">Sin resultados</div>';
                 this.dropdown.classList.remove('hidden');

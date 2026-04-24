@@ -23,7 +23,7 @@ try {
         FROM usuarios u
         JOIN viajes v ON (v.idConductor = u.idUsuario OR v.idPasajero = u.idUsuario)
         JOIN anuncios a ON v.idAnuncio = a.idAnuncio
-        WHERE v.estado = 'aceptado'
+        WHERE v.estado IN ('aceptado','completado')
           AND a.fechaSalida < CURDATE()
           AND u.idRol != 1
     ");
